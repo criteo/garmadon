@@ -1,0 +1,55 @@
+package com.criteo.hadoop.garmadon.forwarder.handler;
+
+import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.forwarder.message.KafkaMessage;
+import com.criteo.hadoop.garmadon.forwarder.metrics.MetricsFactory;
+import com.criteo.hadoop.garmadon.protocol.ProtocolConstants;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.util.AttributeKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
+    private static final AttributeKey<DataAccessEventProtos.Header> headerAttr = AttributeKey.valueOf("header");
+    private static final Logger logger = LoggerFactory.getLogger(EventHandler.class);
+
+    private boolean isFirst = true;
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
+        int headerSize = msg.getInt(ProtocolConstants.HEADER_SIZE_INDEX);
+
+        byte[] headerByte = new byte[headerSize];
+        msg.getBytes(ProtocolConstants.FRAME_DELIMITER_SIZE, headerByte);
+
+        DataAccessEventProtos.Header header = DataAccessEventProtos.Header.parseFrom(headerByte);
+
+        if(logger.isDebugEnabled()) {
+            logger.debug("received event {} size {}", msg.getInt(0), msg.readableBytes());
+        }
+
+        byte[] raw = new byte[msg.readableBytes()];
+        msg.readBytes(raw);
+
+        KafkaMessage kafkaMessage = new KafkaMessage(
+                header.getApplicationId(),
+                raw);
+
+        // Push header in context to sendAsync event end container
+        if (isFirst) {
+            ctx.channel().attr(headerAttr).set(header);
+            isFirst = false;
+        }
+
+        ctx.fireChannelRead(kafkaMessage);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        MetricsFactory.eventsInError.inc();
+        logger.error("", cause);
+        ctx.close();
+    }
+}

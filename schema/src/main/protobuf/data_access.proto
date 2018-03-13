@@ -1,0 +1,45 @@
+syntax = "proto2";
+
+package com.criteo.hadoop.garmadon;
+
+option java_package = "com.criteo.hadoop.garmadon.event.proto";
+option java_outer_classname = "DataAccessEventProtos";
+
+message Header {
+    optional string application_id = 1;
+    optional string appAttemptID = 2;
+    optional string application_name = 3;
+    optional string user_name = 4;
+    optional string container_id = 5;
+    optional string hostname = 6;
+    optional string tag = 7;
+}
+
+message PathEvent {
+    required uint64 timestamp = 1;
+    required string path = 2;
+    required string type = 3;
+}
+
+message FsEvent {
+    required uint64 timestamp = 1;
+    optional string src_path = 2;
+    required string dst_path = 3;
+    required string action = 4;
+    required string uri = 5;
+}
+
+message Metric {
+    required string name = 1;
+    required uint64 value = 2;
+}
+
+message MetricEvent {
+    required uint64 timestamp = 1;
+    repeated Metric metric = 2;
+}
+
+message StateEvent {
+    required uint64 timestamp = 1;
+    required string state = 2;
+}

@@ -1,4 +1,7 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -11,116 +14,116 @@
     <artifactId>garmadon</artifactId>
     <!-- DO NOT CHANGE THE VERSION. THIS EXACT ONE IS EXPECTED BY THE JMOAB -->
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <name>garmadon</name>
     <description>Template for java program to be build by the jmoab</description>
+
+    <modules>
+        <module>schema</module>
+        <module>agent</module>
+        <module>forwarder</module>
+        <module>reader</module>
+        <module>heuristics</module>
+    </modules>
 
     <inceptionYear>2017</inceptionYear>
     <organization>
         <name>Criteo</name>
     </organization>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <mainClass>com.criteo.java.template.Main</mainClass>
-    </properties>
+    <repositories>
+        <repository>
+            <id>cloudera</id>
+            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+        </repository>
+        <repository>
+            <id>palantir</id>
+            <url>https://dl.bintray.com/palantir/releases</url>
+        </repository>
+    </repositories>
 
-    <dependencies>
-        <!-- logging -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.21</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.21</version>
-        </dependency>
+    <properties>
+        <kafka.version>1.0.0</kafka.version>
+        <netty-all.version>4.1.23.Final</netty-all.version>
+        <bytebuddy.version>1.8.3</bytebuddy.version>
+        <hadoop.version>2.6.0-cdh5.11.0</hadoop.version>
+        <spark.version>2.2.1</spark.version>
+        <es.version>5.6.8</es.version>
+        <logback.version>1.2.3</logback.version>
+        <metrics.version>4.0.2</metrics.version>
+        <protobuf.version>2.5.0</protobuf.version>
+        <oshi.version>3.4.4</oshi.version>
 
         <!-- tests -->
+        <junit.version>4.12</junit.version>
+        <mockito.version>1.10.19</mockito.version>
+    </properties>
+
+
+    <dependencies>
+        <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.bytebuddy</groupId>
+                    <artifactId>byte-buddy</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.bytebuddy</groupId>
+                    <artifactId>byte-buddy-agent</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
-
-    <prerequisites>
-        <maven>3.2.0</maven>
-    </prerequisites>
 
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
                 <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>${mainClass}</mainClass>
-                        </manifest>
-                    </archive>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.20.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <forkCount>1</forkCount>
+                    <environmentVariables>
+                        <USER>lakeprobes</USER>
+                        <CONTAINER_ID>container_e600_1516870220739_0069_01_000032</CONTAINER_ID>
+                        <NM_HOST>hostname</NM_HOST>
+                    </environmentVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.20.1</version>
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>packaging</id>
-            <activation>
-                <property>
-                    <name>packageForDeploy</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-shade-plugin</artifactId>
-                        <dependencies>
-                            <dependency>
-                                <groupId>com.github.edwgiz</groupId>
-                                <artifactId>maven-shade-plugin.log4j2-cachefile-transformer</artifactId>
-                                <version>2.8.1</version>
-                            </dependency>
-                        </dependencies>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>shade</goal>
-                                </goals>
-                                <configuration>
-                                    <shadedArtifactAttached>true</shadedArtifactAttached>
-                                    <shadedClassifierName>uber</shadedClassifierName>
-                                    <minimizeJar>false</minimizeJar>
-                                    <createDependencyReducedPom>false</createDependencyReducedPom>
-                                    <transformers>
-                                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                            <manifestEntries>
-                                                <Main-Class>${mainClass}</Main-Class>
-                                            </manifestEntries>
-                                        </transformer>
-                                        <transformer implementation="com.github.edwgiz.mavenShadePlugin.log4j2CacheTransformer.PluginsCacheFileTransformer" />
-                                    </transformers>
-                                    <artifactSet>
-                                        <excludes>
-                                            <exclude>log4j:log4j:jar:</exclude>
-                                            <exclude>org.slf4j:slf4j-log4j12:jar:</exclude>
-                                        </excludes>
-                                    </artifactSet>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-            <dependencies/>
-        </profile>
-    </profiles>
 </project>

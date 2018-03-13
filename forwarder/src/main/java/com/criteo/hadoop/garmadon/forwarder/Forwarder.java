@@ -1,0 +1,141 @@
+package com.criteo.hadoop.garmadon.forwarder;
+
+import com.criteo.hadoop.garmadon.forwarder.channel.ForwarderChannelInitializer;
+import com.criteo.hadoop.garmadon.forwarder.kafka.KafkaService;
+import com.criteo.hadoop.garmadon.forwarder.metrics.ForwarderEventSender;
+import com.criteo.hadoop.garmadon.forwarder.metrics.HostStatistics;
+import com.criteo.hadoop.garmadon.forwarder.metrics.MetricsFactory;
+import com.criteo.hadoop.garmadon.schema.events.Header;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Properties;
+
+public class Forwarder {
+    private static final Logger logger = LoggerFactory.getLogger(Forwarder.class);
+
+    private static final String DEFAULT_FORWARDER_PORT = "33000";
+
+    private final Properties properties;
+
+    private final String hostname;
+    private final byte[] header;
+
+    private EventLoopGroup bossGroup;
+    private EventLoopGroup workerGroup;
+
+    private Channel serverChannel;
+    private KafkaService kafkaService;
+
+    public Forwarder(Properties properties) throws UnknownHostException {
+        this.properties = properties;
+        this.hostname = InetAddress.getLocalHost().getHostName();
+        this.header = Header.newBuilder()
+                .withHostname(hostname)
+                .withTag(Header.Tag.FORWARDER.toString())
+                .build()
+                .serialize();
+    }
+
+    /**
+     * Starts netty server for forwarder
+     *
+     * @return a ChannelFuture that completes when server is started.
+     * @throws UnknownHostException
+     */
+    public ChannelFuture run() throws UnknownHostException {
+        // initialise kafka
+        properties.put(ProducerConfig.CLIENT_ID_CONFIG, "garmadon.forwarder." + hostname);
+        kafkaService = new KafkaService(properties);
+
+        // initialize metrics
+        ForwarderEventSender forwarderEventSender = new ForwarderEventSender(kafkaService, hostname, header);
+        MetricsFactory.startReport(forwarderEventSender);
+        HostStatistics.startReport(forwarderEventSender);
+
+        //initialize netty
+        int forwarderPort = Integer.parseInt(properties.getProperty("forwarder.port", DEFAULT_FORWARDER_PORT));
+        return startNetty(forwarderPort);
+    }
+
+    /**
+     * Closes netty server (in a blocking fashion)
+     *
+     * @return a ChannelFuture that completes when server is closed
+     */
+    public void close() {
+        logger.info("Shutdown netty server");
+        if (serverChannel == null) {
+            throw new IllegalStateException("Cannot close a non running server");
+        }
+
+        serverChannel.close().syncUninterruptibly();
+        if (bossGroup != null) {
+            bossGroup.shutdownGracefully().syncUninterruptibly();
+        }
+        if (workerGroup != null) {
+            workerGroup.shutdownGracefully().syncUninterruptibly();
+        }
+
+        MetricsFactory.stopReport();
+        HostStatistics.stopReport();
+
+        kafkaService.shutdown();
+    }
+
+    private ChannelFuture startNetty(int port) {
+        int workerThreads = Integer.parseInt(properties.getProperty("forwarder.worker.thread", "1"));
+
+        // Setup netty listener
+        bossGroup = new NioEventLoopGroup(1);
+        workerGroup = new NioEventLoopGroup(workerThreads);
+
+        //setup boostrap
+        ServerBootstrap b = new ServerBootstrap();
+        b.group(bossGroup, workerGroup)
+                .channel(NioServerSocketChannel.class)
+                // TODO: Test the Unix Domain Socket implementation will need junixsocket at client side....
+                // But should increase perf
+                //.channel(EpollServerDomainSocketChannel.class)
+                .handler(new LoggingHandler(LogLevel.INFO))
+                .childHandler(new ForwarderChannelInitializer(kafkaService));
+
+        //start server
+        logger.info("Startup netty server");
+        ChannelFuture f = b.bind("localhost", port).addListener(future -> logger.info("Netty server started"));
+        serverChannel = f.channel();
+        return f;
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        // Get properties
+        Properties properties = new Properties();
+        try (InputStream streamPropFilePath = Forwarder.class.getResourceAsStream("/server.properties")) {
+            properties.load(streamPropFilePath);
+        }
+        //start server and wait for completion (for now we must kill process)
+        Forwarder forwarder = new Forwarder(properties);
+
+        // Add ShutdownHook
+        Runtime.getRuntime().addShutdownHook(new Thread(forwarder::close));
+
+        try {
+            forwarder.run().channel().closeFuture().sync();
+        } finally {
+            forwarder.close();
+        }
+    }
+}

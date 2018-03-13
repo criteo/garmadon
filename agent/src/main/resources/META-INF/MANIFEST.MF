@@ -1,0 +1,3 @@
+Premain-Class: com.criteo.hadoop.garmadon.agent.EventAgent
+Can-Redefine-Classes: true
+Can-Retransform-Classes: true
