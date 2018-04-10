@@ -33,6 +33,7 @@ curl -u admin:secret -XPOST 'http://localhost:3000/api/datasources' -H 'Content-
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @elasticsearch/src/main/resources/grafana/garmadon-compute.json
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @elasticsearch/src/main/resources/grafana/garmadon-hdfs.json
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @elasticsearch/src/main/resources/grafana/garmadon-yarn-application.json
+curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @elasticsearch/src/main/resources/grafana/garmadon-spark-stages.json
 
 ## Run some test jobs
 block_until_website_available 'http://localhost:8088'
@@ -51,4 +52,12 @@ docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce2/hadoop-m
 # MapRed Pi
 docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce2/hadoop-mapreduce-examples-2.6.0-cdh5.15.0.jar \
     pi 2 1000
+
+# SparkPi (Compute)
+docker-compose exec client /opt/spark/bin/spark-submit --class org.apache.spark.examples.SparkPi \
+    /opt/spark/examples/jars/spark-examples_2.11-2.2.2.jar 100
+
+# Spark DFSReadWriteTest (Read/Write/Shuffle)
+docker-compose exec client /opt/spark/bin/spark-submit --class org.apache.spark.examples.DFSReadWriteTest \
+    /opt/spark/examples/jars/spark-examples_2.11-2.2.2.jar /opt/garmadon/conf-forwarder/server.properties /tmp
 popd

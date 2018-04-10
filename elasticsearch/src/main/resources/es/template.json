@@ -553,11 +553,18 @@
           "analyzer": "path_analyzer",
           "search_analyzer": "keyword"
         },
+        "stage_name": {
+          "type": "text"
+        },
         "stage_id": {
-          "type": "integer"
+          "type": "keyword",
+          "norms": false,
+          "index_options": "freqs"
         },
         "stage_attempt_id": {
-          "type": "integer"
+          "type": "keyword",
+          "norms": false,
+          "index_options": "freqs"
         },
         "state": {
           "type": "keyword",

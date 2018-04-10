@@ -10,9 +10,8 @@ function check_resourcemanager_up {
 
 function create_hdfs_folder {
     hdfs dfs -mkdir -p /var/log/hadoop-yarn/apps /var/log/hadoop-yarn/staging/history/done_intermediate /var/log/hadoop-yarn/staging/history/done \
-                       /user/${USER} /tmp
-    hdfs dfs -chown yarn:yarn /var/log/hadoop-yarn/apps /var/log/hadoop-yarn/staging/history/done_intermediate /var/log/hadoop-yarn/staging/history/done
-    hdfs dfs -chmod 1777 /var/log/hadoop-yarn/apps /var/log/hadoop-yarn/staging /tmp
+                       /user/${USER} /tmp /var/log/spark
+    hdfs dfs -chmod 1777 /var/log/hadoop-yarn/apps /var/log/hadoop-yarn/staging /var/log/spark /tmp
 }
 
 function client {
@@ -52,6 +51,12 @@ function historyserver {
     mapred historyserver
 }
 
+
+function sparkhistoryserver {
+    check_resourcemanager_up
+    spark-class org.apache.spark.deploy.history.HistoryServer
+}
+
 ############# MAIN
 case $1 in
     client)
@@ -75,5 +80,8 @@ case $1 in
         ;;
     historyserver)
         historyserver
+        ;;
+    sparkhistoryserver)
+        sparkhistoryserver
         ;;
 esac

@@ -2,6 +2,7 @@ package com.criteo.hadoop.garmadon.elasticsearch;
 
 import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessageFilter;
@@ -160,6 +161,8 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
             EventHelper.processFsEvent(type, (DataAccessEventProtos.FsEvent) o, eventMaps);
         } else if (o instanceof DataAccessEventProtos.StateEvent) {
             EventHelper.processStateEvent(type, (DataAccessEventProtos.StateEvent) o, eventMaps);
+        } else if (o instanceof SparkEventProtos.StageEvent) {
+            EventHelper.processStageEvent(type, (SparkEventProtos.StageEvent) o, eventMaps);
         } else if (o instanceof JVMStatisticsProtos.JVMStatisticsData) {
             EventHelper.processJVMStatisticsData(type, (JVMStatisticsProtos.JVMStatisticsData) o, eventMaps);
         } else if (o instanceof ContainerEventProtos.ContainerResourceEvent) {

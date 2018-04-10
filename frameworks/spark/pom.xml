@@ -4,60 +4,40 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.criteo.java</groupId>
-        <artifactId>garmadon</artifactId>
+        <artifactId>garmadon-frameworks</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>garmadon-elasticsearch</artifactId>
+    <artifactId>garmadon-frameworks-spark</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <dependencies>
-        <!-- ES -->
-        <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-high-level-client</artifactId>
-            <version>${es.version}</version>
-        </dependency>
 
-        <!-- Logging -->
+    <properties>
+        <scala.version>2.11.12</scala.version>
+        <scala.version.short>2.11</scala.version.short>
+    </properties>
+
+    <dependencies>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>${logback.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-to-slf4j</artifactId>
-            <version>2.11.0</version>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_${scala.version.short}</artifactId>
+            <version>${spark.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Other garmadon modules -->
         <dependency>
             <groupId>com.criteo.java</groupId>
-            <artifactId>garmadon-reader</artifactId>
+            <artifactId>garmadon-schema</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 
     <profiles>
         <profile>
@@ -112,11 +92,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.22.0</version>
                     </plugin>
                 </plugins>
             </build>

@@ -49,6 +49,7 @@ RUN mkdir -p /opt/garmadon/conf-forwarder \
 
 # Add configurations and entrypoint
 ADD hadoop_conf/ ${HADOOP_CONF_DIR}
+ADD spark_conf ${SPARK_CONF_DIR}
 ADD conf-forwarder/ /opt/garmadon/conf-forwarder
 ADD conf-es-reader/ /opt/garmadon/conf-es-reader
 ADD scripts/ /usr/bin

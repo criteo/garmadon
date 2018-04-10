@@ -1,14 +1,16 @@
 package com.criteo.hadoop.garmadon.agent.modules;
 
 import com.criteo.hadoop.garmadon.agent.AsyncEventProcessor;
+import com.criteo.hadoop.garmadon.agent.EventAgent;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import org.apache.hadoop.mapred.TaskAttemptID;
-import org.apache.hadoop.mapreduce.TaskType;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.util.ConverterUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,9 +25,36 @@ import java.util.function.Consumer;
  */
 public abstract class ContainerModule implements GarmadonAgentModule {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContainerModule.class);
+
     private final SerializedHeader header;
 
+    public enum Framework {
+        YARN,
+        MAP_REDUCE,
+        SPARK,
+        FLINK,
+    }
+
+    public enum Component {
+        UNKNOWN,
+        APP_MASTER,
+        EXECUTOR,
+        TASK_MANAGER,
+        CUTTLE_APP_MASTER,
+        MAP,
+        REDUCE,
+        JOB_SETUP,
+        JOB_CLEANUP,
+        TASK_CLEANUP,
+    }
+
+    private Framework framework = Framework.YARN;
+    private Component component = Component.UNKNOWN;
+
+
     public ContainerModule() {
+        setFrameworkComponent();
         this.header = createCachedHeader();
     }
 
@@ -49,6 +78,70 @@ public abstract class ContainerModule implements GarmadonAgentModule {
         }
     }
 
+    public Framework getFramework() {
+        return framework;
+    }
+
+    public Component getComponent() {
+        return component;
+    }
+
+    private void setFrameworkComponent() {
+        String[] commands = System.getProperty("sun.java.command", "empty_class").split(" ");
+        String mainClass = commands[0];
+        switch (mainClass) {
+            // MAP_REDUCE
+            case "org.apache.hadoop.mapreduce.v2.app.MRAppMaster":
+                framework = Framework.MAP_REDUCE;
+                component = Component.APP_MASTER;
+                break;
+            case "org.apache.hadoop.mapred.YarnChild":
+                framework = Framework.MAP_REDUCE;
+                if (commands.length > 4) {
+                    final TaskAttemptID firstTaskid = TaskAttemptID.forName(commands[3]);
+                    try {
+                        component = Component.valueOf(firstTaskid.getTaskType().name());
+                    } catch (IllegalArgumentException ex) {
+                        LOGGER.warn("Unknown component {}", firstTaskid.getTaskType().name());
+                    }
+                }
+                break;
+            // SPARK
+            case "org.apache.spark.deploy.yarn.ApplicationMaster":
+                framework = Framework.SPARK;
+                component = Component.APP_MASTER;
+                break;
+            case "org.apache.spark.executor.CoarseGrainedExecutorBackend":
+                framework = Framework.SPARK;
+                component = Component.EXECUTOR;
+                break;
+            // FLINK
+            case "org.apache.flink.yarn.YarnApplicationMasterRunner":
+                framework = Framework.FLINK;
+                component = Component.APP_MASTER;
+                break;
+            case "org.apache.flink.yarn.entrypoint.YarnJobClusterEntrypoint":
+                framework = Framework.FLINK;
+                component = Component.APP_MASTER;
+                break;
+            case "org.apache.flink.yarn.entrypoint.YarnSessionClusterEntrypoint":
+                framework = Framework.FLINK;
+                component = Component.APP_MASTER;
+                break;
+            case "org.apache.flink.yarn.YarnTaskManager":
+                framework = Framework.FLINK;
+                component = Component.TASK_MANAGER;
+                break;
+            // Cuttle
+            case "com.criteo.cuttle.contrib.yarn.ApplicationMaster":
+                component = Component.CUTTLE_APP_MASTER;
+                break;
+            // YARN
+            default:
+                break;
+        }
+    }
+
     private SerializedHeader createCachedHeader() {
         String appName = "";
         String user = System.getenv(ApplicationConstants.Environment.USER.name());
@@ -58,59 +151,6 @@ public abstract class ContainerModule implements GarmadonAgentModule {
         try {
             pid = new File("/proc/self").getCanonicalFile().getName();
         } catch (IOException ignored) {
-        }
-
-        String[] commands = System.getProperty("sun.java.command", "empty_class").split(" ");
-        String mainClass = commands[0];
-        String framework = "Yarn";
-        String component = "Unknown";
-        switch (mainClass) {
-            // MapReduce
-            case "org.apache.hadoop.mapreduce.v2.app.MRAppMaster":
-                framework = "MapReduce";
-                component = "AppMaster";
-                break;
-            case "org.apache.hadoop.mapred.YarnChild":
-                framework = "MapReduce";
-                if (commands.length > 4) {
-                    final TaskAttemptID firstTaskid = TaskAttemptID.forName(commands[3]);
-                    component = firstTaskid.getTaskType().name();
-                }
-                break;
-            // Spark
-            case "org.apache.spark.deploy.yarn.ApplicationMaster":
-                framework = "Spark";
-                component = "AppMaster";
-                break;
-            case "org.apache.spark.executor.CoarseGrainedExecutorBackend":
-                framework = "Spark";
-                component = "Executor";
-                break;
-            // Flink
-            case "org.apache.flink.yarn.YarnApplicationMasterRunner":
-                framework = "Flink";
-                component = "ApplicationMaster";
-                break;
-            case "org.apache.flink.yarn.entrypoint.YarnJobClusterEntrypoint":
-                framework = "Flink";
-                component = "ApplicationMaster";
-                break;
-            case "org.apache.flink.yarn.entrypoint.YarnSessionClusterEntrypoint":
-                framework = "Flink";
-                component = "ApplicationMaster";
-                break;
-            case "org.apache.flink.yarn.YarnTaskManager":
-                framework = "Flink";
-                component = "TaskManager";
-                break;
-            // Cuttle
-            case "com.criteo.cuttle.contrib.yarn.ApplicationMaster":
-                framework = "Yarn";
-                component = "CuttleApplicationMaster";
-                break;
-            // Yarn
-            default:
-                break;
         }
 
         // Get applicationID
@@ -128,8 +168,8 @@ public abstract class ContainerModule implements GarmadonAgentModule {
                 .withUser(user)
                 .withContainerID(containerIdString)
                 .withPid(pid)
-                .withFramework(framework)
-                .withComponent(component)
+                .withFramework(framework.name())
+                .withComponent(component.name())
                 .build()
                 .serialize();
         return new SerializedHeader(bytes);

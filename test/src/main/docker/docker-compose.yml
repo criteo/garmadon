@@ -110,6 +110,25 @@ services:
         aliases:
           - historyserver
 
+  sparkhistoryserver:
+    build: garmadon
+    image: garmadon:latest
+    hostname: sparkhistoryserver
+    restart: always
+    command:
+      - /usr/bin/entrypoint.sh
+      - sparkhistoryserver
+    ports:
+      - 18081:18081
+    depends_on:
+      - namenode
+      - resourcemanager
+    env_file: .env
+    networks:
+      nwk:
+        aliases:
+        - sparkhistoryserver
+
   zookeeper:
     image: wurstmeister/zookeeper:latest
     hostname: zookeeper

@@ -2,7 +2,9 @@ package com.criteo.hadoop.garmadon.schema.serialization;
 
 import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.events.*;
+import com.criteo.hadoop.garmadon.schema.events.spark.StageEvent;
 import com.criteo.hadoop.garmadon.schema.exceptions.DeserializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.SerializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.TypeMarkerException;
@@ -26,6 +28,7 @@ public class GarmadonSerialization {
         int GC_EVENT = 1000;
         int JVMSTATS_EVENT = 1001;
         int CONTAINER_MONITORING_EVENT = 2000;
+        int SPARK_STAGE_EVENT = 3000;
     }
 
     private static HashMap<Integer, Deserializer> typeMarkerToDeserializer = new HashMap<>();
@@ -46,6 +49,9 @@ public class GarmadonSerialization {
         //jvm stats events
         register(JVMStatisticsProtos.GCStatisticsData.class, TypeMarker.GC_EVENT, "GC_EVENT", JVMStatisticsProtos.GCStatisticsData::toByteArray, JVMStatisticsProtos.GCStatisticsData::parseFrom);
         register(JVMStatisticsProtos.JVMStatisticsData.class, TypeMarker.JVMSTATS_EVENT, "JVMSTATS_EVENT", JVMStatisticsProtos.JVMStatisticsData::toByteArray, JVMStatisticsProtos.JVMStatisticsData::parseFrom);
+
+        // spark events
+        register(StageEvent.class, TypeMarker.SPARK_STAGE_EVENT, "SPARK_STAGE_EVENT", StageEvent::serialize, SparkEventProtos.StageEvent::parseFrom);
     }
 
     public static int getMarker(Class aClass) throws TypeMarkerException {
