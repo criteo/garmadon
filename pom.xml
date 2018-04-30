@@ -44,16 +44,14 @@
     </repositories>
 
     <properties>
-        <kafka.version>1.0.0</kafka.version>
-        <netty-all.version>4.1.23.Final</netty-all.version>
-        <bytebuddy.version>1.8.3</bytebuddy.version>
+        <netty-all.version>4.1.24.Final</netty-all.version>
+        <bytebuddy.version>1.8.10</bytebuddy.version>
         <hadoop.version>2.6.0-cdh5.11.0</hadoop.version>
         <spark.version>2.2.1</spark.version>
         <es.version>5.6.8</es.version>
         <logback.version>1.2.3</logback.version>
         <metrics.version>4.0.2</metrics.version>
         <protobuf.version>2.5.0</protobuf.version>
-        <oshi.version>3.4.4</oshi.version>
 
         <!-- tests -->
         <junit.version>4.12</junit.version>
