@@ -16,7 +16,7 @@ public class KafkaService {
     private final String topic;
 
     public KafkaService(Properties properties){
-        this.topic = "GARMADON";
+        this.topic = "garmadon";
         this.producer = new KafkaProducer<>(properties);
     }
 

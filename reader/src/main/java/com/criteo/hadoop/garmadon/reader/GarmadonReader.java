@@ -33,7 +33,7 @@ public class GarmadonReader {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
         this.kafkaConsumer = new KafkaConsumer<>(props);
-        this.kafkaConsumer.subscribe(Collections.singletonList("GARMADON"));
+        this.kafkaConsumer.subscribe(Collections.singletonList("garmadon"));
     }
 
     /**
