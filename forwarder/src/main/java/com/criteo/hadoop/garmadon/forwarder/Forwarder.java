@@ -4,7 +4,7 @@ import com.criteo.hadoop.garmadon.forwarder.channel.ForwarderChannelInitializer;
 import com.criteo.hadoop.garmadon.forwarder.kafka.KafkaService;
 import com.criteo.hadoop.garmadon.forwarder.metrics.ForwarderEventSender;
 import com.criteo.hadoop.garmadon.forwarder.metrics.HostStatistics;
-import com.criteo.hadoop.garmadon.forwarder.metrics.MetricsFactory;
+import com.criteo.hadoop.garmadon.forwarder.metrics.PrometheusHttpMetrics;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -18,6 +18,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -27,10 +28,20 @@ public class Forwarder {
     private static final Logger logger = LoggerFactory.getLogger(Forwarder.class);
 
     private static final String DEFAULT_FORWARDER_PORT = "33000";
+    private static final String DEFAULT_PROMETHEUS_PORT = "33001";
+
+    public static String hostname;
+    static {
+        try {
+            hostname = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            logger.error("",e);
+        }
+    }
 
     private final Properties properties;
 
-    private final String hostname;
+
     private final byte[] header;
 
     private EventLoopGroup bossGroup;
@@ -39,9 +50,8 @@ public class Forwarder {
     private Channel serverChannel;
     private KafkaService kafkaService;
 
-    public Forwarder(Properties properties) throws UnknownHostException {
+    public Forwarder(Properties properties) {
         this.properties = properties;
-        this.hostname = InetAddress.getLocalHost().getHostName();
         this.header = Header.newBuilder()
                 .withHostname(hostname)
                 .withTag(Header.Tag.FORWARDER.toString())
@@ -55,14 +65,15 @@ public class Forwarder {
      * @return a ChannelFuture that completes when server is started.
      * @throws UnknownHostException
      */
-    public ChannelFuture run() throws UnknownHostException {
+    public ChannelFuture run() throws IOException {
         // initialise kafka
         properties.put(ProducerConfig.CLIENT_ID_CONFIG, "garmadon.forwarder." + hostname);
         kafkaService = new KafkaService(properties);
 
         // initialize metrics
+        int prometheusPort = Integer.parseInt(properties.getProperty("prometheus.port", DEFAULT_PROMETHEUS_PORT));
+        PrometheusHttpMetrics.start(prometheusPort);
         ForwarderEventSender forwarderEventSender = new ForwarderEventSender(kafkaService, hostname, header);
-        MetricsFactory.startReport(forwarderEventSender);
         HostStatistics.startReport(forwarderEventSender);
 
         //initialize netty
@@ -89,10 +100,11 @@ public class Forwarder {
             workerGroup.shutdownGracefully().syncUninterruptibly();
         }
 
-        MetricsFactory.stopReport();
         HostStatistics.stopReport();
 
         kafkaService.shutdown();
+
+        PrometheusHttpMetrics.stop();
     }
 
     private ChannelFuture startNetty(int port) {

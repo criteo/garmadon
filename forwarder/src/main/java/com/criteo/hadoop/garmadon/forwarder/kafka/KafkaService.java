@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.forwarder.kafka;
 
-import com.criteo.hadoop.garmadon.forwarder.metrics.MetricsFactory;
+import com.criteo.hadoop.garmadon.forwarder.metrics.PrometheusHttpMetrics;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class KafkaService {
         // Check batching, time and kafka config
         producer.send(record, (metadata, exception) -> {
             if (exception != null) {
-                MetricsFactory.eventsInError.inc();
+                PrometheusHttpMetrics.eventsInError.inc();
                 logger.error("Issue sending events", exception);
             }
         });

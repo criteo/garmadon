@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.forwarder.handler.junit.rules;
 
+import com.criteo.hadoop.garmadon.forwarder.metrics.PrometheusHttpMetrics;
 import io.netty.channel.embedded.EmbeddedChannel;
 import org.junit.rules.ExternalResource;
 

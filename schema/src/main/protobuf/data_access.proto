@@ -34,11 +34,6 @@ message Metric {
     required uint64 value = 2;
 }
 
-message MetricEvent {
-    required uint64 timestamp = 1;
-    repeated Metric metric = 2;
-}
-
 message StateEvent {
     required uint64 timestamp = 1;
     required string state = 2;

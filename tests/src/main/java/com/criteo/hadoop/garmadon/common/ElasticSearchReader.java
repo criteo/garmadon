@@ -189,15 +189,6 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
             jsonMap.put("dst_path", event.getDstPath());
             jsonMap.put("action", event.getAction());
             jsonMap.put("uri", event.getUri());
-        } else if (o instanceof DataAccessEventProtos.MetricEvent) {
-            DataAccessEventProtos.MetricEvent event = (DataAccessEventProtos.MetricEvent) o;
-
-            Date timestamp_date = new Date(event.getTimestamp());
-            jsonMap.put("timestamp", timestamp_date);
-
-            for (DataAccessEventProtos.Metric metric : event.getMetricList()) {
-                jsonMap.put(metric.getName(), metric.getValue());
-            }
         } else if (o instanceof DataAccessEventProtos.StateEvent) {
             DataAccessEventProtos.StateEvent event = (DataAccessEventProtos.StateEvent) o;
 

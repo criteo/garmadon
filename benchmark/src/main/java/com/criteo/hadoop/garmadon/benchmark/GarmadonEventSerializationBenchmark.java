@@ -34,9 +34,6 @@ public class GarmadonEventSerializationBenchmark {
     StateEvent stateEvent;
     byte[] stateEventByte;
 
-    MetricEvent metricsEvent;
-    byte[] metricsEventByte;
-
     @Setup()
     public void setUp() {
         header = Header.newBuilder()
@@ -65,13 +62,6 @@ public class GarmadonEventSerializationBenchmark {
 
         stateEvent = new StateEvent(timestamp, StateEvent.State.END.toString());
         stateEventByte = stateEvent.serialize();
-
-        metricsEvent = new MetricEvent(timestamp);
-        metricsEvent.addMetric(DataAccessEventProtos.Metric.newBuilder().setName("events-in-error").setValue(10).build());
-        metricsEvent.addMetric(DataAccessEventProtos.Metric.newBuilder().setName(" greetings-in-error").setValue(0).build());
-        metricsEvent.addMetric(DataAccessEventProtos.Metric.newBuilder().setName("events-received").setValue(1500).build());
-        metricsEvent.addMetric(DataAccessEventProtos.Metric.newBuilder().setName("greetings-received").setValue(150).build());
-        metricsEventByte = metricsEvent.serialize();
     }
 
     @Benchmark
@@ -83,18 +73,6 @@ public class GarmadonEventSerializationBenchmark {
     public Object test_deserialize_FsEvent() throws InvalidProtocolBufferException {
         return DataAccessEventProtos.FsEvent.parseFrom(fsEventByte);
     }
-
-
-    @Benchmark
-    public Object test_serialize_MetricEvent() {
-        return metricsEvent.serialize();
-    }
-
-    @Benchmark
-    public Object test_deserialize_MetricEvent() throws InvalidProtocolBufferException {
-        return DataAccessEventProtos.MetricEvent.parseFrom(metricsEventByte);
-    }
-
 
     @Benchmark
     public Object test_serialize_StateEvent() {

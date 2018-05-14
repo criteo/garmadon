@@ -22,7 +22,6 @@ public class GarmadonSerialization {
     public interface TypeMarker {
         int PATH_EVENT = 0;
         int FS_EVENT = 1;
-        int METRIC_EVENT = 2;
         int STATE_EVENT = 3;
         int GC_EVENT = 1000;
         int JVMSTATS_EVENT = 1001;
@@ -38,7 +37,6 @@ public class GarmadonSerialization {
         //hadoop events
         register(PathEvent.class, TypeMarker.PATH_EVENT, PathEvent::serialize, DataAccessEventProtos.PathEvent::parseFrom);
         register(FsEvent.class, TypeMarker.FS_EVENT, FsEvent::serialize, DataAccessEventProtos.FsEvent::parseFrom);
-        register(MetricEvent.class, TypeMarker.METRIC_EVENT, MetricEvent::serialize, DataAccessEventProtos.MetricEvent::parseFrom);
         register(StateEvent.class, TypeMarker.STATE_EVENT, StateEvent::serialize, DataAccessEventProtos.StateEvent::parseFrom);
 
         //nodemanager events

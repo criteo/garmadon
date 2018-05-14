@@ -2,7 +2,7 @@ package com.criteo.hadoop.garmadon.forwarder.handler;
 
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.forwarder.message.KafkaMessage;
-import com.criteo.hadoop.garmadon.forwarder.metrics.MetricsFactory;
+import com.criteo.hadoop.garmadon.forwarder.metrics.PrometheusHttpMetrics;
 import com.criteo.hadoop.garmadon.protocol.ProtocolConstants;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -48,7 +48,7 @@ public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        MetricsFactory.eventsInError.inc();
+        PrometheusHttpMetrics.eventsInError.inc();
         logger.error("", cause);
         ctx.close();
     }

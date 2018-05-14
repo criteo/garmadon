@@ -2,7 +2,7 @@ package com.criteo.hadoop.garmadon.forwarder.handler;
 
 import com.criteo.hadoop.garmadon.forwarder.kafka.KafkaService;
 import com.criteo.hadoop.garmadon.forwarder.message.KafkaMessage;
-import com.criteo.hadoop.garmadon.forwarder.metrics.MetricsFactory;
+import com.criteo.hadoop.garmadon.forwarder.metrics.PrometheusHttpMetrics;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
@@ -19,7 +19,7 @@ public class KafkaHandler extends SimpleChannelInboundHandler<KafkaMessage> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, KafkaMessage msg) {
-        MetricsFactory.eventsReceived.inc();
+        PrometheusHttpMetrics.eventsReceived.inc();
 
         kafkaService.sendRecordAsync(msg.getKey(), msg.getValue());
     }

@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.forwarder.handler;
 
-import com.criteo.hadoop.garmadon.forwarder.metrics.MetricsFactory;
+import com.criteo.hadoop.garmadon.forwarder.metrics.PrometheusHttpMetrics;
 import com.criteo.hadoop.garmadon.protocol.ProtocolVersion;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -14,7 +14,7 @@ public class GreetingHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
-        MetricsFactory.greetingsReceived.inc();
+        PrometheusHttpMetrics.greetingsReceived.inc();
 
         byte[] greetings = new byte[msg.readableBytes()];
         msg.readBytes(greetings);
@@ -31,7 +31,7 @@ public class GreetingHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        MetricsFactory.greetingsInError.inc();
+        PrometheusHttpMetrics.greetingsInError.inc();
         logger.error("",cause);
         ctx.close();
     }
