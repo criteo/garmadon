@@ -43,7 +43,7 @@ public class EventAgent {
     public static void premain(String arguments, Instrumentation instrumentation) {
         try {
             if (System.getProperty("garmadon.disable") == null) {
-                logger.info("Garmadon Agent started");
+                logger.info("Garmadon Agent start");
 
                 // Init SocketAppender and EventProcessor
                 SocketAppender appender = new SocketAppender("127.0.0.1", DEFAULT_FORWARDER_PORT);
@@ -51,6 +51,7 @@ public class EventAgent {
 
                 //load user provided modules
                 loadModules(arguments, instrumentation, eventProcessor);
+                logger.info("Garmadon Agent initialized");
 
             }
         } catch (Exception ex) {
