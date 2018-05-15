@@ -4,6 +4,8 @@ import com.criteo.hadoop.garmadon.protocol.ProtocolMessage;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.exceptions.SerializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.TypeMarkerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -17,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class AsyncEventProcessor implements Runnable {
 
-    private static final Logger logger = Logger.getLogger(AsyncEventProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(AsyncEventProcessor.class);
 
     private final BlockingQueue<Message> queue;
     private final SocketAppender appender;

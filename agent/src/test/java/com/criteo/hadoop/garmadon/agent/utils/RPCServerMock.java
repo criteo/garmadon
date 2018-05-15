@@ -1,7 +1,8 @@
 package com.criteo.hadoop.garmadon.agent.utils;
 
-import com.criteo.hadoop.garmadon.agent.Logger;
 import com.criteo.hadoop.garmadon.protocol.ProtocolVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +14,7 @@ import java.util.Arrays;
 //single thread server than can handle one connection for test purposes
 public class RPCServerMock implements Runnable {
 
-    private static final Logger logger = Logger.getLogger(RPCServerMock.class);
+    private static final Logger logger = LoggerFactory.getLogger(RPCServerMock.class);
 
     private final int port;
     private final byte[] greetings;

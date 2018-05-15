@@ -1,6 +1,8 @@
 package com.criteo.hadoop.garmadon.agent;
 
-import com.criteo.hadoop.garmadon.agent.modules.*;
+import com.criteo.hadoop.garmadon.agent.modules.GarmadonAgentModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
@@ -25,7 +27,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class EventAgent {
 
-    private static final Logger logger = Logger.getLogger(EventAgent.class);
+    private static final Logger logger = LoggerFactory.getLogger(EventAgent.class);
 
     private final static int DEFAULT_FORWARDER_PORT = 33000;
 

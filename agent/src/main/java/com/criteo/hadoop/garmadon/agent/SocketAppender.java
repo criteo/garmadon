@@ -1,6 +1,8 @@
 package com.criteo.hadoop.garmadon.agent;
 
 import com.criteo.hadoop.garmadon.protocol.ProtocolVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +17,7 @@ import java.net.Socket;
  */
 public class SocketAppender {
 
-    private static final Logger logger = Logger.getLogger(SocketAppender.class);
+    private static final Logger logger = LoggerFactory.getLogger(SocketAppender.class);
 
     private Connection connection;
 
