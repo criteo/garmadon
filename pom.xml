@@ -50,7 +50,6 @@
         <spark.version>2.2.1</spark.version>
         <es.version>5.6.8</es.version>
         <logback.version>1.2.3</logback.version>
-        <metrics.version>4.0.2</metrics.version>
         <protobuf.version>2.5.0</protobuf.version>
         <prometheus.version>0.4.0</prometheus.version>
 
