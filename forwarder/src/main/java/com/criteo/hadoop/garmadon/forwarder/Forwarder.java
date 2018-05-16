@@ -89,6 +89,7 @@ public class Forwarder {
     public void close() {
         logger.info("Shutdown netty server");
         if (serverChannel == null) {
+            logger.error("Cannot close a non running server");
             throw new IllegalStateException("Cannot close a non running server");
         }
 
@@ -121,7 +122,6 @@ public class Forwarder {
                 // TODO: Test the Unix Domain Socket implementation will need junixsocket at client side....
                 // But should increase perf
                 //.channel(EpollServerDomainSocketChannel.class)
-                .handler(new LoggingHandler(LogLevel.INFO))
                 .childHandler(new ForwarderChannelInitializer(kafkaService));
 
         //start server
