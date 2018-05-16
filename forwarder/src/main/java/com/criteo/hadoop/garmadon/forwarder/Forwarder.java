@@ -54,7 +54,7 @@ public class Forwarder {
         this.properties = properties;
         this.header = Header.newBuilder()
                 .withHostname(hostname)
-                .withTag(Header.Tag.FORWARDER.toString())
+                .withTag(Header.Tag.FORWARDER.name())
                 .build()
                 .serialize();
     }

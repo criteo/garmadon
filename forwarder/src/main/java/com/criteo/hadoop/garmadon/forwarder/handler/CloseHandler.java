@@ -16,7 +16,7 @@ public class CloseHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         DataAccessEventProtos.Header header = ctx.channel().attr(headerAttr).get();
-        if (header != null && header.getTag().equals(Header.Tag.YARN_APPLICATION.toString())) {
+        if (header != null && header.getTag().equals(Header.Tag.YARN_APPLICATION.name())) {
             StateEvent stateEvent = new StateEvent(System.currentTimeMillis(), StateEvent.State.END.toString());
             KafkaMessage kafkaMessage = new KafkaMessage(
                     header.getApplicationId(),

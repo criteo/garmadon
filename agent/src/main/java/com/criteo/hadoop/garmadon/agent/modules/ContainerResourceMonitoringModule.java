@@ -11,7 +11,6 @@ import net.bytebuddy.implementation.bind.annotation.Argument;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ContainerId;
-import org.apache.hadoop.yarn.server.nodemanager.containermanager.monitor.ContainersMonitorImpl;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 
 import java.lang.instrument.Instrumentation;
@@ -26,7 +25,7 @@ public class ContainerResourceMonitoringModule implements GarmadonAgentModule {
 
     private final Header.BaseHeader baseHeader;
 
-    public ContainerResourceMonitoringModule(){
+    public ContainerResourceMonitoringModule() {
         String host = "";
         try {
             host = InetAddress.getLocalHost().getHostName();
@@ -34,7 +33,7 @@ public class ContainerResourceMonitoringModule implements GarmadonAgentModule {
         }
         this.baseHeader = Header.newBuilder()
                 .withHostname(host)
-                .withTag(Header.Tag.NODE_MANAGER.name())
+                .withTag(Header.Tag.NODEMANAGER.name())
                 .buildBaseHeader();
     }
 
@@ -56,7 +55,7 @@ public class ContainerResourceMonitoringModule implements GarmadonAgentModule {
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
-            return is(ContainersMonitorImpl.class);
+            return nameStartsWith("org.apache.hadoop.yarn.server.nodemanager.containermanager.monitor.ContainersMonitorImpl");
         }
 
         @Override
@@ -69,7 +68,8 @@ public class ContainerResourceMonitoringModule implements GarmadonAgentModule {
             return to(this).andThen(SuperMethodCall.INSTANCE);
         }
 
-        public void intercept(@Argument(0) String containerID, @Argument(1) long currentMemUsage, @Argument(3) long limit) throws Exception {
+        public void intercept(@Argument(0) String containerID, @Argument(1) long currentMemUsage,
+                              @Argument(3) long limit) throws Exception {
             try {
                 ContainerId cID = ConverterUtils.toContainerId(containerID);
                 ApplicationAttemptId applicationAttemptId = cID.getApplicationAttemptId();

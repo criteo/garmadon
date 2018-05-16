@@ -15,7 +15,7 @@ public class Header {
     public enum Tag {
         YARN_APPLICATION,
         FORWARDER,
-        NODE_MANAGER
+        NODEMANAGER
     }
 
     public Header(String applicationID, String appAttemptID, String applicationName,

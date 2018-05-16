@@ -58,7 +58,7 @@ public class CloseHandlerTest {
                 .withApplicationName("app_name")
                 .withContainerID("container_id")
                 .withUser("user")
-                .withTag(Header.Tag.YARN_APPLICATION.toString())
+                .withTag(Header.Tag.YARN_APPLICATION.name())
                 .build();
 
 
@@ -82,7 +82,7 @@ public class CloseHandlerTest {
     public void CloseHandler_should_not_fire_an_end_event_for_non_yarn_app_tag() throws TypeMarkerException, SerializationException {
         Header header = Header.newBuilder()
                 .withHostname("hostname")
-                .withTag(Header.Tag.FORWARDER.toString())
+                .withTag(Header.Tag.FORWARDER.name())
                 .build();
 
         byte[] raw = ProtocolMessage.create(header.serialize(), new TestEvent(100));
