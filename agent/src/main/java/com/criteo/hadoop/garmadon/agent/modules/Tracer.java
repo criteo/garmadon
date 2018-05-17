@@ -15,7 +15,6 @@ abstract class Tracer {
         String filterClass = System.getProperty("bytebuddy.debug.instrumentation.for.class");
         ElementMatcher<? super String> byteBuddyLoggingFilter = filterClass != null ? s -> s.contains(filterClass) : s -> false;
         this.agentBuilder = new AgentBuilder.Default()
-                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
                 .with(
                         new Filtering(byteBuddyLoggingFilter, AgentBuilder.Listener.StreamWriting.toSystemOut())
                 );
