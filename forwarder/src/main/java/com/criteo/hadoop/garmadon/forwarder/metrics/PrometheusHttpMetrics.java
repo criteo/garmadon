@@ -33,12 +33,16 @@ public class PrometheusHttpMetrics {
     public static Counter.Child greetingsInError = garmadonMetrics.labels("garmadon_greetings_in_error",
             Forwarder.hostname,
             RELEASE);
+    public static Counter.Child forJoin = garmadonMetrics.labels("garmadon_for_join",
+            Forwarder.hostname,
+            RELEASE);
 
     private static HTTPServer server;
 
     static {
         // Expose JMX, GCs, classloading, thread count, memory pool
         DefaultExports.initialize();
+        forJoin.inc();
     }
 
     public static void start(int prometheusPort) throws IOException {
