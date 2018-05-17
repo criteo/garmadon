@@ -15,7 +15,7 @@ import java.lang.instrument.Instrumentation;
 import java.util.function.Consumer;
 
 import static net.bytebuddy.implementation.MethodDelegation.to;
-import static net.bytebuddy.matcher.ElementMatchers.isSubTypeOf;
+import static net.bytebuddy.matcher.ElementMatchers.hasSuperType;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class MapReduceModule extends ContainerModule {
@@ -46,7 +46,7 @@ public class MapReduceModule extends ContainerModule {
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
-            return isSubTypeOf(org.apache.hadoop.mapreduce.InputFormat.class);
+            return hasSuperType(named("org.apache.hadoop.mapreduce.InputFormat"));
         }
 
         @Override
@@ -88,7 +88,7 @@ public class MapReduceModule extends ContainerModule {
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
-            return isSubTypeOf(org.apache.hadoop.mapreduce.OutputFormat.class);
+            return hasSuperType(named("org.apache.hadoop.mapreduce.OutputFormat"));
         }
 
         @Override
@@ -121,7 +121,7 @@ public class MapReduceModule extends ContainerModule {
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
-            return isSubTypeOf(org.apache.hadoop.mapred.InputFormat.class);
+            return hasSuperType(named("org.apache.hadoop.mapred.InputFormat"));
         }
 
         @Override
@@ -154,7 +154,7 @@ public class MapReduceModule extends ContainerModule {
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
-            return isSubTypeOf(org.apache.hadoop.mapred.OutputFormat.class);
+            return hasSuperType(named("org.apache.hadoop.mapred.OutputFormat"));
         }
 
         @Override
