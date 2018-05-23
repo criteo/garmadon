@@ -15,7 +15,7 @@ import java.util.Optional;
 public class PrometheusHttpMetrics {
     public static final Counter garmadonMetrics = Counter.build()
             .name("garmadon_metrics").help("Garmadon metrics")
-            .labelNames("name", "instance", "release")
+            .labelNames("name", "hostname", "release")
             .register();
 
     private static String RELEASE = Optional

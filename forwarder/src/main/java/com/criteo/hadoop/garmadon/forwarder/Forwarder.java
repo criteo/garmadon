@@ -33,7 +33,7 @@ public class Forwarder {
     public static String hostname;
     static {
         try {
-            hostname = InetAddress.getLocalHost().getHostName();
+            hostname = InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException e) {
             logger.error("",e);
         }
