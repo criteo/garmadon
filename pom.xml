@@ -25,6 +25,7 @@
         <module>forwarder</module>
         <module>reader</module>
         <module>heuristics</module>
+        <module>test</module>
     </modules>
 
     <inceptionYear>2017</inceptionYear>
