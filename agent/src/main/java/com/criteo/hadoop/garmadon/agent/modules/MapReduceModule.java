@@ -6,6 +6,7 @@ import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.implementation.bind.annotation.Argument;
+import net.bytebuddy.jar.asm.Opcodes;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.JobContext;
@@ -15,7 +16,7 @@ import java.lang.instrument.Instrumentation;
 import java.util.function.Consumer;
 
 import static net.bytebuddy.implementation.MethodDelegation.to;
-import static net.bytebuddy.matcher.ElementMatchers.hasSuperType;
+import static net.bytebuddy.matcher.ElementMatchers.isSubTypeOf;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class MapReduceModule extends ContainerModule {
@@ -27,6 +28,28 @@ public class MapReduceModule extends ContainerModule {
     // Input format configuration
     private static final String DEPRECATED_FILE_INPUT_FORMAT_INPUT_DIR = "mapred.input.dir";
     private static final String FILE_INPUT_FORMAT_INPUT_DIR = "mapreduce.input.fileinputformat.inputdir";
+
+    enum Types {
+
+        MAPRED_INPUT_FORMAT("org.apache.hadoop.mapred.InputFormat", Opcodes.ACC_PUBLIC | Opcodes.ACC_INTERFACE | Opcodes.ACC_ABSTRACT),
+        MAPRED_OUTPUT_FORMAT("org.apache.hadoop.mapred.OutputFormat", Opcodes.ACC_PUBLIC | Opcodes.ACC_INTERFACE | Opcodes.ACC_ABSTRACT),
+        MAPREDUCE_INPUT_FORMAT("org.apache.hadoop.mapreduce.InputFormat", Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT, TypeDescription.Generic.OBJECT),
+        MAPREDUCE_OUTPUT_FORMAT("org.apache.hadoop.mapreduce.OutputFormat", Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT, TypeDescription.Generic.OBJECT);
+
+        private final TypeDescription typeDescription;
+
+        Types(String name, int modifiers){
+            this(name, modifiers, null);
+        }
+
+        Types(String name, int modifiers, TypeDescription.Generic superClass){
+            this.typeDescription = new TypeDescription.Latent(name, modifiers, superClass);
+        }
+
+        public TypeDescription getTypeDescription() {
+            return typeDescription;
+        }
+    }
 
     @Override
     public void setup0(Instrumentation instrumentation, Consumer<Object> eventConsumer) {
@@ -46,7 +69,7 @@ public class MapReduceModule extends ContainerModule {
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
-            return hasSuperType(named("org.apache.hadoop.mapreduce.InputFormat"));
+            return isSubTypeOf(Types.MAPREDUCE_INPUT_FORMAT.getTypeDescription());
         }
 
         @Override
@@ -88,7 +111,7 @@ public class MapReduceModule extends ContainerModule {
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
-            return hasSuperType(named("org.apache.hadoop.mapreduce.OutputFormat"));
+            return isSubTypeOf(Types.MAPREDUCE_OUTPUT_FORMAT.getTypeDescription());
         }
 
         @Override
@@ -121,7 +144,7 @@ public class MapReduceModule extends ContainerModule {
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
-            return hasSuperType(named("org.apache.hadoop.mapred.InputFormat"));
+            return isSubTypeOf(Types.MAPRED_INPUT_FORMAT.getTypeDescription());
         }
 
         @Override
@@ -154,7 +177,7 @@ public class MapReduceModule extends ContainerModule {
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
-            return hasSuperType(named("org.apache.hadoop.mapred.OutputFormat"));
+            return isSubTypeOf(Types.MAPRED_OUTPUT_FORMAT.getTypeDescription());
         }
 
         @Override

@@ -5,6 +5,8 @@ import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
 import com.criteo.hadoop.garmadon.schema.events.PathEvent;
 import com.criteo.hadoop.garmadonnotexcluded.MapRedInputFormatTestClasses;
 import net.bytebuddy.agent.ByteBuddyAgent;
+import net.bytebuddy.description.type.TypeDefinition;
+import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.loading.ByteArrayClassLoader;
 import org.apache.hadoop.mapred.*;
 import org.junit.After;
@@ -23,6 +25,7 @@ import java.util.function.Consumer;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.*;
 
 /**
@@ -75,6 +78,17 @@ public class MapRedInputFormatTracerTest {
         reset(inputSplit);
         reset(jobConf);
         reset(reporter);
+    }
+
+    @Test
+    public void InputFormatTracer_should_use_a_latent_type_definition_equivalent_to_the_ForLoadedType_one(){
+        TypeDescription realTypeDef = TypeDescription.ForLoadedType.of(org.apache.hadoop.mapred.InputFormat.class);
+        TypeDescription latentTypeDef = MapReduceModule.Types.MAPRED_INPUT_FORMAT.getTypeDescription();
+
+        assertThat(latentTypeDef.getName(), is(realTypeDef.getName()));
+        assertThat(latentTypeDef.getModifiers(), is(realTypeDef.getModifiers()));
+        assertThat(latentTypeDef.getSuperClass(), is(realTypeDef.getSuperClass()));
+        assertThat(latentTypeDef.getInterfaces(), is(realTypeDef.getInterfaces()));
     }
 
     /*
