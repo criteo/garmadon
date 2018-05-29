@@ -3,6 +3,7 @@ package com.criteo.hadoop.garmadon.agent.modules;
 import com.criteo.hadoop.garmadon.agent.utils.AgentAttachmentRule;
 import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
 import com.criteo.hadoop.garmadon.schema.events.PathEvent;
+import com.criteo.hadoop.garmadonnotexcluded.MapReduceOutputFormatTestClasses;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.dynamic.loading.ByteArrayClassLoader;
 import org.apache.hadoop.conf.Configuration;
@@ -60,7 +61,7 @@ public class MapReduceOutputFormatTracerTest {
 
         classLoader = new ByteArrayClassLoader.ChildFirst(getClass().getClassLoader(),
                 ClassFileExtraction.of(
-                        OneLevelHierarchy.class
+                        MapReduceOutputFormatTestClasses.OneLevelHierarchy.class
                 ),
                 ByteArrayClassLoader.PersistenceHandler.MANIFEST);
     }
@@ -83,7 +84,7 @@ public class MapReduceOutputFormatTracerTest {
         ClassFileTransformer classFileTransformer = new MapReduceModule.OutputFormatTracer(eventHandler).installOnByteBuddyAgent();
         try {
             //Call InputFormat
-            Class<?> type = classLoader.loadClass(OneLevelHierarchy.class.getName());
+            Class<?> type = classLoader.loadClass(MapReduceOutputFormatTestClasses.OneLevelHierarchy.class.getName());
             invokeRecordWriter(type);
 
             //Verify mock interaction
@@ -117,23 +118,4 @@ public class MapReduceOutputFormatTracerTest {
         return m.invoke(inFormat, taskAttemptContext);
     }
 
-    public static class OneLevelHierarchy extends OutputFormat {
-
-        public static RecordWriter recordWriterMock = mock(RecordWriter.class);
-
-        @Override
-        public RecordWriter getRecordWriter(TaskAttemptContext taskAttemptContext) throws IOException, InterruptedException {
-            return recordWriterMock;
-        }
-
-        @Override
-        public void checkOutputSpecs(JobContext jobContext) throws IOException, InterruptedException {
-            throw new RuntimeException("not supposed to be used");
-        }
-
-        @Override
-        public OutputCommitter getOutputCommitter(TaskAttemptContext taskAttemptContext) throws IOException, InterruptedException {
-            throw new RuntimeException("not supposed to be used");
-        }
-    }
 }

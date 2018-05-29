@@ -3,6 +3,7 @@ package com.criteo.hadoop.garmadon.agent.modules;
 import com.criteo.hadoop.garmadon.agent.utils.AgentAttachmentRule;
 import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
 import com.criteo.hadoop.garmadon.schema.events.PathEvent;
+import com.criteo.hadoop.garmadonnotexcluded.MapRedOutputFormatTestClasses;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.dynamic.loading.ByteArrayClassLoader;
 import org.apache.hadoop.fs.FileSystem;
@@ -52,7 +53,7 @@ public class MapRedOutputFormatTracerTest {
 
         classLoader = new ByteArrayClassLoader.ChildFirst(getClass().getClassLoader(),
                 ClassFileExtraction.of(
-                        OneLevelHierarchy.class
+                        MapRedOutputFormatTestClasses.OneLevelHierarchy.class
                 ),
                 ByteArrayClassLoader.PersistenceHandler.MANIFEST);
     }
@@ -79,7 +80,7 @@ public class MapRedOutputFormatTracerTest {
         ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedOutputFormatTracer(eventHandler).installOnByteBuddyAgent();
         try {
             //Call OnputFormat
-            Class<?> type = classLoader.loadClass(OneLevelHierarchy.class.getName());
+            Class<?> type = classLoader.loadClass(MapRedOutputFormatTestClasses.OneLevelHierarchy.class.getName());
             invokeRecordWriter(type);
 
             //Verify mock interaction
@@ -113,18 +114,4 @@ public class MapRedOutputFormatTracerTest {
         return m.invoke(inFormat, mock(FileSystem.class), jobConf, "test", mock(Progressable.class));
     }
 
-    public static class OneLevelHierarchy implements OutputFormat {
-
-        public static RecordWriter recordWriterMock = mock(RecordWriter.class);
-
-        @Override
-        public RecordWriter getRecordWriter(FileSystem fileSystem, JobConf jobConf, String s, Progressable progressable) throws IOException {
-            return recordWriterMock;
-        }
-
-        @Override
-        public void checkOutputSpecs(FileSystem fileSystem, JobConf jobConf) throws IOException {
-            throw new RuntimeException("not supposed to be used");
-        }
-    }
 }

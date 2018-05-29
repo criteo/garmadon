@@ -3,6 +3,7 @@ package com.criteo.hadoop.garmadon.agent.modules;
 import com.criteo.hadoop.garmadon.agent.utils.AgentAttachmentRule;
 import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
 import com.criteo.hadoop.garmadon.schema.events.PathEvent;
+import com.criteo.hadoop.garmadonnotexcluded.MapRedInputFormatTestClasses;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.dynamic.loading.ByteArrayClassLoader;
 import org.apache.hadoop.mapred.*;
@@ -58,12 +59,12 @@ public class MapRedInputFormatTracerTest {
 
         classLoader = new ByteArrayClassLoader.ChildFirst(getClass().getClassLoader(),
                 ClassFileExtraction.of(
-                        OneLevelHierarchy.class,
-                        AbstractInputFormat.class,
-                        RealInputFormat.class,
-                        Level1.class,
-                        Level2CallingSuper.class,
-                        Level3NotCallingSuper.class
+                        MapRedInputFormatTestClasses.OneLevelHierarchy.class,
+                        MapRedInputFormatTestClasses.AbstractInputFormat.class,
+                        MapRedInputFormatTestClasses.RealInputFormat.class,
+                        MapRedInputFormatTestClasses.Level1.class,
+                        MapRedInputFormatTestClasses.Level2CallingSuper.class,
+                        MapRedInputFormatTestClasses.Level3NotCallingSuper.class
                 ),
                 ByteArrayClassLoader.PersistenceHandler.MANIFEST);
     }
@@ -92,7 +93,7 @@ public class MapRedInputFormatTracerTest {
                     .thenReturn(inputPath);
 
             //Call InputFormat
-            Class<?> type = classLoader.loadClass(OneLevelHierarchy.class.getName());
+            Class<?> type = classLoader.loadClass(MapRedInputFormatTestClasses.OneLevelHierarchy.class.getName());
             invokeRecordReader(type);
 
             //Verify mock interaction
@@ -119,7 +120,7 @@ public class MapRedInputFormatTracerTest {
                     .thenReturn(deprecatedInputPath);
 
             //Call InputFormat
-            Class<?> type = classLoader.loadClass(OneLevelHierarchy.class.getName());
+            Class<?> type = classLoader.loadClass(MapRedInputFormatTestClasses.OneLevelHierarchy.class.getName());
             invokeRecordReader(type);
 
             //Verify mock interaction
@@ -146,7 +147,7 @@ public class MapRedInputFormatTracerTest {
                     .thenReturn("/some/path");
 
             //Call InputFormat
-            Class<?> type = classLoader.loadClass(RealInputFormat.class.getName());
+            Class<?> type = classLoader.loadClass(MapRedInputFormatTestClasses.RealInputFormat.class.getName());
             invokeRecordReader(type);
 
             //We just want to test no exception because of presence of abstract method and abstract class
@@ -170,7 +171,7 @@ public class MapRedInputFormatTracerTest {
                     .thenReturn(inputPath);
 
             //Call InputFormat
-            Class<?> type = classLoader.loadClass(Level2CallingSuper.class.getName());
+            Class<?> type = classLoader.loadClass(MapRedInputFormatTestClasses.Level2CallingSuper.class.getName());
             Object recordReader = invokeRecordReader(type);
 
             //Verify mock interaction
@@ -200,7 +201,7 @@ public class MapRedInputFormatTracerTest {
                     .thenReturn("/not_calling_super");
 
             //Call InputFormat
-            Class<?> type = classLoader.loadClass(Level3NotCallingSuper.class.getName());
+            Class<?> type = classLoader.loadClass(MapRedInputFormatTestClasses.Level3NotCallingSuper.class.getName());
             Object recordReader = invokeRecordReader(type);
 
             //Verify mock interaction
@@ -222,7 +223,7 @@ public class MapRedInputFormatTracerTest {
             when(jobConf.get("mapreduce.input.fileinputformat.inputdir"))
                     .thenReturn("/some/path");
 
-            Class<?> type = classLoader.loadClass(OneLevelHierarchy.class.getName());
+            Class<?> type = classLoader.loadClass(MapRedInputFormatTestClasses.OneLevelHierarchy.class.getName());
             Object recordReader = invokeRecordReader(type);
 
             assertThat(recordReader, equalTo(getRecordReaderMockReflection(type)));
@@ -239,77 +240,6 @@ public class MapRedInputFormatTracerTest {
 
     private Object getRecordReaderMockReflection(Class<?> type) throws NoSuchFieldException, IllegalAccessException {
         return type.getDeclaredField("recordReaderMock").get(null);
-    }
-
-    public static class OneLevelHierarchy implements InputFormat {
-
-        public static RecordReader recordReaderMock = mock(RecordReader.class);
-
-        @Override
-        public InputSplit[] getSplits(JobConf jobConf, int i) throws IOException {
-            throw new RuntimeException("not supposed to be used");
-        }
-
-        @Override
-        public RecordReader getRecordReader(InputSplit inputSplit, JobConf jobConf, Reporter reporter) throws IOException {
-            return recordReaderMock;
-        }
-    }
-
-    public static abstract class AbstractInputFormat implements InputFormat {
-
-        @Override
-        public InputSplit[] getSplits(JobConf jobConf, int i) throws IOException {
-            throw new RuntimeException("not supposed to be used");
-        }
-
-        abstract public RecordReader getRecordReader(InputSplit inputSplit, JobConf jobConf, Reporter reporter);
-    }
-
-    public static class RealInputFormat extends AbstractInputFormat {
-
-        @Override
-        public RecordReader getRecordReader(InputSplit inputSplit, JobConf jobConf, Reporter reporter) {
-            return null;
-        }
-    }
-
-    public static class Level1 implements InputFormat {
-
-        static RecordReader recordReaderMock = mock(RecordReader.class);
-
-        @Override
-        public InputSplit[] getSplits(JobConf jobConf, int i) throws IOException {
-            throw new RuntimeException("not supposed to be used");
-        }
-
-        @Override
-        public RecordReader getRecordReader(InputSplit inputSplit, JobConf jobConf, Reporter reporter) throws IOException {
-            return recordReaderMock;
-        }
-    }
-
-    public static class Level2CallingSuper extends Level1 {
-
-        @Override
-        public RecordReader getRecordReader(InputSplit inputSplit, JobConf jobConf, Reporter reporter) throws IOException {
-            System.out.println("Do something before");
-            RecordReader rr = super.getRecordReader(inputSplit, jobConf, reporter);
-            System.out.println("Do something after");
-            return rr;
-        }
-    }
-
-    public static class Level3NotCallingSuper extends Level2CallingSuper {
-
-        static RecordReader recordReaderMock = mock(RecordReader.class);
-        public static boolean isAccessed = false;
-
-        @Override
-        public RecordReader getRecordReader(InputSplit inputSplit, JobConf jobConf, Reporter reporter) throws IOException {
-            isAccessed = true;
-            return recordReaderMock;
-        }
     }
 
 }

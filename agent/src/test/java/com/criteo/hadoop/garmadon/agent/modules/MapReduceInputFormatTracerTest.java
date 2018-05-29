@@ -3,6 +3,7 @@ package com.criteo.hadoop.garmadon.agent.modules;
 import com.criteo.hadoop.garmadon.agent.utils.AgentAttachmentRule;
 import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
 import com.criteo.hadoop.garmadon.schema.events.PathEvent;
+import com.criteo.hadoop.garmadonnotexcluded.MapReduceInputFormatTestClasses;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.dynamic.loading.ByteArrayClassLoader;
 import org.apache.hadoop.conf.Configuration;
@@ -80,7 +81,7 @@ public class MapReduceInputFormatTracerTest {
 
         classLoader = new ByteArrayClassLoader.ChildFirst(getClass().getClassLoader(),
                 ClassFileExtraction.of(
-                        OneLevelHierarchy.class
+                        MapReduceInputFormatTestClasses.OneLevelHierarchy.class
                 ),
                 ByteArrayClassLoader.PersistenceHandler.MANIFEST);
     }
@@ -105,7 +106,7 @@ public class MapReduceInputFormatTracerTest {
         ClassFileTransformer classFileTransformer = new MapReduceModule.InputFormatTracer(eventHandler).installOnByteBuddyAgent();
         try {
             //Call InputFormat
-            Class<?> type = classLoader.loadClass(OneLevelHierarchy.class.getName());
+            Class<?> type = classLoader.loadClass(MapReduceInputFormatTestClasses.OneLevelHierarchy.class.getName());
             invokeRecordReader(type);
             invokeListInputSplits(type);
 
@@ -146,20 +147,5 @@ public class MapReduceInputFormatTracerTest {
         return m.invoke(inFormat, jobContext);
     }
 
-    public static class OneLevelHierarchy extends InputFormat {
-
-        public static List<InputSplit> listInputSplits = mock(List.class);
-        public static RecordReader recordReaderMock = mock(RecordReader.class);
-
-        @Override
-        public List<InputSplit> getSplits(JobContext jobContext) throws IOException {
-            return listInputSplits;
-        }
-
-        @Override
-        public RecordReader createRecordReader(InputSplit inputSplit, TaskAttemptContext taskAttemptContext) throws IOException {
-            return recordReaderMock;
-        }
-    }
 
 }
