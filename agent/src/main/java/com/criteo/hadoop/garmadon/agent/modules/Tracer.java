@@ -14,56 +14,36 @@ abstract class Tracer {
 
     protected AgentBuilder agentBuilder;
 
-    private static ElementMatcher.Junction<NamedElement> ignoredPackagesMatcher = none();
+    static ElementMatcher.Junction<NamedElement> ignoredMatcher;
     static {
-        String[] ignoredPackages = {
-                "com.cloudera.org.codehaus.jackson.",
-                "com.codahale.metrics.",
-                "com.criteo.hadoop.garmadon.",
-                "com.criteo.jvm.",
-                "com.esotericsoftware.",
-                "com.fasterxml.",
-                "com.google.",
-                "com.sun.",
-                "io.netty.",
-                "java.",
-                "javassist.",
-                "javax.",
-                "jdk.",
-                "net.bytebuddy.",
-                "net.jpountz.",
-                "org.apache.commons.",
-                "org.apache.hadoop.metrics2.",
-                "org.apache.hadoop.yarn.proto.",
-                "org.apache.htrace.",
-                "org.apache.log4j.",
-                "org.apache.spark.sql.",
-                "org.apache.xerces.",
-                "org.antlr.",
-                "org.codehaus.",
-                "org.glassfish.",
-                "org.json4s.",
-                "org.mockito.",
-                "org.slf4j.",
-                "org.spark_project.guava.",
-                "org.spark_project.jetty.",
-                "org.threeten.",
-                "org.w3c.",
-                "org.xml.",
-                "oshi.",
-                "scala.",
-                "sun."
+        String[] predefWhitelist = {
+                "org.apache.flink.",
+                "org.apache.hadoop.",
+                "org.apache.spark.",
+                "com.criteo."
         };
-        ignorePackages(ignoredPackages);
+        String[] predefBlacklist = {
+                "com.criteo.garmadon.",
+                "com.criteo.jvm."
+        };
+        String runtimeWhitelist = System.getProperty("bytebuddy.whitelist.for.instrumentation");
+        String runtimeBlacklist = System.getProperty("bytebuddy.blacklist.for.instrumentation");
 
-        String userIgnoredPackages = System.getProperty("bytebuddy.ignore.package.for.instrumentation");
-        if(userIgnoredPackages != null) ignorePackages(userIgnoredPackages.split(","));
+        ElementMatcher.Junction<NamedElement> whitelistMatcher = newListMatcher(predefWhitelist);
+        if(runtimeWhitelist != null) whitelistMatcher = whitelistMatcher.or(newListMatcher(runtimeWhitelist.split(",")));
+
+        ElementMatcher.Junction<NamedElement> blacklistMatcher =  newListMatcher(predefBlacklist);
+        if(runtimeBlacklist != null) blacklistMatcher = blacklistMatcher.or(newListMatcher(runtimeBlacklist.split(",")));
+
+        ignoredMatcher = not(whitelistMatcher).or(blacklistMatcher);
     }
 
-    private static void ignorePackages(String[] ignoredPackages) {
-        for (String ignoredPackage : ignoredPackages) {
-            ignoredPackagesMatcher = ignoredPackagesMatcher.or(nameStartsWith(ignoredPackage));
+    private static ElementMatcher.Junction<NamedElement> newListMatcher(String[] packages) {
+        ElementMatcher.Junction<NamedElement> matcher = none();
+        for (String pkg : packages) {
+            matcher = matcher.or(nameStartsWith(pkg));
         }
+        return matcher;
     }
 
     private static final ElementMatcher<? super String> byteBuddyLoggingFilter;
@@ -77,7 +57,7 @@ abstract class Tracer {
                 .ignore(any(), isBootstrapClassLoader())
                 .ignore(any(), isSystemClassLoader())
                 .ignore(any(), isExtensionClassLoader())
-                .ignore(ignoredPackagesMatcher)
+                .ignore(ignoredMatcher)
                 .with(
                         new Filtering(byteBuddyLoggingFilter, AgentBuilder.Listener.StreamWriting.toSystemOut())
                 );
