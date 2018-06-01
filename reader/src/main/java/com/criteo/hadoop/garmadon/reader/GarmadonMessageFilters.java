@@ -1,25 +1,22 @@
 package com.criteo.hadoop.garmadon.reader;
 
-import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.schema.events.Header;
 
 public class GarmadonMessageFilters {
 
-    public static GarmadonMessageFilter acceptAll(){
-        return new AcceptAllFilter();
+    public static GarmadonMessageFilter.HeaderFilter hasTag(Header.Tag tag){
+        return new GarmadonMessageFilter.HeaderFilter.TagFilter(tag);
     }
 
-    public static class AcceptAllFilter implements GarmadonMessageFilter {
-
-        @Override
-        public boolean acceptsType(int type) {
-            return true;
-        }
-
-        @Override
-        public boolean acceptsHeader(DataAccessEventProtos.Header header) {
-            return true;
-        }
-
+    public static GarmadonMessageFilter.HeaderFilter hasContainerId(String id){
+        return new GarmadonMessageFilter.HeaderFilter.ContainerFilter(id);
     }
 
+    public static GarmadonMessageFilter.TypeFilter hasType(int type) {
+        return new GarmadonMessageFilter.TypeFilter(type);
+    }
+
+    public static GarmadonMessageFilter.NotFilter not(GarmadonMessageFilter other) {
+        return new GarmadonMessageFilter.NotFilter(other);
+    }
 }

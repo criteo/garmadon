@@ -2,10 +2,7 @@ package com.criteo.hadoop.garmadon.reader.es;
 
 import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
-import com.criteo.hadoop.garmadon.reader.CommittableOffset;
-import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
-import com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters;
-import com.criteo.hadoop.garmadon.reader.GarmadonReader;
+import com.criteo.hadoop.garmadon.reader.*;
 import com.criteo.jvm.JVMStatisticsProtos;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -84,11 +81,11 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
         esClient = new RestHighLevelClient(restClientBuilder.build());
 
         //setup kafka reader
-        GarmadonReader.Builder builder = GarmadonReader.Builder.withKafkaConnectString(kafkaConnectString);
+        GarmadonReader.Builder builder = GarmadonReader.Builder.stream(kafkaConnectString);
         if (groupId != null) builder.withGroupId(groupId);
-        if (isPrintingToStdout) builder.listeningToMessages(GarmadonMessageFilters.acceptAll(), this::printToStdout);
+        if (isPrintingToStdout) builder.intercept(GarmadonMessageFilter.ANY.INSTANCE, this::printToStdout);
         reader = builder
-                .listeningToMessages(GarmadonMessageFilters.acceptAll(), this::writeToES)
+                .intercept(GarmadonMessageFilter.ANY.INSTANCE, this::writeToES)
                 .build();
 
         Settings settings = Settings.builder().put("node.name", "reader-garmadon").build();

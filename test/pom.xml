@@ -27,6 +27,12 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-examples</artifactId>
         </dependency>
+
+        <!-- Garmadon dependencies -->
+        <dependency>
+            <groupId>com.criteo.java</groupId>
+            <artifactId>garmadon-reader</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>

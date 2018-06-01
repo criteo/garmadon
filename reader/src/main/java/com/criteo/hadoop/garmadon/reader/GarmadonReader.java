@@ -3,11 +3,12 @@ package com.criteo.hadoop.garmadon.reader;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.schema.exceptions.DeserializationException;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
-import com.sun.corba.se.impl.orbutil.concurrent.Sync;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
@@ -16,15 +17,14 @@ import java.util.concurrent.CompletableFuture;
 
 public class GarmadonReader {
 
-    private final Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners;
-    private final KafkaConsumer<String, byte[]> kafkaConsumer;
-    private Reader reader;
-    private CompletableFuture<Void> cf;
+    private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonReader.class);
+
+    private final Reader reader;
+    private final CompletableFuture<Void> cf;
+
     private boolean reading = false;
 
     private GarmadonReader(String groupId, String kafkaConnectString, Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners) {
-        this.listeners = listeners;
-
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConnectString);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
@@ -32,8 +32,12 @@ public class GarmadonReader {
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
-        this.kafkaConsumer = new KafkaConsumer<>(props);
-        this.kafkaConsumer.subscribe(Collections.singletonList("garmadon"));
+
+        KafkaConsumer<String, byte[]> kafkaConsumer = new KafkaConsumer<>(props);
+        kafkaConsumer.subscribe(Collections.singletonList("garmadon"));
+
+        this.cf = new CompletableFuture<>();
+        this.reader = new Reader(kafkaConsumer, listeners, cf);
     }
 
     /**
@@ -41,8 +45,6 @@ public class GarmadonReader {
      */
     public synchronized CompletableFuture<Void> startReading() {
         if (!reading) {
-            cf = new CompletableFuture<>();
-            reader = new Reader(kafkaConsumer, listeners, cf);
             new Thread(reader).start();
             reading = true;
         }
@@ -68,6 +70,8 @@ public class GarmadonReader {
         private final Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners;
         private final Set<GarmadonMessageFilter> filters;
 
+        private final Counter receivedCounter = new Counter();
+
         private volatile boolean keepOnReading = true;
 
         Reader(KafkaConsumer<String, byte[]> consumer, Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, CompletableFuture<Void> cf) {
@@ -80,11 +84,17 @@ public class GarmadonReader {
         @Override
         public void run() {
             try {
+
+                LOGGER.info("start reading");
+
                 while (keepOnReading) {
 
                     ConsumerRecords<String, byte[]> records = consumer.poll(1000L);
 
                     for (ConsumerRecord<String, byte[]> record : records) {
+
+                        receivedCounter.increment();
+
                         byte[] raw = record.value();
                         ByteBuffer buf = ByteBuffer.wrap(raw);
 
@@ -96,13 +106,13 @@ public class GarmadonReader {
                         Object body = null;
 
                         for (GarmadonMessageFilter filter : filters) {
-                            if (filter.acceptsType(typeMarker)) {
+                            if (filter.accepts(typeMarker)) {
 
                                 if (header == null) {
                                     header = DataAccessEventProtos.Header.parseFrom(new ByteArrayInputStream(raw, HEADER_OFFSET, headerSize));
                                 }
 
-                                if (filter.acceptsHeader(header)) {
+                                if (filter.accepts(typeMarker, header)) {
 
                                     if (body == null) {
                                         int bodyOffset = HEADER_OFFSET + headerSize;
@@ -122,17 +132,38 @@ public class GarmadonReader {
                     }
                 }
             } catch (Exception e) {
+                LOGGER.error("unexpected exception while reading", e);
                 cf.completeExceptionally(e);
             }
+
+            LOGGER.info("stopped reading");
             cf.complete(null);
+
+            LOGGER.info("received {} messages", receivedCounter.get());
         }
 
         void stop() {
             keepOnReading = false;
         }
+
+        private static class Counter {
+
+            int count = 0;
+
+            void increment(){
+                count++;
+                if(count % 500 == 0){
+                    LOGGER.info("received {} messages so far", count);
+                }
+            }
+
+            int get(){
+                return count;
+            }
+        }
     }
 
-    public static class SynchronizedConsumer<K, V> {
+    static class SynchronizedConsumer<K, V> {
 
         private final KafkaConsumer<K, V> consumer;
 
@@ -140,19 +171,19 @@ public class GarmadonReader {
             this.consumer = consumer;
         }
 
-        public synchronized ConsumerRecords<K, V> poll(long timeout) {
+        synchronized ConsumerRecords<K, V> poll(long timeout) {
             return consumer.poll(timeout);
         }
 
-        public synchronized void commitSync(Map<TopicPartition, OffsetAndMetadata> offsets) {
+        synchronized void commitSync(Map<TopicPartition, OffsetAndMetadata> offsets) {
             consumer.commitSync(offsets);
         }
 
-        public synchronized void commitAsync(Map<TopicPartition, OffsetAndMetadata> offsets, OffsetCommitCallback callback){
+        synchronized void commitAsync(Map<TopicPartition, OffsetAndMetadata> offsets, OffsetCommitCallback callback){
             consumer.commitAsync(offsets, callback);
         }
 
-        public static <K,V> SynchronizedConsumer<K, V> synchronize(KafkaConsumer<K,V> consumer){
+        static <K,V> SynchronizedConsumer<K, V> synchronize(KafkaConsumer<K, V> consumer){
             return new SynchronizedConsumer<>(consumer);
         }
     }
@@ -167,7 +198,7 @@ public class GarmadonReader {
             this.kafkaConnectString = kafkaConnectString;
         }
 
-        public static Builder withKafkaConnectString(String kafkaConnectString) {
+        public static Builder stream(String kafkaConnectString) {
             return new Builder(kafkaConnectString);
         }
 
@@ -176,7 +207,7 @@ public class GarmadonReader {
             return this;
         }
 
-        public Builder listeningToMessages(GarmadonMessageFilter filter, GarmadonMessageHandler handler) {
+        public Builder intercept(GarmadonMessageFilter filter, GarmadonMessageHandler handler) {
             this.listeners.put(filter, handler);
             return this;
         }

@@ -37,6 +37,12 @@
             <groupId>com.criteo.java</groupId>
             <artifactId>garmadon-reader</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <version>${maria-java-client.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
