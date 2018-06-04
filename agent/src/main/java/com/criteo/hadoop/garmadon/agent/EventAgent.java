@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Optional;
 
 /**
  * Garmadon uses a simple blocking queue to allow threads from the running application
@@ -29,6 +30,9 @@ public class EventAgent {
 
     private static final Logger logger = LoggerFactory.getLogger(EventAgent.class);
 
+    private static String RELEASE = Optional
+            .ofNullable(EventAgent.class.getPackage().getImplementationVersion()).orElse("1.0-SNAPSHOT");
+
     private final static int DEFAULT_FORWARDER_PORT = 33000;
 
     /**
@@ -45,7 +49,7 @@ public class EventAgent {
     public static void premain(String arguments, Instrumentation instrumentation) {
         try {
             if (System.getProperty("garmadon.disable") == null) {
-                logger.info("Garmadon Agent start");
+                logger.info("Garmadon Agent from JMOAB {} start", RELEASE);
 
                 // Init SocketAppender and EventProcessor
                 SocketAppender appender = new SocketAppender("127.0.0.1", DEFAULT_FORWARDER_PORT);
