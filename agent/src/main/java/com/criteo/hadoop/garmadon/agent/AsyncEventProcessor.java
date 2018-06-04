@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class AsyncEventProcessor implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(AsyncEventProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncEventProcessor.class);
 
     private final BlockingQueue<Message> queue;
     private final SocketAppender appender;
@@ -66,7 +66,7 @@ public class AsyncEventProcessor implements Runnable {
                     }
                 }
             } catch (Exception e) {
-                logger.error("could not process an event", e);
+                LOGGER.error("could not process an event", e);
             }
         }
     }
@@ -76,9 +76,9 @@ public class AsyncEventProcessor implements Runnable {
         try {
             bytes = ProtocolMessage.create(header.serialize(), body);
         } catch (TypeMarkerException typeMarkerException) {
-            logger.error("cannot serialize event " + body + " because a corresponding type marker does not exists");
+            LOGGER.error("cannot serialize event {} because a corresponding type marker does not exists", body);
         } catch (SerializationException e) {
-            logger.error("cannot serialize event " + body + ". " + e.getMessage());
+            LOGGER.error("cannot serialize event {}: {}", body, e.getMessage());
         }
         return bytes;
     }
@@ -88,7 +88,7 @@ public class AsyncEventProcessor implements Runnable {
         try {
             thread.join(TimeUnit.SECONDS.toMillis(30));
             if (thread.isAlive()) {
-                logger.error("Cannot stop properly AsyncEventProcessor thread");
+                LOGGER.error("Cannot stop properly AsyncEventProcessor thread");
             }
         } catch (InterruptedException e) {
         }

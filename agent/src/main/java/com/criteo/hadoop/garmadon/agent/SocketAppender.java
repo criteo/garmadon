@@ -17,7 +17,7 @@ import java.net.Socket;
  */
 public class SocketAppender {
 
-    private static final Logger logger = LoggerFactory.getLogger(SocketAppender.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SocketAppender.class);
 
     private Connection connection;
 
@@ -79,7 +79,7 @@ public class SocketAppender {
         public void establishConnection() {
             for (; ; ) {
                 try {
-                    logger.info("try connecting to " + host + ":" + port);
+                    LOGGER.info("try connecting to {}:{}", host, port);
 
                     socket = new Socket();
                     socket.connect(new InetSocketAddress(host, port), CONNECTION_TIMEOUT);
@@ -90,7 +90,7 @@ public class SocketAppender {
 
                     makeHandshake();
 
-                    logger.info("connection established");
+                    LOGGER.info("connection established");
                     connectionEstablished = true;
                     return;
                 } catch (IOException | ProtocolVersion.InvalidFrameException | ProtocolVersion.InvalidProtocolVersionException exception) {
@@ -115,7 +115,7 @@ public class SocketAppender {
         }
 
         private void waitBeforeRetry() {
-            logger.warn("cannot connect to " + host + ":" + port);
+            LOGGER.warn("cannot connect to {}:{}", host, port);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {

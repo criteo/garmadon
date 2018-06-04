@@ -28,7 +28,7 @@ import java.util.Optional;
  */
 public class EventAgent {
 
-    private static final Logger logger = LoggerFactory.getLogger(EventAgent.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventAgent.class);
 
     private static String RELEASE = Optional
             .ofNullable(EventAgent.class.getPackage().getImplementationVersion()).orElse("1.0-SNAPSHOT");
@@ -49,7 +49,7 @@ public class EventAgent {
     public static void premain(String arguments, Instrumentation instrumentation) {
         try {
             if (System.getProperty("garmadon.disable") == null) {
-                logger.info("Garmadon Agent from JMOAB {} start", RELEASE);
+                LOGGER.info("Garmadon Agent from JMOAB {} start", RELEASE);
 
                 // Init SocketAppender and EventProcessor
                 SocketAppender appender = new SocketAppender("127.0.0.1", DEFAULT_FORWARDER_PORT);
@@ -57,7 +57,7 @@ public class EventAgent {
 
                 //load user provided modules
                 loadModules(arguments, instrumentation, eventProcessor);
-                logger.info("Garmadon Agent initialized");
+                LOGGER.info("Garmadon Agent initialized");
 
             }
         } catch (Exception ex) {
@@ -75,16 +75,16 @@ public class EventAgent {
                 Constructor<?> constructor = clazz.getConstructor();
                 Object o = constructor.newInstance();
                 if (o instanceof GarmadonAgentModule) {
-                    logger.info("Setting up module " + className);
+                    LOGGER.info("Setting up module {}", className);
                     GarmadonAgentModule module = (GarmadonAgentModule) o;
                     module.setup(instrumentation, eventProcessor);
                 } else {
-                    logger.warn("module " + className + " should implement GarmadonAgentModule. Skipping...");
+                    LOGGER.warn("module {} should implement GarmadonAgentModule. Skipping...", className);
                 }
             } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-                logger.warn("module " + className + " should define public NoArg constructor");
+                LOGGER.warn("module {} should define public NoArg constructor", className);
             } catch (ClassNotFoundException e) {
-                logger.warn("module " + className + " could not be found on the classpath");
+                LOGGER.warn("module {} could not be found on the classpath", className);
             }
         }
     }

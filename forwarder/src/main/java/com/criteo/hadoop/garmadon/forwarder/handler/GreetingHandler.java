@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GreetingHandler extends SimpleChannelInboundHandler<ByteBuf> {
-    private static final Logger logger = LoggerFactory.getLogger(GreetingHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GreetingHandler.class);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
@@ -32,7 +32,7 @@ public class GreetingHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         PrometheusHttpMetrics.greetingsInError.inc();
-        logger.error("",cause);
+        LOGGER.error("",cause);
         ctx.close();
     }
 }

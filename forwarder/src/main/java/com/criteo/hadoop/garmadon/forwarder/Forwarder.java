@@ -12,8 +12,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +23,7 @@ import java.net.UnknownHostException;
 import java.util.Properties;
 
 public class Forwarder {
-    private static final Logger logger = LoggerFactory.getLogger(Forwarder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Forwarder.class);
 
     private static final String DEFAULT_FORWARDER_PORT = "33000";
     private static final String DEFAULT_PROMETHEUS_PORT = "33001";
@@ -35,7 +33,7 @@ public class Forwarder {
         try {
             hostname = InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException e) {
-            logger.error("",e);
+            LOGGER.error("",e);
         }
     }
 
@@ -87,9 +85,9 @@ public class Forwarder {
      * @return a ChannelFuture that completes when server is closed
      */
     public void close() {
-        logger.info("Shutdown netty server");
+        LOGGER.info("Shutdown netty server");
         if (serverChannel == null) {
-            logger.error("Cannot close a non running server");
+            LOGGER.error("Cannot close a non running server");
             throw new IllegalStateException("Cannot close a non running server");
         }
 
@@ -125,8 +123,8 @@ public class Forwarder {
                 .childHandler(new ForwarderChannelInitializer(kafkaService));
 
         //start server
-        logger.info("Startup netty server");
-        ChannelFuture f = b.bind("localhost", port).addListener(future -> logger.info("Netty server started"));
+        LOGGER.info("Startup netty server");
+        ChannelFuture f = b.bind("localhost", port).addListener(future -> LOGGER.info("Netty server started"));
         serverChannel = f.channel();
         return f;
     }

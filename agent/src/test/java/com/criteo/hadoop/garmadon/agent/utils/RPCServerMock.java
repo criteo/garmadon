@@ -14,7 +14,7 @@ import java.util.Arrays;
 //single thread server than can handle one connection for test purposes
 public class RPCServerMock implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(RPCServerMock.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RPCServerMock.class);
 
     private final int port;
     private final byte[] greetings;
@@ -35,7 +35,7 @@ public class RPCServerMock implements Runnable {
 
     public synchronized void start() {
         if (!started) {
-            logger.info("Starting test server");
+            LOGGER.info("Starting test server");
             serverThread = new Thread(this);
             serverThread.start();
             started = true;
@@ -76,11 +76,11 @@ public class RPCServerMock implements Runnable {
         try {
             synchronized (this) {
                 if(!started) { //server already shutdown
-                    logger.debug("server already shutdown");
+                    LOGGER.debug("server already shutdown");
                     return;
                 }
                 serverSocket = new ServerSocket(port);
-                logger.info("Test server listening on port " + port);
+                LOGGER.info("Test server listening on port {}", port);
             }
             clientSocket = serverSocket.accept();
             InputStream in = clientSocket.getInputStream();
@@ -102,7 +102,7 @@ public class RPCServerMock implements Runnable {
             }
 
         } catch (Exception e) {
-            logger.error("Server caught exception", e);
+            LOGGER.error("Server caught exception", e);
         }
     }
 

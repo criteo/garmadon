@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
     private static final AttributeKey<DataAccessEventProtos.Header> headerAttr = AttributeKey.valueOf("header");
-    private static final Logger logger = LoggerFactory.getLogger(EventHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventHandler.class);
 
     private boolean isFirst = true;
 
@@ -26,8 +26,8 @@ public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
         DataAccessEventProtos.Header header = DataAccessEventProtos.Header.parseFrom(headerByte);
 
-        if(logger.isDebugEnabled()) {
-            logger.debug("received event {} size {}", msg.getInt(0), msg.readableBytes());
+        if(LOGGER.isDebugEnabled()) {
+            LOGGER.debug("received event {} size {}", msg.getInt(0), msg.readableBytes());
         }
 
         byte[] raw = new byte[msg.readableBytes()];
@@ -49,7 +49,7 @@ public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         PrometheusHttpMetrics.eventsInError.inc();
-        logger.error("", cause);
+        LOGGER.error("", cause);
         ctx.close();
     }
 }

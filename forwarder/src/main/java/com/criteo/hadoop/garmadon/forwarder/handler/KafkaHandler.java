@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class KafkaHandler extends SimpleChannelInboundHandler<KafkaMessage> {
-    private static final Logger logger = LoggerFactory.getLogger(KafkaHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaHandler.class);
 
     private KafkaService kafkaService;
 
@@ -31,7 +31,7 @@ public class KafkaHandler extends SimpleChannelInboundHandler<KafkaMessage> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        logger.error("",cause);
+        LOGGER.error("",cause);
         ctx.close();
     }
 }

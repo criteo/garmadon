@@ -10,7 +10,7 @@ import java.util.Properties;
 
 public class KafkaService {
 
-    private static final Logger logger = LoggerFactory.getLogger(KafkaService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaService.class);
 
     private final KafkaProducer<String, byte[]> producer;
     private final String topic;
@@ -28,7 +28,7 @@ public class KafkaService {
         producer.send(record, (metadata, exception) -> {
             if (exception != null) {
                 PrometheusHttpMetrics.eventsInError.inc();
-                logger.error("Issue sending events", exception);
+                LOGGER.error("Issue sending events", exception);
             }
         });
     }

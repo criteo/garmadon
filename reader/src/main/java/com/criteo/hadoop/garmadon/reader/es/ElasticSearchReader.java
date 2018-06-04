@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
  * A reader that pushes events to elastic search
  */
 public class ElasticSearchReader implements BulkProcessor.Listener {
-    private static final Logger logger = LoggerFactory.getLogger(ElasticSearchReader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearchReader.class);
 
     private final boolean isPrintingToStdout = Boolean.parseBoolean(System.getProperty("garmadon.esReader.printToStdout", "false"));
     private final int bulkActions = Integer.parseInt(System.getProperty("garmadon.esReader.bulkActions", "500"));
@@ -102,10 +102,10 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
     public CompletableFuture<Void> startReading() {
         return reader.startReading().whenComplete((v, ex) -> {
             if (ex != null) {
-                logger.error("Reading was stopped due to exception");
+                LOGGER.error("Reading was stopped due to exception");
                 ex.printStackTrace();
             } else {
-                logger.info("Done reading !");
+                LOGGER.info("Done reading !");
             }
         });
     }
@@ -228,31 +228,31 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
     @Override
     public void beforeBulk(long executionId, BulkRequest request) {
         int numberOfActions = request.numberOfActions();
-        logger.info("Executing Bulk[" + executionId + "] with " + numberOfActions + " requests");
+        LOGGER.info("Executing Bulk[{}] with {} requests", executionId, numberOfActions);
     }
 
     @Override
     public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
         if (response.hasFailures()) {
-            logger.error("Bulk[{}] executed with failures", executionId);
+            LOGGER.error("Bulk[{}] executed with failures", executionId);
         } else {
-            logger.info("Successfully completed Bulk[{}] in {} ms", executionId, response.getTook().getMillis());
+            LOGGER.info("Successfully completed Bulk[{}] in {} ms", executionId, response.getTook().getMillis());
         }
         CommittableOffset<String, byte[]> lastOffset = ((CommittableOffset<String, byte[]>) request.payloads().get(request.payloads().size() - 1));
         lastOffset
                 .commitAsync()
                 .whenComplete((topicPartitionOffset, exception) -> {
                     if (exception != null) {
-                        logger.warn("Could not commit kafka offset {}|{}", lastOffset.getOffset(), lastOffset.getPartition());
+                        LOGGER.warn("Could not commit kafka offset {}|{}", lastOffset.getOffset(), lastOffset.getPartition());
                     } else {
-                        logger.info("Committed kafka offset {}|{}", topicPartitionOffset.getOffset(), topicPartitionOffset.getPartition());
+                        LOGGER.info("Committed kafka offset {}|{}", topicPartitionOffset.getOffset(), topicPartitionOffset.getPartition());
                     }
                 });
     }
 
     @Override
     public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-        logger.error("failed to execute Bulk[" + executionId + "]");
+        LOGGER.error("failed to execute Bulk[{}]", executionId);
         failure.printStackTrace();
     }
 

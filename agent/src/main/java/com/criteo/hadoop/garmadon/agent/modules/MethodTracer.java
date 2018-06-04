@@ -5,8 +5,6 @@ import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.matcher.ElementMatcher;
 
-import static net.bytebuddy.matcher.ElementMatchers.not;
-
 abstract class MethodTracer extends Tracer {
 
     MethodTracer() {
