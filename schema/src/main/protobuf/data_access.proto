@@ -29,11 +29,6 @@ message FsEvent {
     required string uri = 5;
 }
 
-message Metric {
-    required string name = 1;
-    required uint64 value = 2;
-}
-
 message StateEvent {
     required uint64 timestamp = 1;
     required string state = 2;
