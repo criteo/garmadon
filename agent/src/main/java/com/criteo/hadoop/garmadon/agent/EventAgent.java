@@ -88,10 +88,4 @@ public class EventAgent {
             }
         }
     }
-
-    public static void main(String[] args) throws InterruptedException {
-        System.out.println("Starting...");
-        Thread.sleep(30 * 1000);
-        System.out.println("stopping...");
-    }
 }
