@@ -7,9 +7,14 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
+import java.util.function.Consumer;
+
+import static com.criteo.hadoop.garmadon.heuristics.GCCause.ERGONOMICS;
+import static com.criteo.hadoop.garmadon.heuristics.GCCause.METADATA_THRESHOLD;
+
 public class GCCauseTest {
-    private final String APPLICATION_ID = "application_42";
-    private final String CONTAINER_ID = "container_42_42";
+    private static final String APPLICATION_ID = "application_42";
+    private static final String CONTAINER_PREFIX_ID = "container_42_";
 
     private HeuristicsResultDB mockDB;
 
@@ -19,32 +24,54 @@ public class GCCauseTest {
     }
 
     @Test
-    public void metadata_gc_threshold() {
-        testCause("Metadata GC Threshold");
-    }
-    @Test
-    public void ergonomics() {
-        testCause("Ergonomics");
+    public void metadata_gc_threshold_single() {
+        testCause(METADATA_THRESHOLD, 1, result -> {
+            Assert.assertEquals(1, result.getDetailCount());
+            Assert.assertEquals(CONTAINER_PREFIX_ID + "0", result.getDetail(0).name);
+            Assert.assertEquals(METADATA_THRESHOLD + ": 1, " + ERGONOMICS + ": 0", result.getDetail(0).value);
+        });
     }
 
-    private void testCause(String cause) {
+    @Test
+    public void metadata_gc_threshold_alot() {
+        testCause(METADATA_THRESHOLD, 100, result -> {
+            Assert.assertEquals(2, result.getDetailCount());
+            Assert.assertEquals(METADATA_THRESHOLD, result.getDetail(0).name);
+            Assert.assertEquals("100", result.getDetail(0).value);
+            Assert.assertEquals(ERGONOMICS, result.getDetail(1).name);
+            Assert.assertEquals("0", result.getDetail(1).value);
+        });
+    }
+
+    @Test
+    public void ergonomics_single() {
+        testCause(ERGONOMICS, 1, result -> {
+            Assert.assertEquals(1, result.getDetailCount());
+            Assert.assertEquals(CONTAINER_PREFIX_ID + "0", result.getDetail(0).name);
+            Assert.assertEquals(METADATA_THRESHOLD + ": 0, " + ERGONOMICS + ": 1", result.getDetail(0).value);
+        });
+    }
+
+    @Test
+    public void ergonomics_alot() {
+        testCause(ERGONOMICS, 100, result -> {
+            Assert.assertEquals(2, result.getDetailCount());
+            Assert.assertEquals(METADATA_THRESHOLD, result.getDetail(0).name);
+            Assert.assertEquals("0", result.getDetail(0).value);
+            Assert.assertEquals(ERGONOMICS, result.getDetail(1).name);
+            Assert.assertEquals("100", result.getDetail(1).value);
+        });
+    }
+
+    private void testCause(String cause, int nbContainers, Consumer<HeuristicResult> assertDetails) {
         long timestamp = System.currentTimeMillis();
         Mockito.doAnswer(invocationOnMock -> {
             HeuristicResult result = invocationOnMock.getArgumentAt(0, HeuristicResult.class);
             Assert.assertEquals(APPLICATION_ID, result.appId);
-            Assert.assertEquals(CONTAINER_ID, result.containerId);
             Assert.assertEquals(HeuristicsResultDB.Severity.MODERATE, result.severity);
             Assert.assertEquals(HeuristicsResultDB.Severity.MODERATE, result.score);
             Assert.assertEquals(GCCause.class, result.heuristicClass);
-            Assert.assertEquals(4, result.getDetailCount());
-            Assert.assertEquals("Timestamp", result.getDetail(0).name);
-            Assert.assertEquals(String.valueOf(timestamp), result.getDetail(0).value);
-            Assert.assertEquals("Collector", result.getDetail(1).name);
-            Assert.assertEquals("PS MarkSweep", result.getDetail(1).value);
-            Assert.assertEquals("Pause", result.getDetail(2).name);
-            Assert.assertEquals("1234", result.getDetail(2).value);
-            Assert.assertEquals("Cause", result.getDetail(3).name);
-            Assert.assertEquals(cause, result.getDetail(3).value);
+            assertDetails.accept(result);
             return null;
         }).when(mockDB).createHeuristicResult(Matchers.any());
         GCCause gcCause = new GCCause(mockDB);
@@ -54,6 +81,8 @@ public class GCCauseTest {
                 .setPauseTime(1234)
                 .setTimestamp(timestamp);
         JVMStatisticsProtos.GCStatisticsData gcStats = builder.build();
-        gcCause.process(APPLICATION_ID, CONTAINER_ID, gcStats);
+        for (int i = 0; i < nbContainers; i++)
+            gcCause.process(APPLICATION_ID, CONTAINER_PREFIX_ID + i, gcStats);
+        gcCause.onAppCompleted(APPLICATION_ID);
     }
 }

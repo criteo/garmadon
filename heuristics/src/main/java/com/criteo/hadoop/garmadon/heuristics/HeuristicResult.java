@@ -34,15 +34,13 @@ public class HeuristicResult {
     }
 
     public final String appId;
-    public final String containerId;
     public final Class<?> heuristicClass;
     public final int severity;
     public final int score;
     private final List<HeuristicResultDetail> details = new ArrayList<>();
 
-    public HeuristicResult(String appId, String containerId, Class<?> heuristicClass, int severity, int score) {
+    public HeuristicResult(String appId, Class<?> heuristicClass, int severity, int score) {
         this.appId = appId;
-        this.containerId = containerId;
         this.heuristicClass = heuristicClass;
         this.severity = severity;
         this.score = score;
@@ -69,7 +67,7 @@ public class HeuristicResult {
     }
 
     public static String formatTimestamp(long timestamp) {
-        return DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(timestamp));
+        return DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneId.of("UTC")).format(Instant.ofEpochMilli(timestamp));
     }
 
     @Override
@@ -77,11 +75,11 @@ public class HeuristicResult {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HeuristicResult that = (HeuristicResult) o;
-        return severity == that.severity && score == that.score && Objects.equals(appId, that.appId) && Objects.equals(containerId, that.containerId) && Objects.equals(heuristicClass, that.heuristicClass) && Objects.equals(details, that.details);
+        return severity == that.severity && score == that.score && Objects.equals(appId, that.appId) && Objects.equals(heuristicClass, that.heuristicClass) && Objects.equals(details, that.details);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(appId, containerId, heuristicClass, severity, score, details);
+        return Objects.hash(appId, heuristicClass, severity, score, details);
     }
 }

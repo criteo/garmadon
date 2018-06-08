@@ -7,13 +7,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
-
 public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
     private static final Pattern GC_NAME_PATTERN = Pattern.compile("gc\\(([^\\)]+)\\)");
 
     private final HeuristicsResultDB heuristicsResultDB;
-    private final Map<String, HeapCounters> heapCountersMap = new HashMap<>();
+    private final Map<String, Map<String, HeapCounters>> appCounters = new HashMap<>();
 
 
     public HeapUsage(HeuristicsResultDB heuristicsResultDB) {
@@ -22,10 +20,11 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
 
     @Override
     public void process(String applicationId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
+        Map<String, HeapCounters> containerCounters = appCounters.computeIfAbsent(applicationId, s -> new HashMap<>());
+        HeapCounters heapCounters = containerCounters.computeIfAbsent(containerId, s -> new HeapCounters());
         for (JVMStatisticsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             String sectionName = section.getName();
             if ("heap".equals(sectionName)) {
-                HeapCounters heapCounters = heapCountersMap.computeIfAbsent(containerId, s -> new HeapCounters());
                 for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     if ("max".equals(property.getName())) {
                         heapCounters.max = Long.parseLong(property.getValue());
@@ -41,7 +40,6 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
                         .map(JVMStatisticsProtos.JVMStatisticsData.Property::getValue)
                         .mapToLong(Long::parseLong)
                         .findFirst().orElse(0);
-                HeapCounters heapCounters = heapCountersMap.computeIfAbsent(containerId, s -> new HeapCounters());
                 Matcher matcher = GC_NAME_PATTERN.matcher(sectionName);
                 if (matcher.find()) {
                     String gcName = matcher.group(1);
@@ -61,60 +59,35 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
     }
 
     @Override
-    public void onCompleted(String applicationId, String containerId) {
-        HeapCounters heapCounters = heapCountersMap.get(containerId);
+    public void onContainerCompleted(String applicationId, String containerId) {
+        Map<String, HeapCounters> containerCounters = appCounters.get(applicationId);
+        if (containerCounters == null)
+            return;
+        HeapCounters heapCounters = containerCounters.get(containerId);
         if (heapCounters == null)
             return;
-        switch (heapCounters.gcKind) {
-            case PARALLEL:
-                handleParallelGC(applicationId, containerId, heapCounters);
-                break;
-            case G1:
-                handleG1GC(applicationId, containerId, heapCounters);
-                break;
-            default:
-                break;
+        if (heapCounters.majorGC > 0 || heapCounters.max <= heapCounters.peak) {
+            containerCounters.remove(containerId);
+            return;
         }
-        heapCountersMap.remove(containerId);
-    }
-
-    private void handleG1GC(String applicationId, String containerId, HeapCounters heapCounters) {
         int severity = HeuristicsResultDB.Severity.NONE;
-        if (heapCounters.majorGC == 0 && heapCounters.max > heapCounters.peak) {
-            long max = heapCounters.max;
-            long peak = heapCounters.peak;
-            long ratio = (max - peak) * 100 / max;
-            if (ratio > 30)
-                severity = HeuristicsResultDB.Severity.LOW;
-            if (ratio > 50)
-                severity = HeuristicsResultDB.Severity.MODERATE;
-            if (ratio > 70)
-                severity = HeuristicsResultDB.Severity.SEVERE;
-            // TODO add details/reasons
-        }
-        createResult(applicationId, containerId, severity);
+        long max = heapCounters.max;
+        long peak = heapCounters.peak;
+        long ratio = (max - peak) * 100 / max;
+        if (ratio > 30)
+            severity = HeuristicsResultDB.Severity.LOW;
+        if (ratio > 50)
+            severity = HeuristicsResultDB.Severity.MODERATE;
+        if (ratio > 70)
+            severity = HeuristicsResultDB.Severity.SEVERE;
+        heapCounters.severity = severity;
+        heapCounters.ratio = ratio;
     }
 
-    private void handleParallelGC(String applicationId, String containerId, HeapCounters heapCounters) {
-        int severity = HeuristicsResultDB.Severity.NONE;
-        if (heapCounters.majorGC == 0 && heapCounters.max > heapCounters.peak) {
-            long max = heapCounters.max;
-            long peak = heapCounters.peak;
-            long ratio = (max - peak) * 100 / max;
-            if (ratio > 30)
-                severity = HeuristicsResultDB.Severity.LOW;
-            if (ratio > 50)
-                severity = HeuristicsResultDB.Severity.MODERATE;
-            if (ratio > 70)
-                severity = HeuristicsResultDB.Severity.SEVERE;
-            // TODO add details/reasons
-        }
-        createResult(applicationId, containerId, severity);
-    }
-
-    private void createResult(String applicationId, String containerId, int severity) {
-        HeuristicResult heuristicResult = new HeuristicResult(applicationId, containerId, HeapUsage.class, severity, severity);
-        heuristicsResultDB.createHeuristicResult(heuristicResult);
+    @Override
+    public void onAppCompleted(String applicationId) {
+        HeuristicHelper.createCounterHeuristic(applicationId, appCounters, heuristicsResultDB, HeapUsage.class,
+                counter -> "unused memory %: " + counter.ratio);
     }
 
     @Override
@@ -124,11 +97,12 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
         // TODO After GC heap used give a good indication of LiveSet!
     }
 
-    private static class HeapCounters {
+    private static class HeapCounters extends BaseCounter {
         long max;
         long peak;
         GCHelper.GCKind gcKind;
         long minorGC;
         long majorGC;
+        long ratio;
     }
 }

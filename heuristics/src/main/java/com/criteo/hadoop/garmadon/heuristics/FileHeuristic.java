@@ -85,7 +85,7 @@ public class FileHeuristic {
             appContainers.remove(containerId);
             if(appContainers.size() == 0){
                 //TODO compute severity based on number of deleted, renamed, read, written...
-                HeuristicResult result = new HeuristicResult(applicationId, "", FileHeuristic.class, HeuristicsResultDB.Severity.NONE, HeuristicsResultDB.Severity.NONE);
+                HeuristicResult result = new HeuristicResult(applicationId, FileHeuristic.class, HeuristicsResultDB.Severity.NONE, HeuristicsResultDB.Severity.NONE);
                 addDetail(result, deleted, applicationId);
                 addDetail(result, read, applicationId);
                 addDetail(result, written, applicationId);

@@ -4,11 +4,10 @@ import com.criteo.jvm.JVMStatisticsProtos;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 public class Locks implements JVMStatsHeuristic {
     private final HeuristicsResultDB heuristicsResultDB;
-    private final Map<String, LockCounters> lockCountersMap = new HashMap<>();
+    private final Map<String, Map<String, LockCounters>> appCounters = new HashMap<>();
 
     public Locks(HeuristicsResultDB heuristicsResultDB) {
         this.heuristicsResultDB = heuristicsResultDB;
@@ -18,7 +17,8 @@ public class Locks implements JVMStatsHeuristic {
     public void process(String applicationId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
         for (JVMStatisticsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             if ("synclocks".equals(section.getName())) {
-                LockCounters lockCounters = lockCountersMap.computeIfAbsent(containerId, s -> new LockCounters());
+                Map<String, LockCounters> containerCounters = appCounters.computeIfAbsent(applicationId, s -> new HashMap<>());
+                LockCounters lockCounters = containerCounters.computeIfAbsent(containerId, s -> new LockCounters());
                 for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     if ("contendedlockattempts".equals(property.getName())) {
                         long lastContendedCount = lockCounters.lastContendedCount;
@@ -42,12 +42,8 @@ public class Locks implements JVMStatsHeuristic {
                             severity = HeuristicsResultDB.Severity.SEVERE;
                         if (ratio > 500)
                             severity = HeuristicsResultDB.Severity.CRITICAL;
-                        HeuristicResult result = new HeuristicResult(applicationId, containerId, Locks.class, severity, severity);
-                        result.addDetail("Last contended count", String.valueOf(lastContendedCount));
-                        result.addDetail("Last timestamp", String.valueOf(lastTimestamp), HeuristicResult.formatTimestamp(lastTimestamp));
-                        result.addDetail("Current contended count", String.valueOf(currentContendedCount));
-                        result.addDetail("Current timestamp", String.valueOf(currentTimestamp), HeuristicResult.formatTimestamp(currentTimestamp));
-                        heuristicsResultDB.createHeuristicResult(result);
+                        lockCounters.ratio = Math.max(ratio, lockCounters.ratio);
+                        lockCounters.severity = Math.max(severity, lockCounters.severity);
                         return;
                     }
                 }
@@ -56,12 +52,26 @@ public class Locks implements JVMStatsHeuristic {
     }
 
     @Override
-    public void onCompleted(String applicationId, String containerId) {
-
+    public void onContainerCompleted(String applicationId, String containerId) {
+        Map<String, LockCounters> containerCounters = appCounters.get(applicationId);
+        if (containerCounters == null)
+            return;
+        LockCounters lockCounters = containerCounters.get(containerId);
+        if (lockCounters == null)
+            return;
+        if (lockCounters.severity == HeuristicsResultDB.Severity.NONE)
+            containerCounters.remove(containerId);
     }
 
-    private static class LockCounters {
+    @Override
+    public void onAppCompleted(String applicationId) {
+        HeuristicHelper.createCounterHeuristic(applicationId, appCounters, heuristicsResultDB, Locks.class,
+                counter -> "Max contention/s: " + counter.ratio);
+    }
+
+    private static class LockCounters extends BaseCounter {
         long lastContendedCount;
         long lastTimestamp;
+        long ratio;
     }
 }

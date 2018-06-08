@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class CodeCacheUsage implements JVMStatsHeuristic {
     private final HeuristicsResultDB heuristicsResultDB;
-    private final Map<String, CodeCacheCounters> codeCacheCountersMap = new HashMap<>();
+    private final Map<String, Map<String, CodeCacheCounters>> appCounters  = new HashMap<>();
 
     public CodeCacheUsage(HeuristicsResultDB heuristicsResultDB) {
         this.heuristicsResultDB = heuristicsResultDB;
@@ -17,7 +17,8 @@ public class CodeCacheUsage implements JVMStatsHeuristic {
     public void process(String applicationId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
         for (JVMStatisticsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             if ("code".equals(section.getName())) {
-                CodeCacheCounters codeCacheCounters = codeCacheCountersMap.computeIfAbsent(containerId, s -> new CodeCacheCounters());
+                Map<String, CodeCacheCounters> containerCounters = appCounters.computeIfAbsent(applicationId, s -> new HashMap<>());
+                CodeCacheCounters codeCacheCounters = containerCounters.computeIfAbsent(containerId, s -> new CodeCacheCounters());
                 for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     if ("max".equals(property.getName())) {
                         codeCacheCounters.max = Long.parseLong(property.getValue());
@@ -26,25 +27,35 @@ public class CodeCacheUsage implements JVMStatsHeuristic {
                         codeCacheCounters.peak = Math.max(Long.parseLong(property.getValue()), codeCacheCounters.peak);
                     }
                 }
-                long max = codeCacheCounters.max;
-                long peak = codeCacheCounters.peak;
-                if (max > peak && (max - peak) * 100 / max < 5) {
-                    HeuristicResult result = new HeuristicResult(applicationId, containerId, CodeCacheUsage.class, HeuristicsResultDB.Severity.MODERATE, HeuristicsResultDB.Severity.MODERATE);
-                    result.addDetail("max", codeCacheCounters.max + "kB");
-                    result.addDetail("peak", codeCacheCounters.peak + "kB");
-                    heuristicsResultDB.createHeuristicResult(result);
-                }
                 return;
             }
         }
     }
 
     @Override
-    public void onCompleted(String applicationId, String containerId) {
-        codeCacheCountersMap.remove(containerId);
+    public void onContainerCompleted(String applicationId, String containerId) {
+        Map<String, CodeCacheCounters> containerCounters = appCounters.get(applicationId);
+        if (containerCounters == null)
+            return;
+        CodeCacheCounters counters =  containerCounters.get(containerId);
+        if (counters == null)
+            return;
+        long max = counters.max;
+        long peak = counters.peak;
+        counters.severity = HeuristicsResultDB.Severity.MODERATE;
+        if (max > peak && (max - peak) * 100 / max >= 5) {
+            // no issue with this container, CodeCache is less than 95%
+            containerCounters.remove(containerId);
+        }
     }
 
-    private static class CodeCacheCounters {
+    @Override
+    public void onAppCompleted(String applicationId) {
+        HeuristicHelper.createCounterHeuristic(applicationId, appCounters, heuristicsResultDB, CodeCacheUsage.class,
+                counter -> "max: " + counter.max + "kB, peak: " + counter.peak + "kB");
+    }
+
+    private static class CodeCacheCounters extends BaseCounter {
         long peak;
         long max;
     }

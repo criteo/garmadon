@@ -10,7 +10,11 @@ import com.criteo.jvm.JVMStatisticsProtos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasTag;
@@ -22,6 +26,7 @@ public class Heuristics {
     private final GarmadonReader reader;
     private final List<GCStatsHeuristic> gcStatsHeuristics = new CopyOnWriteArrayList<>();
     private final List<JVMStatsHeuristic> jvmStatsHeuristics = new CopyOnWriteArrayList<>();
+    private final Map<String, Set<String>> containersPerApp = new HashMap<>();
 
     private final FileHeuristic fileHeuristic;
 
@@ -73,6 +78,8 @@ public class Heuristics {
     private void processGcEvent(GarmadonMessage msg) {
         String applicationId = msg.getHeader().getApplicationId();
         String containerId = msg.getHeader().getContainerId();
+        Set<String> containers = containersPerApp.computeIfAbsent(applicationId, s -> new HashSet<>());
+        containers.add(containerId);
         JVMStatisticsProtos.GCStatisticsData gcStats = (JVMStatisticsProtos.GCStatisticsData) msg.getBody();
         gcStatsHeuristics.forEach(h -> h.process(applicationId, containerId, gcStats));
     }
@@ -80,6 +87,8 @@ public class Heuristics {
     private void processJvmStatEvent(GarmadonMessage msg) {
         String applicationId = msg.getHeader().getApplicationId();
         String containerId = msg.getHeader().getContainerId();
+        Set<String> containers = containersPerApp.computeIfAbsent(applicationId, s -> new HashSet<>());
+        containers.add(containerId);
         JVMStatisticsProtos.JVMStatisticsData jvmStats = (JVMStatisticsProtos.JVMStatisticsData) msg.getBody();
         jvmStatsHeuristics.forEach(h -> h.process(applicationId, containerId, jvmStats));
     }
@@ -91,8 +100,17 @@ public class Heuristics {
         String containerId = msg.getHeader().getContainerId();
         DataAccessEventProtos.StateEvent stateEvent = (DataAccessEventProtos.StateEvent) msg.getBody();
         if (StateEvent.State.END.toString().equals(stateEvent.getState())) {
-            gcStatsHeuristics.forEach(h -> h.onCompleted(applicationId, containerId));
-            jvmStatsHeuristics.forEach(h -> h.onCompleted(applicationId, containerId));
+            gcStatsHeuristics.forEach(h -> h.onContainerCompleted(applicationId, containerId));
+            jvmStatsHeuristics.forEach(h -> h.onContainerCompleted(applicationId, containerId));
+            Set<String> appContainers = containersPerApp.computeIfAbsent(applicationId, s -> new HashSet<>());
+            if (appContainers.size() == 0)
+                return;
+            appContainers.remove(containerId);
+            if (appContainers.size() == 0) {
+                containersPerApp.remove(applicationId);
+                gcStatsHeuristics.forEach(h -> h.onAppCompleted(applicationId));
+                jvmStatsHeuristics.forEach(h -> h.onAppCompleted(applicationId));
+            }
         }
     }
 

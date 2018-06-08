@@ -7,9 +7,11 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
+import java.util.function.Consumer;
+
 public class HeapUsageTest {
-    private final String APPLICATION_ID = "application_42";
-    private final String CONTAINER_ID = "container_42_42";
+    private static final String APPLICATION_ID = "application_42";
+    private static final String CONTAINER_PREFIX_ID = "container_42_";
 
     private HeuristicsResultDB mockDB;
 
@@ -19,34 +21,67 @@ public class HeapUsageTest {
     }
 
     @Test
-    public void heap_empty() {
-        testHeapUsage(HeuristicsResultDB.Severity.SEVERE, 2*1024*1024, 512*1024*1024);
+    public void heap_empty_single() {
+        testHeapUsage(1, HeuristicsResultDB.Severity.SEVERE, 2*1024*1024, 512*1024*1024, getAssertDetailsSingle(99));
     }
 
     @Test
-    public void heap_half() {
-        testHeapUsage(HeuristicsResultDB.Severity.MODERATE, 250*1024*1024, 512*1024*1024);
+    public void heap_empty_alot() {
+        testHeapUsage(100, HeuristicsResultDB.Severity.SEVERE, 2*1024*1024, 512*1024*1024, this::assertDetailsALot);
     }
 
     @Test
-    public void heap_high() {
-        testHeapUsage(HeuristicsResultDB.Severity.LOW, 350*1024*1024, 512*1024*1024);
+    public void heap_half_single() {
+        testHeapUsage(1, HeuristicsResultDB.Severity.MODERATE, 250*1024*1024, 512*1024*1024, getAssertDetailsSingle(51));
     }
 
-    private void testHeapUsage(int severity, long used, long max) {
+    @Test
+    public void heap_half_alot() {
+        testHeapUsage(100, HeuristicsResultDB.Severity.MODERATE, 250*1024*1024, 512*1024*1024, this::assertDetailsALot);
+    }
+
+    @Test
+    public void heap_high_single() {
+        testHeapUsage(1, HeuristicsResultDB.Severity.LOW, 350*1024*1024, 512*1024*1024, getAssertDetailsSingle(31));
+    }
+
+    @Test
+    public void heap_high_alot() {
+        testHeapUsage(100, HeuristicsResultDB.Severity.LOW, 350*1024*1024, 512*1024*1024, this::assertDetailsALot);
+    }
+
+    private Consumer<HeuristicResult> getAssertDetailsSingle(int ratio) {
+        return result -> {
+            Assert.assertEquals(1, result.getDetailCount());
+            Assert.assertEquals(CONTAINER_PREFIX_ID + "0", result.getDetail(0).name);
+            Assert.assertEquals("unused memory %: " + ratio, result.getDetail(0).value);
+        };
+    }
+
+    private void assertDetailsALot(HeuristicResult result) {
+        Assert.assertEquals(1, result.getDetailCount());
+        Assert.assertEquals("Containers", result.getDetail(0).name);
+        Assert.assertEquals("100", result.getDetail(0).value);
+
+    }
+
+    private void testHeapUsage(int nbContainers, int severity, long used, long max, Consumer<HeuristicResult> assertDetails) {
         Mockito.doAnswer(invocationOnMock -> {
             HeuristicResult result = invocationOnMock.getArgumentAt(0, HeuristicResult.class);
             Assert.assertEquals(APPLICATION_ID, result.appId);
-            Assert.assertEquals(CONTAINER_ID, result.containerId);
             Assert.assertEquals(severity, result.severity);
             Assert.assertEquals(severity, result.score);
             Assert.assertEquals(HeapUsage.class, result.heuristicClass);
+            assertDetails.accept(result);
             return null;
         }).when(mockDB).createHeuristicResult(Matchers.any());
         HeapUsage heapUsage = new HeapUsage(mockDB);
         JVMStatisticsProtos.JVMStatisticsData jvmStats = buildHeapData(used, max);
-        heapUsage.process(APPLICATION_ID, CONTAINER_ID, jvmStats);
-        heapUsage.onCompleted(APPLICATION_ID, CONTAINER_ID);
+        for (int i = 0 ; i < nbContainers; i++) {
+            heapUsage.process(APPLICATION_ID, CONTAINER_PREFIX_ID + i, jvmStats);
+            heapUsage.onContainerCompleted(APPLICATION_ID, CONTAINER_PREFIX_ID + i);
+        }
+        heapUsage.onAppCompleted(APPLICATION_ID);
     }
 
     private JVMStatisticsProtos.JVMStatisticsData buildHeapData(long used, long max) {

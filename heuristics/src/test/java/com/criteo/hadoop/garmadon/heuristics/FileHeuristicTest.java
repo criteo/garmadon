@@ -97,7 +97,7 @@ public class FileHeuristicTest {
         heuristic.compute("app_2", "cid_1", newEndEvent());
         verify(db, never()).createHeuristicResult(any());
 
-        HeuristicResult expectedResults = new HeuristicResult("app_1", "", FileHeuristic.class, HeuristicsResultDB.Severity.NONE, HeuristicsResultDB.Severity.NONE);
+        HeuristicResult expectedResults = new HeuristicResult("app_1", FileHeuristic.class, HeuristicsResultDB.Severity.NONE, HeuristicsResultDB.Severity.NONE);
         expectedResults.addDetail("Files deleted", "1");
         expectedResults.addDetail("Files read", "1");
         expectedResults.addDetail("Files written", "1");

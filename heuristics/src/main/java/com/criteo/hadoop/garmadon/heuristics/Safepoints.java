@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class Safepoints implements JVMStatsHeuristic {
     private final HeuristicsResultDB heuristicsResultDB;
-    private final Map<String, SafepointsCounters> safepointsCountersMap = new HashMap<>();
+    private final Map<String, Map<String, SafepointsCounters>> appCounters = new HashMap<>();
 
     public Safepoints(HeuristicsResultDB heuristicsResultDB) {
         this.heuristicsResultDB = heuristicsResultDB;
@@ -17,7 +17,8 @@ public class Safepoints implements JVMStatsHeuristic {
     public void process(String applicationId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
         for (JVMStatisticsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             if ("safepoints".equals(section.getName())) {
-                SafepointsCounters safepointsCounters = safepointsCountersMap.computeIfAbsent(containerId, s -> new SafepointsCounters());
+                Map<String, SafepointsCounters> containerCounters = appCounters.computeIfAbsent(applicationId, s -> new HashMap<>());
+                SafepointsCounters safepointsCounters = containerCounters.computeIfAbsent(containerId, s -> new SafepointsCounters());
                 for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     if ("count".equals(property.getName())) {
                         long lastCount = safepointsCounters.lastCount;
@@ -43,12 +44,8 @@ public class Safepoints implements JVMStatsHeuristic {
                             severity = HeuristicsResultDB.Severity.SEVERE;
                         if (ratio > 10)
                             severity = HeuristicsResultDB.Severity.CRITICAL;
-                        HeuristicResult result = new HeuristicResult(applicationId, containerId, Safepoints.class, severity, severity);
-                        result.addDetail("Last count", String.valueOf(lastCount));
-                        result.addDetail("Last timestamp", String.valueOf(lastTimestamp), HeuristicResult.formatTimestamp(lastTimestamp));
-                        result.addDetail("Current count", String.valueOf(currentCount));
-                        result.addDetail("Current timestamp", String.valueOf(currentTimestamp), HeuristicResult.formatTimestamp(currentTimestamp));
-                        heuristicsResultDB.createHeuristicResult(result);
+                        safepointsCounters.ratio = Math.max(ratio, safepointsCounters.ratio);
+                        safepointsCounters.severity = Math.max(severity, safepointsCounters.severity);
                         return;
                     }
                 }
@@ -57,12 +54,26 @@ public class Safepoints implements JVMStatsHeuristic {
     }
 
     @Override
-    public void onCompleted(String applicationId, String containerId) {
-        safepointsCountersMap.remove(containerId);
+    public void onContainerCompleted(String applicationId, String containerId) {
+        Map<String, SafepointsCounters> containerCounters = appCounters.get(applicationId);
+        if (containerCounters == null)
+            return;
+        SafepointsCounters safepointsCounters = containerCounters.get(containerId);
+        if (safepointsCounters == null)
+            return;
+        if (safepointsCounters.severity == HeuristicsResultDB.Severity.NONE)
+            containerCounters.remove(containerId);
     }
 
-    private static class SafepointsCounters {
+    @Override
+    public void onAppCompleted(String applicationId) {
+        HeuristicHelper.createCounterHeuristic(applicationId, appCounters, heuristicsResultDB, Safepoints.class,
+                counter -> "Max safepoint/s: " + counter.ratio);
+    }
+
+    private static class SafepointsCounters extends BaseCounter {
         long lastCount;
         long lastTimestamp;
+        long ratio;
     }
 }

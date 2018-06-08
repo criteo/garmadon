@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class Threads implements JVMStatsHeuristic {
     private final HeuristicsResultDB heuristicsResultDB;
-    private final Map<String, ThreadCounters> threadCountersMap = new HashMap<>();
+    private final Map<String, Map<String, ThreadCounters>> appCounters = new HashMap<>();
 
     public Threads(HeuristicsResultDB heuristicsResultDB) {
         this.heuristicsResultDB = heuristicsResultDB;
@@ -17,11 +17,11 @@ public class Threads implements JVMStatsHeuristic {
     public void process(String applicationId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
         for (JVMStatisticsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             if ("threads".equals(section.getName())) {
-                ThreadCounters threadCounters = this.threadCountersMap.computeIfAbsent(containerId, s -> new ThreadCounters());
+                Map<String, ThreadCounters> containerCounters = appCounters.computeIfAbsent(applicationId, s -> new HashMap<>());
+                ThreadCounters threadCounters = containerCounters.computeIfAbsent(containerId, s -> new ThreadCounters());
                 for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     if ("count".equals(property.getName())) {
                         int current = Integer.parseInt(property.getValue());
-                        threadCounters.lastCount = current;
                         threadCounters.maxCount = Math.max(current, threadCounters.maxCount);
                     }
                     if ("total".equals(property.getName())) {
@@ -34,8 +34,11 @@ public class Threads implements JVMStatsHeuristic {
     }
 
     @Override
-    public void onCompleted(String applicationId, String containerId) {
-        ThreadCounters threadCounters = this.threadCountersMap.get(containerId);
+    public void onContainerCompleted(String applicationId, String containerId) {
+        Map<String, ThreadCounters> containerCounters = appCounters.get(applicationId);
+        if (containerCounters == null)
+            return;
+        ThreadCounters threadCounters = containerCounters.get(containerId);
         if (threadCounters == null)
             return;
         int severity = HeuristicsResultDB.Severity.NONE;
@@ -44,15 +47,23 @@ public class Threads implements JVMStatsHeuristic {
             severity = HeuristicsResultDB.Severity.LOW;
         if (ratio <= 0) // maxcount=10 total>1000 (+900 thread created/destroyed)
             severity = HeuristicsResultDB.Severity.MODERATE;
-        HeuristicResult heuristicResult = new HeuristicResult(applicationId, containerId, Threads.class, severity, severity);
-        heuristicsResultDB.createHeuristicResult(heuristicResult);
-        this.threadCountersMap.remove(containerId);
+        if (severity == HeuristicsResultDB.Severity.NONE) {
+            containerCounters.remove(containerId);
+            return;
+        }
+        threadCounters.ratio = ratio;
+        threadCounters.severity = severity;
     }
 
-    private static class ThreadCounters {
-        int lastCount;
+    @Override
+    public void onAppCompleted(String applicationId) {
+        HeuristicHelper.createCounterHeuristic(applicationId, appCounters, heuristicsResultDB, Threads.class,
+                counter -> "Max count threads: " + counter.maxCount + ", Total threads: " + counter.total);
+    }
+
+    private static class ThreadCounters extends BaseCounter {
         int maxCount;
         int total;
-        // HdrHistogram?
+        int ratio;
     }
 }

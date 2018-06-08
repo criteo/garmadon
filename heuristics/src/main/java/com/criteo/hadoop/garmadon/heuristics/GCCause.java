@@ -1,13 +1,18 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
 import com.criteo.jvm.JVMStatisticsProtos;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.criteo.hadoop.garmadon.heuristics.HeuristicHelper.MAX_CONTAINERS_PER_HEURISTIC;
 
 public class GCCause implements GCStatsHeuristic {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Heuristics.class);
+    static final String METADATA_THRESHOLD = "Metadata GC Threshold";
+    static final String ERGONOMICS = "Ergonomics";
 
     private final HeuristicsResultDB heuristicsResultDB;
+    private final Map<String, Map<String, GCCauseStats>> appStats  = new HashMap<>();
 
     public GCCause(HeuristicsResultDB heuristicsResultDB) {
         this.heuristicsResultDB = heuristicsResultDB;
@@ -15,17 +20,40 @@ public class GCCause implements GCStatsHeuristic {
 
     @Override
     public void process(String applicationId, String containerId, JVMStatisticsProtos.GCStatisticsData gcStats) {
-        if ("Metadata GC Threshold".equals(gcStats.getCause()) || "Ergonomics".equals(gcStats.getCause())) {
-            //LOGGER.info("Metadata Threshold found!");
-            HeuristicResult result = new HeuristicResult(applicationId, containerId, GCCause.class, HeuristicsResultDB.Severity.MODERATE, HeuristicsResultDB.Severity.MODERATE);
-            GCHelper.addGCDetails(result, gcStats);
-            result.addDetail("Cause", gcStats.getCause());
-            heuristicsResultDB.createHeuristicResult(result);
+        if (METADATA_THRESHOLD.equals(gcStats.getCause()) || ERGONOMICS.equals(gcStats.getCause())) {
+            Map<String, GCCauseStats> containerStats = appStats.computeIfAbsent(applicationId, s -> new HashMap<>());
+            GCCauseStats stats = containerStats.computeIfAbsent(containerId, s -> new GCCauseStats());
+            if (METADATA_THRESHOLD.equals(gcStats.getCause()))
+                stats.metadataThreshold++;
+            if (ERGONOMICS.equals(gcStats.getCause()))
+                stats.ergonomics++;
         }
     }
 
     @Override
-    public void onCompleted(String applicationId, String containerId) {
+    public void onContainerCompleted(String applicationId, String containerId) {
 
+    }
+
+    @Override
+    public void onAppCompleted(String applicationId) {
+        Map<String, GCCauseStats> containerStats = appStats.remove(applicationId);
+        if (containerStats == null)
+            return;
+        HeuristicResult result = new HeuristicResult(applicationId, GCCause.class, HeuristicsResultDB.Severity.MODERATE, HeuristicsResultDB.Severity.MODERATE);
+        if (containerStats.size() <= MAX_CONTAINERS_PER_HEURISTIC) {
+            containerStats.forEach((key, value) -> result.addDetail(key, METADATA_THRESHOLD + ": " + value.metadataThreshold + ", " + ERGONOMICS + ": " + value.ergonomics));
+        } else {
+            int metadataThresholdCount = containerStats.values().stream().mapToInt(stats -> stats.metadataThreshold).sum();
+            int ergonomicsCount = containerStats.values().stream().mapToInt(stats -> stats.ergonomics).sum();
+            result.addDetail(METADATA_THRESHOLD, String.valueOf(metadataThresholdCount));
+            result.addDetail(ERGONOMICS, String.valueOf(ergonomicsCount));
+        }
+        heuristicsResultDB.createHeuristicResult(result);
+    }
+
+    private static class GCCauseStats {
+        int metadataThreshold;
+        int ergonomics;
     }
 }

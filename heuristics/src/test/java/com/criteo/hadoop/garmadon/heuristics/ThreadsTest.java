@@ -2,15 +2,16 @@ package com.criteo.hadoop.garmadon.heuristics;
 
 import com.criteo.jvm.JVMStatisticsProtos;
 import org.junit.Assert;
-import org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
+import java.util.function.Consumer;
+
 public class ThreadsTest {
-    private final String APPLICATION_ID = "application_42";
-    private final String CONTAINER_ID = "container_42_42";
+    private static final String APPLICATION_ID = "application_42";
+    private static final String CONTAINER_PREFIX_ID = "container_42_";
 
     private HeuristicsResultDB mockDB;
 
@@ -20,21 +21,57 @@ public class ThreadsTest {
     }
 
     @Test
-    public void mass_created_threads() {
+    public void low_created_threads_single() {
+        testCreatedThreads(HeuristicsResultDB.Severity.LOW, 180, 1, getAssertDetailsSingle(180));
+    }
+
+    @Test
+    public void low_created_threads_alot() {
+        testCreatedThreads(HeuristicsResultDB.Severity.LOW, 180, 100, this::assertDetailsALot);
+    }
+
+    @Test
+    public void mass_created_threads_single() {
+        testCreatedThreads(HeuristicsResultDB.Severity.MODERATE, 1800, 1, getAssertDetailsSingle(1800));
+    }
+
+    @Test
+    public void mass_created_threads_alot() {
+        testCreatedThreads(HeuristicsResultDB.Severity.MODERATE, 1800, 100, this::assertDetailsALot);
+    }
+
+    private Consumer<HeuristicResult> getAssertDetailsSingle(int total) {
+        return result -> {
+            Assert.assertEquals(1, result.getDetailCount());
+            Assert.assertEquals(CONTAINER_PREFIX_ID + "0", result.getDetail(0).name);
+            Assert.assertEquals("Max count threads: 12, Total threads: " + total, result.getDetail(0).value);
+        };
+    }
+
+    private void assertDetailsALot(HeuristicResult result) {
+        Assert.assertEquals(1, result.getDetailCount());
+        Assert.assertEquals("Containers", result.getDetail(0).name);
+        Assert.assertEquals("100", result.getDetail(0).value);
+    }
+
+    private void testCreatedThreads(int severity, int total, int nbContainers, Consumer<HeuristicResult> assertDetails) {
         Mockito.doAnswer(invocationOnMock -> {
             HeuristicResult result = invocationOnMock.getArgumentAt(0, HeuristicResult.class);
             Assert.assertEquals(APPLICATION_ID, result.appId);
-            Assert.assertEquals(CONTAINER_ID, result.containerId);
-            Assert.assertEquals(HeuristicsResultDB.Severity.MODERATE, result.severity);
-            Assert.assertEquals(HeuristicsResultDB.Severity.MODERATE, result.score);
+            Assert.assertEquals(severity, result.severity);
+            Assert.assertEquals(severity, result.score);
             Assert.assertEquals(Threads.class, result.heuristicClass);
+            assertDetails.accept(result);
             return null;
         }).when(mockDB).createHeuristicResult(Matchers.any());
 
         Threads threads = new Threads(mockDB);
-        for (int i = 1; i < 150; i++)
-            threads.process(APPLICATION_ID, CONTAINER_ID, buildThreadData(12, 6, 12*i));
-        threads.onCompleted(APPLICATION_ID, CONTAINER_ID);
+        for (int i = 0; i < nbContainers; i++) {
+            threads.process(APPLICATION_ID, CONTAINER_PREFIX_ID + i, buildThreadData(12, 6, 12));
+            threads.process(APPLICATION_ID, CONTAINER_PREFIX_ID + i, buildThreadData(12, 6, total));
+            threads.onContainerCompleted(APPLICATION_ID, CONTAINER_PREFIX_ID + i);
+        }
+        threads.onAppCompleted(APPLICATION_ID);
     }
 
     private JVMStatisticsProtos.JVMStatisticsData buildThreadData(int count, int daemon, int total) {
