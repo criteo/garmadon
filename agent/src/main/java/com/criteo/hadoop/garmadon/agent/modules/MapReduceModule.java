@@ -21,6 +21,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class MapReduceModule extends ContainerModule {
 
+    private static Consumer<Object> eventHandler;
+
     // Output format configuration
     private static final String DEPRECATED_FILE_OUTPUT_FORMAT_OUTPUT_DIR = "mapred.output.dir";
     private static final String FILE_OUTPUT_FORMAT_OUTPUT_DIR = "mapreduce.output.fileoutputformat.outputdir";
@@ -53,19 +55,20 @@ public class MapReduceModule extends ContainerModule {
 
     @Override
     public void setup0(Instrumentation instrumentation, Consumer<Object> eventConsumer) {
-        new InputFormatTracer(eventConsumer::accept).installOn(instrumentation);
-        new OutputFormatTracer(eventConsumer::accept).installOn(instrumentation);
-        new DeprecatedInputFormatTracer(eventConsumer::accept).installOn(instrumentation);
-        new DeprecatedOutputFormatTracer(eventConsumer::accept).installOn(instrumentation);
+
+        initEventHandler(eventConsumer);
+
+        new InputFormatTracer().installOn(instrumentation);
+        new OutputFormatTracer().installOn(instrumentation);
+        new DeprecatedInputFormatTracer().installOn(instrumentation);
+        new DeprecatedOutputFormatTracer().installOn(instrumentation);
+    }
+
+    public static void initEventHandler(Consumer<Object> eventConsumer) {
+        MapReduceModule.eventHandler = eventConsumer;
     }
 
     public static class InputFormatTracer extends MethodTracer {
-
-        private final Consumer<Object> eventHandler;
-
-        public InputFormatTracer(Consumer<Object> eventHandler) {
-            this.eventHandler = eventHandler;
-        }
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
@@ -79,10 +82,10 @@ public class MapReduceModule extends ContainerModule {
 
         @Override
         Implementation newImplementation() {
-            return to(this).andThen(SuperMethodCall.INSTANCE);
+            return to(InputFormatTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 
-        public void intercept(@Argument(0) JobContext jobContext) {
+        public static void intercept(@Argument(0) JobContext jobContext) {
             String paths = (jobContext.getConfiguration().get(FILE_INPUT_FORMAT_INPUT_DIR) != null) ?
                     jobContext.getConfiguration().get(FILE_INPUT_FORMAT_INPUT_DIR) : jobContext.getConfiguration().get(DEPRECATED_FILE_INPUT_FORMAT_INPUT_DIR);
             if (paths != null) {
@@ -91,7 +94,7 @@ public class MapReduceModule extends ContainerModule {
             }
         }
 
-        public void intercept(@Argument(1) TaskAttemptContext taskAttemptContext) {
+        public static void intercept(@Argument(1) TaskAttemptContext taskAttemptContext) {
             String paths = (taskAttemptContext.getConfiguration().get(FILE_INPUT_FORMAT_INPUT_DIR) != null) ?
                     taskAttemptContext.getConfiguration().get(FILE_INPUT_FORMAT_INPUT_DIR) : taskAttemptContext.getConfiguration().get(DEPRECATED_FILE_INPUT_FORMAT_INPUT_DIR);
             if (paths != null) {
@@ -102,12 +105,6 @@ public class MapReduceModule extends ContainerModule {
     }
 
     public static class OutputFormatTracer extends MethodTracer {
-
-        private final Consumer<Object> eventHandler;
-
-        public OutputFormatTracer(Consumer<Object> eventHandler) {
-            this.eventHandler = eventHandler;
-        }
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
@@ -121,10 +118,10 @@ public class MapReduceModule extends ContainerModule {
 
         @Override
         Implementation newImplementation() {
-            return to(this).andThen(SuperMethodCall.INSTANCE);
+            return to(OutputFormatTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 
-        public void intercept(@Argument(0) TaskAttemptContext taskAttemptContext) {
+        public static void intercept(@Argument(0) TaskAttemptContext taskAttemptContext) {
             String paths = (taskAttemptContext.getConfiguration().get(FILE_OUTPUT_FORMAT_OUTPUT_DIR) != null) ?
                     taskAttemptContext.getConfiguration().get(FILE_OUTPUT_FORMAT_OUTPUT_DIR) : taskAttemptContext.getConfiguration().get(DEPRECATED_FILE_OUTPUT_FORMAT_OUTPUT_DIR);
             if (paths != null) {
@@ -135,12 +132,6 @@ public class MapReduceModule extends ContainerModule {
     }
 
     public static class DeprecatedInputFormatTracer extends MethodTracer {
-
-        private final Consumer<Object> eventHandler;
-
-        public DeprecatedInputFormatTracer(Consumer<Object> eventHandler) {
-            this.eventHandler = eventHandler;
-        }
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
@@ -154,10 +145,10 @@ public class MapReduceModule extends ContainerModule {
 
         @Override
         Implementation newImplementation() {
-            return to(this).andThen(SuperMethodCall.INSTANCE);
+            return to(DeprecatedInputFormatTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 
-        public void intercept(@Argument(1) JobConf jobConf) throws Exception {
+        public static void intercept(@Argument(1) JobConf jobConf) throws Exception {
             String paths = (jobConf.get(FILE_INPUT_FORMAT_INPUT_DIR) != null) ?
                     jobConf.get(FILE_INPUT_FORMAT_INPUT_DIR) : jobConf.get(DEPRECATED_FILE_INPUT_FORMAT_INPUT_DIR);
             if (paths != null) {
@@ -168,12 +159,6 @@ public class MapReduceModule extends ContainerModule {
     }
 
     public static class DeprecatedOutputFormatTracer extends MethodTracer {
-
-        private final Consumer<Object> eventHandler;
-
-        public DeprecatedOutputFormatTracer(Consumer<Object> eventHandler) {
-            this.eventHandler = eventHandler;
-        }
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
@@ -187,10 +172,10 @@ public class MapReduceModule extends ContainerModule {
 
         @Override
         Implementation newImplementation() {
-            return to(this).andThen(SuperMethodCall.INSTANCE);
+            return to(DeprecatedOutputFormatTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 
-        public void intercept(@Argument(1) JobConf jobConf) {
+        public static void intercept(@Argument(1) JobConf jobConf) {
             String paths = (jobConf.get(FILE_OUTPUT_FORMAT_OUTPUT_DIR) != null) ?
                     jobConf.get(FILE_OUTPUT_FORMAT_OUTPUT_DIR) : jobConf.get(DEPRECATED_FILE_OUTPUT_FORMAT_OUTPUT_DIR);
             if (paths != null) {

@@ -23,21 +23,24 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 public class FileSystemModule extends ContainerModule {
 
+    private static Consumer<Object> eventHandler;
+
     @Override
     public void setup0(Instrumentation instrumentation, Consumer<Object> eventConsumer) {
-        new ReadTracer(eventConsumer::accept).installOn(instrumentation);
-        new WriteTracer(eventConsumer::accept).installOn(instrumentation);
-        new RenameTracer(eventConsumer::accept).installOn(instrumentation);
-        new DeleteTracer(eventConsumer::accept).installOn(instrumentation);
+
+        initEventHandler(eventConsumer);
+
+        new ReadTracer().installOn(instrumentation);
+        new WriteTracer().installOn(instrumentation);
+        new RenameTracer().installOn(instrumentation);
+        new DeleteTracer().installOn(instrumentation);
+    }
+
+    public static void initEventHandler(Consumer<Object> eventConsumer) {
+        FileSystemModule.eventHandler = eventConsumer;
     }
 
     public static class DeleteTracer extends MethodTracer {
-
-        private final Consumer<Object> eventHandler;
-
-        public DeleteTracer(Consumer<Object> eventHandler) {
-            this.eventHandler = eventHandler;
-        }
 
         @Override
         public ElementMatcher<? super TypeDescription> typeMatcher() {
@@ -51,10 +54,10 @@ public class FileSystemModule extends ContainerModule {
 
         @Override
         protected Implementation newImplementation() {
-            return to(this).andThen(SuperMethodCall.INSTANCE);
+            return to(DeleteTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 
-        public void intercept(
+        public static void intercept(
                 @This Object o,
                 @Argument(0) Path dst) throws Exception {
             Object uri = ((DistributedFileSystem) o).getUri();
@@ -65,12 +68,6 @@ public class FileSystemModule extends ContainerModule {
     }
 
     public static class ReadTracer extends MethodTracer {
-
-        private final Consumer<Object> eventHandler;
-
-        public ReadTracer(Consumer<Object> eventHandler) {
-            this.eventHandler = eventHandler;
-        }
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
@@ -84,10 +81,10 @@ public class FileSystemModule extends ContainerModule {
 
         @Override
         protected Implementation newImplementation() {
-            return to(this).andThen(SuperMethodCall.INSTANCE);
+            return to(ReadTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 
-        public void intercept(
+        public static void intercept(
                 @This Object o,
                 @Argument(0) Path f) throws Exception {
             Object uri = ((DistributedFileSystem) o).getUri();
@@ -97,12 +94,6 @@ public class FileSystemModule extends ContainerModule {
     }
 
     public static class RenameTracer extends MethodTracer {
-
-        final Consumer<Object> eventHandler;
-
-        public RenameTracer(Consumer<Object> eventHandler) {
-            this.eventHandler = eventHandler;
-        }
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
@@ -116,10 +107,10 @@ public class FileSystemModule extends ContainerModule {
 
         @Override
         Implementation newImplementation() {
-            return to(this).andThen(SuperMethodCall.INSTANCE);
+            return to(RenameTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 
-        public void intercept(
+        public static void intercept(
                 @This Object o,
                 @Argument(0) Path src,
                 @Argument(1) Path dst) throws Exception {
@@ -130,12 +121,6 @@ public class FileSystemModule extends ContainerModule {
     }
 
     public static class WriteTracer extends MethodTracer {
-
-        private final Consumer<Object> eventHandler;
-
-        public WriteTracer(Consumer<Object> eventHandler) {
-            this.eventHandler = eventHandler;
-        }
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
@@ -158,10 +143,10 @@ public class FileSystemModule extends ContainerModule {
 
         @Override
         Implementation newImplementation() {
-            return to(this).andThen(SuperMethodCall.INSTANCE);
+            return to(WriteTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 
-        public void intercept(@This Object o, @Argument(0) Path f) throws Exception {
+        public static void intercept(@This Object o, @Argument(0) Path f) throws Exception {
             Object uri = ((DistributedFileSystem) o).getUri();
             FsEvent event = new FsEvent(System.currentTimeMillis(), f.toString(), FsEvent.Action.WRITE, uri.toString());
             eventHandler.accept(event);

@@ -44,6 +44,7 @@ public class MapReduceOutputFormatTracerTest {
     @Before
     public void setUp() throws IOException {
         eventHandler = mock(Consumer.class);
+        MapReduceModule.initEventHandler(eventHandler);
         taskAttemptContext = mock(TaskAttemptContext.class);
         conf = new Configuration();
         conf.set("mapreduce.output.fileoutputformat.outputdir", outputPath);
@@ -94,7 +95,7 @@ public class MapReduceOutputFormatTracerTest {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
         //Install tracer
-        ClassFileTransformer classFileTransformer = new MapReduceModule.OutputFormatTracer(eventHandler).installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceModule.OutputFormatTracer().installOnByteBuddyAgent();
         try {
             //Call InputFormat
             Class<?> type = classLoader.loadClass(MapReduceOutputFormatTestClasses.OneLevelHierarchy.class.getName());
@@ -117,10 +118,7 @@ public class MapReduceOutputFormatTracerTest {
         conf.unset("mapreduce.output.fileoutputformat.outputdir");
         conf.set("mapred.output.dir", deprecatedOutputPath);
 
-        Constructor<MapReduceModule.OutputFormatTracer> c = MapReduceModule.OutputFormatTracer.class.getDeclaredConstructor(Consumer.class);
-        c.setAccessible(true);
-        MapReduceModule.OutputFormatTracer u = c.newInstance(eventHandler);
-        u.intercept(taskAttemptContext);
+        MapReduceModule.OutputFormatTracer.intercept(taskAttemptContext);
         PathEvent pathEvent = new PathEvent(System.currentTimeMillis(), deprecatedOutputPath, PathEvent.Type.OUTPUT);
         verify(eventHandler).accept(pathEvent);
     }

@@ -17,21 +17,24 @@ import java.lang.instrument.Instrumentation;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public class ContainerResourceMonitoringModule implements GarmadonAgentModule {
 
-    private final Header.BaseHeader baseHeader;
+    private static BiConsumer<Header, Object> eventHandler;
 
-    public ContainerResourceMonitoringModule() {
+    private static Header.BaseHeader baseHeader;
+
+    static {
         String host = "";
         try {
             host = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException ignored) {
         }
-        this.baseHeader = Header.newBuilder()
+        baseHeader = Header.newBuilder()
                 .withHostname(host)
                 .withTag(Header.Tag.NODEMANAGER.name())
                 .buildBaseHeader();
@@ -39,19 +42,20 @@ public class ContainerResourceMonitoringModule implements GarmadonAgentModule {
 
     @Override
     public void setup(Instrumentation instrumentation, AsyncEventProcessor eventProcessor) {
-        new MemorySizeTracer((headerOverride, event) -> {
+
+        initEventHandler((headerOverride, event) -> {
             Header header = baseHeader.cloneAndOverride(headerOverride);
             eventProcessor.offer(header, event);
-        }).installOn(instrumentation);
+        });
+
+        new MemorySizeTracer().installOn(instrumentation);
+    }
+
+    public static void initEventHandler(BiConsumer<Header, Object> eventHandler) {
+        ContainerResourceMonitoringModule.eventHandler = eventHandler;
     }
 
     public static class MemorySizeTracer extends MethodTracer {
-
-        private final BiConsumer<Header, Object> eventHandler;
-
-        public MemorySizeTracer(BiConsumer<Header, Object> eventHandler) {
-            this.eventHandler = eventHandler;
-        }
 
         @Override
         ElementMatcher<? super TypeDescription> typeMatcher() {
@@ -65,10 +69,10 @@ public class ContainerResourceMonitoringModule implements GarmadonAgentModule {
 
         @Override
         Implementation newImplementation() {
-            return to(this).andThen(SuperMethodCall.INSTANCE);
+            return to(MemorySizeTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 
-        public void intercept(@Argument(0) String containerID, @Argument(1) long currentMemUsage,
+        public static void intercept(@Argument(0) String containerID, @Argument(1) long currentMemUsage,
                               @Argument(3) long limit) throws Exception {
             try {
                 ContainerId cID = ConverterUtils.toContainerId(containerID);

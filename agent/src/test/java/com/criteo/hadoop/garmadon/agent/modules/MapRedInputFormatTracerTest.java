@@ -5,17 +5,20 @@ import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
 import com.criteo.hadoop.garmadon.schema.events.PathEvent;
 import com.criteo.hadoop.garmadonnotexcluded.MapRedInputFormatTestClasses;
 import net.bytebuddy.agent.ByteBuddyAgent;
-import net.bytebuddy.description.type.TypeDefinition;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.loading.ByteArrayClassLoader;
-import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.mapred.InputSplit;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.Reporter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
@@ -51,14 +54,13 @@ public class MapRedInputFormatTracerTest {
     @Before
     public void setUp() throws IOException {
         eventHandler = mock(Consumer.class);
+        MapReduceModule.initEventHandler(eventHandler);
         inputSplit = mock(InputSplit.class);
         jobConf = mock(JobConf.class);
         reporter = mock(Reporter.class);
 
-        when(jobConf.getJobName())
-                .thenReturn("Application");
-        when(jobConf.getUser())
-                .thenReturn("user");
+        when(jobConf.getJobName()).thenReturn("Application");
+        when(jobConf.getUser()).thenReturn("user");
 
         classLoader = new ByteArrayClassLoader.ChildFirst(getClass().getClassLoader(),
                 ClassFileExtraction.of(
@@ -67,8 +69,7 @@ public class MapRedInputFormatTracerTest {
                         MapRedInputFormatTestClasses.RealInputFormat.class,
                         MapRedInputFormatTestClasses.Level1.class,
                         MapRedInputFormatTestClasses.Level2CallingSuper.class,
-                        MapRedInputFormatTestClasses.Level3NotCallingSuper.class
-                ),
+                        MapRedInputFormatTestClasses.Level3NotCallingSuper.class),
                 ByteArrayClassLoader.PersistenceHandler.MANIFEST);
     }
 
@@ -81,7 +82,52 @@ public class MapRedInputFormatTracerTest {
     }
 
     @Test
-    public void InputFormatTracer_should_use_a_latent_type_definition_equivalent_to_the_ForLoadedType_one(){
+    public void InputFormatTracer_should_not_fail_when_instrumentation_happens_in_a_separate_classloader() throws ClassNotFoundException, IOException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
+
+        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
+
+        try {
+            ClassLoader appCl = getClass().getClassLoader();
+            ClassLoader cl = new ClassLoader() {
+                @Override
+                public Class<?> loadClass(String name) throws ClassNotFoundException {
+                    if (!name.startsWith("java")) {
+                        InputStream is = appCl.getResourceAsStream(name.replace(".", "/") + ".class");
+                        ByteArrayOutputStream byteSt = new ByteArrayOutputStream();
+                        //write into byte
+                        int len = 0;
+                        try {
+                            while ((len = is.read()) != -1) {
+                                byteSt.write(len);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        //convert into byte array
+                        byte[] bt = byteSt.toByteArray();
+                        return defineClass(name, bt, 0, bt.length);
+                    } else return appCl.loadClass(name);
+                }
+
+                ;
+
+                @Override
+                public InputStream getResourceAsStream(String name) {
+                    return appCl.getResourceAsStream(name);
+                }
+            };
+
+            Class<?> type = cl.loadClass(MapRedInputFormatTestClasses.SimpleInputFormat.class.getName());
+            type.newInstance();
+        } finally {
+            ByteBuddyAgent.getInstrumentation().removeTransformer(classFileTransformer);
+        }
+
+    }
+
+    @Test
+    public void InputFormatTracer_should_use_a_latent_type_definition_equivalent_to_the_ForLoadedType_one() {
         TypeDescription realTypeDef = TypeDescription.ForLoadedType.of(org.apache.hadoop.mapred.InputFormat.class);
         TypeDescription latentTypeDef = MapReduceModule.Types.MAPRED_INPUT_FORMAT.getTypeDescription();
 
@@ -100,11 +146,10 @@ public class MapRedInputFormatTracerTest {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
         //Install tracer
-        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer(eventHandler).installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
         try {
             //Prepare JobConf
-            when(jobConf.get("mapreduce.input.fileinputformat.inputdir"))
-                    .thenReturn(inputPath);
+            when(jobConf.get("mapreduce.input.fileinputformat.inputdir")).thenReturn(inputPath);
 
             //Call InputFormat
             Class<?> type = classLoader.loadClass(MapRedInputFormatTestClasses.OneLevelHierarchy.class.getName());
@@ -127,11 +172,10 @@ public class MapRedInputFormatTracerTest {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
         //Install tracer
-        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer(eventHandler).installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
         try {
             //Prepare JobConf
-            when(jobConf.get("mapred.input.dir"))
-                    .thenReturn(deprecatedInputPath);
+            when(jobConf.get("mapred.input.dir")).thenReturn(deprecatedInputPath);
 
             //Call InputFormat
             Class<?> type = classLoader.loadClass(MapRedInputFormatTestClasses.OneLevelHierarchy.class.getName());
@@ -154,11 +198,10 @@ public class MapRedInputFormatTracerTest {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
         //Install tracer
-        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer(eventHandler).installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
         try {
             //Prepare JobConf
-            when(jobConf.get("mapreduce.input.fileinputformat.inputdir"))
-                    .thenReturn("/some/path");
+            when(jobConf.get("mapreduce.input.fileinputformat.inputdir")).thenReturn("/some/path");
 
             //Call InputFormat
             Class<?> type = classLoader.loadClass(MapRedInputFormatTestClasses.RealInputFormat.class.getName());
@@ -178,11 +221,10 @@ public class MapRedInputFormatTracerTest {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
         //Install tracer
-        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer(eventHandler).installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
         try {
             //Prepare JobConf
-            when(jobConf.get("mapreduce.input.fileinputformat.inputdir"))
-                    .thenReturn(inputPath);
+            when(jobConf.get("mapreduce.input.fileinputformat.inputdir")).thenReturn(inputPath);
 
             //Call InputFormat
             Class<?> type = classLoader.loadClass(MapRedInputFormatTestClasses.Level2CallingSuper.class.getName());
@@ -205,14 +247,13 @@ public class MapRedInputFormatTracerTest {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
         //Install tracer
-        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer(eventHandler).installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
         try {
             //JobConf is prepared by Level3NotCallingSuper class
             //Testing PathEvent value shows Level3NotCallingSuper
             //was intercepted
 
-            when(jobConf.get("mapreduce.input.fileinputformat.inputdir"))
-                    .thenReturn("/not_calling_super");
+            when(jobConf.get("mapreduce.input.fileinputformat.inputdir")).thenReturn("/not_calling_super");
 
             //Call InputFormat
             Class<?> type = classLoader.loadClass(MapRedInputFormatTestClasses.Level3NotCallingSuper.class.getName());
@@ -231,11 +272,10 @@ public class MapRedInputFormatTracerTest {
     public void InputFormatTracer_should_let_getRecordReader_return_its_original_value() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
-        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer(eventHandler).installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
         try {
             //Prepare JobConf
-            when(jobConf.get("mapreduce.input.fileinputformat.inputdir"))
-                    .thenReturn("/some/path");
+            when(jobConf.get("mapreduce.input.fileinputformat.inputdir")).thenReturn("/some/path");
 
             Class<?> type = classLoader.loadClass(MapRedInputFormatTestClasses.OneLevelHierarchy.class.getName());
             Object recordReader = invokeRecordReader(type);

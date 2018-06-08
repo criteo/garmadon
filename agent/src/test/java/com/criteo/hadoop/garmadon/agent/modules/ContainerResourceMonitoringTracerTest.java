@@ -51,11 +51,11 @@ public class ContainerResourceMonitoringTracerTest {
 
         final Header[] header = new Header[1];
         final Object[] event = new Object[1];
-        BiConsumer<Header, Object> eventHandler = (h,o) -> {
+        ContainerResourceMonitoringModule.initEventHandler((h,o) -> {
             header[0] = h;
             event[0] = o;
-        };
-        ClassFileTransformer classFileTransformer = new ContainerResourceMonitoringModule.MemorySizeTracer(eventHandler).installOnByteBuddyAgent();
+        });
+        ClassFileTransformer classFileTransformer = new ContainerResourceMonitoringModule.MemorySizeTracer().installOnByteBuddyAgent();
 
         try {
             ContainerExecutor exec = mock(ContainerExecutor.class);

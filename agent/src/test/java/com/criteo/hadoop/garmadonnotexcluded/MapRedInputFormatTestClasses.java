@@ -8,6 +8,18 @@ import static org.mockito.Mockito.mock;
 
 public class MapRedInputFormatTestClasses {
 
+    public static class SimpleInputFormat implements InputFormat{
+        @Override
+        public InputSplit[] getSplits(JobConf jobConf, int i) throws IOException {
+            return new InputSplit[0];
+        }
+
+        @Override
+        public RecordReader getRecordReader(InputSplit inputSplit, JobConf jobConf, Reporter reporter) throws IOException {
+            return null;
+        }
+    };
+
     public static class OneLevelHierarchy implements InputFormat {
 
         public static RecordReader recordReaderMock = mock(RecordReader.class);

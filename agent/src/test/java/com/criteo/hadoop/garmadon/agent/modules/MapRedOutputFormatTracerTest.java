@@ -46,6 +46,7 @@ public class MapRedOutputFormatTracerTest {
     @Before
     public void setUp() throws IOException {
         eventHandler = mock(Consumer.class);
+        MapReduceModule.initEventHandler(eventHandler);
         jobConf = mock(JobConf.class);
 
         when(jobConf.getJobName())
@@ -90,7 +91,7 @@ public class MapRedOutputFormatTracerTest {
                 .thenReturn(outputPath);
 
         //Install tracer
-        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedOutputFormatTracer(eventHandler).installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedOutputFormatTracer().installOnByteBuddyAgent();
         try {
             //Call OnputFormat
             Class<?> type = classLoader.loadClass(MapRedOutputFormatTestClasses.OneLevelHierarchy.class.getName());
@@ -113,10 +114,7 @@ public class MapRedOutputFormatTracerTest {
         when(jobConf.get("mapred.output.dir"))
                 .thenReturn(deprecatedOutputPath);
 
-        Constructor<MapReduceModule.DeprecatedOutputFormatTracer> c = MapReduceModule.DeprecatedOutputFormatTracer.class.getDeclaredConstructor(Consumer.class);
-        c.setAccessible(true);
-        MapReduceModule.DeprecatedOutputFormatTracer u = c.newInstance(eventHandler);
-        u.intercept(jobConf);
+        MapReduceModule.DeprecatedOutputFormatTracer.intercept(jobConf);
         PathEvent pathEvent = new PathEvent(System.currentTimeMillis(), deprecatedOutputPath, PathEvent.Type.OUTPUT);
         verify(eventHandler).accept(pathEvent);
     }
