@@ -24,15 +24,7 @@ public class GarmadonReader {
 
     private boolean reading = false;
 
-    private GarmadonReader(String groupId, String kafkaConnectString, Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners) {
-        Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConnectString);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
-
+    private GarmadonReader(String groupId, String kafkaConnectString, Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, Properties props) {
         KafkaConsumer<String, byte[]> kafkaConsumer = new KafkaConsumer<>(props);
         kafkaConsumer.subscribe(Collections.singletonList("garmadon"));
 
@@ -193,9 +185,16 @@ public class GarmadonReader {
         private String groupId = UUID.randomUUID().toString(); //by default groupId is random
         private String kafkaConnectString;
         private Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners = new HashMap<>();
+        private Properties props = new Properties();
 
         Builder(String kafkaConnectString) {
             this.kafkaConnectString = kafkaConnectString;
+            this.props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConnectString);
+            this.props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+            this.props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+            this.props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
+            this.props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+            this.props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
         }
 
         public static Builder stream(String kafkaConnectString) {
@@ -207,13 +206,18 @@ public class GarmadonReader {
             return this;
         }
 
+        public Builder withKafkaProp(String key, Object value) {
+            this.props.put(key, value);
+            return this;
+        }
+
         public Builder intercept(GarmadonMessageFilter filter, GarmadonMessageHandler handler) {
             this.listeners.put(filter, handler);
             return this;
         }
 
         public GarmadonReader build() {
-            return new GarmadonReader(groupId, kafkaConnectString, listeners);
+            return new GarmadonReader(groupId, kafkaConnectString, listeners, props);
         }
     }
 
