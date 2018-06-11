@@ -24,7 +24,7 @@ public class GarmadonReader {
 
     private boolean reading = false;
 
-    private GarmadonReader(String groupId, String kafkaConnectString, Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, Properties props) {
+    private GarmadonReader(Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, Properties props) {
         KafkaConsumer<String, byte[]> kafkaConsumer = new KafkaConsumer<>(props);
         kafkaConsumer.subscribe(Collections.singletonList("garmadon"));
 
@@ -182,15 +182,12 @@ public class GarmadonReader {
 
     public static class Builder {
 
-        private String groupId = UUID.randomUUID().toString(); //by default groupId is random
-        private String kafkaConnectString;
         private Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners = new HashMap<>();
         private Properties props = new Properties();
 
         Builder(String kafkaConnectString) {
-            this.kafkaConnectString = kafkaConnectString;
             this.props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConnectString);
-            this.props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+            this.props.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString()); //by default groupId is random
             this.props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
             this.props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
             this.props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
@@ -202,7 +199,7 @@ public class GarmadonReader {
         }
 
         public Builder withGroupId(String groupId) {
-            this.groupId = groupId;
+            this.props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
             return this;
         }
 
@@ -217,7 +214,7 @@ public class GarmadonReader {
         }
 
         public GarmadonReader build() {
-            return new GarmadonReader(groupId, kafkaConnectString, listeners, props);
+            return new GarmadonReader(listeners, props);
         }
     }
 
