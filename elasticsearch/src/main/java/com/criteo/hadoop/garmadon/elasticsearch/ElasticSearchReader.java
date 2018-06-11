@@ -1,4 +1,4 @@
-package com.criteo.hadoop.garmadon.reader.es;
+package com.criteo.hadoop.garmadon.elasticsearch;
 
 import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
@@ -158,7 +158,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
         putBodySpecificFields(msg.getBody(), jsonMap);
 
         IndexRequest req = new IndexRequest(esIndex, "doc", "")
-                .setPipeline("dailyindex")
+                .setPipeline("garmadon-daily-index")
                 .source(jsonMap);
 
         bulkProcessor.add(req, msg.getCommittableOffset());
@@ -252,8 +252,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
 
     @Override
     public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-        LOGGER.error("failed to execute Bulk[{}]", executionId);
-        failure.printStackTrace();
+        LOGGER.error("failed to execute Bulk[{}]: {}", executionId, failure);
     }
 
     public static void main(String[] args) throws IOException {

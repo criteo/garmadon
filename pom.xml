@@ -25,6 +25,7 @@
         <module>forwarder</module>
         <module>reader</module>
         <module>heuristics</module>
+        <module>elasticsearch</module>
         <module>test</module>
     </modules>
 
