@@ -23,12 +23,24 @@ public class Heuristics {
     private final List<GCStatsHeuristic> gcStatsHeuristics = new CopyOnWriteArrayList<>();
     private final List<JVMStatsHeuristic> jvmStatsHeuristics = new CopyOnWriteArrayList<>();
 
+    private final FileHeuristic fileHeuristic;
+
     public Heuristics(String kafkaConnectString, HeuristicsResultDB db) {
+        this.fileHeuristic = new FileHeuristic(db);
+
         this.reader = GarmadonReader.Builder
                 .stream(kafkaConnectString)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)), this::processGcEvent)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)), this::processJvmStatEvent)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)), this::processStateEvent)
+                .intercept(
+                        hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.FS_EVENT)),
+                        msg -> fileHeuristic.compute(msg.getHeader().getApplicationId(), msg.getHeader().getContainerId(), (DataAccessEventProtos.FsEvent) msg.getBody())
+                )
+                .intercept(
+                        hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)),
+                        msg -> fileHeuristic.compute(msg.getHeader().getApplicationId(), msg.getHeader().getContainerId(), (DataAccessEventProtos.StateEvent) msg.getBody())
+                )
                 .build();
 
         gcStatsHeuristics.add(new GCCause(db));
