@@ -5,6 +5,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class HeuristicResult {
     public static class HeuristicResultDetail {
@@ -16,6 +17,19 @@ public class HeuristicResult {
             this.name = name;
             this.value = value;
             this.details = details;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            HeuristicResultDetail that = (HeuristicResultDetail) o;
+            return Objects.equals(name, that.name) && Objects.equals(value, that.value) && Objects.equals(details, that.details);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, value, details);
         }
     }
 
@@ -56,5 +70,18 @@ public class HeuristicResult {
 
     public static String formatTimestamp(long timestamp) {
         return DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(timestamp));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        HeuristicResult that = (HeuristicResult) o;
+        return severity == that.severity && score == that.score && Objects.equals(appId, that.appId) && Objects.equals(containerId, that.containerId) && Objects.equals(heuristicClass, that.heuristicClass) && Objects.equals(details, that.details);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(appId, containerId, heuristicClass, severity, score, details);
     }
 }
