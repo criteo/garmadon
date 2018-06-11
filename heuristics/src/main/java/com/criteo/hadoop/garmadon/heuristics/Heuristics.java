@@ -67,7 +67,7 @@ public class Heuristics {
     }
 
     public void stop() {
-        reader.stopReading().whenComplete(this::completeReading);
+        reader.stopReading();
     }
 
     private void completeReading(Void dummy, Throwable ex) {
