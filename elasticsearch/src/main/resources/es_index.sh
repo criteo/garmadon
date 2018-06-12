@@ -577,7 +577,7 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
             "index_options": "freqs"
           },
           "value" : {
-            "type" : "integer",
+            "type" : "long",
             "index": false
           }
         }
@@ -587,16 +587,15 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
 }
 '
 
-# Block write in index
+# Block write in index and reduce number of replica
 curl -XPUT 'localhost:9200/garmadon-20180611/_settings' -H 'Content-Type: application/json' -d'
 {
-        body_settings_blocks_write = {
-            'index': {
-                "blocks.write": "true"
-            }
-        }
+    "index": {
+        "blocks.write": "true",
+        "number_of_replicas" : 1
+    }
 }
 '
 
 # Force merge of all segments in one
-curl -XPUT 'localhost:9200/garmadon-20180611/_forcemerge&max_num_segments=1'
+curl -XPOST 'localhost:9200/garmadon-20180611/_forcemerge?max_num_segments=1'

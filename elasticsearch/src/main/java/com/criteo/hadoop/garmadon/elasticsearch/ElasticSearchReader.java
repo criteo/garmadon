@@ -4,15 +4,17 @@ import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.reader.*;
 import com.criteo.jvm.JVMStatisticsProtos;
+import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
-import org.elasticsearch.action.bulk.BulkProcessor;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.bulk.*;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
@@ -40,10 +42,8 @@ import java.util.concurrent.TimeUnit;
 public class ElasticSearchReader implements BulkProcessor.Listener {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearchReader.class);
 
-    private final boolean isPrintingToStdout = Boolean.parseBoolean(System.getProperty("garmadon.esReader.printToStdout", "false"));
-    private final int bulkActions = Integer.parseInt(System.getProperty("garmadon.esReader.bulkActions", "500"));
-    private final long bulkSizeMB = Long.parseLong(System.getProperty("garmadon.esReader.bulkSizeMB", "5"));
-    private final long bulkFlushIntervalSec = Long.parseLong(System.getProperty("garmadon.esReader.bulkFlushIntervalSec", "10"));
+    private static final int CONNECTION_TIMEOUT_MS = 10000;
+    private static final int NB_RETRIES = 10;
 
     private final GarmadonReader reader;
     private final RestHighLevelClient esClient;
@@ -52,12 +52,18 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
 
     public ElasticSearchReader(Properties properties) {
         String kafkaConnectString = properties.getProperty("kafka.connection", "localhost:");
-        String groupId = properties.getProperty("kafka.groupid");
+        String groupId = properties.getProperty("kafka.groupid", "garmadon-test-reader");
         String esHost = properties.getProperty("es.host", "localhost");
         Integer esPort = Integer.parseInt(properties.getProperty("es.port", "9200"));
         String esIndex = properties.getProperty("es.index", "garmadon-");
         String esUser = properties.getProperty("es.user");
         String esPassword = properties.getProperty("es.password");
+
+        int bulkConcurrent = Integer.parseInt(properties.getProperty("garmadon.esReader.bulkConcurrent", "10"));
+        int bulkActions = Integer.parseInt(properties.getProperty("garmadon.esReader.bulkActions", "500"));
+        long bulkSizeMB = Long.parseLong(properties.getProperty("garmadon.esReader.bulkSizeMB", "5"));
+        long bulkFlushIntervalSec = Long.parseLong(properties.getProperty("garmadon.esReader.bulkFlushIntervalSec", "10"));
+
 
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         RestClientBuilder restClientBuilder = RestClient.builder(
@@ -68,12 +74,14 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
             credentialsProvider.setCredentials(AuthScope.ANY,
                     new UsernamePasswordCredentials(esUser, esPassword));
 
-            restClientBuilder.setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
-                @Override
-                public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
-                    return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
-                }
-            });
+            restClientBuilder
+                    .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
+                            .setDefaultCredentialsProvider(credentialsProvider))
+                    .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
+                            .setConnectTimeout(CONNECTION_TIMEOUT_MS)
+                            .setConnectionRequestTimeout(CONNECTION_TIMEOUT_MS)
+                            //.setSocketTimeout(10000)
+                            .setContentCompressionEnabled(true));
         }
 
         //setup es client
@@ -82,9 +90,8 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
 
         //setup kafka reader
         GarmadonReader.Builder builder = GarmadonReader.Builder.stream(kafkaConnectString);
-        if (groupId != null) builder.withGroupId(groupId);
-        if (isPrintingToStdout) builder.intercept(GarmadonMessageFilter.ANY.INSTANCE, this::printToStdout);
         reader = builder
+                .withGroupId(groupId)
                 .intercept(GarmadonMessageFilter.ANY.INSTANCE, this::writeToES)
                 .build();
 
@@ -96,6 +103,10 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
                 .setBulkActions(bulkActions)
                 .setBulkSize(new ByteSizeValue(bulkSizeMB, ByteSizeUnit.MB))
                 .setFlushInterval(TimeValue.timeValueSeconds(bulkFlushIntervalSec))
+                .setConcurrentRequests(bulkConcurrent)
+                .setBackoffPolicy(
+                        BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), NB_RETRIES)
+                )
                 .build();
     }
 
@@ -120,21 +131,6 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
                         e.printStackTrace();
                     }
                 });
-    }
-
-    private void printToStdout(GarmadonMessage msg) {
-        System.out.print(msg.getHeader().getApplicationId());
-        System.out.print("|");
-        System.out.print(msg.getHeader().getApplicationName());
-        System.out.print("|");
-        System.out.print(msg.getHeader().getContainerId());
-        System.out.print("|");
-        System.out.print(msg.getHeader().getHostname());
-        System.out.print("|");
-        System.out.print(msg.getHeader().getUserName());
-        System.out.print("|");
-        System.out.print(msg.getBody().toString().replaceAll("\\n", " - "));
-        System.out.println();
     }
 
     private void writeToES(GarmadonMessage msg) {
@@ -227,14 +223,20 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
 
     @Override
     public void beforeBulk(long executionId, BulkRequest request) {
-        int numberOfActions = request.numberOfActions();
-        LOGGER.info("Executing Bulk[{}] with {} requests", executionId, numberOfActions);
+        LOGGER.info("Executing Bulk[{}] with {} requests of {} Bytes", executionId,
+                request.numberOfActions(),
+                request.estimatedSizeInBytes());
     }
 
     @Override
     public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
         if (response.hasFailures()) {
             LOGGER.error("Bulk[{}] executed with failures", executionId);
+            for (BulkItemResponse item : response.getItems()) {
+                if (item.isFailed()) {
+                    LOGGER.error("Bulk failed on {} due to {}", item.getId(), item.getFailureMessage());
+                }
+            }
         } else {
             LOGGER.info("Successfully completed Bulk[{}] in {} ms", executionId, response.getTook().getMillis());
         }
@@ -252,7 +254,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
 
     @Override
     public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-        LOGGER.error("failed to execute Bulk[{}]: {}", executionId, failure);
+        LOGGER.error("Failed to execute Bulk[{}]", executionId, failure);
     }
 
     public static void main(String[] args) throws IOException {
