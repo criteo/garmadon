@@ -111,7 +111,7 @@ public class GarmadonReader {
                                         try {
                                             body = GarmadonSerialization.parseFrom(typeMarker, new ByteArrayInputStream(raw, bodyOffset, bodySize));
                                         } catch (DeserializationException e) {
-                                            System.err.println("cannot deserialize event from kafka record " + record + "with type " + typeMarker);
+                                            LOGGER.error("Cannot deserialize event from kafka record " + record + "with type " + typeMarker);
                                         }
                                     }
 
@@ -145,7 +145,7 @@ public class GarmadonReader {
             void increment(){
                 count++;
                 if(count % 500 == 0){
-                    LOGGER.info("received {} messages so far", count);
+                    LOGGER.debug("Received {} messages so far", count);
                 }
             }
 

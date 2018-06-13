@@ -223,7 +223,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
 
     @Override
     public void beforeBulk(long executionId, BulkRequest request) {
-        LOGGER.info("Executing Bulk[{}] with {} requests of {} Bytes", executionId,
+        LOGGER.debug("Executing Bulk[{}] with {} requests of {} Bytes", executionId,
                 request.numberOfActions(),
                 request.estimatedSizeInBytes());
     }

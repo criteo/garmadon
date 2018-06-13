@@ -49,7 +49,7 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
       "merge.scheduler.max_thread_count": 1,
       "translog.flush_threshold_size": "1gb",
       "refresh_interval": "30s",
-      "unassigned.node_left.delayed_timeout": "5m"
+      "unassigned.node_left.delayed_timeout": "15m"
     },
     "analysis": {
       "analyzer": {
