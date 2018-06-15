@@ -7,6 +7,7 @@ import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.events.StateEvent;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.criteo.jvm.JVMStatisticsProtos;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +31,14 @@ public class Heuristics {
 
     private final FileHeuristic fileHeuristic;
 
-    public Heuristics(String kafkaConnectString, HeuristicsResultDB db) {
+    public Heuristics(String kafkaConnectString, String kafkaGroupId, HeuristicsResultDB db) {
         this.fileHeuristic = new FileHeuristic(db);
 
         this.reader = GarmadonReader.Builder
                 .stream(kafkaConnectString)
+                .withGroupId(kafkaGroupId)
+                .withKafkaProp(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true")
+                .withKafkaProp(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000")
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)), this::processGcEvent)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)), this::processJvmStatEvent)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)), this::processStateEvent)
@@ -107,6 +111,7 @@ public class Heuristics {
                 return;
             appContainers.remove(containerId);
             if (appContainers.size() == 0) {
+                LOGGER.info("App {} is finished. All containers have been removed", applicationId);
                 containersPerApp.remove(applicationId);
                 gcStatsHeuristics.forEach(h -> h.onAppCompleted(applicationId));
                 jvmStatsHeuristics.forEach(h -> h.onAppCompleted(applicationId));
@@ -115,23 +120,24 @@ public class Heuristics {
     }
 
     public static void main(String[] args) {
-        if (args.length < 4) {
+        if (args.length < 5) {
             printHelp();
             return;
         }
         String kafkaConnectString = args[0];
-        String dbConnectionString = args[1];
-        String dbUser = args[2];
-        String dbPassword = args[3];
+        String kafkaGroupId = args[1];
+        String dbConnectionString = args[2];
+        String dbUser = args[3];
+        String dbPassword = args[4];
         HeuristicsResultDB db = new HeuristicsResultDB(dbConnectionString, dbUser, dbPassword);
-        Heuristics heuristics = new Heuristics(kafkaConnectString, db);
+        Heuristics heuristics = new Heuristics(kafkaConnectString, kafkaGroupId, db);
         heuristics.start();
         Runtime.getRuntime().addShutdownHook(new Thread(heuristics::stop));
     }
 
     private static void printHelp() {
         System.out.println("Usage:");
-        System.out.println("\tjava com.criteo.hadoop.garmadon.heuristics.Heuristics <kafkaConnectionString> <DrElephantDBConnectionString> <DrElephantDBUser> <DrElephantDBPassword>");
+        System.out.println("\tjava com.criteo.hadoop.garmadon.heuristics.Heuristics <kafkaConnectionString> <kafkaGroupId> <DrElephantDBConnectionString> <DrElephantDBUser> <DrElephantDBPassword>");
     }
 
 }
