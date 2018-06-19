@@ -2,37 +2,30 @@ package com.criteo.hadoop.garmadon.elasticsearch;
 
 import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
-import com.criteo.hadoop.garmadon.reader.*;
+import com.criteo.hadoop.garmadon.reader.CommittableOffset;
+import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
+import com.criteo.hadoop.garmadon.reader.GarmadonMessageFilter;
+import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.jvm.JVMStatisticsProtos;
-import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.conn.ConnectionKeepAliveStrategy;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.elasticsearch.action.bulk.*;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.threadpool.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -46,24 +39,16 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
     private static final int NB_RETRIES = 10;
 
     private final GarmadonReader reader;
-    private final RestHighLevelClient esClient;
     private final String esIndex;
     private final BulkProcessor bulkProcessor;
 
-    public ElasticSearchReader(Properties properties) {
-        String kafkaConnectString = properties.getProperty("kafka.connection", "localhost:");
-        String groupId = properties.getProperty("kafka.groupid", "garmadon-test-reader");
-        String esHost = properties.getProperty("es.host", "localhost");
-        Integer esPort = Integer.parseInt(properties.getProperty("es.port", "9200"));
-        String esIndex = properties.getProperty("es.index", "garmadon-");
-        String esUser = properties.getProperty("es.user");
-        String esPassword = properties.getProperty("es.password");
 
-        int bulkConcurrent = Integer.parseInt(properties.getProperty("garmadon.esReader.bulkConcurrent", "10"));
-        int bulkActions = Integer.parseInt(properties.getProperty("garmadon.esReader.bulkActions", "500"));
-        long bulkSizeMB = Long.parseLong(properties.getProperty("garmadon.esReader.bulkSizeMB", "5"));
-        long bulkFlushIntervalSec = Long.parseLong(properties.getProperty("garmadon.esReader.bulkFlushIntervalSec", "10"));
-
+    private ElasticSearchReader(String kafkaConnectString, String kafkaGroupId, String esHost,
+                                int esPort, String esIndex, String esUser, String esPassword) {
+        int bulkConcurrent = Integer.getInteger("garmadon.esReader.bulkConcurrent", 10);
+        int bulkActions = Integer.getInteger("garmadon.esReader.bulkActions", 500);
+        int bulkSizeMB = Integer.getInteger("garmadon.esReader.bulkSizeMB", 5);
+        int bulkFlushIntervalSec = Integer.getInteger("garmadon.esReader.bulkFlushIntervalSec", 10);
 
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         RestClientBuilder restClientBuilder = RestClient.builder(
@@ -86,12 +71,12 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
 
         //setup es client
         this.esIndex = esIndex;
-        esClient = new RestHighLevelClient(restClientBuilder);
+        RestHighLevelClient esClient = new RestHighLevelClient(restClientBuilder);
 
         //setup kafka reader
         GarmadonReader.Builder builder = GarmadonReader.Builder.stream(kafkaConnectString);
         reader = builder
-                .withGroupId(groupId)
+                .withGroupId(kafkaGroupId)
                 .intercept(GarmadonMessageFilter.ANY.INSTANCE, this::writeToES)
                 .build();
 
@@ -106,7 +91,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
                 .build();
     }
 
-    public CompletableFuture<Void> startReading() {
+    private CompletableFuture<Void> startReading() {
         return reader.startReading().whenComplete((v, ex) -> {
             if (ex != null) {
                 LOGGER.error("Reading was stopped due to exception");
@@ -117,7 +102,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
         });
     }
 
-    public CompletableFuture<Void> stop() {
+    private CompletableFuture<Void> stop() {
         return reader
                 .stopReading()
                 .whenComplete((vd, ex) -> {
@@ -253,14 +238,23 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
         LOGGER.error("Failed to execute Bulk[{}]", executionId, failure);
     }
 
-    public static void main(String[] args) throws IOException {
-        // Get properties
-        Properties properties = new Properties();
-        try (InputStream streamPropFilePath = ElasticSearchReader.class.getResourceAsStream("/reader.properties")) {
-            properties.load(streamPropFilePath);
-        }
+    public static void main(String[] args) {
 
-        ElasticSearchReader reader = new ElasticSearchReader(properties);
+        if (args.length < 7) {
+            printHelp();
+            return;
+        }
+        String kafkaConnectString = args[0];
+        String kafkaGroupId = args[1];
+        String esHost = args[2];
+        int esPort = Integer.parseInt(args[3]);
+        String esIndex = args[4];
+        String esUser = args[5];
+        String esPassword = args[6];
+
+
+        ElasticSearchReader reader = new ElasticSearchReader(kafkaConnectString, kafkaGroupId, esHost,
+                esPort, esIndex, esUser, esPassword);
 
         reader.startReading().join();
 
@@ -268,4 +262,8 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
     }
 
 
+    private static void printHelp() {
+        System.out.println("Usage:");
+        System.out.println("\tjava com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader <kafkaConnectionString> <kafkaGroupId> <EsHost> <EsPort> <EsIndex> <EsUser> <EsPassword>");
+    }
 }
