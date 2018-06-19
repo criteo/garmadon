@@ -86,7 +86,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
 
         //setup es client
         this.esIndex = esIndex;
-        esClient = new RestHighLevelClient(restClientBuilder.build());
+        esClient = new RestHighLevelClient(restClientBuilder);
 
         //setup kafka reader
         GarmadonReader.Builder builder = GarmadonReader.Builder.stream(kafkaConnectString);
@@ -95,11 +95,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
                 .intercept(GarmadonMessageFilter.ANY.INSTANCE, this::writeToES)
                 .build();
 
-        Settings settings = Settings.builder().put("node.name", "reader-garmadon").build();
-
-        ThreadPool threadPool = new ThreadPool(settings);
-
-        bulkProcessor = new BulkProcessor.Builder(esClient::bulkAsync, this, threadPool)
+        bulkProcessor = BulkProcessor.builder(esClient::bulkAsync, this)
                 .setBulkActions(bulkActions)
                 .setBulkSize(new ByteSizeValue(bulkSizeMB, ByteSizeUnit.MB))
                 .setFlushInterval(TimeValue.timeValueSeconds(bulkFlushIntervalSec))
