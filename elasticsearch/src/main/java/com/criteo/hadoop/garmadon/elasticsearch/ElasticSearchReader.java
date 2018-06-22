@@ -147,13 +147,14 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
 
             Date timestamp_date = new Date(event.getTimestamp());
             jsonMap.put("timestamp", timestamp_date);
-            jsonMap.put("path", event.getPath());
             jsonMap.put("type", event.getType());
+            jsonMap.put("path", event.getPath());
         } else if (o instanceof DataAccessEventProtos.FsEvent) {
             DataAccessEventProtos.FsEvent event = (DataAccessEventProtos.FsEvent) o;
 
             Date timestamp_date = new Date(event.getTimestamp());
             jsonMap.put("timestamp", timestamp_date);
+            jsonMap.put("type", "FS");
             jsonMap.put("src_path", event.getSrcPath());
             jsonMap.put("dst_path", event.getDstPath());
             jsonMap.put("action", event.getAction());
@@ -163,12 +164,14 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
 
             Date timestamp_date = new Date(event.getTimestamp());
             jsonMap.put("timestamp", timestamp_date);
+            jsonMap.put("type", "STATE");
             jsonMap.put("state", event.getState());
         } else if (o instanceof JVMStatisticsProtos.JVMStatisticsData) {
             JVMStatisticsProtos.JVMStatisticsData event = (JVMStatisticsProtos.JVMStatisticsData) o;
 
             Date timestamp_date = new Date(event.getTimestamp());
             jsonMap.put("timestamp", timestamp_date);
+            jsonMap.put("type", "JVM");
             for (JVMStatisticsProtos.JVMStatisticsData.Section section : event.getSectionList()) {
                 for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     try {
@@ -183,6 +186,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
 
             Date timestamp_date = new Date(event.getTimestamp());
             jsonMap.put("timestamp", timestamp_date);
+            jsonMap.put("type", "GC");
             jsonMap.put("collector_name", event.getCollectorName());
             jsonMap.put("pause_time", event.getPauseTime());
             jsonMap.put("cause", event.getCause());
