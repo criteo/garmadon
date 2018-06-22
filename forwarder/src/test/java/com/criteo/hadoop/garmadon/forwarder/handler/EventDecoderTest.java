@@ -54,6 +54,7 @@ public class EventDecoderTest {
                 .withApplicationName("app_name")
                 .withContainerID("container_id")
                 .withUser("user")
+                .withPid("pid")
                 .build();
 
 
@@ -78,6 +79,7 @@ public class EventDecoderTest {
                 .withApplicationName("app_name")
                 .withContainerID("container_id")
                 .withUser("user")
+                .withPid("pid")
                 .build();
 
 
@@ -111,6 +113,7 @@ public class EventDecoderTest {
                 .withApplicationName("app_name_1")
                 .withContainerID("container_id")
                 .withUser("bidata")
+                .withPid("pid")
                 .build();
 
         byte[] raw1 = ProtocolMessage.create(header1.serialize(), new EventDecoderTest.TestEvent(100));
@@ -123,6 +126,7 @@ public class EventDecoderTest {
                 .withApplicationName("app_name_2")
                 .withContainerID("container_id")
                 .withUser("recocomputer")
+                .withPid("pid")
                 .build();
 
         byte[] raw2 = ProtocolMessage.create(header2.serialize(), new EventDecoderTest.TestEvent(200));
@@ -136,6 +140,7 @@ public class EventDecoderTest {
                 .withApplicationName("app_name_3")
                 .withContainerID("container_id")
                 .withUser("lakeprobes")
+                .withPid("pid")
                 .build();
 
         byte[] raw3 = ProtocolMessage.create(header3.serialize(), new EventDecoderTest.TestEvent(50));

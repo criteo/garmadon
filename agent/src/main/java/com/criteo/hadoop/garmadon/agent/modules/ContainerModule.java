@@ -8,6 +8,8 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.util.function.Consumer;
 
@@ -34,7 +36,7 @@ public abstract class ContainerModule implements GarmadonAgentModule {
         private final byte[] bytes;
 
         public SerializedHeader(byte[] bytes) {
-            super(null, null, null, null, null, null, null);
+            super(null, null, null, null, null, null, null, null);
             this.bytes = bytes;
         }
 
@@ -49,6 +51,11 @@ public abstract class ContainerModule implements GarmadonAgentModule {
         String user = System.getenv(ApplicationConstants.Environment.USER.name());
         String containerIdString = System.getenv(ApplicationConstants.Environment.CONTAINER_ID.name());
         String host = System.getenv(ApplicationConstants.Environment.NM_HOST.name());
+        String pid = "UNKNOWN";
+        try {
+            pid = new File("/proc/self").getCanonicalFile().getName();
+        } catch (IOException ignored) {
+        }
 
         // Get applicationID
         ContainerId containerId = ConverterUtils.toContainerId(containerIdString);
@@ -64,13 +71,14 @@ public abstract class ContainerModule implements GarmadonAgentModule {
                 .withAppAttemptID(appAttemptID.toString())
                 .withUser(user)
                 .withContainerID(containerIdString)
+                .withPid(pid)
                 .build()
                 .serialize();
         return new SerializedHeader(bytes);
     }
 
     @Override
-    public final void setup(Instrumentation instrumentation, AsyncEventProcessor eventProcessor){
+    public final void setup(Instrumentation instrumentation, AsyncEventProcessor eventProcessor) {
         setup0(instrumentation, event -> eventProcessor.offer(header, event));
     }
 

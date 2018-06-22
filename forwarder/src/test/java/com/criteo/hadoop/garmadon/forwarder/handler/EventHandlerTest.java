@@ -58,6 +58,7 @@ public class EventHandlerTest {
                 .withApplicationName("app_name")
                 .withContainerID("container_id")
                 .withUser("user")
+                .withPid("pid")
                 .build();
 
 

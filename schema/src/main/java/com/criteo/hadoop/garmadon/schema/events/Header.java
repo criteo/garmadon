@@ -11,6 +11,7 @@ public class Header {
     protected final String containerID;
     protected final String hostname;
     protected final String tag;
+    protected final String pid;
 
     public enum Tag {
         YARN_APPLICATION,
@@ -19,7 +20,7 @@ public class Header {
     }
 
     public Header(String applicationID, String appAttemptID, String applicationName,
-                  String user, String containerID, String hostname, String tag) {
+                  String user, String containerID, String hostname, String tag, String pid) {
         this.applicationID = applicationID;
         this.appAttemptID = appAttemptID;
         this.applicationName = applicationName;
@@ -27,6 +28,7 @@ public class Header {
         this.containerID = containerID;
         this.hostname = hostname;
         this.tag = tag;
+        this.pid = pid;
     }
 
     public byte[] serialize() {
@@ -46,6 +48,8 @@ public class Header {
             builder.setHostname(hostname);
         if (tag != null)
             builder.setTag(tag);
+        if (pid != null)
+            builder.setPid(pid);
         return builder.build().toByteArray();
     }
 
@@ -66,8 +70,8 @@ public class Header {
      * Header that can be cloned with overridden values
      */
     public static class BaseHeader extends Header {
-        private BaseHeader(String applicationID, String appAttemptID, String applicationName, String user, String containerID, String hostname, String tag) {
-            super(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag);
+        private BaseHeader(String applicationID, String appAttemptID, String applicationName, String user, String containerID, String hostname, String tag, String pid) {
+            super(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, pid);
         }
 
         public Header cloneAndOverride(Header override) {
@@ -78,6 +82,7 @@ public class Header {
             String containerID = override.containerID != null ? override.containerID : this.containerID;
             String hostname = override.hostname != null ? override.hostname : this.hostname;
             String tag = override.tag != null ? override.tag : this.tag;
+            String pid = override.pid != null ? override.pid : this.pid;
             return new Header(
                     applicationID,
                     appAttemptID,
@@ -85,7 +90,8 @@ public class Header {
                     user,
                     containerID,
                     hostname,
-                    tag
+                    tag,
+                    pid
             );
         }
     }
@@ -103,6 +109,7 @@ public class Header {
         private String containerID;
         private String hostname;
         private String tag;
+        private String pid;
 
         Builder() {
         }
@@ -143,12 +150,17 @@ public class Header {
             return this;
         }
 
+        public Builder withPid(String pid) {
+            this.pid = pid;
+            return this;
+        }
+
         public Header build() {
-            return new Header(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag);
+            return new Header(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, pid);
         }
 
         public BaseHeader buildBaseHeader() {
-            return new BaseHeader(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag);
+            return new BaseHeader(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, pid);
         }
     }
 }

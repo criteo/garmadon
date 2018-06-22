@@ -59,6 +59,7 @@ public class CloseHandlerTest {
                 .withContainerID("container_id")
                 .withUser("user")
                 .withTag(Header.Tag.YARN_APPLICATION.name())
+                .withPid("pid")
                 .build();
 
 

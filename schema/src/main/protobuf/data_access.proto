@@ -13,6 +13,7 @@ message Header {
     optional string container_id = 5;
     optional string hostname = 6;
     optional string tag = 7;
+    optional string pid = 8;
 }
 
 message PathEvent {
