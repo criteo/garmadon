@@ -1,35 +1,5 @@
 #!/usr/bin/env bash
 
-# Ensure events are routesd to date index
-curl -XPUT 'localhost:9200/_ingest/pipeline/garmadon-daily-index?pretty' -H 'Content-Type: application/json' -d'
-{
-  "description": "garmadon daily date-time index",
-  "processors" : [
-    {
-      "date_index_name" : {
-        "field" : "timestamp",
-        "index_name_prefix" : "garmadon-",
-        "date_rounding" : "d"
-      }
-    }
-  ],
-  "on_failure" : [
-    {
-      "set" : {
-        "field" : "_index",
-        "value" : "garmdon-failed"
-      }
-    },
-    {
-        "set" : {
-          "field" : "error",
-          "value" : "{{ _ingest.on_failure_message }}"
-        }
-      }
-  ]
-}
-'
-
 # Schema definition
 # Those ones are only available in 6 and will improve search on time based event
 # "index.sort.field" : "timestamp",

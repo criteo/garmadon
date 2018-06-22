@@ -23,6 +23,8 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,13 +40,15 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
     private static final int CONNECTION_TIMEOUT_MS = 10000;
     private static final int NB_RETRIES = 10;
 
+    private static final Format formatter = new SimpleDateFormat("yyyy-MM-dd");
+
     private final GarmadonReader reader;
-    private final String esIndex;
+    private final String esIndexPrefix;
     private final BulkProcessor bulkProcessor;
 
 
     private ElasticSearchReader(String kafkaConnectString, String kafkaGroupId, String esHost,
-                                int esPort, String esIndex, String esUser, String esPassword) {
+                                int esPort, String esIndexPrefix, String esUser, String esPassword) {
         int bulkConcurrent = Integer.getInteger("garmadon.esReader.bulkConcurrent", 10);
         int bulkActions = Integer.getInteger("garmadon.esReader.bulkActions", 500);
         int bulkSizeMB = Integer.getInteger("garmadon.esReader.bulkSizeMB", 5);
@@ -70,7 +74,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
         }
 
         //setup es client
-        this.esIndex = esIndex;
+        this.esIndexPrefix = esIndexPrefix;
         RestHighLevelClient esClient = new RestHighLevelClient(restClientBuilder);
 
         //setup kafka reader
@@ -136,8 +140,8 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
 
         putBodySpecificFields(msg.getBody(), jsonMap);
 
-        IndexRequest req = new IndexRequest(esIndex, "doc", "")
-                .setPipeline("garmadon-daily-index")
+        String daily_index = esIndexPrefix + "-" + formatter.format(jsonMap.get("timestamp"));
+        IndexRequest req = new IndexRequest(daily_index, "doc", "")
                 .source(jsonMap);
 
         bulkProcessor.add(req, msg.getCommittableOffset());
@@ -254,13 +258,13 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
         String kafkaGroupId = args[1];
         String esHost = args[2];
         int esPort = Integer.parseInt(args[3]);
-        String esIndex = args[4];
+        String esIndexPrefix = args[4];
         String esUser = args[5];
         String esPassword = args[6];
 
 
         ElasticSearchReader reader = new ElasticSearchReader(kafkaConnectString, kafkaGroupId, esHost,
-                esPort, esIndex, esUser, esPassword);
+                esPort, esIndexPrefix, esUser, esPassword);
 
         reader.startReading().join();
 
@@ -270,6 +274,6 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
 
     private static void printHelp() {
         System.out.println("Usage:");
-        System.out.println("\tjava com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader <kafkaConnectionString> <kafkaGroupId> <EsHost> <EsPort> <EsIndex> <EsUser> <EsPassword>");
+        System.out.println("\tjava com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader <kafkaConnectionString> <kafkaGroupId> <EsHost> <EsPort> <esIndexPrefix> <EsUser> <EsPassword>");
     }
 }
