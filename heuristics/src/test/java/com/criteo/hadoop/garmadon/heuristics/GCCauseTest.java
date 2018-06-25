@@ -14,6 +14,7 @@ import static com.criteo.hadoop.garmadon.heuristics.GCCause.METADATA_THRESHOLD;
 
 public class GCCauseTest {
     private static final String APPLICATION_ID = "application_42";
+    private static final String ATTEMPT_ID = "attempt_42";
     private static final String CONTAINER_PREFIX_ID = "container_42_";
 
     private HeuristicsResultDB mockDB;
@@ -82,7 +83,7 @@ public class GCCauseTest {
                 .setTimestamp(timestamp);
         JVMStatisticsProtos.GCStatisticsData gcStats = builder.build();
         for (int i = 0; i < nbContainers; i++)
-            gcCause.process(APPLICATION_ID, CONTAINER_PREFIX_ID + i, gcStats);
-        gcCause.onAppCompleted(APPLICATION_ID);
+            gcCause.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, gcStats);
+        gcCause.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);
     }
 }

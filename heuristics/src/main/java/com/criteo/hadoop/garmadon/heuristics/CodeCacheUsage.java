@@ -7,17 +7,17 @@ import java.util.Map;
 
 public class CodeCacheUsage implements JVMStatsHeuristic {
     private final HeuristicsResultDB heuristicsResultDB;
-    private final Map<String, Map<String, CodeCacheCounters>> appCounters  = new HashMap<>();
+    private final Map<String, Map<String, CodeCacheCounters>> appCounters = new HashMap<>();
 
     public CodeCacheUsage(HeuristicsResultDB heuristicsResultDB) {
         this.heuristicsResultDB = heuristicsResultDB;
     }
 
     @Override
-    public void process(String applicationId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
+    public void process(String applicationId, String attemptId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
         for (JVMStatisticsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             if ("code".equals(section.getName())) {
-                Map<String, CodeCacheCounters> containerCounters = appCounters.computeIfAbsent(applicationId, s -> new HashMap<>());
+                Map<String, CodeCacheCounters> containerCounters = appCounters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());
                 CodeCacheCounters codeCacheCounters = containerCounters.computeIfAbsent(containerId, s -> new CodeCacheCounters());
                 for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     if ("max".equals(property.getName())) {
@@ -33,11 +33,11 @@ public class CodeCacheUsage implements JVMStatsHeuristic {
     }
 
     @Override
-    public void onContainerCompleted(String applicationId, String containerId) {
-        Map<String, CodeCacheCounters> containerCounters = appCounters.get(applicationId);
+    public void onContainerCompleted(String applicationId, String attemptId, String containerId) {
+        Map<String, CodeCacheCounters> containerCounters = appCounters.get(HeuristicHelper.getAppAttemptId(applicationId, attemptId));
         if (containerCounters == null)
             return;
-        CodeCacheCounters counters =  containerCounters.get(containerId);
+        CodeCacheCounters counters = containerCounters.get(containerId);
         if (counters == null)
             return;
         long max = counters.max;
@@ -50,8 +50,8 @@ public class CodeCacheUsage implements JVMStatsHeuristic {
     }
 
     @Override
-    public void onAppCompleted(String applicationId) {
-        HeuristicHelper.createCounterHeuristic(applicationId, appCounters, heuristicsResultDB, CodeCacheUsage.class,
+    public void onAppCompleted(String applicationId, String attemptId) {
+        HeuristicHelper.createCounterHeuristic(applicationId, attemptId, appCounters, heuristicsResultDB, CodeCacheUsage.class,
                 counter -> "max: " + counter.max + "kB, peak: " + counter.peak + "kB");
     }
 

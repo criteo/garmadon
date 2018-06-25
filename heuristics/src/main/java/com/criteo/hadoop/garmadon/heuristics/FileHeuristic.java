@@ -33,8 +33,8 @@ public class FileHeuristic {
             this.name = name;
         }
 
-        Counter forApp(String applicationId) {
-            return counters.computeIfAbsent(applicationId, s -> new Counter());
+        Counter forApp(String applicationId, String attemptId) {
+            return counters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new Counter());
         }
 
         static class Counter {
@@ -51,52 +51,52 @@ public class FileHeuristic {
         }
     }
 
-    public void compute(String applicationId, String containerId, DataAccessEventProtos.FsEvent fsEvent) {
-        containersFor(applicationId).add(containerId);
+    public void compute(String applicationId, String attemptId, String containerId, DataAccessEventProtos.FsEvent fsEvent) {
+        containersFor(applicationId, attemptId).add(containerId);
         try {
             FsEvent.Action action = FsEvent.Action.valueOf(fsEvent.getAction());
             switch (action) {
                 case DELETE:
-                    deleted.forApp(applicationId).increment();
+                    deleted.forApp(applicationId, attemptId).increment();
                     break;
                 case READ:
-                    read.forApp(applicationId).increment();
+                    read.forApp(applicationId, attemptId).increment();
                     break;
                 case WRITE:
-                    written.forApp(applicationId).increment();
+                    written.forApp(applicationId, attemptId).increment();
                     break;
                 case RENAME:
-                    renamed.forApp(applicationId).increment();
+                    renamed.forApp(applicationId, attemptId).increment();
                     break;
             }
-        } catch(IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             LOGGER.warn("received an unexpected FsEvent.Action {}", ex.getMessage());
         }
     }
 
-    private Set<String> containersFor(String applicationId) {
-        return containersPerApp.computeIfAbsent(applicationId, s -> new HashSet<>());
+    private Set<String> containersFor(String applicationId, String attemptId) {
+        return containersPerApp.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashSet<>());
     }
 
-    public void compute(String applicationId, String containerId, DataAccessEventProtos.StateEvent stateEvent){
-        if("END".equals(stateEvent.getState())){
-            Set<String> appContainers = containersFor(applicationId);
-            if(appContainers.size() == 0) return; //already emptied
+    public void compute(String applicationId, String attemptId, String containerId, DataAccessEventProtos.StateEvent stateEvent) {
+        if ("END".equals(stateEvent.getState())) {
+            Set<String> appContainers = containersFor(applicationId, attemptId);
+            if (appContainers.size() == 0) return; //already emptied
             appContainers.remove(containerId);
-            if(appContainers.size() == 0){
+            if (appContainers.size() == 0) {
                 //TODO compute severity based on number of deleted, renamed, read, written...
-                HeuristicResult result = new HeuristicResult(applicationId, FileHeuristic.class, HeuristicsResultDB.Severity.NONE, HeuristicsResultDB.Severity.NONE);
-                addDetail(result, deleted, applicationId);
-                addDetail(result, read, applicationId);
-                addDetail(result, written, applicationId);
-                addDetail(result, renamed, applicationId);
+                HeuristicResult result = new HeuristicResult(applicationId, attemptId, FileHeuristic.class, HeuristicsResultDB.Severity.NONE, HeuristicsResultDB.Severity.NONE);
+                addDetail(result, deleted, applicationId, attemptId);
+                addDetail(result, read, applicationId, attemptId);
+                addDetail(result, written, applicationId, attemptId);
+                addDetail(result, renamed, applicationId, attemptId);
                 db.createHeuristicResult(result);
             }
         }
     }
 
-    private void addDetail(HeuristicResult result, Counters counters, String applicationId) {
-        result.addDetail(counters.name, Integer.toString(counters.forApp(applicationId).getCount()));
+    private void addDetail(HeuristicResult result, Counters counters, String applicationId, String attemptId) {
+        result.addDetail(counters.name, Integer.toString(counters.forApp(applicationId, attemptId).getCount()));
     }
 
 }

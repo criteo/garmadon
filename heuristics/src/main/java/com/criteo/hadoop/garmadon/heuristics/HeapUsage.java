@@ -19,8 +19,8 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
     }
 
     @Override
-    public void process(String applicationId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
-        Map<String, HeapCounters> containerCounters = appCounters.computeIfAbsent(applicationId, s -> new HashMap<>());
+    public void process(String applicationId, String attemptId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
+        Map<String, HeapCounters> containerCounters = appCounters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());
         HeapCounters heapCounters = containerCounters.computeIfAbsent(containerId, s -> new HeapCounters());
         for (JVMStatisticsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             String sectionName = section.getName();
@@ -59,8 +59,8 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
     }
 
     @Override
-    public void onContainerCompleted(String applicationId, String containerId) {
-        Map<String, HeapCounters> containerCounters = appCounters.get(applicationId);
+    public void onContainerCompleted(String applicationId, String attemptId, String containerId) {
+        Map<String, HeapCounters> containerCounters = appCounters.get(HeuristicHelper.getAppAttemptId(applicationId, attemptId));
         if (containerCounters == null)
             return;
         HeapCounters heapCounters = containerCounters.get(containerId);
@@ -85,13 +85,13 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
     }
 
     @Override
-    public void onAppCompleted(String applicationId) {
-        HeuristicHelper.createCounterHeuristic(applicationId, appCounters, heuristicsResultDB, HeapUsage.class,
+    public void onAppCompleted(String applicationId, String attemptId) {
+        HeuristicHelper.createCounterHeuristic(applicationId, attemptId, appCounters, heuristicsResultDB, HeapUsage.class,
                 counter -> "unused memory %: " + counter.ratio);
     }
 
     @Override
-    public void process(String applicationId, String containerId, JVMStatisticsProtos.GCStatisticsData gcStats) {
+    public void process(String applicationId, String attemptId, String containerId, JVMStatisticsProtos.GCStatisticsData gcStats) {
         // TODO process GC stats
         // TODO Handle before/after heap used at GC
         // TODO After GC heap used give a good indication of LiveSet!

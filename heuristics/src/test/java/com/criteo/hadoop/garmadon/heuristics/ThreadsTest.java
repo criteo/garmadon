@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 
 public class ThreadsTest {
     private static final String APPLICATION_ID = "application_42";
+    private static final String ATTEMPT_ID = "attempt_42";
     private static final String CONTAINER_PREFIX_ID = "container_42_";
 
     private HeuristicsResultDB mockDB;
@@ -67,11 +68,11 @@ public class ThreadsTest {
 
         Threads threads = new Threads(mockDB);
         for (int i = 0; i < nbContainers; i++) {
-            threads.process(APPLICATION_ID, CONTAINER_PREFIX_ID + i, buildThreadData(12, 6, 12));
-            threads.process(APPLICATION_ID, CONTAINER_PREFIX_ID + i, buildThreadData(12, 6, total));
-            threads.onContainerCompleted(APPLICATION_ID, CONTAINER_PREFIX_ID + i);
+            threads.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildThreadData(12, 6, 12));
+            threads.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildThreadData(12, 6, total));
+            threads.onContainerCompleted(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i);
         }
-        threads.onAppCompleted(APPLICATION_ID);
+        threads.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);
     }
 
     private JVMStatisticsProtos.JVMStatisticsData buildThreadData(int count, int daemon, int total) {

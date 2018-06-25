@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 
 public class CodeCacheUsageTest {
     private static final String APPLICATION_ID = "application_42";
+    private static final String ATTEMPT_ID = "attempt_42";
     private static final String CONTAINER_PREFIX_ID = "container_42_";
 
     private HeuristicsResultDB mockDB;
@@ -24,7 +25,7 @@ public class CodeCacheUsageTest {
     public void code_cache_full_single() {
         testCodeCacheUsage(1, result -> {
             Assert.assertEquals(1, result.getDetailCount());
-            Assert.assertEquals(CONTAINER_PREFIX_ID+"0", result.getDetail(0).name);
+            Assert.assertEquals(CONTAINER_PREFIX_ID + "0", result.getDetail(0).name);
             Assert.assertEquals("max: 67108864kB, peak: 66060288kB", result.getDetail(0).value);
         });
     }
@@ -50,12 +51,12 @@ public class CodeCacheUsageTest {
             return null;
         }).when(mockDB).createHeuristicResult(Matchers.any());
         CodeCacheUsage codeCacheUsage = new CodeCacheUsage(mockDB);
-        JVMStatisticsProtos.JVMStatisticsData jvmStats = buildCodeCacheData(63*1024*1024, 64*1024*1024);
+        JVMStatisticsProtos.JVMStatisticsData jvmStats = buildCodeCacheData(63 * 1024 * 1024, 64 * 1024 * 1024);
         for (int i = 0; i < nbContainers; i++) {
-            codeCacheUsage.process(APPLICATION_ID, CONTAINER_PREFIX_ID + i, jvmStats);
-            codeCacheUsage.onContainerCompleted(APPLICATION_ID, CONTAINER_PREFIX_ID + i);
+            codeCacheUsage.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, jvmStats);
+            codeCacheUsage.onContainerCompleted(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i);
         }
-        codeCacheUsage.onAppCompleted(APPLICATION_ID);
+        codeCacheUsage.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);
     }
 
     private JVMStatisticsProtos.JVMStatisticsData buildCodeCacheData(long used, long max) {

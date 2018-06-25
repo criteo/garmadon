@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 
 public class G1GCTest {
     private static final String APPLICATION_ID = "application_42";
+    private static final String ATTEMPT_ID = "attempt_42";
     private static final String CONTAINER_PREFIX_ID = "container_42_";
 
     private HeuristicsResultDB mockDB;
@@ -57,8 +58,8 @@ public class G1GCTest {
                 .setTimestamp(timestamp);
         JVMStatisticsProtos.GCStatisticsData gcStats = builder.build();
         for (int i = 0; i < nbContainers; i++)
-            g1GC.process(APPLICATION_ID, CONTAINER_PREFIX_ID + i, gcStats);
-        g1GC.onAppCompleted(APPLICATION_ID);
+            g1GC.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, gcStats);
+        g1GC.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);
     }
 
 }

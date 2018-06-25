@@ -16,12 +16,12 @@ public class G1GC implements GCStatsHeuristic {
     }
 
     @Override
-    public void process(String applicationId, String containerId, JVMStatisticsProtos.GCStatisticsData gcStats) {
+    public void process(String applicationId, String attemptId, String containerId, JVMStatisticsProtos.GCStatisticsData gcStats) {
         if (GCHelper.gcKind(gcStats.getCollectorName()) != GCHelper.GCKind.G1)
             return;
         GCHelper.GCGenKind gcGenKind = GCHelper.gcGenKind(gcStats.getCollectorName());
         if (gcGenKind == GCHelper.GCGenKind.MAJOR) {
-            Map<String, FullGCCounters> containerFullGC = appFullGC.computeIfAbsent(applicationId, s -> new HashMap<>());
+            Map<String, FullGCCounters> containerFullGC = appFullGC.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());
             FullGCCounters details = containerFullGC.computeIfAbsent(containerId, s -> new FullGCCounters(gcStats.getTimestamp(), gcStats.getPauseTime()));
             details.count++;
             if (details.count > 1)
@@ -31,13 +31,13 @@ public class G1GC implements GCStatsHeuristic {
     }
 
     @Override
-    public void onContainerCompleted(String applicationId, String containerId) {
+    public void onContainerCompleted(String applicationId, String attemptId, String containerId) {
 
     }
 
     @Override
-    public void onAppCompleted(String applicationId) {
-        createCounterHeuristic(applicationId, appFullGC, heuristicsResultDB, G1GC.class, counter -> {
+    public void onAppCompleted(String applicationId, String attemptId) {
+        createCounterHeuristic(applicationId, attemptId, appFullGC, heuristicsResultDB, G1GC.class, counter -> {
             if (counter.count == 1)
                 return "Timestamp: " + HeuristicResult.formatTimestamp(counter.timestamp) + ", pauseTime: " + counter.pauseTime + "ms";
             else

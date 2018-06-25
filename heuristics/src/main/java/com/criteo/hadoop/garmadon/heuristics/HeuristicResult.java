@@ -34,13 +34,15 @@ public class HeuristicResult {
     }
 
     public final String appId;
+    public final String attemptId;
     public final Class<?> heuristicClass;
     public final int severity;
     public final int score;
     private final List<HeuristicResultDetail> details = new ArrayList<>();
 
-    public HeuristicResult(String appId, Class<?> heuristicClass, int severity, int score) {
+    public HeuristicResult(String appId, String attemptId, Class<?> heuristicClass, int severity, int score) {
         this.appId = appId;
+        this.attemptId = attemptId;
         this.heuristicClass = heuristicClass;
         this.severity = severity;
         this.score = score;
@@ -73,13 +75,19 @@ public class HeuristicResult {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof HeuristicResult)) return false;
         HeuristicResult that = (HeuristicResult) o;
-        return severity == that.severity && score == that.score && Objects.equals(appId, that.appId) && Objects.equals(heuristicClass, that.heuristicClass) && Objects.equals(details, that.details);
+        return severity == that.severity &&
+                score == that.score &&
+                Objects.equals(appId, that.appId) &&
+                Objects.equals(attemptId, that.attemptId) &&
+                Objects.equals(heuristicClass, that.heuristicClass) &&
+                Objects.equals(details, that.details);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(appId, heuristicClass, severity, score, details);
+
+        return Objects.hash(appId, attemptId, heuristicClass, severity, score, details);
     }
 }

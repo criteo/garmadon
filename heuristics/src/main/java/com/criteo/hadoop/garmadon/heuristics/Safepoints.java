@@ -14,10 +14,10 @@ public class Safepoints implements JVMStatsHeuristic {
     }
 
     @Override
-    public void process(String applicationId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
+    public void process(String applicationId, String attemptId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
         for (JVMStatisticsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             if ("safepoints".equals(section.getName())) {
-                Map<String, SafepointsCounters> containerCounters = appCounters.computeIfAbsent(applicationId, s -> new HashMap<>());
+                Map<String, SafepointsCounters> containerCounters = appCounters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());
                 SafepointsCounters safepointsCounters = containerCounters.computeIfAbsent(containerId, s -> new SafepointsCounters());
                 for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     if ("count".equals(property.getName())) {
@@ -54,8 +54,8 @@ public class Safepoints implements JVMStatsHeuristic {
     }
 
     @Override
-    public void onContainerCompleted(String applicationId, String containerId) {
-        Map<String, SafepointsCounters> containerCounters = appCounters.get(applicationId);
+    public void onContainerCompleted(String applicationId, String attemptId, String containerId) {
+        Map<String, SafepointsCounters> containerCounters = appCounters.get(HeuristicHelper.getAppAttemptId(applicationId, attemptId));
         if (containerCounters == null)
             return;
         SafepointsCounters safepointsCounters = containerCounters.get(containerId);
@@ -66,8 +66,8 @@ public class Safepoints implements JVMStatsHeuristic {
     }
 
     @Override
-    public void onAppCompleted(String applicationId) {
-        HeuristicHelper.createCounterHeuristic(applicationId, appCounters, heuristicsResultDB, Safepoints.class,
+    public void onAppCompleted(String applicationId, String attemptId) {
+        HeuristicHelper.createCounterHeuristic(applicationId, attemptId, appCounters, heuristicsResultDB, Safepoints.class,
                 counter -> "Max safepoint/s: " + counter.ratio);
     }
 

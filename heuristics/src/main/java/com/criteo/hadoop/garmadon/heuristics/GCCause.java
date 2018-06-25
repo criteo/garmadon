@@ -19,9 +19,9 @@ public class GCCause implements GCStatsHeuristic {
     }
 
     @Override
-    public void process(String applicationId, String containerId, JVMStatisticsProtos.GCStatisticsData gcStats) {
+    public void process(String applicationId, String attemptId, String containerId, JVMStatisticsProtos.GCStatisticsData gcStats) {
         if (METADATA_THRESHOLD.equals(gcStats.getCause()) || ERGONOMICS.equals(gcStats.getCause())) {
-            Map<String, GCCauseStats> containerStats = appStats.computeIfAbsent(applicationId, s -> new HashMap<>());
+            Map<String, GCCauseStats> containerStats = appStats.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());
             GCCauseStats stats = containerStats.computeIfAbsent(containerId, s -> new GCCauseStats());
             if (METADATA_THRESHOLD.equals(gcStats.getCause()))
                 stats.metadataThreshold++;
@@ -31,16 +31,16 @@ public class GCCause implements GCStatsHeuristic {
     }
 
     @Override
-    public void onContainerCompleted(String applicationId, String containerId) {
+    public void onContainerCompleted(String applicationId, String attemptId, String containerId) {
 
     }
 
     @Override
-    public void onAppCompleted(String applicationId) {
-        Map<String, GCCauseStats> containerStats = appStats.remove(applicationId);
+    public void onAppCompleted(String applicationId, String attemptId) {
+        Map<String, GCCauseStats> containerStats = appStats.remove(HeuristicHelper.getAppAttemptId(applicationId, attemptId));
         if (containerStats == null)
             return;
-        HeuristicResult result = new HeuristicResult(applicationId, GCCause.class, HeuristicsResultDB.Severity.MODERATE, HeuristicsResultDB.Severity.MODERATE);
+        HeuristicResult result = new HeuristicResult(applicationId, attemptId, GCCause.class, HeuristicsResultDB.Severity.MODERATE, HeuristicsResultDB.Severity.MODERATE);
         if (containerStats.size() <= MAX_CONTAINERS_PER_HEURISTIC) {
             containerStats.forEach((key, value) -> result.addDetail(key, METADATA_THRESHOLD + ": " + value.metadataThreshold + ", " + ERGONOMICS + ": " + value.ergonomics));
         } else {

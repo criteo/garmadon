@@ -14,10 +14,10 @@ public class Threads implements JVMStatsHeuristic {
     }
 
     @Override
-    public void process(String applicationId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
+    public void process(String applicationId, String attemptId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
         for (JVMStatisticsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             if ("threads".equals(section.getName())) {
-                Map<String, ThreadCounters> containerCounters = appCounters.computeIfAbsent(applicationId, s -> new HashMap<>());
+                Map<String, ThreadCounters> containerCounters = appCounters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());
                 ThreadCounters threadCounters = containerCounters.computeIfAbsent(containerId, s -> new ThreadCounters());
                 for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     if ("count".equals(property.getName())) {
@@ -34,15 +34,15 @@ public class Threads implements JVMStatsHeuristic {
     }
 
     @Override
-    public void onContainerCompleted(String applicationId, String containerId) {
-        Map<String, ThreadCounters> containerCounters = appCounters.get(applicationId);
+    public void onContainerCompleted(String applicationId, String attemptId, String containerId) {
+        Map<String, ThreadCounters> containerCounters = appCounters.get(HeuristicHelper.getAppAttemptId(applicationId, attemptId));
         if (containerCounters == null)
             return;
         ThreadCounters threadCounters = containerCounters.get(containerId);
         if (threadCounters == null)
             return;
         int severity = HeuristicsResultDB.Severity.NONE;
-        int ratio = threadCounters.maxCount*100 / threadCounters.total;
+        int ratio = threadCounters.maxCount * 100 / threadCounters.total;
         if (ratio <= 10) // maxcount=10 total>100 (+90 thread created/destroyed)
             severity = HeuristicsResultDB.Severity.LOW;
         if (ratio <= 0) // maxcount=10 total>1000 (+900 thread created/destroyed)
@@ -56,8 +56,8 @@ public class Threads implements JVMStatsHeuristic {
     }
 
     @Override
-    public void onAppCompleted(String applicationId) {
-        HeuristicHelper.createCounterHeuristic(applicationId, appCounters, heuristicsResultDB, Threads.class,
+    public void onAppCompleted(String applicationId, String attemptId) {
+        HeuristicHelper.createCounterHeuristic(applicationId, attemptId, appCounters, heuristicsResultDB, Threads.class,
                 counter -> "Max count threads: " + counter.maxCount + ", Total threads: " + counter.total);
     }
 

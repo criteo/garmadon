@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 
 public class SafepointsTest {
     private static final String APPLICATION_ID = "application_42";
+    private static final String ATTEMPT_ID = "attempt_42";
     private static final String CONTAINER_PREFIX_ID = "container_42_";
 
     private HeuristicsResultDB mockDB;
@@ -88,11 +89,11 @@ public class SafepointsTest {
 
         Safepoints safepoints = new Safepoints(mockDB);
         for (int i = 0; i < nbContainers; i++) {
-            safepoints.process(APPLICATION_ID, CONTAINER_PREFIX_ID + i, buildSafepointData(count1, timestamp));
-            safepoints.process(APPLICATION_ID, CONTAINER_PREFIX_ID + i, buildSafepointData(count2, timestamp + 1000));
-            safepoints.onContainerCompleted(APPLICATION_ID, CONTAINER_PREFIX_ID + i);
+            safepoints.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildSafepointData(count1, timestamp));
+            safepoints.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildSafepointData(count2, timestamp + 1000));
+            safepoints.onContainerCompleted(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i);
         }
-        safepoints.onAppCompleted(APPLICATION_ID);
+        safepoints.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);
     }
 
     JVMStatisticsProtos.JVMStatisticsData buildSafepointData(int count, long timestamp) {

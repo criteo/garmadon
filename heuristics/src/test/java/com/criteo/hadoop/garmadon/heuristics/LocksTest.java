@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 
 public class LocksTest {
     private static final String APPLICATION_ID = "application_42";
+    private static final String ATTEMPT_ID = "attempt_42";
     private static final String CONTAINER_PREFIX_ID = "container_42_";
 
     private HeuristicsResultDB mockDB;
@@ -88,11 +89,11 @@ public class LocksTest {
 
         Locks locks = new Locks(mockDB);
         for (int i = 0; i < nbContainers; i++) {
-            locks.process(APPLICATION_ID, CONTAINER_PREFIX_ID + i, buildSynclocksData(count1, timestamp));
-            locks.process(APPLICATION_ID, CONTAINER_PREFIX_ID + i, buildSynclocksData(count2, timestamp + 1000));
-            locks.onContainerCompleted(APPLICATION_ID, CONTAINER_PREFIX_ID + i);
+            locks.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildSynclocksData(count1, timestamp));
+            locks.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildSynclocksData(count2, timestamp + 1000));
+            locks.onContainerCompleted(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i);
         }
-        locks.onAppCompleted(APPLICATION_ID);
+        locks.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);
     }
 
     JVMStatisticsProtos.JVMStatisticsData buildSynclocksData(int count, long timestamp) {

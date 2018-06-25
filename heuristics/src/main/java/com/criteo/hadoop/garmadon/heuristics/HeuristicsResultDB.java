@@ -61,7 +61,7 @@ public class HeuristicsResultDB {
             createYarnAppResultStat.clearParameters();
             createYarnAppResultStat.setString(1, heuristicResult.appId);
             createYarnAppResultStat.setString(2, heuristicResult.heuristicClass.getName());
-            createYarnAppResultStat.setString(3, heuristicResult.heuristicClass.getSimpleName());
+            createYarnAppResultStat.setString(3, heuristicResult.heuristicClass.getSimpleName() + "@"+ heuristicResult.attemptId);
             createYarnAppResultStat.setInt(4, heuristicResult.severity);
             createYarnAppResultStat.setInt(5, heuristicResult.score);
             createYarnAppResultStat.setInt(6, 1);
