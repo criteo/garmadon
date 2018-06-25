@@ -543,10 +543,9 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
             "index_options": "freqs"
           },
           "uri" : {
-            "type": "text",
+            "type": "keyword",
             "norms": false,
-            "index_options": "freqs",
-            "analyzer": "path_analyzer"
+            "index_options": "freqs"
           },
           "username" : {
             "type": "keyword",
