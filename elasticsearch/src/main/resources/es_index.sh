@@ -255,7 +255,8 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
             "type": "text",
             "norms": false,
             "index_options": "freqs",
-            "analyzer": "path_analyzer"
+            "analyzer": "path_analyzer",
+            "search_analyzer": "keyword"
           },
           "eden_committed" : {
             "type" : "long",
@@ -462,7 +463,8 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
             "type": "text",
             "norms": false,
             "index_options": "freqs",
-            "analyzer": "path_analyzer"
+            "analyzer": "path_analyzer",
+            "search_analyzer": "keyword"
           },
           "state" : {
             "type": "keyword",
