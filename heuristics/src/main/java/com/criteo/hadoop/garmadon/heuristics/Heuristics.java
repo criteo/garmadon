@@ -27,6 +27,7 @@ public class Heuristics {
     private final GarmadonReader reader;
     private final List<GCStatsHeuristic> gcStatsHeuristics = new CopyOnWriteArrayList<>();
     private final List<JVMStatsHeuristic> jvmStatsHeuristics = new CopyOnWriteArrayList<>();
+    private final List<Heuristic> heuristics = new CopyOnWriteArrayList<>();
     private final Map<String, Set<String>> containersPerApp = new HashMap<>();
 
     private final FileHeuristic fileHeuristic;
@@ -47,21 +48,21 @@ public class Heuristics {
                         msg -> fileHeuristic.compute(msg.getHeader().getApplicationId(), msg.getHeader().getAppAttemptID(),
                                 msg.getHeader().getContainerId(), (DataAccessEventProtos.FsEvent) msg.getBody())
                 )
-                .intercept(
-                        hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)),
-                        msg -> fileHeuristic.compute(msg.getHeader().getApplicationId(), msg.getHeader().getAppAttemptID(),
-                                msg.getHeader().getContainerId(), (DataAccessEventProtos.StateEvent) msg.getBody())
-                )
+                .beforeIntercept(this::registerAppContainer)
                 .build();
 
         gcStatsHeuristics.add(new GCCause(db));
         gcStatsHeuristics.add(new G1GC(db));
-        gcStatsHeuristics.add(new HeapUsage(db));
 
+        jvmStatsHeuristics.add(new HeapUsage(db));
         jvmStatsHeuristics.add(new Threads(db));
         jvmStatsHeuristics.add(new CodeCacheUsage(db));
         jvmStatsHeuristics.add(new Safepoints(db));
         jvmStatsHeuristics.add(new Locks(db));
+
+        this.heuristics.add(fileHeuristic);
+        this.heuristics.addAll(gcStatsHeuristics);
+        this.heuristics.addAll(jvmStatsHeuristics);
     }
 
     public void start() {
@@ -85,9 +86,6 @@ public class Heuristics {
         String applicationId = msg.getHeader().getApplicationId();
         String attemptId = msg.getHeader().getAppAttemptID();
         String containerId = msg.getHeader().getContainerId();
-        Set<String> containers = containersPerApp.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId)
-                , s -> new HashSet<>());
-        containers.add(containerId);
         JVMStatisticsProtos.GCStatisticsData gcStats = (JVMStatisticsProtos.GCStatisticsData) msg.getBody();
         gcStatsHeuristics.forEach(h -> h.process(applicationId, attemptId, containerId, gcStats));
     }
@@ -96,11 +94,18 @@ public class Heuristics {
         String applicationId = msg.getHeader().getApplicationId();
         String attemptId = msg.getHeader().getAppAttemptID();
         String containerId = msg.getHeader().getContainerId();
-        Set<String> containers = containersPerApp.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId)
-                , s -> new HashSet<>());
-        containers.add(containerId);
         JVMStatisticsProtos.JVMStatisticsData jvmStats = (JVMStatisticsProtos.JVMStatisticsData) msg.getBody();
         jvmStatsHeuristics.forEach(h -> h.process(applicationId, attemptId, containerId, jvmStats));
+    }
+
+    private void registerAppContainer(GarmadonMessage msg){
+        if(msg.getType() != GarmadonSerialization.TypeMarker.STATE_EVENT) {
+            String applicationId = msg.getHeader().getApplicationId();
+            String attemptId = msg.getHeader().getAppAttemptID();
+            String containerId = msg.getHeader().getContainerId();
+            Set<String> containers = containersPerApp.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashSet<>());
+            containers.add(containerId);
+        }
     }
 
     // TODO handle safety net for APP_END_EVENT => compute the normal interval based on timestamp
@@ -111,8 +116,7 @@ public class Heuristics {
         String containerId = msg.getHeader().getContainerId();
         DataAccessEventProtos.StateEvent stateEvent = (DataAccessEventProtos.StateEvent) msg.getBody();
         if (StateEvent.State.END.toString().equals(stateEvent.getState())) {
-            gcStatsHeuristics.forEach(h -> h.onContainerCompleted(applicationId, attemptId, containerId));
-            jvmStatsHeuristics.forEach(h -> h.onContainerCompleted(applicationId, attemptId, containerId));
+            heuristics.forEach(h -> h.onContainerCompleted(applicationId, attemptId, containerId));
             Set<String> appContainers = containersPerApp.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashSet<>());
             if (appContainers.size() == 0)
                 return;
@@ -120,8 +124,7 @@ public class Heuristics {
             if (appContainers.size() == 0) {
                 LOGGER.info("App {} is finished. All containers have been removed", applicationId);
                 containersPerApp.remove(HeuristicHelper.getAppAttemptId(applicationId, attemptId));
-                gcStatsHeuristics.forEach(h -> h.onAppCompleted(applicationId, attemptId));
-                jvmStatsHeuristics.forEach(h -> h.onAppCompleted(applicationId, attemptId));
+                heuristics.forEach(h -> h.onAppCompleted(applicationId, attemptId));
             }
         }
     }

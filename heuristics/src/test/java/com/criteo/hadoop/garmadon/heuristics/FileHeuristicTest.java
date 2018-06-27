@@ -87,28 +87,14 @@ public class FileHeuristicTest {
         heuristic.compute("app_2", "att_1", "cid_1", newFsEvent(FsEvent.Action.READ));
         heuristic.compute("app_2", "att_1", "cid_2", newFsEvent(FsEvent.Action.WRITE));
 
-        //end containers
-        heuristic.compute("app_1", "att_1", "cid_1", newEndEvent());
-        verify(db, never()).createHeuristicResult(any());
-
-        heuristic.compute("app_1", "att_1", "cid_2", newEndEvent());
-        verify(db, never()).createHeuristicResult(any());
-
-        heuristic.compute("app_2", "att_1", "cid_1", newEndEvent());
-        verify(db, never()).createHeuristicResult(any());
-
         HeuristicResult expectedResults = new HeuristicResult("app_1", "att_1", FileHeuristic.class, HeuristicsResultDB.Severity.NONE, HeuristicsResultDB.Severity.NONE);
         expectedResults.addDetail("Files deleted", "1");
         expectedResults.addDetail("Files read", "1");
         expectedResults.addDetail("Files written", "1");
         expectedResults.addDetail("Files renamed", "1");
 
-        heuristic.compute("app_1", "att_1", "cid_3", newEndEvent());
+        heuristic.onAppCompleted("app_1", "att_1");
         verify(db).createHeuristicResult(expectedResults);
-        reset(db);
-
-        heuristic.compute("app_1", "att_1", "cid_4", newEndEvent());
-        verify(db, never()).createHeuristicResult(any());
     }
 
     @Test
@@ -121,23 +107,13 @@ public class FileHeuristicTest {
         heuristic.compute("app_1", "att_2", "cid_1", newFsEvent(FsEvent.Action.READ));
         heuristic.compute("app_1", "att_2", "cid_2", newFsEvent(FsEvent.Action.WRITE));
 
-        //end containers
-        heuristic.compute("app_1", "att_1", "cid_1", newEndEvent());
-        verify(db, never()).createHeuristicResult(any());
-
-        heuristic.compute("app_1", "att_1", "cid_2", newEndEvent());
-        verify(db, never()).createHeuristicResult(any());
-
-        heuristic.compute("app_1", "att_2", "cid_1", newEndEvent());
-        verify(db, never()).createHeuristicResult(any());
-
         HeuristicResult expectedResults = new HeuristicResult("app_1", "att_1", FileHeuristic.class, HeuristicsResultDB.Severity.NONE, HeuristicsResultDB.Severity.NONE);
         expectedResults.addDetail("Files deleted", "1");
         expectedResults.addDetail("Files read", "1");
         expectedResults.addDetail("Files written", "1");
         expectedResults.addDetail("Files renamed", "1");
 
-        heuristic.compute("app_1", "att_1", "cid_3", newEndEvent());
+        heuristic.onAppCompleted("app_1", "att_1");
         verify(db).createHeuristicResult(expectedResults);
         reset(db);
 
@@ -147,7 +123,7 @@ public class FileHeuristicTest {
         expectedResults.addDetail("Files written", "1");
         expectedResults.addDetail("Files renamed", "0");
 
-        heuristic.compute("app_1", "att_2", "cid_2", newEndEvent());
+        heuristic.onAppCompleted("app_1", "att_2");
         verify(db).createHeuristicResult(expectedResults);
         reset(db);
     }

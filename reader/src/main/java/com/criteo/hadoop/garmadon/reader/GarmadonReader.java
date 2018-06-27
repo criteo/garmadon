@@ -24,12 +24,12 @@ public class GarmadonReader {
 
     private boolean reading = false;
 
-    private GarmadonReader(Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, Properties props) {
+    private GarmadonReader(List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, Properties props) {
         KafkaConsumer<String, byte[]> kafkaConsumer = new KafkaConsumer<>(props);
         kafkaConsumer.subscribe(Collections.singletonList("garmadon"));
 
         this.cf = new CompletableFuture<>();
-        this.reader = new Reader(kafkaConsumer, listeners, cf);
+        this.reader = new Reader(kafkaConsumer, beforeInterceptHandlers, listeners, cf);
     }
 
     /**
@@ -59,6 +59,7 @@ public class GarmadonReader {
 
         private final SynchronizedConsumer<String, byte[]> consumer;
         private final CompletableFuture<Void> cf;
+        private final List<GarmadonMessageHandler> beforeInterceptHandlers;
         private final Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners;
         private final Set<GarmadonMessageFilter> filters;
 
@@ -66,8 +67,9 @@ public class GarmadonReader {
 
         private volatile boolean keepOnReading = true;
 
-        Reader(KafkaConsumer<String, byte[]> consumer, Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, CompletableFuture<Void> cf) {
+        Reader(KafkaConsumer<String, byte[]> consumer, List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, CompletableFuture<Void> cf) {
             this.consumer = SynchronizedConsumer.synchronize(consumer);
+            this.beforeInterceptHandlers = beforeInterceptHandlers;
             this.listeners = listeners;
             this.filters = listeners.keySet();
             this.cf = cf;
@@ -117,6 +119,8 @@ public class GarmadonReader {
 
                                     CommittableOffset<String, byte[]> committableOffset = new CommittableOffset<>(consumer, record.topic(), record.partition(), record.offset());
                                     GarmadonMessage msg = new GarmadonMessage(typeMarker, header, body, committableOffset);
+
+                                    beforeInterceptHandlers.forEach(c -> c.handle(msg));
                                     listeners.get(filter).handle(msg);
                                 }
                             }
@@ -183,6 +187,7 @@ public class GarmadonReader {
     public static class Builder {
 
         private Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners = new HashMap<>();
+        private List<GarmadonMessageHandler> beforeInterceptHandlers = new ArrayList<>();
         private Properties props = new Properties();
 
         Builder(String kafkaConnectString) {
@@ -213,8 +218,13 @@ public class GarmadonReader {
             return this;
         }
 
+        public Builder beforeIntercept(GarmadonMessageHandler handler) {
+            this.beforeInterceptHandlers.add(handler);
+            return this;
+        }
+
         public GarmadonReader build() {
-            return new GarmadonReader(listeners, props);
+            return new GarmadonReader(beforeInterceptHandlers, listeners, props);
         }
     }
 

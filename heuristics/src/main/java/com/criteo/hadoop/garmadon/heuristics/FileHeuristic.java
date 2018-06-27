@@ -5,9 +5,10 @@ import com.criteo.hadoop.garmadon.schema.events.FsEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Set;
 
-public class FileHeuristic {
+public class FileHeuristic implements Heuristic {
 
     private static Logger LOGGER = LoggerFactory.getLogger(FileHeuristic.class);
 
@@ -17,11 +18,51 @@ public class FileHeuristic {
     final Counters renamed = new Counters("Files renamed");
 
     private final HeuristicsResultDB db;
-    private final Map<String, Set<String>> containersPerApp;
 
     public FileHeuristic(HeuristicsResultDB db) {
         this.db = db;
-        this.containersPerApp = new HashMap<>();
+    }
+
+    public void compute(String applicationId, String attemptId, String containerId, DataAccessEventProtos.FsEvent fsEvent) {
+        try {
+            FsEvent.Action action = FsEvent.Action.valueOf(fsEvent.getAction());
+            switch (action) {
+                case DELETE:
+                    deleted.forApp(applicationId, attemptId).increment();
+                    break;
+                case READ:
+                    read.forApp(applicationId, attemptId).increment();
+                    break;
+                case WRITE:
+                    written.forApp(applicationId, attemptId).increment();
+                    break;
+                case RENAME:
+                    renamed.forApp(applicationId, attemptId).increment();
+                    break;
+            }
+        } catch (IllegalArgumentException ex) {
+            LOGGER.warn("received an unexpected FsEvent.Action {}", ex.getMessage());
+        }
+    }
+
+    @Override
+    public void onContainerCompleted(String applicationId, String attemptId, String containerId) {
+
+    }
+
+    @Override
+    public void onAppCompleted(String applicationId, String attemptId) {
+        //TODO compute severity based on number of deleted, renamed, read, written...
+        HeuristicResult result = new HeuristicResult(applicationId, attemptId, FileHeuristic.class, HeuristicsResultDB.Severity.NONE, HeuristicsResultDB.Severity.NONE);
+        addDetail(result, deleted, applicationId, attemptId);
+        addDetail(result, read, applicationId, attemptId);
+        addDetail(result, written, applicationId, attemptId);
+        addDetail(result, renamed, applicationId, attemptId);
+        db.createHeuristicResult(result);
+    }
+
+    private void addDetail(HeuristicResult result, Counters counters, String applicationId, String attemptId) {
+        result.addDetail(counters.name, Integer.toString(counters.forApp(applicationId, attemptId).getCount()));
     }
 
     static class Counters {
@@ -49,54 +90,6 @@ public class FileHeuristic {
                 count++;
             }
         }
-    }
-
-    public void compute(String applicationId, String attemptId, String containerId, DataAccessEventProtos.FsEvent fsEvent) {
-        containersFor(applicationId, attemptId).add(containerId);
-        try {
-            FsEvent.Action action = FsEvent.Action.valueOf(fsEvent.getAction());
-            switch (action) {
-                case DELETE:
-                    deleted.forApp(applicationId, attemptId).increment();
-                    break;
-                case READ:
-                    read.forApp(applicationId, attemptId).increment();
-                    break;
-                case WRITE:
-                    written.forApp(applicationId, attemptId).increment();
-                    break;
-                case RENAME:
-                    renamed.forApp(applicationId, attemptId).increment();
-                    break;
-            }
-        } catch (IllegalArgumentException ex) {
-            LOGGER.warn("received an unexpected FsEvent.Action {}", ex.getMessage());
-        }
-    }
-
-    private Set<String> containersFor(String applicationId, String attemptId) {
-        return containersPerApp.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashSet<>());
-    }
-
-    public void compute(String applicationId, String attemptId, String containerId, DataAccessEventProtos.StateEvent stateEvent) {
-        if ("END".equals(stateEvent.getState())) {
-            Set<String> appContainers = containersFor(applicationId, attemptId);
-            if (appContainers.size() == 0) return; //already emptied
-            appContainers.remove(containerId);
-            if (appContainers.size() == 0) {
-                //TODO compute severity based on number of deleted, renamed, read, written...
-                HeuristicResult result = new HeuristicResult(applicationId, attemptId, FileHeuristic.class, HeuristicsResultDB.Severity.NONE, HeuristicsResultDB.Severity.NONE);
-                addDetail(result, deleted, applicationId, attemptId);
-                addDetail(result, read, applicationId, attemptId);
-                addDetail(result, written, applicationId, attemptId);
-                addDetail(result, renamed, applicationId, attemptId);
-                db.createHeuristicResult(result);
-            }
-        }
-    }
-
-    private void addDetail(HeuristicResult result, Counters counters, String applicationId, String attemptId) {
-        result.addDetail(counters.name, Integer.toString(counters.forApp(applicationId, attemptId).getCount()));
     }
 
 }
