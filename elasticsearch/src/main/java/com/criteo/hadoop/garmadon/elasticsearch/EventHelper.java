@@ -30,7 +30,7 @@ public class EventHelper {
         eventMap.put("src_path", event.getSrcPath().replace(uri, ""));
         eventMap.put("dst_path", event.getDstPath().replace(uri, ""));
         eventMap.put("action", event.getAction());
-        eventMap.put("uri", uri);
+        eventMap.put("uri", UriHelper.getUniformizedUri(uri));
     }
 
     public static void processStateEvent(DataAccessEventProtos.StateEvent event, HashMap<String, Map<String, Object>> eventMaps) {

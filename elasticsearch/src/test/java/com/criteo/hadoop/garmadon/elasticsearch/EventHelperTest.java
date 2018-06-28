@@ -24,7 +24,7 @@ public class EventHelperTest {
     @Test
     public void initEvent_should_return_a_hashmap() {
         String type = "TEST";
-        HashMap<String, Object> res = (HashMap<String, Object>) EventHelper.initEvent(type, new Date(timestamp));
+        Map<String, Object> res = EventHelper.initEvent(type, new Date(timestamp));
         Assert.assertEquals(type, res.get("type"));
     }
 
