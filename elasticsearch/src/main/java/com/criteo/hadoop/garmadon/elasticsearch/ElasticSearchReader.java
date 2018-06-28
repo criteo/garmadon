@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -138,78 +137,33 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
         if (msg.getHeader().hasPid())
             jsonMap.put("pid", msg.getHeader().getPid());
 
-        putBodySpecificFields(msg.getBody(), jsonMap);
-
-        String daily_index = esIndexPrefix + "-" + formatter.format(jsonMap.get("timestamp"));
-        IndexRequest req = new IndexRequest(daily_index, "doc", "")
-                .source(jsonMap);
-
-        bulkProcessor.add(req, msg.getCommittableOffset());
+        HashMap<String, Map<String, Object>> eventMaps = putBodySpecificFields(msg.getBody());
+        for (Map<String, Object> eventMap : eventMaps.values()) {
+            eventMap.putAll(jsonMap);
+            String daily_index = esIndexPrefix + "-" + formatter.format(eventMap.get("timestamp"));
+            IndexRequest req = new IndexRequest(daily_index, "doc")
+                    .source(eventMap);
+            bulkProcessor.add(req, msg.getCommittableOffset());
+        }
     }
 
-    private void putBodySpecificFields(Object o, Map<String, Object> jsonMap) {
+    private HashMap<String, Map<String, Object>> putBodySpecificFields(Object o) {
+        HashMap<String, Map<String, Object>> eventMaps = new HashMap<>();
+
         if (o instanceof DataAccessEventProtos.PathEvent) {
-            DataAccessEventProtos.PathEvent event = (DataAccessEventProtos.PathEvent) o;
-
-            Date timestamp_date = new Date(event.getTimestamp());
-            jsonMap.put("timestamp", timestamp_date);
-            jsonMap.put("type", event.getType());
-            jsonMap.put("path", event.getPath());
+            EventHelper.processPathEvent((DataAccessEventProtos.PathEvent) o, eventMaps);
         } else if (o instanceof DataAccessEventProtos.FsEvent) {
-            DataAccessEventProtos.FsEvent event = (DataAccessEventProtos.FsEvent) o;
-
-            Date timestamp_date = new Date(event.getTimestamp());
-            jsonMap.put("timestamp", timestamp_date);
-            jsonMap.put("type", "FS");
-            jsonMap.put("src_path", event.getSrcPath());
-            jsonMap.put("dst_path", event.getDstPath());
-            jsonMap.put("action", event.getAction());
-            jsonMap.put("uri", event.getUri());
+            EventHelper.processFsEvent((DataAccessEventProtos.FsEvent) o, eventMaps);
         } else if (o instanceof DataAccessEventProtos.StateEvent) {
-            DataAccessEventProtos.StateEvent event = (DataAccessEventProtos.StateEvent) o;
-
-            Date timestamp_date = new Date(event.getTimestamp());
-            jsonMap.put("timestamp", timestamp_date);
-            jsonMap.put("type", "STATE");
-            jsonMap.put("state", event.getState());
+            EventHelper.processStateEvent((DataAccessEventProtos.StateEvent) o, eventMaps);
         } else if (o instanceof JVMStatisticsProtos.JVMStatisticsData) {
-            JVMStatisticsProtos.JVMStatisticsData event = (JVMStatisticsProtos.JVMStatisticsData) o;
-
-            Date timestamp_date = new Date(event.getTimestamp());
-            jsonMap.put("timestamp", timestamp_date);
-            jsonMap.put("type", "JVM");
-            for (JVMStatisticsProtos.JVMStatisticsData.Section section : event.getSectionList()) {
-                for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
-                    try {
-                        jsonMap.put(section.getName() + "_" + property.getName(), Double.parseDouble(property.getValue()));
-                    } catch (NumberFormatException nfe) {
-                        jsonMap.put(section.getName() + "_" + property.getName(), property.getValue());
-                    }
-                }
-            }
+            EventHelper.processJVMStatisticsData((JVMStatisticsProtos.JVMStatisticsData) o, eventMaps);
         } else if (o instanceof JVMStatisticsProtos.GCStatisticsData) {
-            JVMStatisticsProtos.GCStatisticsData event = (JVMStatisticsProtos.GCStatisticsData) o;
-
-            Date timestamp_date = new Date(event.getTimestamp());
-            jsonMap.put("timestamp", timestamp_date);
-            jsonMap.put("type", "GC");
-            jsonMap.put("collector_name", event.getCollectorName());
-            jsonMap.put("pause_time", event.getPauseTime());
-            jsonMap.put("cause", event.getCause());
-            jsonMap.put("delta_eden", event.getEdenBefore() - event.getEdenAfter());
-            jsonMap.put("delta_survivor", event.getSurvivorBefore() - event.getSurvivorAfter());
-            jsonMap.put("delta_old", event.getOldBefore() - event.getOldAfter());
-            jsonMap.put("delta_code", event.getCodeBefore() - event.getCodeAfter());
-            jsonMap.put("delta_metaspace", event.getMetaspaceBefore() - event.getMetaspaceAfter());
+            EventHelper.processGCStatisticsData((JVMStatisticsProtos.GCStatisticsData) o, eventMaps);
         } else if (o instanceof ContainerEventProtos.ContainerResourceEvent) {
-            ContainerEventProtos.ContainerResourceEvent event = (ContainerEventProtos.ContainerResourceEvent) o;
-
-            Date timestamp_date = new Date(event.getTimestamp());
-            jsonMap.put("timestamp", timestamp_date);
-            jsonMap.put("type", event.getType());
-            jsonMap.put("value", event.getValue());
-            jsonMap.put("limit", event.getLimit());
+            EventHelper.processContainerResourceEvent((ContainerEventProtos.ContainerResourceEvent) o, eventMaps);
         }
+        return eventMaps;
     }
 
     @Override

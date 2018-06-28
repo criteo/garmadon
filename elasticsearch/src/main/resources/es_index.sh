@@ -60,24 +60,6 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
           }
         },
         {
-          "network": {
-            "match": "network_*",
-            "mapping": {
-              "type": "long",
-              "index": false
-            }
-          }
-        },
-        {
-          "disk": {
-            "match": "disk_*",
-            "mapping": {
-              "type": "long",
-              "index": false
-            }
-          }
-        },
-        {
           "unindexed_longs": {
             "match_mapping_type": "long",
             "mapping": {
@@ -557,7 +539,46 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
           "value" : {
             "type" : "long",
             "index": false
-          }
+          },
+          "path" : {
+            "type" : "text",
+            "norms": false,
+            "index_options": "freqs"
+          },
+          "tx" : {
+            "type" : "long",
+            "index": false
+          },
+          "rx" : {
+            "type" : "long",
+            "index": false
+          },
+          "reads" : {
+            "type" : "long",
+            "index": false
+          },
+          "readsbytes" : {
+            "type" : "long",
+            "index": false
+          },
+          "writes" : {
+            "type" : "long",
+            "index": false
+          },
+          "writesbytes" : {
+            "type" : "long",
+            "index": false
+          },
+          "network" : {
+            "type": "keyword",
+            "norms": false,
+            "index_options": "freqs"
+          },
+          "disk" : {
+            "type": "keyword",
+            "norms": false,
+            "index_options": "freqs"
+          },
         }
       }
     }
