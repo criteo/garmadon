@@ -15,7 +15,8 @@ public class FsEvent {
         READ,
         WRITE,
         RENAME,
-        DELETE
+        DELETE,
+        APPEND
     }
 
     public FsEvent(long timestamp, String dstPath, Action action, String uri) {

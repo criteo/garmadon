@@ -34,6 +34,7 @@ public class FileSystemModule extends ContainerModule {
         new WriteTracer().installOn(instrumentation);
         new RenameTracer().installOn(instrumentation);
         new DeleteTracer().installOn(instrumentation);
+        new AppendTracer().installOn(instrumentation);
     }
 
     public static void initEventHandler(Consumer<Object> eventConsumer) {
@@ -149,6 +150,36 @@ public class FileSystemModule extends ContainerModule {
         public static void intercept(@This Object o, @Argument(0) Path f) throws Exception {
             Object uri = ((DistributedFileSystem) o).getUri();
             FsEvent event = new FsEvent(System.currentTimeMillis(), f.toString(), FsEvent.Action.WRITE, uri.toString());
+            eventHandler.accept(event);
+        }
+    }
+
+    public static class AppendTracer extends MethodTracer {
+
+        @Override
+        ElementMatcher<? super TypeDescription> typeMatcher() {
+            return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
+        }
+
+        @Override
+        ElementMatcher<? super MethodDescription> methodMatcher() {
+            return named("append").and(
+                    takesArguments(
+                        Path.class,
+                        int.class,
+                        Progressable.class
+                    )
+            );
+        }
+
+        @Override
+        Implementation newImplementation() {
+            return to(AppendTracer.class).andThen(SuperMethodCall.INSTANCE);
+        }
+
+        public static void intercept(@This Object o, @Argument(0) Path f) throws Exception {
+            Object uri = ((DistributedFileSystem) o).getUri();
+            FsEvent event = new FsEvent(System.currentTimeMillis(), f.toString(), FsEvent.Action.APPEND, uri.toString());
             eventHandler.accept(event);
         }
     }

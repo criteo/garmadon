@@ -83,6 +83,7 @@ public class FileHeuristicTest {
         heuristic.compute("app_1", "att_1", "cid_1", newFsEvent(FsEvent.Action.WRITE));
         heuristic.compute("app_1", "att_1", "cid_2", newFsEvent(FsEvent.Action.RENAME));
         heuristic.compute("app_1", "att_1", "cid_3", newFsEvent(FsEvent.Action.READ));
+        heuristic.compute("app_1", "att_1", "cid_4", newFsEvent(FsEvent.Action.APPEND));
 
         heuristic.compute("app_2", "att_1", "cid_1", newFsEvent(FsEvent.Action.READ));
         heuristic.compute("app_2", "att_1", "cid_2", newFsEvent(FsEvent.Action.WRITE));
@@ -92,6 +93,7 @@ public class FileHeuristicTest {
         expectedResults.addDetail("Files read", "1");
         expectedResults.addDetail("Files written", "1");
         expectedResults.addDetail("Files renamed", "1");
+        expectedResults.addDetail("Files appended", "1");
 
         heuristic.onAppCompleted("app_1", "att_1");
         verify(db).createHeuristicResult(expectedResults);
@@ -103,6 +105,7 @@ public class FileHeuristicTest {
         heuristic.compute("app_1", "att_1", "cid_1", newFsEvent(FsEvent.Action.WRITE));
         heuristic.compute("app_1", "att_1", "cid_2", newFsEvent(FsEvent.Action.RENAME));
         heuristic.compute("app_1", "att_1", "cid_3", newFsEvent(FsEvent.Action.READ));
+        heuristic.compute("app_1", "att_1", "cid_4", newFsEvent(FsEvent.Action.APPEND));
 
         heuristic.compute("app_1", "att_2", "cid_1", newFsEvent(FsEvent.Action.READ));
         heuristic.compute("app_1", "att_2", "cid_2", newFsEvent(FsEvent.Action.WRITE));
@@ -112,6 +115,7 @@ public class FileHeuristicTest {
         expectedResults.addDetail("Files read", "1");
         expectedResults.addDetail("Files written", "1");
         expectedResults.addDetail("Files renamed", "1");
+        expectedResults.addDetail("Files appended", "1");
 
         heuristic.onAppCompleted("app_1", "att_1");
         verify(db).createHeuristicResult(expectedResults);
@@ -122,6 +126,7 @@ public class FileHeuristicTest {
         expectedResults.addDetail("Files read", "1");
         expectedResults.addDetail("Files written", "1");
         expectedResults.addDetail("Files renamed", "0");
+        expectedResults.addDetail("Files appended", "0");
 
         heuristic.onAppCompleted("app_1", "att_2");
         verify(db).createHeuristicResult(expectedResults);

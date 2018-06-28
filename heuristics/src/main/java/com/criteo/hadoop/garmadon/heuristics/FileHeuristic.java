@@ -16,6 +16,7 @@ public class FileHeuristic implements Heuristic {
     final Counters read = new Counters("Files read");
     final Counters written = new Counters("Files written");
     final Counters renamed = new Counters("Files renamed");
+    final Counters append = new Counters("Files appended");
 
     private final HeuristicsResultDB db;
 
@@ -39,6 +40,8 @@ public class FileHeuristic implements Heuristic {
                 case RENAME:
                     renamed.forApp(applicationId, attemptId).increment();
                     break;
+                case APPEND:
+                    append.forApp(applicationId, attemptId).increment();
             }
         } catch (IllegalArgumentException ex) {
             LOGGER.warn("received an unexpected FsEvent.Action {}", ex.getMessage());
@@ -58,6 +61,7 @@ public class FileHeuristic implements Heuristic {
         addDetail(result, read, applicationId, attemptId);
         addDetail(result, written, applicationId, attemptId);
         addDetail(result, renamed, applicationId, attemptId);
+        addDetail(result, append, applicationId, attemptId);
         db.createHeuristicResult(result);
     }
 
