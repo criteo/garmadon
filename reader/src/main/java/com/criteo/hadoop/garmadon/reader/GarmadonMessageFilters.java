@@ -4,6 +4,14 @@ import com.criteo.hadoop.garmadon.schema.events.Header;
 
 public class GarmadonMessageFilters {
 
+    public static GarmadonMessageFilter.ANY any(){
+        return GarmadonMessageFilter.ANY.INSTANCE;
+    }
+
+    public static GarmadonMessageFilter.NONE none(){
+        return GarmadonMessageFilter.NONE.INSTANCE;
+    }
+
     public static GarmadonMessageFilter.HeaderFilter hasTag(Header.Tag tag){
         return new GarmadonMessageFilter.HeaderFilter.TagFilter(tag);
     }
