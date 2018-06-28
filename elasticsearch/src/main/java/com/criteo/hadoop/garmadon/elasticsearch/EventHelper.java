@@ -26,10 +26,11 @@ public class EventHelper {
     public static void processFsEvent(DataAccessEventProtos.FsEvent event, HashMap<String, Map<String, Object>> eventMaps) {
         Date timestamp_date = new Date(event.getTimestamp());
         Map<String, Object> eventMap = eventMaps.computeIfAbsent("FS", s -> EventHelper.initEvent("FS", timestamp_date));
-        eventMap.put("src_path", event.getSrcPath());
-        eventMap.put("dst_path", event.getDstPath());
+        String uri = event.getUri();
+        eventMap.put("src_path", event.getSrcPath().replace(uri, ""));
+        eventMap.put("dst_path", event.getDstPath().replace(uri, ""));
         eventMap.put("action", event.getAction());
-        eventMap.put("uri", event.getUri());
+        eventMap.put("uri", uri);
     }
 
     public static void processStateEvent(DataAccessEventProtos.StateEvent event, HashMap<String, Map<String, Object>> eventMaps) {

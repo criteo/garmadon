@@ -43,7 +43,7 @@ public class EventHelperTest {
 
     @Test
     public void processFsEvent_should_add_a_hashmap_with_dst_path() {
-        String path = "datadisco:/click_cas/day=2018-06-26/hour=03/platform=EU";
+        String path = "/click_cas/day=2018-06-26/hour=03/platform=EU";
         DataAccessEventProtos.FsEvent event = DataAccessEventProtos.FsEvent
                 .newBuilder()
                 .setTimestamp(timestamp)
@@ -53,6 +53,21 @@ public class EventHelperTest {
                 .build();
         EventHelper.processFsEvent(event, eventMaps);
         Assert.assertEquals(path, eventMaps.get("FS").get("dst_path"));
+    }
+
+    @Test
+    public void processFsEvent_remove_uri_from_dst_payj() {
+        String uri = "hdfs://root";
+        String path = uri + "/click_cas/day=2018-06-26/hour=03/platform=EU";
+        DataAccessEventProtos.FsEvent event = DataAccessEventProtos.FsEvent
+                .newBuilder()
+                .setTimestamp(timestamp)
+                .setAction("RENAME")
+                .setDstPath(path)
+                .setUri(uri)
+                .build();
+        EventHelper.processFsEvent(event, eventMaps);
+        Assert.assertEquals(path.replace(uri, ""), eventMaps.get("FS").get("dst_path"));
     }
 
     @Test
