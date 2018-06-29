@@ -2,6 +2,8 @@ package com.criteo.hadoop.garmadon.agent.modules;
 
 import com.criteo.hadoop.garmadon.agent.AsyncEventProcessor;
 import com.criteo.hadoop.garmadon.schema.events.Header;
+import org.apache.hadoop.mapred.TaskAttemptID;
+import org.apache.hadoop.mapreduce.TaskType;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -36,7 +38,8 @@ public abstract class ContainerModule implements GarmadonAgentModule {
         private final byte[] bytes;
 
         public SerializedHeader(byte[] bytes) {
-            super(null, null, null, null, null, null, null, null);
+            super(null, null, null, null, null, null,
+                    null, null, null, null);
             this.bytes = bytes;
         }
 
@@ -57,6 +60,59 @@ public abstract class ContainerModule implements GarmadonAgentModule {
         } catch (IOException ignored) {
         }
 
+        String[] commands = System.getProperty("sun.java.command", "empty_class").split(" ");
+        String mainClass = commands[0];
+        String framework = "Yarn";
+        String component = "Unknown";
+        switch (mainClass) {
+            // MapReduce
+            case "org.apache.hadoop.mapreduce.v2.app.MRAppMaster":
+                framework = "MapReduce";
+                component = "AppMaster";
+                break;
+            case "org.apache.hadoop.mapred.YarnChild":
+                framework = "MapReduce";
+                if (commands.length > 4) {
+                    final TaskAttemptID firstTaskid = TaskAttemptID.forName(commands[3]);
+                    component = firstTaskid.getTaskType().name();
+                }
+                break;
+            // Spark
+            case "org.apache.spark.deploy.yarn.ApplicationMaster":
+                framework = "Spark";
+                component = "AppMaster";
+                break;
+            case "org.apache.spark.executor.CoarseGrainedExecutorBackend":
+                framework = "Spark";
+                component = "Executor";
+                break;
+            // Flink
+            case "org.apache.flink.yarn.YarnApplicationMasterRunner":
+                framework = "Flink";
+                component = "ApplicationMaster";
+                break;
+            case "org.apache.flink.yarn.entrypoint.YarnJobClusterEntrypoint":
+                framework = "Flink";
+                component = "ApplicationMaster";
+                break;
+            case "org.apache.flink.yarn.entrypoint.YarnSessionClusterEntrypoint":
+                framework = "Flink";
+                component = "ApplicationMaster";
+                break;
+            case "org.apache.flink.yarn.YarnTaskManager":
+                framework = "Flink";
+                component = "TaskManager";
+                break;
+            // Cuttle
+            case "com.criteo.cuttle.contrib.yarn.ApplicationMaster":
+                framework = "Yarn";
+                component = "CuttleApplicationMaster";
+                break;
+            // Yarn
+            default:
+                break;
+        }
+
         // Get applicationID
         ContainerId containerId = ConverterUtils.toContainerId(containerIdString);
         ApplicationAttemptId appAttemptID = containerId.getApplicationAttemptId();
@@ -72,6 +128,8 @@ public abstract class ContainerModule implements GarmadonAgentModule {
                 .withUser(user)
                 .withContainerID(containerIdString)
                 .withPid(pid)
+                .withFramework(framework)
+                .withComponent(component)
                 .build()
                 .serialize();
         return new SerializedHeader(bytes);

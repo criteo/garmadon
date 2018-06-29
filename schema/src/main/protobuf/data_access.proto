@@ -14,6 +14,8 @@ message Header {
     optional string hostname = 6;
     optional string tag = 7;
     optional string pid = 8;
+    optional string framework = 9;
+    optional string component = 10;
 }
 
 message PathEvent {

@@ -12,6 +12,8 @@ public class Header {
     protected final String hostname;
     protected final String tag;
     protected final String pid;
+    protected final String framework;
+    protected final String component;
 
     public enum Tag {
         YARN_APPLICATION,
@@ -20,7 +22,8 @@ public class Header {
     }
 
     public Header(String applicationID, String appAttemptID, String applicationName,
-                  String user, String containerID, String hostname, String tag, String pid) {
+                  String user, String containerID, String hostname, String tag, String pid,
+                  String framework, String component) {
         this.applicationID = applicationID;
         this.appAttemptID = appAttemptID;
         this.applicationName = applicationName;
@@ -29,6 +32,8 @@ public class Header {
         this.hostname = hostname;
         this.tag = tag;
         this.pid = pid;
+        this.framework = framework;
+        this.component = component;
     }
 
     public byte[] serialize() {
@@ -50,6 +55,10 @@ public class Header {
             builder.setTag(tag);
         if (pid != null)
             builder.setPid(pid);
+        if (framework != null)
+            builder.setFramework(framework);
+        if (component != null)
+            builder.setComponent(component);
         return builder.build().toByteArray();
     }
 
@@ -63,6 +72,9 @@ public class Header {
                 ", containerID='" + containerID + '\'' +
                 ", hostname='" + hostname + '\'' +
                 ", tag='" + tag + '\'' +
+                ", pid='" + pid + '\'' +
+                ", framework='" + framework + '\'' +
+                ", component='" + component + '\'' +
                 '}';
     }
 
@@ -70,8 +82,10 @@ public class Header {
      * Header that can be cloned with overridden values
      */
     public static class BaseHeader extends Header {
-        private BaseHeader(String applicationID, String appAttemptID, String applicationName, String user, String containerID, String hostname, String tag, String pid) {
-            super(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, pid);
+        private BaseHeader(String applicationID, String appAttemptID, String applicationName, String user,
+                           String containerID, String hostname, String tag, String pid, String framework,
+                           String component) {
+            super(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, pid, framework, component);
         }
 
         public Header cloneAndOverride(Header override) {
@@ -83,6 +97,8 @@ public class Header {
             String hostname = override.hostname != null ? override.hostname : this.hostname;
             String tag = override.tag != null ? override.tag : this.tag;
             String pid = override.pid != null ? override.pid : this.pid;
+            String framework = override.framework != null ? override.framework : this.framework;
+            String component = override.component != null ? override.component : this.component;
             return new Header(
                     applicationID,
                     appAttemptID,
@@ -91,7 +107,9 @@ public class Header {
                     containerID,
                     hostname,
                     tag,
-                    pid
+                    pid,
+                    framework,
+                    component
             );
         }
     }
@@ -110,6 +128,8 @@ public class Header {
         private String hostname;
         private String tag;
         private String pid;
+        private String framework;
+        private String component;
 
         Builder() {
         }
@@ -155,12 +175,24 @@ public class Header {
             return this;
         }
 
+        public Builder withFramework(String framework) {
+            this.framework = framework;
+            return this;
+        }
+
+        public Builder withComponent(String component) {
+            this.component = component;
+            return this;
+        }
+
         public Header build() {
-            return new Header(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, pid);
+            return new Header(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, pid,
+                    framework, component);
         }
 
         public BaseHeader buildBaseHeader() {
-            return new BaseHeader(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, pid);
+            return new BaseHeader(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, pid,
+                    framework, component);
         }
     }
 }

@@ -81,9 +81,6 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
       "_source": {
         "enabled": true
       },
-      "_all": {
-        "enabled": false
-      },
       "properties": {
           "action" : {
             "type": "keyword",
@@ -95,6 +92,16 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
             "norms": false,
             "index_options": "freqs"
           },
+          "framework" : {
+            "type": "keyword",
+            "norms": false,
+            "index_options": "freqs"
+          },
+          "component" : {
+            "type": "keyword",
+            "norms": false,
+            "index_options": "freqs"
+          }
           "application_id" : {
             "type": "keyword",
             "norms": false,
