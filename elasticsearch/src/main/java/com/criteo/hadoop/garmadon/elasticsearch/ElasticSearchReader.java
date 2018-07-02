@@ -154,9 +154,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
     private HashMap<String, Map<String, Object>> putBodySpecificFields(Object o) {
         HashMap<String, Map<String, Object>> eventMaps = new HashMap<>();
 
-        if (o instanceof DataAccessEventProtos.PathEvent) {
-            EventHelper.processPathEvent((DataAccessEventProtos.PathEvent) o, eventMaps);
-        } else if (o instanceof DataAccessEventProtos.FsEvent) {
+        if (o instanceof DataAccessEventProtos.FsEvent) {
             EventHelper.processFsEvent((DataAccessEventProtos.FsEvent) o, eventMaps);
         } else if (o instanceof DataAccessEventProtos.StateEvent) {
             EventHelper.processStateEvent((DataAccessEventProtos.StateEvent) o, eventMaps);

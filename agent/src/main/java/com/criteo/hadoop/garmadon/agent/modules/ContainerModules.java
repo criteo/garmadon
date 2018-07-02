@@ -13,7 +13,6 @@ public class ContainerModules implements GarmadonAgentModule {
         executorService.submit(() -> new JVMStatisticsModule().setup(instrumentation, eventProcessor));
         executorService.submit(() -> {
             new FileSystemModule().setup(instrumentation, eventProcessor);
-            new MapReduceModule().setup(instrumentation, eventProcessor);
         });
         executorService.shutdown();
         // We wait 3 sec executor to instrument classes
