@@ -101,7 +101,7 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
             "type": "keyword",
             "norms": false,
             "index_options": "freqs"
-          }
+          },
           "application_id" : {
             "type": "keyword",
             "norms": false,
@@ -114,11 +114,6 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
           },
           "attempt_id" : {
             "type": "keyword",
-            "norms": false,
-            "index_options": "freqs"
-          },
-          "cause" : {
-            "type" : "text",
             "norms": false,
             "index_options": "freqs"
           },
@@ -161,11 +156,6 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
           "code_used" : {
             "type" : "integer",
               "index": false
-          },
-          "collector_name" : {
-            "type" : "text",
-            "norms": false,
-            "index_options": "freqs"
           },
           "compile_count" : {
             "type" : "integer",
@@ -210,26 +200,6 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
           },
           "cpu_cores" : {
             "type" : "integer",
-              "index": false
-          },
-          "delta_code" : {
-            "type" : "long",
-              "index": false
-          },
-          "delta_eden" : {
-            "type" : "long",
-              "index": false
-          },
-          "delta_metaspace" : {
-            "type" : "long",
-              "index": false
-          },
-          "delta_old" : {
-            "type" : "long",
-              "index": false
-          },
-          "delta_survivor" : {
-            "type" : "long",
               "index": false
           },
           "descriptors_max" : {
@@ -404,10 +374,6 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
             "type" : "integer",
               "index": false
           },
-          "pause_time" : {
-            "type" : "long",
-              "index": false
-          },
           "process_ctxtswitches" : {
             "type" : "integer",
               "index": false
@@ -547,11 +513,6 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
             "type" : "long",
             "index": false
           },
-          "path" : {
-            "type" : "text",
-            "norms": false,
-            "index_options": "freqs"
-          },
           "tx" : {
             "type" : "long",
             "index": false
@@ -585,7 +546,7 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
             "type": "keyword",
             "norms": false,
             "index_options": "freqs"
-          },
+          }
         }
       }
     }
