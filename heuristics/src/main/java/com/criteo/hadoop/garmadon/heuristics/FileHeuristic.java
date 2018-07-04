@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.Set;
 
 public class FileHeuristic implements Heuristic {
 
@@ -63,6 +62,11 @@ public class FileHeuristic implements Heuristic {
         addDetail(result, renamed, applicationId, attemptId);
         addDetail(result, append, applicationId, attemptId);
         db.createHeuristicResult(result);
+    }
+
+    @Override
+    public String getHelp() {
+        return HeuristicHelper.loadHelpFile("FileHeuristic");
     }
 
     private void addDetail(HeuristicResult result, Counters counters, String applicationId, String attemptId) {

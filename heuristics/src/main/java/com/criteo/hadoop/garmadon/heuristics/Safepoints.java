@@ -71,6 +71,11 @@ public class Safepoints implements JVMStatsHeuristic {
                 counter -> "Max safepoint/s: " + counter.ratio);
     }
 
+    @Override
+    public String getHelp() {
+        return HeuristicHelper.loadHelpFile("Safepoints");
+    }
+
     private static class SafepointsCounters extends BaseCounter {
         long lastCount;
         long lastTimestamp;

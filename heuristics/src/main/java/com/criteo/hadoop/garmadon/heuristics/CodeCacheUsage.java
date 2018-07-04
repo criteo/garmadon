@@ -55,6 +55,11 @@ public class CodeCacheUsage implements JVMStatsHeuristic {
                 counter -> "max: " + counter.max + "kB, peak: " + counter.peak + "kB");
     }
 
+    @Override
+    public String getHelp() {
+        return HeuristicHelper.loadHelpFile("CodeCacheUsage");
+    }
+
     private static class CodeCacheCounters extends BaseCounter {
         long peak;
         long max;

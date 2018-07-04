@@ -3,12 +3,14 @@ package com.criteo.hadoop.garmadon.heuristics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 public class HeuristicsResultDB {
 
@@ -24,16 +26,22 @@ public class HeuristicsResultDB {
 
     private static final String HEURISTIC_RESULT_TABLENAME = "garmadon_yarn_app_heuristic_result";
     private static final String HEURISTIC_RESULT_DETAILS_TABLENAME = "garmadon_yarn_app_heuristic_result_details";
+    private static final String HEURISTIC_HELP_TABLENAME = "garmadon_heuristic_help";
     private static final String CREATE_YARN_APP_HEURISTIC_RESULT_SQL = "INSERT INTO "+ HEURISTIC_RESULT_TABLENAME +
             " (yarn_app_result_id, heuristic_class, heuristic_name, severity, score, ready) " +
             "VALUES (?, ?, ?, ?, ?, ?)";
     private static final String CREATE_YARN_APP_HEURISTIC_RESULT_DETAILS_SQL = "INSERT INTO " + HEURISTIC_RESULT_DETAILS_TABLENAME +
             " (yarn_app_heuristic_result_id, name, value, details) " +
             "VALUES (?, ?, ?, ?)";
+    private static final String DELETE_ALL_HEURISTIC_HELP = "DELETE FROM " + HEURISTIC_HELP_TABLENAME;
+    private static final String CREATE_HEURISTIC_HELP = "INSERT INTO " + HEURISTIC_HELP_TABLENAME +
+            " (heuristic_id, help_html) " +
+            "VALUES (?, ?)";
 
     private final Connection connection;
     private final PreparedStatement createYarnAppResultStat;
     private final PreparedStatement createYarnAppResultDetailsStat;
+    private final PreparedStatement createHeuristicHelp;
 
     public HeuristicsResultDB(String connectionString, String user, String password) {
         try {
@@ -44,6 +52,7 @@ public class HeuristicsResultDB {
         }
         createYarnAppResultStat = prepareStatements(CREATE_YARN_APP_HEURISTIC_RESULT_SQL);
         createYarnAppResultDetailsStat = prepareStatements(CREATE_YARN_APP_HEURISTIC_RESULT_DETAILS_SQL);
+        createHeuristicHelp = prepareStatements(CREATE_HEURISTIC_HELP);
     }
 
     private PreparedStatement prepareStatements(String sql) {
@@ -93,4 +102,25 @@ public class HeuristicsResultDB {
         }
     }
 
+    public void updateHeuristicHelp(List<Heuristic> heuristics) {
+        try {
+            connection.prepareStatement(DELETE_ALL_HEURISTIC_HELP).execute();
+        } catch (SQLException ex) {
+            LOGGER.warn("Error deleting all in {} table", HEURISTIC_HELP_TABLENAME, ex);
+            return;
+        }
+        for (Heuristic heuristic : heuristics) {
+            String heuristicName = heuristic.getClass().getSimpleName();
+            try {
+                Clob clob = connection.createClob();
+                clob.setString(1, heuristic.getHelp());
+                createHeuristicHelp.clearParameters();
+                createHeuristicHelp.setString(1, heuristicName);
+                createHeuristicHelp.setClob(2, clob);
+                createHeuristicHelp.executeUpdate();
+            } catch (Exception ex) {
+                LOGGER.warn("Error when inserting help for {}", heuristicName, ex);
+            }
+        }
+    }
 }

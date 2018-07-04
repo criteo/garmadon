@@ -61,6 +61,11 @@ public class Threads implements JVMStatsHeuristic {
                 counter -> "Max count threads: " + counter.maxCount + ", Total threads: " + counter.total);
     }
 
+    @Override
+    public String getHelp() {
+        return HeuristicHelper.loadHelpFile("Threads");
+    }
+
     private static class ThreadCounters extends BaseCounter {
         int maxCount;
         int total;

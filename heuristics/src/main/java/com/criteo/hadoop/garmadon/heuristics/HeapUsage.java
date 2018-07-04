@@ -91,6 +91,11 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
     }
 
     @Override
+    public String getHelp() {
+        return HeuristicHelper.loadHelpFile("HeapUsage");
+    }
+
+    @Override
     public void process(String applicationId, String attemptId, String containerId, JVMStatisticsProtos.GCStatisticsData gcStats) {
         // TODO process GC stats
         // TODO Handle before/after heap used at GC

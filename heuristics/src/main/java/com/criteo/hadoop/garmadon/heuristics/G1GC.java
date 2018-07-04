@@ -45,6 +45,11 @@ public class G1GC implements GCStatsHeuristic {
         });
     }
 
+    @Override
+    public String getHelp() {
+        return HeuristicHelper.loadHelpFile("G1GC");
+    }
+
     private static class FullGCCounters extends BaseCounter {
         int count;
         long timestamp;

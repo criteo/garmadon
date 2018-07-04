@@ -1,9 +1,16 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.function.Function;
 
 public class HeuristicHelper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HeuristicHelper.class);
     public static final int MAX_CONTAINERS_PER_HEURISTIC = 10;
 
     public static String getAppAttemptId(String applicationId, String attemptId) {
@@ -26,4 +33,17 @@ public class HeuristicHelper {
         }
     }
 
+    public static String loadHelpFile(String fileName) {
+        String fullFileName = "/helps/" + fileName + ".html";
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(Heuristic.class.getResourceAsStream(fullFileName)))) {
+            String line;
+            while ((line = reader.readLine()) != null)
+                sb.append(line).append("\n");
+            return sb.toString();
+        } catch (IOException ex) {
+            LOGGER.warn("Error loading help for ", fileName, ex);
+            throw new RuntimeException(ex);
+        }
+    }
 }

@@ -69,6 +69,11 @@ public class Locks implements JVMStatsHeuristic {
                 counter -> "Max contention/s: " + counter.ratio);
     }
 
+    @Override
+    public String getHelp() {
+        return HeuristicHelper.loadHelpFile("Locks");
+    }
+
     private static class LockCounters extends BaseCounter {
         long lastContendedCount;
         long lastTimestamp;

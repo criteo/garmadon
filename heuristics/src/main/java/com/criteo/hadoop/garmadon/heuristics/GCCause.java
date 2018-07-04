@@ -52,6 +52,11 @@ public class GCCause implements GCStatsHeuristic {
         heuristicsResultDB.createHeuristicResult(result);
     }
 
+    @Override
+    public String getHelp() {
+        return HeuristicHelper.loadHelpFile("GCCause");
+    }
+
     private static class GCCauseStats {
         int metadataThreshold;
         int ergonomics;

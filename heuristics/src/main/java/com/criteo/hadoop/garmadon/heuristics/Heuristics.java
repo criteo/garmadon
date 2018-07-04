@@ -63,7 +63,9 @@ public class Heuristics {
         this.heuristics.add(fileHeuristic);
         this.heuristics.addAll(gcStatsHeuristics);
         this.heuristics.addAll(jvmStatsHeuristics);
+        db.updateHeuristicHelp(heuristics);
     }
+
 
     public void start() {
         reader.startReading().whenComplete(this::completeReading);
