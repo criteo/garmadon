@@ -1,18 +1,23 @@
 package com.criteo.hadoop.garmadon.forwarder.metrics;
 
 import com.criteo.hadoop.garmadon.forwarder.Forwarder;
+import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import io.prometheus.client.Counter;
+import io.prometheus.client.Summary;
 import io.prometheus.client.exporter.HTTPServer;
 import io.prometheus.client.hotspot.DefaultExports;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
  */
 public class PrometheusHttpMetrics {
+
     public static final Counter garmadonMetrics = Counter.build()
             .name("garmadon_metrics").help("Garmadon metrics")
             .labelNames("name", "hostname", "release")
@@ -37,6 +42,11 @@ public class PrometheusHttpMetrics {
             Forwarder.hostname,
             RELEASE);
 
+    private static final Summary baseTypeSizeSummary = Summary.build()
+            .name("garmadon_event_size").help("Event sizes in bytes")
+            .labelNames("eventType", "hostname", "release")
+            .register();
+
     private static HTTPServer server;
 
     static {
@@ -57,4 +67,7 @@ public class PrometheusHttpMetrics {
         }
     }
 
+    public static Summary.Child eventSize(int type) {
+        return baseTypeSizeSummary.labels(GarmadonSerialization.getTypeName(type), Forwarder.hostname, RELEASE);
+    }
 }

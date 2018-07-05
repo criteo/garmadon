@@ -36,7 +36,7 @@ public class AsyncEventProcessorTest {
     public void setUp() {
         appender = mock(SocketAppender.class);
         header = Header.newBuilder().withApplicationID(UUID.randomUUID().toString()).build(); //build a header with at least something that changes between tests
-        GarmadonSerialization.register(TestEvent.class, Integer.MAX_VALUE, event -> event.buffer, bytes -> new TestEvent(null));
+        GarmadonSerialization.register(TestEvent.class, Integer.MAX_VALUE, "TestEvent", event -> event.buffer, bytes -> new TestEvent(null));
     }
 
     @Test

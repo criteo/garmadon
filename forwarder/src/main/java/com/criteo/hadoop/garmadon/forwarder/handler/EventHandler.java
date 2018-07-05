@@ -11,6 +11,8 @@ import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.ByteBuffer;
+
 public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
     private static final AttributeKey<DataAccessEventProtos.Header> headerAttr = AttributeKey.valueOf("header");
     private static final Logger LOGGER = LoggerFactory.getLogger(EventHandler.class);
@@ -19,6 +21,9 @@ public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
+
+        int type = msg.getInt(0);
+
         int headerSize = msg.getInt(ProtocolConstants.HEADER_SIZE_INDEX);
 
         byte[] headerByte = new byte[headerSize];
@@ -42,6 +47,8 @@ public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
             ctx.channel().attr(headerAttr).set(header);
             isFirst = false;
         }
+
+        PrometheusHttpMetrics.eventSize(type).observe(raw.length);
 
         ctx.fireChannelRead(kafkaMessage);
     }

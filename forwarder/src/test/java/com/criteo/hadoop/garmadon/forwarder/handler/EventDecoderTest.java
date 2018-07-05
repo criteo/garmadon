@@ -42,7 +42,7 @@ public class EventDecoderTest {
         EventDecoder eventDecoder = new EventDecoder();
         channel.get().pipeline().addLast(eventDecoder);
 
-        GarmadonSerialization.register(EventDecoderTest.TestEvent.class, Integer.MAX_VALUE, event -> event.bytes, EventDecoderTest.TestEvent::new);
+        GarmadonSerialization.register(EventDecoderTest.TestEvent.class, Integer.MAX_VALUE, "TestEvent", event -> event.bytes, EventDecoderTest.TestEvent::new);
     }
 
     @Test

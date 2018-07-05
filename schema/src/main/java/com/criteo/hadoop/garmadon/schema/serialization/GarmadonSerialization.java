@@ -32,19 +32,20 @@ public class GarmadonSerialization {
     private static HashMap<Class, Serializer> classToSerializer = new HashMap<>();
 
     private static HashMap<Class, Integer> classToMarker = new HashMap<>();
+    private static HashMap<Integer, String> typeMarkerToName = new HashMap<>();
 
     static {
         //hadoop events
-        register(PathEvent.class, TypeMarker.PATH_EVENT, PathEvent::serialize, DataAccessEventProtos.PathEvent::parseFrom);
-        register(FsEvent.class, TypeMarker.FS_EVENT, FsEvent::serialize, DataAccessEventProtos.FsEvent::parseFrom);
-        register(StateEvent.class, TypeMarker.STATE_EVENT, StateEvent::serialize, DataAccessEventProtos.StateEvent::parseFrom);
+        register(PathEvent.class, TypeMarker.PATH_EVENT, "PATH_EVENT", PathEvent::serialize, DataAccessEventProtos.PathEvent::parseFrom);
+        register(FsEvent.class, TypeMarker.FS_EVENT, "FS_EVENT", FsEvent::serialize, DataAccessEventProtos.FsEvent::parseFrom);
+        register(StateEvent.class, TypeMarker.STATE_EVENT, "STATE_EVENT", StateEvent::serialize, DataAccessEventProtos.StateEvent::parseFrom);
 
         //nodemanager events
-        register(ContainerResourceEvent.class, TypeMarker.CONTAINER_MONITORING_EVENT, ContainerResourceEvent::serialize, ContainerEventProtos.ContainerResourceEvent::parseFrom);
+        register(ContainerResourceEvent.class, TypeMarker.CONTAINER_MONITORING_EVENT, "CONTAINER_MONITORING_EVENT", ContainerResourceEvent::serialize, ContainerEventProtos.ContainerResourceEvent::parseFrom);
 
         //jvm stats events
-        register(JVMStatisticsProtos.GCStatisticsData.class, TypeMarker.GC_EVENT, JVMStatisticsProtos.GCStatisticsData::toByteArray, JVMStatisticsProtos.GCStatisticsData::parseFrom);
-        register(JVMStatisticsProtos.JVMStatisticsData.class, TypeMarker.JVMSTATS_EVENT, JVMStatisticsProtos.JVMStatisticsData::toByteArray, JVMStatisticsProtos.JVMStatisticsData::parseFrom);
+        register(JVMStatisticsProtos.GCStatisticsData.class, TypeMarker.GC_EVENT, "GC_EVENT", JVMStatisticsProtos.GCStatisticsData::toByteArray, JVMStatisticsProtos.GCStatisticsData::parseFrom);
+        register(JVMStatisticsProtos.JVMStatisticsData.class, TypeMarker.JVMSTATS_EVENT, "JVMSTATS_EVENT", JVMStatisticsProtos.JVMStatisticsData::toByteArray, JVMStatisticsProtos.JVMStatisticsData::parseFrom);
     }
 
     public static int getMarker(Class aClass) throws TypeMarkerException {
@@ -54,6 +55,10 @@ public class GarmadonSerialization {
         } else {
             return marker;
         }
+    }
+
+    public static String getTypeName(int typeMarker){
+        return typeMarkerToName.getOrDefault(typeMarker, "UNKNOWN");
     }
 
     public static Object parseFrom(int typeMarker, InputStream is) throws DeserializationException {
@@ -76,10 +81,11 @@ public class GarmadonSerialization {
         return serializer.serialize(event);
     }
 
-    public static <T> void register(Class<T> aClass, int marker, Serializer<T> s, Deserializer d) {
+    public static <T> void register(Class<T> aClass, int marker, String name, Serializer<T> s, Deserializer d) {
         classToMarker.put(aClass, marker);
         typeMarkerToDeserializer.put(marker, d);
         classToSerializer.put(aClass, s);
+        typeMarkerToName.put(marker, name);
     }
 
     @FunctionalInterface

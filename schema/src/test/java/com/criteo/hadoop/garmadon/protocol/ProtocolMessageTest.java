@@ -24,7 +24,7 @@ public class ProtocolMessageTest {
 
     @Before
     public void setUp() {
-        GarmadonSerialization.register(TestEvent.class, Integer.MAX_VALUE, event -> event.buffer, bytes -> new TestEvent(null));
+        GarmadonSerialization.register(TestEvent.class, Integer.MAX_VALUE, "TestEvent", event -> event.buffer, bytes -> new TestEvent(null));
     }
 
     @Test

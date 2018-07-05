@@ -46,7 +46,7 @@ public class CloseHandlerTest {
         EventHandler eventHandler = new EventHandler();
         channel.get().pipeline().addLast(closeHandler).addLast(eventHandler);
 
-        GarmadonSerialization.register(TestEvent.class, Integer.MAX_VALUE, event -> event.bytes, TestEvent::new);
+        GarmadonSerialization.register(TestEvent.class, Integer.MAX_VALUE, "TestEvent", event -> event.bytes, TestEvent::new);
     }
 
     @Test

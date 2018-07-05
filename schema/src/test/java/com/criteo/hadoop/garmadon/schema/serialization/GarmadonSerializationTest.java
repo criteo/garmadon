@@ -8,19 +8,23 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+
 public class GarmadonSerializationTest {
     private int typeMarker = -1;
 
 
     @Test
     public void GarmadonSerialization_should_register_TestEvent() throws TypeMarkerException, DeserializationException, SerializationException {
-        GarmadonSerialization.register(TestEvent.class, typeMarker, TestEvent::serialize, TestEvent::parseFrom);
-        Assert.assertEquals(typeMarker, GarmadonSerialization.getMarker(TestEvent.class));
+        GarmadonSerialization.register(TestEvent.class, typeMarker, "TestEvent", TestEvent::serialize, TestEvent::parseFrom);
+        assertEquals(typeMarker, GarmadonSerialization.getMarker(TestEvent.class));
 
         byte[] pBytes = GarmadonSerialization.serialize(new TestEvent());
         Object body = GarmadonSerialization.parseFrom(typeMarker, new ByteArrayInputStream(pBytes, 0, 2));
-        Assert.assertTrue(TestEvent.class == body.getClass());
+        assertTrue(TestEvent.class == body.getClass());
 
+        assertEquals("TestEvent", GarmadonSerialization.getTypeName(typeMarker));
     }
 
 
