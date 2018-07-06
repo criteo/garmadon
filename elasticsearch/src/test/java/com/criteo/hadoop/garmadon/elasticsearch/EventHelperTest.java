@@ -2,6 +2,7 @@ package com.criteo.hadoop.garmadon.elasticsearch;
 
 import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.criteo.jvm.JVMStatisticsProtos;
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,7 +26,7 @@ public class EventHelperTest {
     public void initEvent_should_return_a_hashmap() {
         String type = "TEST";
         Map<String, Object> res = EventHelper.initEvent(type, new Date(timestamp));
-        Assert.assertEquals(type, res.get("type"));
+        Assert.assertEquals(type, res.get("event_type"));
     }
 
     @Test
@@ -37,8 +38,8 @@ public class EventHelperTest {
                 .setType("INPUT")
                 .setPath(path)
                 .build();
-        EventHelper.processPathEvent(event, eventMaps);
-        Assert.assertEquals(path, eventMaps.get("INPUT").get("path"));
+        EventHelper.processPathEvent(GarmadonSerialization.getTypeName(0),event, eventMaps);
+        Assert.assertEquals(path, eventMaps.get(GarmadonSerialization.getTypeName(0)).get("path"));
     }
 
     @Test
@@ -51,8 +52,8 @@ public class EventHelperTest {
                 .setDstPath(path)
                 .setUri("hdfs://root")
                 .build();
-        EventHelper.processFsEvent(event, eventMaps);
-        Assert.assertEquals(path, eventMaps.get("FS").get("dst_path"));
+        EventHelper.processFsEvent(GarmadonSerialization.getTypeName(1),event, eventMaps);
+        Assert.assertEquals(path, eventMaps.get(GarmadonSerialization.getTypeName(1)).get("dst_path"));
     }
 
     @Test
@@ -66,8 +67,8 @@ public class EventHelperTest {
                 .setDstPath(path)
                 .setUri(uri)
                 .build();
-        EventHelper.processFsEvent(event, eventMaps);
-        Assert.assertEquals(path.replace(uri, ""), eventMaps.get("FS").get("dst_path"));
+        EventHelper.processFsEvent(GarmadonSerialization.getTypeName(1),event, eventMaps);
+        Assert.assertEquals(path.replace(uri, ""), eventMaps.get(GarmadonSerialization.getTypeName(1)).get("dst_path"));
     }
 
     @Test
@@ -78,8 +79,8 @@ public class EventHelperTest {
                 .setTimestamp(timestamp)
                 .setState(state)
                 .build();
-        EventHelper.processStateEvent(event, eventMaps);
-        Assert.assertEquals(state, eventMaps.get("STATE").get("state"));
+        EventHelper.processStateEvent(GarmadonSerialization.getTypeName(3),event, eventMaps);
+        Assert.assertEquals(state, eventMaps.get(GarmadonSerialization.getTypeName(3)).get("state"));
     }
 
 
@@ -137,11 +138,11 @@ public class EventHelperTest {
                 .addSection(sectionOther1)
                 .addSection(sectionOther2)
                 .build();
-        EventHelper.processJVMStatisticsData(event, eventMaps);
+        EventHelper.processJVMStatisticsData(GarmadonSerialization.getTypeName(1001),event, eventMaps);
         Assert.assertEquals(disk, eventMaps.get(disk).get("disk"));
         Assert.assertEquals(network, eventMaps.get(network).get("network"));
-        Assert.assertEquals(499.0, eventMaps.get("JVM").get("memory_physical"));
-        Assert.assertEquals(499.0, eventMaps.get("JVM").get("machinecpu_physical"));
+        Assert.assertEquals(499.0, eventMaps.get(GarmadonSerialization.getTypeName(1001)).get("memory_physical"));
+        Assert.assertEquals(499.0, eventMaps.get(GarmadonSerialization.getTypeName(1001)).get("machinecpu_physical"));
     }
 
 
@@ -154,8 +155,8 @@ public class EventHelperTest {
                 .setCause("Allocation Failure")
                 .setCollectorName(collector_name)
                 .build();
-        EventHelper.processGCStatisticsData(event, eventMaps);
-        Assert.assertEquals(collector_name, eventMaps.get("GC").get("collector_name"));
+        EventHelper.processGCStatisticsData(GarmadonSerialization.getTypeName(1000),event, eventMaps);
+        Assert.assertEquals(collector_name, eventMaps.get(GarmadonSerialization.getTypeName(1000)).get("collector_name"));
     }
 
 
@@ -169,7 +170,7 @@ public class EventHelperTest {
                 .setLimit(limit)
                 .setValue(2528430080L)
                 .build();
-        EventHelper.processContainerResourceEvent(event, eventMaps);
-        Assert.assertEquals(limit, eventMaps.get("MEMORY").get("limit"));
+        EventHelper.processContainerResourceEvent(GarmadonSerialization.getTypeName(2000),event, eventMaps);
+        Assert.assertEquals(limit, eventMaps.get(GarmadonSerialization.getTypeName(2000)).get("limit"));
     }
 }

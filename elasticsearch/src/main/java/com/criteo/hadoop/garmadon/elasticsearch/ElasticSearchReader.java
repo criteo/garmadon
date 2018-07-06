@@ -6,6 +6,7 @@ import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessageFilter;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
+import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.criteo.jvm.JVMStatisticsProtos;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -141,7 +142,8 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
         if (msg.getHeader().hasComponent())
             jsonMap.put("component", msg.getHeader().getComponent());
 
-        HashMap<String, Map<String, Object>> eventMaps = putBodySpecificFields(msg.getBody());
+        HashMap<String, Map<String, Object>> eventMaps = putBodySpecificFields(
+                GarmadonSerialization.getTypeName(msg.getType()), msg.getBody());
         for (Map<String, Object> eventMap : eventMaps.values()) {
             eventMap.putAll(jsonMap);
             String daily_index = esIndexPrefix + "-" + formatter.format(eventMap.get("timestamp"));
@@ -151,17 +153,17 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
         }
     }
 
-    private HashMap<String, Map<String, Object>> putBodySpecificFields(Object o) {
+    private HashMap<String, Map<String, Object>> putBodySpecificFields(String type, Object o) {
         HashMap<String, Map<String, Object>> eventMaps = new HashMap<>();
 
         if (o instanceof DataAccessEventProtos.FsEvent) {
-            EventHelper.processFsEvent((DataAccessEventProtos.FsEvent) o, eventMaps);
+            EventHelper.processFsEvent(type, (DataAccessEventProtos.FsEvent) o, eventMaps);
         } else if (o instanceof DataAccessEventProtos.StateEvent) {
-            EventHelper.processStateEvent((DataAccessEventProtos.StateEvent) o, eventMaps);
+            EventHelper.processStateEvent(type, (DataAccessEventProtos.StateEvent) o, eventMaps);
         } else if (o instanceof JVMStatisticsProtos.JVMStatisticsData) {
-            EventHelper.processJVMStatisticsData((JVMStatisticsProtos.JVMStatisticsData) o, eventMaps);
+            EventHelper.processJVMStatisticsData(type, (JVMStatisticsProtos.JVMStatisticsData) o, eventMaps);
         } else if (o instanceof ContainerEventProtos.ContainerResourceEvent) {
-            EventHelper.processContainerResourceEvent((ContainerEventProtos.ContainerResourceEvent) o, eventMaps);
+            EventHelper.processContainerResourceEvent(type, (ContainerEventProtos.ContainerResourceEvent) o, eventMaps);
         }
         return eventMaps;
     }

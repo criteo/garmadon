@@ -499,6 +499,11 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
             "norms": false,
             "index_options": "freqs"
           },
+          "event_type" : {
+            "type": "keyword",
+            "norms": false,
+            "index_options": "freqs"
+          },
           "uri" : {
             "type": "keyword",
             "norms": false,
