@@ -28,12 +28,15 @@ public class Forwarder {
     private static final String DEFAULT_FORWARDER_PORT = "33000";
     private static final String DEFAULT_PROMETHEUS_PORT = "33001";
 
+    public static final String PRODUCER_PREFIX_NAME = "garmadon.forwarder";
+
     public static String hostname;
+
     static {
         try {
             hostname = InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException e) {
-            LOGGER.error("",e);
+            LOGGER.error("", e);
         }
     }
 
@@ -65,7 +68,7 @@ public class Forwarder {
      */
     public ChannelFuture run() throws IOException {
         // initialise kafka
-        properties.put(ProducerConfig.CLIENT_ID_CONFIG, "garmadon.forwarder." + hostname);
+        properties.put(ProducerConfig.CLIENT_ID_CONFIG, PRODUCER_PREFIX_NAME + "." + hostname);
         kafkaService = new KafkaService(properties);
 
         // initialize metrics
