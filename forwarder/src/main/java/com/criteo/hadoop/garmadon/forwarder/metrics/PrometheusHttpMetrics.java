@@ -45,6 +45,9 @@ public class PrometheusHttpMetrics {
     private static final Summary baseTypeSizeSummary = Summary.build()
             .name("garmadon_event_size").help("Event sizes in bytes")
             .labelNames("eventType", "hostname", "release")
+            .quantile(0.75, 0.01)
+            .quantile(0.9, 0.01)
+            .quantile(0.99, 0.001)
             .register();
 
     private static HTTPServer server;
