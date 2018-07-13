@@ -383,7 +383,7 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
               "index": false
           },
           "process_read" : {
-            "type" : "integer",
+            "type" : "double",
               "index": false
           },
           "process_rss" : {
