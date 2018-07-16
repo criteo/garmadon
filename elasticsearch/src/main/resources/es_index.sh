@@ -383,7 +383,7 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
               "index": false
           },
           "process_read" : {
-            "type" : "double",
+            "type" : "long",
               "index": false
           },
           "process_rss" : {
@@ -399,8 +399,8 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
               "index": false
           },
           "process_written" : {
-            "type" : "integer",
-              "index": false
+            "type" : "long",
+            "index": false
           },
           "safepoints_count" : {
             "type" : "integer",
