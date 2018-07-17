@@ -45,7 +45,7 @@
         <netty-all.version>4.1.25.Final</netty-all.version>
         <bytebuddy.version>1.8.12</bytebuddy.version>
         <spark.version>2.2.1</spark.version>
-        <es.version>6.3.0</es.version>
+        <es.version>6.3.1</es.version>
         <logback.version>1.2.3</logback.version>
         <prometheus.version>0.4.0</prometheus.version>
         <maria-java-client.version>2.2.5</maria-java-client.version>

@@ -181,7 +181,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
             LOGGER.error("Bulk[{}] executed with failures", executionId);
             for (BulkItemResponse item : response.getItems()) {
                 if (item.isFailed()) {
-                    LOGGER.error("Bulk failed on {} due to {}", item.getId(), item.getFailureMessage());
+                    LOGGER.error("Failed on {} due to {}", item.getId(), item.getFailureMessage());
                 }
             }
         } else {
