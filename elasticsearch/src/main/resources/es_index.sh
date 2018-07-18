@@ -8,6 +8,7 @@
 # norms: false -> we don't need score
 # index_options: freqs -> we don't need index positions
 # index: false -> we can still aggregate but not filter on it
+# eager_global_ordinals: true -> force computation of fielddata at index time during refresh
 # Number of shards to be increased in prod (around 50go per shards max)
 curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/json' -d'
 {
@@ -85,27 +86,32 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
           "action" : {
             "type": "keyword",
             "norms": false,
-            "index_options": "freqs"
+            "index_options": "freqs",
+            "eager_global_ordinals": true
           },
           "pid" : {
             "type": "keyword",
             "norms": false,
-            "index_options": "freqs"
+            "index_options": "freqs",
+            "eager_global_ordinals": true
           },
           "framework" : {
             "type": "keyword",
             "norms": false,
-            "index_options": "freqs"
+            "index_options": "freqs",
+            "eager_global_ordinals": true
           },
           "component" : {
             "type": "keyword",
             "norms": false,
-            "index_options": "freqs"
+            "index_options": "freqs",
+            "eager_global_ordinals": true
           },
           "application_id" : {
             "type": "keyword",
             "norms": false,
-            "index_options": "freqs"
+            "index_options": "freqs",
+            "eager_global_ordinals": true
           },
           "application_name" : {
             "type" : "text",
@@ -115,7 +121,8 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
           "attempt_id" : {
             "type": "keyword",
             "norms": false,
-            "index_options": "freqs"
+            "index_options": "freqs",
+            "eager_global_ordinals": true
           },
           "class_initialized" : {
             "type" : "integer",
@@ -196,7 +203,8 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
           "container_id" : {
             "type": "keyword",
             "norms": false,
-            "index_options": "freqs"
+            "index_options": "freqs",
+            "eager_global_ordinals": true
           },
           "cpu_cores" : {
             "type" : "integer",
@@ -284,7 +292,8 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
           "hostname" : {
             "type": "keyword",
             "norms": false,
-            "index_options": "freqs"
+            "index_options": "freqs",
+            "eager_global_ordinals": true
           },
           "limit" : {
             "type" : "long",
@@ -507,12 +516,14 @@ curl -XPUT 'localhost:9200/_template/garmadon' -H 'Content-Type: application/jso
           "uri" : {
             "type": "keyword",
             "norms": false,
-            "index_options": "freqs"
+            "index_options": "freqs",
+            "eager_global_ordinals": true
           },
           "username" : {
             "type": "keyword",
             "norms": false,
-            "index_options": "freqs"
+            "index_options": "freqs",
+            "eager_global_ordinals": true
           },
           "value" : {
             "type" : "long",
