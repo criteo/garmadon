@@ -110,3 +110,6 @@ modules.xml
 target
 */target/*
 dependency-reduced-pom.xml
+
+# MAC
+.DS_Store

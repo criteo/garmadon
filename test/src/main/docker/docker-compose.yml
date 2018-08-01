@@ -1,0 +1,206 @@
+version: '3'
+
+services:
+  client:
+    build: garmadon
+    image: garmadon:latest
+    hostname: client
+    restart: always
+    command:
+      - /usr/bin/entrypoint.sh
+      - client
+    env_file: .env
+    depends_on:
+      - namenode
+    networks:
+     nwk:
+       aliases:
+         - client
+
+  namenode:
+    build: garmadon
+    image: garmadon:latest
+    hostname: namenode
+    restart: always
+    command:
+      - /usr/bin/entrypoint.sh
+      - namenode
+    ports:
+      - 50070:50070
+    env_file: .env
+    networks:
+      nwk:
+        aliases:
+          - namenode
+
+  datanode:
+    build: garmadon
+    image: garmadon:latest
+    hostname: datanode
+    restart: always
+    command:
+      - /usr/bin/entrypoint.sh
+      - datanode
+    ports:
+      - 50075:50075
+    env_file: .env
+    depends_on:
+      - namenode
+    networks:
+      nwk:
+        aliases:
+          - datanode
+
+  resourcemanager:
+    build: garmadon
+    image: garmadon:latest
+    hostname: resourcemanager
+    restart: always
+    command:
+      - /usr/bin/entrypoint.sh
+      - resourcemanager
+    ports:
+      - 8088:8088
+    depends_on:
+      - namenode
+    env_file: .env
+    networks:
+      nwk:
+        aliases:
+          - resourcemanager
+
+  nodemanager:
+    build: garmadon
+    image: garmadon:latest
+    hostname: nodemanager
+    restart: always
+    command:
+      - /usr/bin/entrypoint.sh
+      - nodemanager
+    ports:
+      - 8042:8042
+    volumes:
+      - ../../../../agent/target/garmadon-agent-1.0-SNAPSHOT-uber.jar:/opt/garmadon/lib/garmadon-agent-1.0-SNAPSHOT-uber.jar
+      - ../../../../forwarder/target/garmadon-forwarder-1.0-SNAPSHOT-uber.jar:/opt/garmadon/lib/garmadon-forwarder-1.0-SNAPSHOT-uber.jar
+    depends_on:
+      - namenode
+      - resourcemanager
+    env_file: .env
+    networks:
+      nwk:
+        aliases:
+          - nodemanager
+
+  historyserver:
+    build: garmadon
+    image: garmadon:latest
+    hostname: historyserver
+    restart: always
+    command:
+      - /usr/bin/entrypoint.sh
+      - historyserver
+    ports:
+      - 19888:19888
+    depends_on:
+      - namenode
+      - resourcemanager
+    env_file: .env
+    networks:
+      nwk:
+        aliases:
+          - historyserver
+
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    hostname: zookeeper
+    restart: always
+    env_file: .env
+    networks:
+     nwk:
+       aliases:
+         - zookeeper
+
+  kafka:
+    image: wurstmeister/kafka:${KAFKA_RELEASE}
+    hostname: kafka
+    restart: always
+    env_file: .env
+    depends_on:
+      - zookeeper
+    networks:
+     nwk:
+       aliases:
+         - kafka
+
+  elasticsearch-reader:
+    build: garmadon
+    image: garmadon:latest
+    hostname: elasticsearch-reader
+    restart: always
+    command:
+      - /usr/bin/entrypoint.sh
+      - es-reader
+    volumes:
+      - ../../../../elasticsearch/target/garmadon-elasticsearch-1.0-SNAPSHOT-uber.jar:/opt/garmadon/lib/garmadon-elasticsearch-1.0-SNAPSHOT-uber.jar
+    env_file: .env
+    depends_on:
+      - kafka
+      - elasticsearch
+    networks:
+     nwk:
+       aliases:
+         - elasticsearch-reader
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_RELEASE}
+    hostname: elasticsearch
+    restart: always
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+    - "9200:9200"
+    env_file: .env
+    networks:
+     nwk:
+       aliases:
+         - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${ELASTICSEARCH_RELEASE}
+    hostname: kibana
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    restart: always
+    ports:
+    - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+     nwk:
+       aliases:
+         - kibana
+
+  grafana:
+    image: grafana/grafana:latest
+    hostname: grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: secret
+    restart: always
+    ports:
+    - "3000:3000"
+    depends_on:
+      - elasticsearch
+    networks:
+     nwk:
+       aliases:
+         - grafana
+
+networks:
+  nwk:
+    driver: bridge
