@@ -50,7 +50,8 @@ public class Extractor {
     private Stats getStats(GarmadonMessage msg) {
         String applicationId = msg.getHeader().getApplicationId();
         String containerId = msg.getHeader().getContainerId();
-        return containers.computeIfAbsent(containerId, s -> new Stats(applicationId, containerId));
+        String framework = msg.getHeader().getFramework();
+        return containers.computeIfAbsent(containerId, s -> new Stats(applicationId, containerId, framework));
     }
 
     private void processGcEvent(GarmadonMessage msg) {
@@ -129,17 +130,19 @@ public class Extractor {
     private static class Stats {
         final String applicationId;
         final String containerId;
+        private String framework;
         private long jvmStatCount;
         private long gcStatCount;
 
-        Stats(String applicationId, String containerId) {
+        Stats(String applicationId, String containerId, String framework) {
             this.applicationId = applicationId;
             this.containerId = containerId;
+            this.framework = framework;
         }
 
         @Override
         public String toString() {
-            return "ApplicationId: " + applicationId + " ContainerId: " + containerId + " JVMStats: " + jvmStatCount + " GCStats: " + gcStatCount;
+            return " Framework: " + framework + "ApplicationId: " + applicationId + " ContainerId: " + containerId + " JVMStats: " + jvmStatCount + " GCStats: " + gcStatCount;
         }
     }
 }

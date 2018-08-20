@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasFramework;
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasTag;
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasType;
 
@@ -40,11 +41,15 @@ public class Heuristics {
                 .withGroupId(kafkaGroupId)
                 .withKafkaProp(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true")
                 .withKafkaProp(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000")
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)), this::processGcEvent)
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)), this::processJvmStatEvent)
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)), this::processStateEvent)
+                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)
+                        .and(hasFramework("SPARK").or(hasFramework("MAP_REDUCE")))), this::processGcEvent)
+                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)
+                        .and(hasFramework("SPARK").or(hasFramework("MAP_REDUCE")))), this::processJvmStatEvent)
+                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)
+                        .and(hasFramework("SPARK").or(hasFramework("MAP_REDUCE")))), this::processStateEvent)
                 .intercept(
-                        hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.FS_EVENT)),
+                        hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.FS_EVENT)
+                                .and(hasFramework("SPARK").or(hasFramework("MAP_REDUCE")))),
                         msg -> fileHeuristic.compute(msg.getHeader().getApplicationId(), msg.getHeader().getAppAttemptID(),
                                 msg.getHeader().getContainerId(), (DataAccessEventProtos.FsEvent) msg.getBody())
                 )

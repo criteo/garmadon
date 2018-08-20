@@ -20,6 +20,10 @@ public class GarmadonMessageFilters {
         return new GarmadonMessageFilter.HeaderFilter.ContainerFilter(id);
     }
 
+    public static GarmadonMessageFilter.HeaderFilter hasFramework(String framework){
+        return new GarmadonMessageFilter.HeaderFilter.FrameworkFilter(framework);
+    }
+
     public static GarmadonMessageFilter.TypeFilter hasType(int type) {
         return new GarmadonMessageFilter.TypeFilter(type);
     }

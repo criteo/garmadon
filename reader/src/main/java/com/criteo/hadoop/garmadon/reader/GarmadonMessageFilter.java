@@ -179,6 +179,21 @@ public interface GarmadonMessageFilter {
             }
         }
 
+        static class FrameworkFilter extends HeaderFilter {
+
+            private final String framework;
+
+            FrameworkFilter(String framework){
+                if(framework == null) throw new NullPointerException("Null framework is forbidden");
+                this.framework = framework;
+            }
+
+            @Override
+            public boolean accepts(DataAccessEventProtos.Header header) {
+                return framework.equals(header.getFramework());
+            }
+        }
+
         @Override
         public boolean accepts(int type) {
             return true;
