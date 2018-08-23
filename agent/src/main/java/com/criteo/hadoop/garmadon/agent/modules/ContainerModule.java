@@ -1,7 +1,8 @@
 package com.criteo.hadoop.garmadon.agent.modules;
 
 import com.criteo.hadoop.garmadon.agent.AsyncEventProcessor;
-import com.criteo.hadoop.garmadon.agent.EventAgent;
+import com.criteo.hadoop.garmadon.schema.enums.Component;
+import com.criteo.hadoop.garmadon.schema.enums.Framework;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import org.apache.hadoop.mapred.TaskAttemptID;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
@@ -28,26 +29,6 @@ public abstract class ContainerModule implements GarmadonAgentModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerModule.class);
 
     private final SerializedHeader header;
-
-    public enum Framework {
-        YARN,
-        MAP_REDUCE,
-        SPARK,
-        FLINK,
-    }
-
-    public enum Component {
-        UNKNOWN,
-        APP_MASTER,
-        EXECUTOR,
-        TASK_MANAGER,
-        CUTTLE_APP_MASTER,
-        MAP,
-        REDUCE,
-        JOB_SETUP,
-        JOB_CLEANUP,
-        TASK_CLEANUP,
-    }
 
     private Framework framework = Framework.YARN;
     private Component component = Component.UNKNOWN;

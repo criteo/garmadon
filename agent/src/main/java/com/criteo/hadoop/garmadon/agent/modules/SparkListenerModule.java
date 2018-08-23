@@ -1,13 +1,10 @@
 package com.criteo.hadoop.garmadon.agent.modules;
 
+import com.criteo.hadoop.garmadon.schema.enums.Component;
+import com.criteo.hadoop.garmadon.schema.enums.Framework;
 import com.criteo.hadoop.garmadon.spark.listener.SparkListernerConf;
-import com.criteo.jvm.Conf;
-import com.criteo.jvm.JVMStatistics;
-import com.criteo.jvm.JVMStatisticsProtos;
-import com.criteo.jvm.ProtobufHelper;
 
 import java.lang.instrument.Instrumentation;
-import java.time.Duration;
 import java.util.Properties;
 import java.util.function.Consumer;
 
