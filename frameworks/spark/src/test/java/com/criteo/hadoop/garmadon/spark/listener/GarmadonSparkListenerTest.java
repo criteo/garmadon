@@ -6,13 +6,15 @@ import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -61,9 +63,7 @@ public class GarmadonSparkListenerTest {
         jsc.parallelize(data).count();
         jsc.close();
 
-        verify(eventHandler, times(1)).accept(
-                //any(StageEvent.class)
-                anyObject()
-        );
+        verify(eventHandler, times(2)).accept(isA(SparkEventProtos.StageStateEvent.class));
+        verify(eventHandler).accept(isA(SparkEventProtos.StageEvent.class));
     }
 }

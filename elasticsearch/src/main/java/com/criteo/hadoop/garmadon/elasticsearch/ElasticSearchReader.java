@@ -163,6 +163,8 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
             EventHelper.processStateEvent(type, (DataAccessEventProtos.StateEvent) o, eventMaps);
         } else if (o instanceof SparkEventProtos.StageEvent) {
             EventHelper.processStageEvent(type, (SparkEventProtos.StageEvent) o, eventMaps);
+        } else if (o instanceof SparkEventProtos.StageStateEvent) {
+            EventHelper.processStageStateEvent(type, (SparkEventProtos.StageStateEvent) o, eventMaps);
         } else if (o instanceof JVMStatisticsProtos.JVMStatisticsData) {
             EventHelper.processJVMStatisticsData(type, (JVMStatisticsProtos.JVMStatisticsData) o, eventMaps);
         } else if (o instanceof ContainerEventProtos.ContainerResourceEvent) {

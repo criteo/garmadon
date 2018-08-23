@@ -1,6 +1,8 @@
 package com.criteo.hadoop.garmadon.spark.listener;
 
+import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
+import com.criteo.hadoop.garmadon.schema.enums.State;
 import org.apache.spark.scheduler.SparkListener;
 import org.apache.spark.scheduler.SparkListenerStageCompleted;
 import org.apache.spark.scheduler.SparkListenerStageSubmitted;
@@ -16,43 +18,77 @@ public class GarmadonSparkListener extends SparkListener {
         this.eventHandler = SparkListernerConf.getInstance().getEventHandler();
     }
 
-    Function0<Long> zeroLongScala = new AbstractFunction0<Long>() {
+    private Function0<Long> zeroLongScala = new AbstractFunction0<Long>() {
         @Override
         public Long apply() {
             return 0L;
         }
     };
-    Function0<String> emptyStringScala = new AbstractFunction0<String>() {
+    private Function0<Long> currentTimeLongScala = new AbstractFunction0<Long>() {
+        @Override
+        public Long apply() {
+            return System.currentTimeMillis();
+        }
+    };
+    private Function0<String> emptyStringScala = new AbstractFunction0<String>() {
         @Override
         public String apply() {
             return "";
         }
     };
 
+    private void sendStageStateEvent(long completionTime, State state, String name, String stageId,
+                                     String attemptId, int numTasks) {
+        DataAccessEventProtos.StateEvent stateEvent = DataAccessEventProtos.StateEvent
+                .newBuilder()
+                .setTimestamp(completionTime)
+                .setState(state.name())
+                .build();
+
+        SparkEventProtos.StageStateEvent stageStateEvent = SparkEventProtos.StageStateEvent
+                .newBuilder()
+                .setStateEvent(stateEvent)
+                .setStageName(name)
+                .setStageId(stageId)
+                .setAttemptId(attemptId)
+                .setNumTasks(numTasks)
+                .build();
+
+        this.eventHandler.accept(stageStateEvent);
+    }
+
     // Stage Events
     @Override
     public void onStageSubmitted(SparkListenerStageSubmitted stageSubmitted) {
+        long submissionTime = stageSubmitted.stageInfo().submissionTime().getOrElse(currentTimeLongScala);
+        String name = stageSubmitted.stageInfo().name();
+        String stageId = String.valueOf(stageSubmitted.stageInfo().stageId());
+        String attemptId = String.valueOf(stageSubmitted.stageInfo().attemptId());
+        int numTasks = stageSubmitted.stageInfo().numTasks();
 
+        sendStageStateEvent(submissionTime, State.BEGIN, name, stageId, attemptId, numTasks);
     }
 
     @Override
     public void onStageCompleted(SparkListenerStageCompleted stageCompleted) {
         long submissionTime = stageCompleted.stageInfo().submissionTime().getOrElse(zeroLongScala);
+        long completionTime = stageCompleted.stageInfo().completionTime().getOrElse(currentTimeLongScala);
         String name = stageCompleted.stageInfo().name();
-        String stage_id = String.valueOf(stageCompleted.stageInfo().stageId());
-        String attempt_id = String.valueOf(stageCompleted.stageInfo().attemptId());
+        String stageId = String.valueOf(stageCompleted.stageInfo().stageId());
+        String attemptId = String.valueOf(stageCompleted.stageInfo().attemptId());
         int numTasks = stageCompleted.stageInfo().numTasks();
-        long completionTime = stageCompleted.stageInfo().completionTime().getOrElse(zeroLongScala);
+
+        sendStageStateEvent(completionTime, State.END, name, stageId, attemptId, numTasks);
 
         String status = stageCompleted.stageInfo().getStatusString();
-        
+
         SparkEventProtos.StageEvent.Builder stageEventBuilder = SparkEventProtos.StageEvent
                 .newBuilder()
                 .setStartTime(submissionTime)
                 .setCompletionTime(completionTime)
                 .setStageName(name)
-                .setStageId(stage_id)
-                .setAttemptId(attempt_id)
+                .setStageId(stageId)
+                .setAttemptId(attemptId)
                 .setNumTasks(numTasks)
                 .setStatus(status)
                 .setExecutorCpuTime(stageCompleted.stageInfo().taskMetrics().executorCpuTime())

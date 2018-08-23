@@ -10,8 +10,10 @@ function check_resourcemanager_up {
 
 function create_hdfs_folder {
     hdfs dfs -mkdir -p /var/log/hadoop-yarn/apps /var/log/hadoop-yarn/staging/history/done_intermediate /var/log/hadoop-yarn/staging/history/done \
-                       /user/${USER} /tmp /var/log/spark
+                       /tmp /var/log/spark /user/root/examples/src/main/resources
     hdfs dfs -chmod 1777 /var/log/hadoop-yarn/apps /var/log/hadoop-yarn/staging /var/log/spark /tmp
+    hdfs dfs -copyFromLocal /tmp/people.json /user/root/examples/src/main/resources
+    hdfs dfs -copyFromLocal /tmp/people.txt /user/root/examples/src/main/resources
 }
 
 function client {

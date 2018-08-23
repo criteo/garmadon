@@ -53,6 +53,7 @@ ADD spark_conf ${SPARK_CONF_DIR}
 ADD conf-forwarder/ /opt/garmadon/conf-forwarder
 ADD conf-es-reader/ /opt/garmadon/conf-es-reader
 ADD scripts/ /usr/bin
+ADD ressources/ /tmp
 
 RUN chmod a+x /usr/bin/entrypoint.sh /opt/hadoop/etc/hadoop/*.sh && \
     chmod -R 777 /data/hdfs /data/yarn ${HADOOP_LOG_DIR}

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 DOCKER_COMPOSE_FOLDER=test/src/main/docker
 
 function block_until_website_available() {
@@ -61,4 +63,8 @@ docker-compose exec client /opt/spark/bin/spark-submit --class org.apache.spark.
 # Spark DFSReadWriteTest (Read/Write/Shuffle)
 docker-compose exec client /opt/spark/bin/spark-submit --class org.apache.spark.examples.DFSReadWriteTest \
     /opt/spark/examples/jars/spark-examples_2.11-2.2.2.jar /opt/garmadon/conf-forwarder/server.properties /tmp
+
+# Spark SQL (Interact with HDFS and execute lots of stage)
+docker-compose exec client /opt/spark/bin/spark-submit --class org.apache.spark.examples.sql.SparkSQLExample \
+    /opt/spark/examples/jars/spark-examples_2.11-2.2.2.jar
 popd

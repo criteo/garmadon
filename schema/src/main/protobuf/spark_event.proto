@@ -2,6 +2,8 @@ syntax = "proto2";
 
 package com.criteo.hadoop.garmadon;
 
+import "data_access.proto";
+
 option java_package = "com.criteo.hadoop.garmadon.event.proto";
 option java_outer_classname = "SparkEventProtos";
 
@@ -47,4 +49,13 @@ message StageEvent {
     required int64 input_bytes = 31;
     required int64 output_records = 32;
     required int64 output_bytes = 33;
+}
+
+message StageStateEvent {
+    required StateEvent state_event = 1;
+
+    required string stage_name = 2;
+    required string stage_id = 3;
+    required string attempt_id = 4;
+    required int32 num_tasks = 5;
 }
