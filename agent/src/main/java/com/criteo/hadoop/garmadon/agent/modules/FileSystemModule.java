@@ -1,6 +1,7 @@
 package com.criteo.hadoop.garmadon.agent.modules;
 
-import com.criteo.hadoop.garmadon.schema.events.FsEvent;
+import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.schema.enums.FsAction;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.implementation.Implementation;
@@ -17,9 +18,7 @@ import java.lang.instrument.Instrumentation;
 import java.util.function.Consumer;
 
 import static net.bytebuddy.implementation.MethodDelegation.to;
-import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
-import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
+import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public class FileSystemModule extends ContainerModule {
 
@@ -62,7 +61,13 @@ public class FileSystemModule extends ContainerModule {
                 @This Object o,
                 @Argument(0) Path dst) throws Exception {
             Object uri = ((DistributedFileSystem) o).getUri();
-            FsEvent event = new FsEvent(System.currentTimeMillis(), dst.toString(), FsEvent.Action.DELETE, uri.toString());
+            DataAccessEventProtos.FsEvent event = DataAccessEventProtos.FsEvent
+                    .newBuilder()
+                    .setTimestamp(System.currentTimeMillis())
+                    .setAction(FsAction.DELETE.name())
+                    .setDstPath(dst.toString())
+                    .setUri(uri.toString())
+                    .build();
             eventHandler.accept(event);
         }
 
@@ -87,9 +92,15 @@ public class FileSystemModule extends ContainerModule {
 
         public static void intercept(
                 @This Object o,
-                @Argument(0) Path f) throws Exception {
+                @Argument(0) Path dst) throws Exception {
             Object uri = ((DistributedFileSystem) o).getUri();
-            FsEvent event = new FsEvent(System.currentTimeMillis(), f.toString(), FsEvent.Action.READ, uri.toString());
+            DataAccessEventProtos.FsEvent event = DataAccessEventProtos.FsEvent
+                    .newBuilder()
+                    .setTimestamp(System.currentTimeMillis())
+                    .setAction(FsAction.READ.name())
+                    .setDstPath(dst.toString())
+                    .setUri(uri.toString())
+                    .build();
             eventHandler.accept(event);
         }
     }
@@ -116,7 +127,14 @@ public class FileSystemModule extends ContainerModule {
                 @Argument(0) Path src,
                 @Argument(1) Path dst) throws Exception {
             Object uri = ((DistributedFileSystem) o).getUri();
-            FsEvent event = new FsEvent(System.currentTimeMillis(), src.toString(), dst.toString(), FsEvent.Action.RENAME, uri.toString());
+            DataAccessEventProtos.FsEvent event = DataAccessEventProtos.FsEvent
+                    .newBuilder()
+                    .setTimestamp(System.currentTimeMillis())
+                    .setAction(FsAction.RENAME.name())
+                    .setSrcPath(src.toString())
+                    .setDstPath(dst.toString())
+                    .setUri(uri.toString())
+                    .build();
             eventHandler.accept(event);
         }
     }
@@ -147,9 +165,15 @@ public class FileSystemModule extends ContainerModule {
             return to(WriteTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 
-        public static void intercept(@This Object o, @Argument(0) Path f) throws Exception {
+        public static void intercept(@This Object o, @Argument(0) Path dst) throws Exception {
             Object uri = ((DistributedFileSystem) o).getUri();
-            FsEvent event = new FsEvent(System.currentTimeMillis(), f.toString(), FsEvent.Action.WRITE, uri.toString());
+            DataAccessEventProtos.FsEvent event = DataAccessEventProtos.FsEvent
+                    .newBuilder()
+                    .setTimestamp(System.currentTimeMillis())
+                    .setAction(FsAction.WRITE.name())
+                    .setDstPath(dst.toString())
+                    .setUri(uri.toString())
+                    .build();
             eventHandler.accept(event);
         }
     }
@@ -177,9 +201,15 @@ public class FileSystemModule extends ContainerModule {
             return to(AppendTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 
-        public static void intercept(@This Object o, @Argument(0) Path f) throws Exception {
+        public static void intercept(@This Object o, @Argument(0) Path dst) throws Exception {
             Object uri = ((DistributedFileSystem) o).getUri();
-            FsEvent event = new FsEvent(System.currentTimeMillis(), f.toString(), FsEvent.Action.APPEND, uri.toString());
+            DataAccessEventProtos.FsEvent event = DataAccessEventProtos.FsEvent
+                    .newBuilder()
+                    .setTimestamp(System.currentTimeMillis())
+                    .setAction(FsAction.APPEND.name())
+                    .setDstPath(dst.toString())
+                    .setUri(uri.toString())
+                    .build();
             eventHandler.accept(event);
         }
     }

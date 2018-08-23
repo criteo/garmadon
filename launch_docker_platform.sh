@@ -20,6 +20,7 @@ popd
 # Create garmadon ES template
 block_until_website_available 'http://localhost:9200'
 curl -XPUT 'http://localhost:9200/_template/garmadon' -H 'Content-Type: application/json' -d @elasticsearch/src/main/resources/es/template.json
+curl -XDELETE 'http://localhost:9200/garmadon*' # Ensure no garmadon index have been created with bad mapping
 
 # Create Kibana Index Pattern
 block_until_website_available 'http://localhost:5601'

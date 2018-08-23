@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.spark.listener;
 
-import com.criteo.hadoop.garmadon.schema.events.spark.StageEvent;
+import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -51,7 +51,7 @@ public class GarmadonSparkListenerTest {
         jsc.parallelize(data).count();
         jsc.close();
 
-        verify(eventHandler, times(0)).accept(any(StageEvent.class));
+        verify(eventHandler, times(0)).accept(any(SparkEventProtos.StageEvent.class));
     }
 
     @Test

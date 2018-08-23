@@ -2,7 +2,8 @@ package com.criteo.hadoop.garmadon.agent.modules;
 
 import com.criteo.hadoop.garmadon.agent.utils.AgentAttachmentRule;
 import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
-import com.criteo.hadoop.garmadon.schema.events.PathEvent;
+import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.schema.enums.PathType;
 import com.criteo.hadoop.garmadonnotexcluded.MapRedInputFormatTestClasses;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.description.type.TypeDescription;
@@ -15,6 +16,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
+import org.mockito.ArgumentCaptor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,6 +31,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 /**
@@ -51,9 +54,13 @@ public class MapRedInputFormatTracerTest {
     private String inputPath = "/some/inputpath,/some/other/path";
     private String deprecatedInputPath = "/some/inputpathDeprecated";
 
+    private ArgumentCaptor<DataAccessEventProtos.PathEvent> argument;
+
     @Before
     public void setUp() throws IOException {
         eventHandler = mock(Consumer.class);
+        argument = ArgumentCaptor.forClass(DataAccessEventProtos.PathEvent.class);
+
         MapReduceModule.initEventHandler(eventHandler);
         inputSplit = mock(InputSplit.class);
         jobConf = mock(JobConf.class);
@@ -156,8 +163,14 @@ public class MapRedInputFormatTracerTest {
             invokeRecordReader(type);
 
             //Verify mock interaction
-            PathEvent pathEvent = new PathEvent(System.currentTimeMillis(), inputPath, PathEvent.Type.INPUT);
-            verify(eventHandler).accept(pathEvent);
+            verify(eventHandler).accept(argument.capture());
+            DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
+                    .newBuilder()
+                    .setTimestamp(argument.getValue().getTimestamp())
+                    .setPath(inputPath)
+                    .setType(PathType.INPUT.name())
+                    .build();
+            assertEquals(pathEvent, argument.getValue());
         } finally {
             ByteBuddyAgent.getInstrumentation().removeTransformer(classFileTransformer);
         }
@@ -182,8 +195,14 @@ public class MapRedInputFormatTracerTest {
             invokeRecordReader(type);
 
             //Verify mock interaction
-            PathEvent pathEvent = new PathEvent(System.currentTimeMillis(), deprecatedInputPath, PathEvent.Type.INPUT);
-            verify(eventHandler).accept(pathEvent);
+            verify(eventHandler).accept(argument.capture());
+            DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
+                    .newBuilder()
+                    .setTimestamp(argument.getValue().getTimestamp())
+                    .setPath(deprecatedInputPath)
+                    .setType(PathType.INPUT.name())
+                    .build();
+            assertEquals(pathEvent, argument.getValue());
         } finally {
             ByteBuddyAgent.getInstrumentation().removeTransformer(classFileTransformer);
         }
@@ -231,8 +250,14 @@ public class MapRedInputFormatTracerTest {
             Object recordReader = invokeRecordReader(type);
 
             //Verify mock interaction
-            PathEvent pathEvent = new PathEvent(System.currentTimeMillis(), inputPath, PathEvent.Type.INPUT);
-            verify(eventHandler, times(2)).accept(pathEvent);
+            verify(eventHandler, times(2)).accept(argument.capture());
+            DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
+                    .newBuilder()
+                    .setTimestamp(argument.getValue().getTimestamp())
+                    .setPath(inputPath)
+                    .setType(PathType.INPUT.name())
+                    .build();
+            assertEquals(pathEvent, argument.getValue());
         } finally {
             ByteBuddyAgent.getInstrumentation().removeTransformer(classFileTransformer);
         }
@@ -260,8 +285,14 @@ public class MapRedInputFormatTracerTest {
             Object recordReader = invokeRecordReader(type);
 
             //Verify mock interaction
-            PathEvent pathEvent = new PathEvent(System.currentTimeMillis(), "/not_calling_super", PathEvent.Type.INPUT);
-            verify(eventHandler, times(1)).accept(pathEvent);
+            verify(eventHandler).accept(argument.capture());
+            DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
+                    .newBuilder()
+                    .setTimestamp(argument.getValue().getTimestamp())
+                    .setPath("/not_calling_super")
+                    .setType(PathType.INPUT.name())
+                    .build();
+            assertEquals(pathEvent, argument.getValue());
             assertThat("", (boolean) type.getDeclaredField("isAccessed").get(null));
         } finally {
             ByteBuddyAgent.getInstrumentation().removeTransformer(classFileTransformer);

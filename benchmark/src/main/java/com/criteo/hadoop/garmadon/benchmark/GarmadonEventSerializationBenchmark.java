@@ -60,7 +60,7 @@ public class GarmadonEventSerializationBenchmark {
                 PathEvent.Type.INPUT);
         pathEventByte = pathEvent.serialize();
 
-        stateEvent = new StateEvent(timestamp, StateEvent.State.END.toString());
+        stateEvent = new StateEvent(timestamp, State.END.name());
         stateEventByte = stateEvent.serialize();
     }
 

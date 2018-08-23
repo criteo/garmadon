@@ -1,7 +1,7 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
-import com.criteo.hadoop.garmadon.schema.events.FsEvent;
+import com.criteo.hadoop.garmadon.schema.enums.FsAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ public class FileHeuristic implements Heuristic {
 
     public void compute(String applicationId, String attemptId, String containerId, DataAccessEventProtos.FsEvent fsEvent) {
         try {
-            FsEvent.Action action = FsEvent.Action.valueOf(fsEvent.getAction());
+            FsAction action = FsAction.valueOf(fsEvent.getAction());
             switch (action) {
                 case DELETE:
                     deleted.forApp(applicationId, attemptId).increment();

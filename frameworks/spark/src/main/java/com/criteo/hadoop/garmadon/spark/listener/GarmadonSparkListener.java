@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.spark.listener;
 
-import com.criteo.hadoop.garmadon.schema.events.spark.StageEvent;
+import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import org.apache.spark.scheduler.SparkListener;
 import org.apache.spark.scheduler.SparkListenerStageCompleted;
 import org.apache.spark.scheduler.SparkListenerStageSubmitted;
@@ -45,48 +45,46 @@ public class GarmadonSparkListener extends SparkListener {
         long completionTime = stageCompleted.stageInfo().completionTime().getOrElse(zeroLongScala);
 
         String status = stageCompleted.stageInfo().getStatusString();
-
-        long executor_cpu_time = stageCompleted.stageInfo().taskMetrics().executorCpuTime();
-        long executor_deserialize_cpu_time = stageCompleted.stageInfo().taskMetrics().executorDeserializeCpuTime();
-        long executor_run_time = stageCompleted.stageInfo().taskMetrics().executorRunTime();
-        long jvm_gc_time = stageCompleted.stageInfo().taskMetrics().jvmGCTime();
-        long executor_deserialize_time = stageCompleted.stageInfo().taskMetrics().executorDeserializeTime();
-        long result_serialization_time = stageCompleted.stageInfo().taskMetrics().resultSerializationTime();
-        long result_size = stageCompleted.stageInfo().taskMetrics().resultSize();
-        long peak_execution_memory = stageCompleted.stageInfo().taskMetrics().peakExecutionMemory();
-        long disk_bytes_spilled = stageCompleted.stageInfo().taskMetrics().diskBytesSpilled();
-        long memory_bytes_spilled = stageCompleted.stageInfo().taskMetrics().memoryBytesSpilled();
-        long shuffle_read_records = stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().recordsRead();
-        long shuffle_read_fetch_wait_time = stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().fetchWaitTime();
-        long shuffle_read_local_bytes = stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().localBytesRead();
-        long shuffle_read_remote_bytes = stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().remoteBytesRead();
-        long shuffle_read_total_bytes = stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().totalBytesRead();
-        long shuffle_read_local_blocks_fetched = stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().localBlocksFetched();
-        long shuffle_read_remote_blocks_fetched = stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().remoteBlocksFetched();
-        long shuffle_read_total_blocks_fetched = stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().totalBlocksFetched();
-        long shuffle_write_shuffle_records = stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleRecordsWritten();
-        long shuffle_write_shuffle_time = stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleWriteTime();
-        long shuffle_write_shuffle_bytes = stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleBytesWritten();
-        long input_records = stageCompleted.stageInfo().taskMetrics().inputMetrics().recordsRead();
-        long input_bytes = stageCompleted.stageInfo().taskMetrics().inputMetrics().bytesRead();
-        long output_records = stageCompleted.stageInfo().taskMetrics().outputMetrics().recordsWritten();
-        long output_bytes = stageCompleted.stageInfo().taskMetrics().outputMetrics().bytesWritten();
-
-        StageEvent stageEvent = new StageEvent(submissionTime, completionTime, name, stage_id,
-                attempt_id, numTasks, status, executor_cpu_time, executor_deserialize_cpu_time,
-                executor_run_time, jvm_gc_time, executor_deserialize_time, result_serialization_time,
-                result_size, peak_execution_memory, disk_bytes_spilled, memory_bytes_spilled,
-                shuffle_read_records, shuffle_read_fetch_wait_time, shuffle_read_local_bytes,
-                shuffle_read_remote_bytes, shuffle_read_total_bytes, shuffle_read_local_blocks_fetched,
-                shuffle_read_remote_blocks_fetched, shuffle_read_total_blocks_fetched, shuffle_write_shuffle_records,
-                shuffle_write_shuffle_time, shuffle_write_shuffle_bytes, input_records, input_bytes,
-                output_records, output_bytes);
+        
+        SparkEventProtos.StageEvent.Builder stageEventBuilder = SparkEventProtos.StageEvent
+                .newBuilder()
+                .setStartTime(submissionTime)
+                .setCompletionTime(completionTime)
+                .setStageName(name)
+                .setStageId(stage_id)
+                .setAttemptId(attempt_id)
+                .setNumTasks(numTasks)
+                .setStatus(status)
+                .setExecutorCpuTime(stageCompleted.stageInfo().taskMetrics().executorCpuTime())
+                .setExecutorDeserializeCpuTime(stageCompleted.stageInfo().taskMetrics().executorDeserializeCpuTime())
+                .setExecutorRunTime(stageCompleted.stageInfo().taskMetrics().executorRunTime())
+                .setJvmGcTime(stageCompleted.stageInfo().taskMetrics().jvmGCTime())
+                .setExecutorDeserializeTime(stageCompleted.stageInfo().taskMetrics().executorDeserializeTime())
+                .setResultSerializationTime(stageCompleted.stageInfo().taskMetrics().resultSerializationTime())
+                .setResultSize(stageCompleted.stageInfo().taskMetrics().resultSize())
+                .setPeakExecutionMemory(stageCompleted.stageInfo().taskMetrics().peakExecutionMemory())
+                .setDiskBytesSpilled(stageCompleted.stageInfo().taskMetrics().diskBytesSpilled())
+                .setMemoryBytesSpilled(stageCompleted.stageInfo().taskMetrics().memoryBytesSpilled())
+                .setShuffleReadRecords(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().recordsRead())
+                .setShuffleReadFetchWaitTime(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().fetchWaitTime())
+                .setShuffleReadLocalBytes(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().localBytesRead())
+                .setShuffleReadRemoteBytes(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().remoteBytesRead())
+                .setShuffleReadTotalBytes(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().totalBytesRead())
+                .setShuffleReadLocalBlocksFetched(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().localBlocksFetched())
+                .setShuffleReadRemoteBlocksFetched(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().remoteBlocksFetched())
+                .setShuffleReadTotalBlocksFetched(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().totalBlocksFetched())
+                .setShuffleWriteShuffleRecords(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleRecordsWritten())
+                .setShuffleWriteShuffleTime(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleWriteTime())
+                .setShuffleWriteShuffleBytes(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleBytesWritten())
+                .setInputRecords(stageCompleted.stageInfo().taskMetrics().inputMetrics().recordsRead())
+                .setInputBytes(stageCompleted.stageInfo().taskMetrics().inputMetrics().bytesRead())
+                .setOutputRecords(stageCompleted.stageInfo().taskMetrics().outputMetrics().recordsWritten())
+                .setOutputBytes(stageCompleted.stageInfo().taskMetrics().outputMetrics().bytesWritten());
 
         if (!status.equals("succeeded")) {
-            String failureReason = stageCompleted.stageInfo().failureReason().getOrElse(emptyStringScala);
-            stageEvent.setFailure_reason(failureReason);
+            stageEventBuilder.setFailureReason(stageCompleted.stageInfo().failureReason().getOrElse(emptyStringScala));
         }
 
-        this.eventHandler.accept(stageEvent);
+        this.eventHandler.accept(stageEventBuilder.build());
     }
 }

@@ -4,7 +4,7 @@ import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.schema.events.Header;
-import com.criteo.hadoop.garmadon.schema.events.StateEvent;
+import com.criteo.hadoop.garmadon.schema.enums.State;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.criteo.jvm.JVMStatisticsProtos;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -122,7 +122,7 @@ public class Heuristics {
         String attemptId = msg.getHeader().getAppAttemptID();
         String containerId = msg.getHeader().getContainerId();
         DataAccessEventProtos.StateEvent stateEvent = (DataAccessEventProtos.StateEvent) msg.getBody();
-        if (StateEvent.State.END.toString().equals(stateEvent.getState())) {
+        if (State.END.toString().equals(stateEvent.getState())) {
             heuristics.forEach(h -> h.onContainerCompleted(applicationId, attemptId, containerId));
             Set<String> appContainers = containersPerApp.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashSet<>());
             if (appContainers.size() == 0)

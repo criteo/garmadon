@@ -5,7 +5,7 @@ import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.schema.events.Header;
-import com.criteo.hadoop.garmadon.schema.events.StateEvent;
+import com.criteo.hadoop.garmadon.schema.enums.State;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.criteo.jvm.JVMStatisticsProtos;
 
@@ -86,7 +86,7 @@ public class Extractor {
 
     private void processStateEvent(GarmadonMessage msg) {
         DataAccessEventProtos.StateEvent stateEvent = (DataAccessEventProtos.StateEvent) msg.getBody();
-        if (StateEvent.State.END.toString().equals(stateEvent.getState())) {
+        if (State.END.toString().equals(stateEvent.getState())) {
             System.exit(0);
         }
     }

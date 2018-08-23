@@ -1,6 +1,7 @@
 package com.criteo.hadoop.garmadon.agent.modules;
 
-import com.criteo.hadoop.garmadon.schema.events.PathEvent;
+import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.schema.enums.PathType;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.implementation.Implementation;
@@ -89,7 +90,12 @@ public class MapReduceModule extends ContainerModule {
             String paths = (jobContext.getConfiguration().get(FILE_INPUT_FORMAT_INPUT_DIR) != null) ?
                     jobContext.getConfiguration().get(FILE_INPUT_FORMAT_INPUT_DIR) : jobContext.getConfiguration().get(DEPRECATED_FILE_INPUT_FORMAT_INPUT_DIR);
             if (paths != null) {
-                PathEvent pathEvent = new PathEvent(System.currentTimeMillis(), paths, PathEvent.Type.INPUT);
+                DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
+                        .newBuilder()
+                        .setTimestamp(System.currentTimeMillis())
+                        .setPath(paths)
+                        .setType(PathType.INPUT.name())
+                        .build();
                 eventHandler.accept(pathEvent);
             }
         }
@@ -98,7 +104,12 @@ public class MapReduceModule extends ContainerModule {
             String paths = (taskAttemptContext.getConfiguration().get(FILE_INPUT_FORMAT_INPUT_DIR) != null) ?
                     taskAttemptContext.getConfiguration().get(FILE_INPUT_FORMAT_INPUT_DIR) : taskAttemptContext.getConfiguration().get(DEPRECATED_FILE_INPUT_FORMAT_INPUT_DIR);
             if (paths != null) {
-                PathEvent pathEvent = new PathEvent(System.currentTimeMillis(), paths, PathEvent.Type.INPUT);
+                DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
+                        .newBuilder()
+                        .setTimestamp(System.currentTimeMillis())
+                        .setPath(paths)
+                        .setType(PathType.INPUT.name())
+                        .build();
                 eventHandler.accept(pathEvent);
             }
         }
@@ -125,7 +136,12 @@ public class MapReduceModule extends ContainerModule {
             String paths = (taskAttemptContext.getConfiguration().get(FILE_OUTPUT_FORMAT_OUTPUT_DIR) != null) ?
                     taskAttemptContext.getConfiguration().get(FILE_OUTPUT_FORMAT_OUTPUT_DIR) : taskAttemptContext.getConfiguration().get(DEPRECATED_FILE_OUTPUT_FORMAT_OUTPUT_DIR);
             if (paths != null) {
-                PathEvent pathEvent = new PathEvent(System.currentTimeMillis(), paths, PathEvent.Type.OUTPUT);
+                DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
+                    .newBuilder()
+                    .setTimestamp(System.currentTimeMillis())
+                    .setPath(paths)
+                    .setType(PathType.OUTPUT.name())
+                    .build();
                 eventHandler.accept(pathEvent);
             }
         }
@@ -152,7 +168,12 @@ public class MapReduceModule extends ContainerModule {
             String paths = (jobConf.get(FILE_INPUT_FORMAT_INPUT_DIR) != null) ?
                     jobConf.get(FILE_INPUT_FORMAT_INPUT_DIR) : jobConf.get(DEPRECATED_FILE_INPUT_FORMAT_INPUT_DIR);
             if (paths != null) {
-                PathEvent pathEvent = new PathEvent(System.currentTimeMillis(), paths, PathEvent.Type.INPUT);
+                DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
+                        .newBuilder()
+                        .setTimestamp(System.currentTimeMillis())
+                        .setPath(paths)
+                        .setType(PathType.INPUT.name())
+                        .build();
                 eventHandler.accept(pathEvent);
             }
         }
@@ -179,7 +200,12 @@ public class MapReduceModule extends ContainerModule {
             String paths = (jobConf.get(FILE_OUTPUT_FORMAT_OUTPUT_DIR) != null) ?
                     jobConf.get(FILE_OUTPUT_FORMAT_OUTPUT_DIR) : jobConf.get(DEPRECATED_FILE_OUTPUT_FORMAT_OUTPUT_DIR);
             if (paths != null) {
-                PathEvent pathEvent = new PathEvent(System.currentTimeMillis(), paths, PathEvent.Type.OUTPUT);
+                DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
+                    .newBuilder()
+                    .setTimestamp(System.currentTimeMillis())
+                    .setPath(paths)
+                    .setType(PathType.OUTPUT.name())
+                    .build();
                 eventHandler.accept(pathEvent);
             }
         }

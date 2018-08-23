@@ -1,7 +1,8 @@
 package com.criteo.hadoop.garmadon.agent.modules;
 
 import com.criteo.hadoop.garmadon.agent.AsyncEventProcessor;
-import com.criteo.hadoop.garmadon.schema.events.ContainerResourceEvent;
+import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
+import com.criteo.hadoop.garmadon.schema.enums.ContainerType;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.type.TypeDescription;
@@ -17,7 +18,6 @@ import java.lang.instrument.Instrumentation;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.*;
@@ -86,7 +86,12 @@ public class ContainerResourceMonitoringModule implements GarmadonAgentModule {
                         .withContainerID(containerID)
                         .build();
 
-                ContainerResourceEvent event = new ContainerResourceEvent(System.currentTimeMillis(), ContainerResourceEvent.Type.MEMORY, currentMemUsage, limit);
+                ContainerEventProtos.ContainerResourceEvent event = ContainerEventProtos.ContainerResourceEvent.newBuilder()
+                        .setTimestamp(System.currentTimeMillis())
+                        .setType(ContainerType.MEMORY.name())
+                        .setValue(currentMemUsage)
+                        .setLimit(limit)
+                        .build();
                 eventHandler.accept(header, event);
             } catch (Exception ignore) {
             }

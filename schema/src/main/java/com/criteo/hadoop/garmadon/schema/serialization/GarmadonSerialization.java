@@ -4,7 +4,6 @@ import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.events.*;
-import com.criteo.hadoop.garmadon.schema.events.spark.StageEvent;
 import com.criteo.hadoop.garmadon.schema.exceptions.DeserializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.SerializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.TypeMarkerException;
@@ -39,19 +38,19 @@ public class GarmadonSerialization {
 
     static {
         //hadoop events
-        register(PathEvent.class, TypeMarker.PATH_EVENT, "PATH_EVENT", PathEvent::serialize, DataAccessEventProtos.PathEvent::parseFrom);
-        register(FsEvent.class, TypeMarker.FS_EVENT, "FS_EVENT", FsEvent::serialize, DataAccessEventProtos.FsEvent::parseFrom);
-        register(StateEvent.class, TypeMarker.STATE_EVENT, "STATE_EVENT", StateEvent::serialize, DataAccessEventProtos.StateEvent::parseFrom);
+        register(DataAccessEventProtos.PathEvent.class, TypeMarker.PATH_EVENT, "PATH_EVENT", DataAccessEventProtos.PathEvent::toByteArray, DataAccessEventProtos.PathEvent::parseFrom);
+        register(DataAccessEventProtos.FsEvent.class, TypeMarker.FS_EVENT, "FS_EVENT", DataAccessEventProtos.FsEvent::toByteArray, DataAccessEventProtos.FsEvent::parseFrom);
+        register(DataAccessEventProtos.StateEvent.class, TypeMarker.STATE_EVENT, "STATE_EVENT", DataAccessEventProtos.StateEvent::toByteArray, DataAccessEventProtos.StateEvent::parseFrom);
 
         //nodemanager events
-        register(ContainerResourceEvent.class, TypeMarker.CONTAINER_MONITORING_EVENT, "CONTAINER_MONITORING_EVENT", ContainerResourceEvent::serialize, ContainerEventProtos.ContainerResourceEvent::parseFrom);
+        register(ContainerEventProtos.ContainerResourceEvent.class, TypeMarker.CONTAINER_MONITORING_EVENT, "CONTAINER_MONITORING_EVENT", ContainerEventProtos.ContainerResourceEvent::toByteArray, ContainerEventProtos.ContainerResourceEvent::parseFrom);
 
         //jvm stats events
         register(JVMStatisticsProtos.GCStatisticsData.class, TypeMarker.GC_EVENT, "GC_EVENT", JVMStatisticsProtos.GCStatisticsData::toByteArray, JVMStatisticsProtos.GCStatisticsData::parseFrom);
         register(JVMStatisticsProtos.JVMStatisticsData.class, TypeMarker.JVMSTATS_EVENT, "JVMSTATS_EVENT", JVMStatisticsProtos.JVMStatisticsData::toByteArray, JVMStatisticsProtos.JVMStatisticsData::parseFrom);
 
         // spark events
-        register(StageEvent.class, TypeMarker.SPARK_STAGE_EVENT, "SPARK_STAGE_EVENT", StageEvent::serialize, SparkEventProtos.StageEvent::parseFrom);
+        register(SparkEventProtos.StageEvent.class, TypeMarker.SPARK_STAGE_EVENT, "SPARK_STAGE_EVENT", SparkEventProtos.StageEvent::toByteArray, SparkEventProtos.StageEvent::parseFrom);
     }
 
     public static int getMarker(Class aClass) throws TypeMarkerException {
