@@ -3,16 +3,17 @@ package com.criteo.hadoop.garmadon.spark.listener;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.enums.State;
-import org.apache.spark.scheduler.SparkListener;
-import org.apache.spark.scheduler.SparkListenerStageCompleted;
-import org.apache.spark.scheduler.SparkListenerStageSubmitted;
+import org.apache.spark.scheduler.*;
 import scala.Function0;
 import scala.runtime.AbstractFunction0;
 
+import java.util.HashMap;
 import java.util.function.Consumer;
 
 public class GarmadonSparkListener extends SparkListener {
     public final Consumer<Object> eventHandler;
+
+    private final HashMap<String, String> executorHostId = new HashMap<>();
 
     public GarmadonSparkListener() {
         this.eventHandler = SparkListernerConf.getInstance().getEventHandler();
@@ -56,6 +57,32 @@ public class GarmadonSparkListener extends SparkListener {
 
         this.eventHandler.accept(stageStateEvent);
     }
+
+    private void sendExecutorStateEvent(long time, State state, String executorId, String executorHost
+            , String reason, int taskFailures) {
+        DataAccessEventProtos.StateEvent stateEvent = DataAccessEventProtos.StateEvent
+                .newBuilder()
+                .setTimestamp(time)
+                .setState(state.name())
+                .build();
+
+        SparkEventProtos.ExecutorStateEvent.Builder executorStateEvent = SparkEventProtos.ExecutorStateEvent
+                .newBuilder()
+                .setStateEvent(stateEvent)
+                .setExecutorId(executorId)
+                .setExecutorHostname(executorHost);
+
+        if (reason != null) {
+            executorStateEvent.setReason(reason);
+        }
+
+        if (taskFailures != 0) {
+            executorStateEvent.setTaskFailures(taskFailures);
+        }
+
+        this.eventHandler.accept(executorStateEvent.build());
+    }
+
 
     // Stage Events
     @Override
@@ -122,5 +149,52 @@ public class GarmadonSparkListener extends SparkListener {
         }
 
         this.eventHandler.accept(stageEventBuilder.build());
+    }
+
+    @Override
+    public void onExecutorMetricsUpdate(SparkListenerExecutorMetricsUpdate executorMetricsUpdate) {
+        super.onExecutorMetricsUpdate(executorMetricsUpdate);
+    }
+
+
+    @Override
+    public void onExecutorAdded(SparkListenerExecutorAdded executorAdded) {
+        executorHostId.put(executorAdded.executorId(), executorAdded.executorInfo().executorHost());
+        sendExecutorStateEvent(executorAdded.time(),
+                State.ADDED,
+                executorAdded.executorId(),
+                executorAdded.executorInfo().executorHost(),
+                null,
+                0);
+    }
+
+    @Override
+    public void onExecutorRemoved(SparkListenerExecutorRemoved executorRemoved) {
+        sendExecutorStateEvent(executorRemoved.time(),
+                State.REMOVED,
+                executorRemoved.executorId(),
+                executorHostId.getOrDefault(executorRemoved.executorId(), "UNKNOWN"),
+                executorRemoved.reason(),
+                0);
+    }
+
+    @Override
+    public void onExecutorBlacklisted(SparkListenerExecutorBlacklisted executorBlacklisted) {
+        sendExecutorStateEvent(executorBlacklisted.time(),
+                State.BLACKLISTED,
+                executorBlacklisted.executorId(),
+                executorHostId.getOrDefault(executorBlacklisted.executorId(), "UNKNOWN"),
+                null,
+                executorBlacklisted.taskFailures());
+    }
+
+    @Override
+    public void onExecutorUnblacklisted(SparkListenerExecutorUnblacklisted executorUnblacklisted) {
+        sendExecutorStateEvent(executorUnblacklisted.time(),
+                State.UNBLACKLISTED,
+                executorUnblacklisted.executorId(),
+                executorHostId.getOrDefault(executorUnblacklisted.executorId(), "UNKNOWN"),
+                null,
+                0);
     }
 }

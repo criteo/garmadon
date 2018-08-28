@@ -242,6 +242,18 @@
           "type": "long",
           "index": false
         },
+        "executor_hostname": {
+          "type": "keyword",
+          "norms": false,
+          "index_options": "freqs",
+          "eager_global_ordinals": true
+        },
+        "executor_id": {
+          "type": "keyword",
+          "norms": false,
+          "index_options": "freqs",
+          "eager_global_ordinals": true
+        },
         "executor_run_time": {
           "type": "long",
           "index": false
@@ -478,6 +490,11 @@
           "type": "long",
           "index": false
         },
+        "reason": {
+          "type": "text",
+          "norms": false,
+          "index_options": "freqs"
+        },
         "result_serialization_time": {
           "type": "long",
           "index": false
@@ -624,6 +641,10 @@
           "type": "keyword",
           "norms": false,
           "index_options": "freqs"
+        },
+        "task_failures": {
+          "type": "integer",
+          "index": false
         },
         "threads_count": {
           "type": "long",

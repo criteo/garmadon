@@ -29,6 +29,7 @@ public class GarmadonSerialization {
         int CONTAINER_MONITORING_EVENT = 2000;
         int SPARK_STAGE_EVENT = 3000;
         int SPARK_STAGE_STATE_EVENT = 3001;
+        int SPARK_EXECUTOR_STATE_EVENT = 3002;
     }
 
     private static HashMap<Integer, Deserializer> typeMarkerToDeserializer = new HashMap<>();
@@ -38,21 +39,22 @@ public class GarmadonSerialization {
     private static HashMap<Integer, String> typeMarkerToName = new HashMap<>();
 
     static {
-        //hadoop events
+        // hadoop events
         register(DataAccessEventProtos.PathEvent.class, TypeMarker.PATH_EVENT, "PATH_EVENT", DataAccessEventProtos.PathEvent::toByteArray, DataAccessEventProtos.PathEvent::parseFrom);
         register(DataAccessEventProtos.FsEvent.class, TypeMarker.FS_EVENT, "FS_EVENT", DataAccessEventProtos.FsEvent::toByteArray, DataAccessEventProtos.FsEvent::parseFrom);
         register(DataAccessEventProtos.StateEvent.class, TypeMarker.STATE_EVENT, "STATE_EVENT", DataAccessEventProtos.StateEvent::toByteArray, DataAccessEventProtos.StateEvent::parseFrom);
 
-        //nodemanager events
+        // nodemanager events
         register(ContainerEventProtos.ContainerResourceEvent.class, TypeMarker.CONTAINER_MONITORING_EVENT, "CONTAINER_MONITORING_EVENT", ContainerEventProtos.ContainerResourceEvent::toByteArray, ContainerEventProtos.ContainerResourceEvent::parseFrom);
 
-        //jvm stats events
+        // jvm stats events
         register(JVMStatisticsProtos.GCStatisticsData.class, TypeMarker.GC_EVENT, "GC_EVENT", JVMStatisticsProtos.GCStatisticsData::toByteArray, JVMStatisticsProtos.GCStatisticsData::parseFrom);
         register(JVMStatisticsProtos.JVMStatisticsData.class, TypeMarker.JVMSTATS_EVENT, "JVMSTATS_EVENT", JVMStatisticsProtos.JVMStatisticsData::toByteArray, JVMStatisticsProtos.JVMStatisticsData::parseFrom);
 
         // spark events
         register(SparkEventProtos.StageEvent.class, TypeMarker.SPARK_STAGE_EVENT, "SPARK_STAGE_EVENT", SparkEventProtos.StageEvent::toByteArray, SparkEventProtos.StageEvent::parseFrom);
         register(SparkEventProtos.StageStateEvent.class, TypeMarker.SPARK_STAGE_STATE_EVENT, "SPARK_STAGE_STATE_EVENT", SparkEventProtos.StageStateEvent::toByteArray, SparkEventProtos.StageStateEvent::parseFrom);
+        register(SparkEventProtos.ExecutorStateEvent.class, TypeMarker.SPARK_EXECUTOR_STATE_EVENT, "SPARK_EXECUTOR_STATE_EVENT", SparkEventProtos.ExecutorStateEvent::toByteArray, SparkEventProtos.ExecutorStateEvent::parseFrom);
     }
 
     public static int getMarker(Class aClass) throws TypeMarkerException {

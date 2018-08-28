@@ -59,3 +59,13 @@ message StageStateEvent {
     required string attempt_id = 4;
     required int32 num_tasks = 5;
 }
+
+message ExecutorStateEvent {
+    required StateEvent state_event = 1;
+
+    required string executor_id = 2;
+    required string executor_hostname = 3;
+    optional string reason = 4;
+    optional int32 task_failures = 5;
+}
+

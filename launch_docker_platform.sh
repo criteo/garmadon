@@ -65,6 +65,9 @@ docker-compose exec client /opt/spark/bin/spark-submit --class org.apache.spark.
     /opt/spark/examples/jars/spark-examples_2.11-2.2.2.jar /opt/garmadon/conf-forwarder/server.properties /tmp
 
 # Spark SQL (Interact with HDFS and execute lots of stage)
-docker-compose exec client /opt/spark/bin/spark-submit --class org.apache.spark.examples.sql.SparkSQLExample \
-    /opt/spark/examples/jars/spark-examples_2.11-2.2.2.jar
+docker-compose exec client /opt/spark/bin/spark-submit \
+    --conf spark.shuffle.service.enabled=true --conf spark.dynamicAllocation.enabled=true \
+    --conf spark.dynamicAllocation.minExecutors=1 --conf spark.dynamicAllocation.initialExecutors=4 \
+    --conf spark.dynamicAllocation.maxExecutors=4 --conf spark.dynamicAllocation.executorIdleTimeout=1s \
+    --class org.apache.spark.examples.sql.SparkSQLExample /opt/spark/examples/jars/spark-examples_2.11-2.2.2.jar
 popd

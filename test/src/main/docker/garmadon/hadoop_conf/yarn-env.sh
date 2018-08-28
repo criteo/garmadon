@@ -83,6 +83,7 @@ fi
 # Specify the JVM options to be used when starting the NodeManager.
 # These options will be appended to the options specified as YARN_OPTS
 # and therefore may override any similar flags set in YARN_OPTS
+export YARN_USER_CLASSPATH=/opt/spark/yarn/*
 export YARN_NODEMANAGER_OPTS="-javaagent:/opt/garmadon/lib/garmadon-agent-1.0-SNAPSHOT-uber.jar=com.criteo.hadoop.garmadon.agent.modules.NodeManagerModules"
 
 # so that filenames w/ spaces are handled correctly in loops below

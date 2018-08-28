@@ -117,6 +117,16 @@ public class EventHelper {
         eventMap.put("state", event.getStateEvent().getState());
     }
 
+    public static void processExecutorStateEvent(String type, SparkEventProtos.ExecutorStateEvent event, HashMap<String, Map<String, Object>> eventMaps) {
+        Date timestamp_date = new Date(event.getStateEvent().getTimestamp());
+        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type, timestamp_date));
+        eventMap.put("executor_id", event.getExecutorId());
+        eventMap.put("executor_hostname", event.getExecutorHostname());
+        eventMap.put("reason", event.getReason());
+        eventMap.put("task_failures", event.getTaskFailures());
+        eventMap.put("state", event.getStateEvent().getState());
+    }
+
     public static void processGCStatisticsData(String type, JVMStatisticsProtos.GCStatisticsData event, HashMap<String, Map<String, Object>> eventMaps) {
         Date timestamp_date = new Date(event.getTimestamp());
         Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type, timestamp_date));

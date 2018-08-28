@@ -13,7 +13,7 @@
         },
         {
           "datasource": "garmadon",
-          "enable": true,
+          "enable": false,
           "hide": false,
           "iconColor": "#508642",
           "limit": 100,
@@ -28,7 +28,7 @@
         },
         {
           "datasource": "garmadon",
-          "enable": true,
+          "enable": false,
           "hide": false,
           "iconColor": "rgba(255, 96, 96, 1)",
           "limit": 100,
@@ -38,6 +38,51 @@
           "tags": [],
           "tagsField": "stage_id",
           "textField": "",
+          "timeField": "timestamp",
+          "type": "tags"
+        },
+        {
+          "datasource": "garmadon",
+          "enable": true,
+          "hide": false,
+          "iconColor": "#1f78c1",
+          "limit": 100,
+          "name": "Executor Added",
+          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tag:YARN_APPLICATION AND state:ADDED AND application_id:$application_id AND attempt_id:$attempt_id",
+          "showIn": 0,
+          "tags": [],
+          "tagsField": "state",
+          "textField": "hostname",
+          "timeField": "timestamp",
+          "type": "tags"
+        },
+        {
+          "datasource": "garmadon",
+          "enable": true,
+          "hide": false,
+          "iconColor": "#e5ac0e",
+          "limit": 100,
+          "name": "Executor Removed",
+          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tag:YARN_APPLICATION AND state:REMOVED AND application_id:$application_id AND attempt_id:$attempt_id",
+          "showIn": 0,
+          "tags": [],
+          "tagsField": "state",
+          "textField": "hostname",
+          "timeField": "timestamp",
+          "type": "tags"
+        },
+        {
+          "datasource": "garmadon",
+          "enable": false,
+          "hide": false,
+          "iconColor": "#e0752d",
+          "limit": 100,
+          "name": "Executor Blacklisted/Unblacklisted",
+          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tag:YARN_APPLICATION AND NOT state:REMOVED AND NOT state:ADDED AND application_id:$application_id AND attempt_id:$attempt_id",
+          "showIn": 0,
+          "tags": [],
+          "tagsField": "state",
+          "textField": "hostname",
           "timeField": "timestamp",
           "type": "tags"
         }
@@ -51,19 +96,6 @@
     "links": [],
     "panels": [
       {
-        "collapsed": false,
-        "gridPos": {
-          "h": 1,
-          "w": 24,
-          "x": 0,
-          "y": 0
-        },
-        "id": 14,
-        "panels": [],
-        "title": "OVERVIEW",
-        "type": "row"
-      },
-      {
         "aliasColors": {},
         "bars": false,
         "dashLength": 10,
@@ -75,7 +107,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 1
+          "y": 0
         },
         "id": 3,
         "legend": {
@@ -186,7 +218,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 1
+          "y": 0
         },
         "id": 68,
         "legend": {
@@ -314,6 +346,19 @@
         }
       },
       {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 8
+        },
+        "id": 14,
+        "panels": [],
+        "title": "OVERVIEW",
+        "type": "row"
+      },
+      {
         "aliasColors": {},
         "bars": false,
         "dashLength": 10,
@@ -423,6 +468,87 @@
           "align": false,
           "alignLevel": null
         }
+      },
+      {
+        "columns": [
+          {
+            "text": "executor_hostname",
+            "value": "executor_hostname"
+          },
+          {
+            "text": "state",
+            "value": "state"
+          },
+          {
+            "text": "reason",
+            "value": "reason"
+          },
+          {
+            "text": "task_failures",
+            "value": "task_failures"
+          }
+        ],
+        "datasource": "garmadon",
+        "fontSize": "100%",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 9
+        },
+        "id": 79,
+        "links": [],
+        "pageSize": 100,
+        "scroll": true,
+        "showHeader": true,
+        "sort": {
+          "col": 0,
+          "desc": true
+        },
+        "styles": [
+          {
+            "alias": "Time",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "pattern": "Time",
+            "type": "date"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "decimals": 2,
+            "pattern": "/.*/",
+            "thresholds": [],
+            "type": "number",
+            "unit": "short"
+          }
+        ],
+        "targets": [
+          {
+            "bucketAggs": [],
+            "metrics": [
+              {
+                "field": "select field",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "size": 500
+                },
+                "type": "raw_document"
+              }
+            ],
+            "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "timeField": "timestamp"
+          }
+        ],
+        "title": "Executor Events",
+        "transform": "json",
+        "type": "table"
       },
       {
         "collapsed": true,
@@ -3381,7 +3507,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -3405,9 +3530,9 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
-            "text": "application_1535096752410_0002",
-            "value": "application_1535096752410_0002"
+            "tags": [],
+            "text": "application_1535447009207_0006",
+            "value": "application_1535447009207_0006"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -3429,8 +3554,8 @@
         {
           "allValue": "*",
           "current": {
-            "text": "appattempt_1535096752410_0002_000001",
-            "value": "appattempt_1535096752410_0002_000001"
+            "text": "All",
+            "value": "$__all"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -3452,7 +3577,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -3476,7 +3600,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -3500,7 +3623,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
