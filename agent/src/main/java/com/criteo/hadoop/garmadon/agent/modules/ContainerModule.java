@@ -113,10 +113,6 @@ public abstract class ContainerModule implements GarmadonAgentModule {
                 framework = Framework.FLINK;
                 component = Component.TASK_MANAGER;
                 break;
-            // Cuttle
-            case "com.criteo.cuttle.contrib.yarn.ApplicationMaster":
-                component = Component.CUTTLE_APP_MASTER;
-                break;
             // YARN
             default:
                 break;
