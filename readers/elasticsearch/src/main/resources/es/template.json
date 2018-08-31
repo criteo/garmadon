@@ -93,6 +93,10 @@
           "index_options": "freqs",
           "eager_global_ordinals": true
         },
+        "attempt_number": {
+          "type": "integer",
+          "index": false
+        },
         "class_initialized": {
           "type": "integer",
           "index": false
@@ -339,6 +343,12 @@
           "type": "long",
           "index": false
         },
+        "locality": {
+          "type": "keyword",
+          "norms": false,
+          "index_options": "freqs",
+          "eager_global_ordinals": true
+        },
         "machinecpu_ctxtswitches": {
           "type": "long",
           "index": false
@@ -576,17 +586,20 @@
         "stage_id": {
           "type": "keyword",
           "norms": false,
-          "index_options": "freqs"
+          "index_options": "freqs",
+          "eager_global_ordinals": true
         },
         "stage_attempt_id": {
           "type": "keyword",
           "norms": false,
-          "index_options": "freqs"
+          "index_options": "freqs",
+          "eager_global_ordinals": true
         },
         "state": {
           "type": "keyword",
           "norms": false,
-          "index_options": "freqs"
+          "index_options": "freqs",
+          "eager_global_ordinals": true
         },
         "status": {
           "type": "keyword",
@@ -645,6 +658,12 @@
         "task_failures": {
           "type": "integer",
           "index": false
+        },
+        "task_id": {
+          "type": "keyword",
+          "norms": false,
+          "index_options": "freqs",
+          "eager_global_ordinals": true
         },
         "threads_count": {
           "type": "long",

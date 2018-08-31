@@ -15,36 +15,6 @@
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
-          "iconColor": "#508642",
-          "limit": 100,
-          "name": "Stage begin events",
-          "query": "event_type:SPARK_STAGE_STATE_EVENT AND state:BEGIN AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
-          "showIn": 0,
-          "tags": [],
-          "tagsField": "stage_id",
-          "textField": "",
-          "timeField": "timestamp",
-          "type": "tags"
-        },
-        {
-          "datasource": "garmadon",
-          "enable": false,
-          "hide": false,
-          "iconColor": "rgba(255, 96, 96, 1)",
-          "limit": 100,
-          "name": "Stage end events",
-          "query": "event_type:SPARK_STAGE_STATE_EVENT AND state:END AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
-          "showIn": 0,
-          "tags": [],
-          "tagsField": "stage_id",
-          "textField": "",
-          "timeField": "timestamp",
-          "type": "tags"
-        },
-        {
-          "datasource": "garmadon",
-          "enable": true,
-          "hide": false,
           "iconColor": "#1f78c1",
           "limit": 100,
           "name": "Executor Added",
@@ -58,7 +28,7 @@
         },
         {
           "datasource": "garmadon",
-          "enable": true,
+          "enable": false,
           "hide": false,
           "iconColor": "#e5ac0e",
           "limit": 100,
@@ -96,262 +66,12 @@
     "links": [],
     "panels": [
       {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "datasource": "garmadon",
-        "decimals": null,
-        "fill": 1,
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 0,
-          "y": 0
-        },
-        "id": 3,
-        "legend": {
-          "alignAsTable": true,
-          "avg": false,
-          "current": false,
-          "hideEmpty": false,
-          "hideZero": false,
-          "max": false,
-          "min": false,
-          "rightSide": true,
-          "show": true,
-          "sideWidth": 70,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "connected",
-        "percentage": false,
-        "pointradius": 5,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": false,
-        "targets": [
-          {
-            "alias": "%usage",
-            "bucketAggs": [
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "10s",
-                  "min_doc_count": 0,
-                  "trimEdges": null
-                },
-                "type": "date_histogram"
-              }
-            ],
-            "metrics": [
-              {
-                "field": "cpu_%load",
-                "id": "1",
-                "meta": {},
-                "settings": {},
-                "type": "sum"
-              }
-            ],
-            "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-            "refId": "A",
-            "target": "",
-            "timeField": "timestamp"
-          }
-        ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeShift": null,
-        "title": "Total CPU",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "format": "percent",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "datasource": "garmadon",
-        "decimals": null,
-        "fill": 1,
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 12,
-          "y": 0
-        },
-        "id": 68,
-        "legend": {
-          "alignAsTable": true,
-          "avg": false,
-          "current": false,
-          "hideEmpty": false,
-          "hideZero": false,
-          "max": false,
-          "min": false,
-          "rightSide": true,
-          "show": true,
-          "sideWidth": 50,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "connected",
-        "percentage": false,
-        "pointradius": 5,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": false,
-        "targets": [
-          {
-            "alias": "used",
-            "bucketAggs": [
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "10s",
-                  "min_doc_count": 1,
-                  "trimEdges": null
-                },
-                "type": "date_histogram"
-              }
-            ],
-            "metrics": [
-              {
-                "field": "value",
-                "id": "1",
-                "meta": {},
-                "settings": {},
-                "type": "sum"
-              }
-            ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tag:NODEMANAGER AND application_id:$application_id AND attempt_id:$attempt_id",
-            "refId": "A",
-            "target": "",
-            "timeField": "timestamp"
-          },
-          {
-            "alias": "max",
-            "bucketAggs": [
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "10s",
-                  "min_doc_count": 1,
-                  "trimEdges": null
-                },
-                "type": "date_histogram"
-              }
-            ],
-            "metrics": [
-              {
-                "field": "limit",
-                "id": "1",
-                "meta": {},
-                "settings": {},
-                "type": "sum"
-              }
-            ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tag:NODEMANAGER AND application_id:$application_id AND attempt_id:$attempt_id",
-            "refId": "B",
-            "target": "",
-            "timeField": "timestamp"
-          }
-        ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeShift": null,
-        "title": "Total Containers Memory",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "format": "bytes",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
-      },
-      {
         "collapsed": false,
         "gridPos": {
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 8
+          "y": 0
         },
         "id": 14,
         "panels": [],
@@ -370,7 +90,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 9
+          "y": 1
         },
         "id": 69,
         "legend": {
@@ -383,7 +103,7 @@
           "min": false,
           "rightSide": true,
           "show": true,
-          "sideWidth": 60,
+          "sideWidth": 150,
           "total": false,
           "values": false
         },
@@ -401,8 +121,32 @@
         "steppedLine": false,
         "targets": [
           {
-            "alias": "#tasks",
+            "alias": "",
             "bucketAggs": [
+              {
+                "fake": true,
+                "field": "type",
+                "id": "4",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "_term",
+                  "size": "10"
+                },
+                "type": "terms"
+              },
+              {
+                "fake": true,
+                "field": "status",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "_term",
+                  "size": "10"
+                },
+                "type": "terms"
+              },
               {
                 "field": "timestamp",
                 "id": "2",
@@ -420,10 +164,10 @@
                 "id": "1",
                 "meta": {},
                 "settings": {},
-                "type": "sum"
+                "type": "count"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id",
+            "query": "event_type:SPARK_TASK_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -432,7 +176,7 @@
         "thresholds": [],
         "timeFrom": null,
         "timeShift": null,
-        "title": "Number of Tasks",
+        "title": "Number of Tasks/Status",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -470,908 +214,139 @@
         }
       },
       {
-        "columns": [
-          {
-            "text": "executor_hostname",
-            "value": "executor_hostname"
-          },
-          {
-            "text": "state",
-            "value": "state"
-          },
-          {
-            "text": "reason",
-            "value": "reason"
-          },
-          {
-            "text": "task_failures",
-            "value": "task_failures"
-          }
-        ],
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
         "datasource": "garmadon",
-        "fontSize": "100%",
+        "decimals": null,
+        "fill": 1,
         "gridPos": {
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 9
+          "y": 1
         },
-        "id": 79,
+        "id": 78,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "hideEmpty": false,
+          "hideZero": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 180,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
         "links": [],
-        "pageSize": 100,
-        "scroll": true,
-        "showHeader": true,
-        "sort": {
-          "col": 0,
-          "desc": true
-        },
-        "styles": [
-          {
-            "alias": "Time",
-            "dateFormat": "YYYY-MM-DD HH:mm:ss",
-            "pattern": "Time",
-            "type": "date"
-          },
-          {
-            "alias": "",
-            "colorMode": null,
-            "colors": [
-              "rgba(245, 54, 54, 0.9)",
-              "rgba(237, 129, 40, 0.89)",
-              "rgba(50, 172, 45, 0.97)"
-            ],
-            "decimals": 2,
-            "pattern": "/.*/",
-            "thresholds": [],
-            "type": "number",
-            "unit": "short"
-          }
-        ],
+        "nullPointMode": "null",
+        "percentage": false,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
         "targets": [
           {
-            "bucketAggs": [],
-            "metrics": [
+            "alias": "",
+            "bucketAggs": [
               {
-                "field": "select field",
-                "id": "1",
-                "meta": {},
+                "fake": true,
+                "field": "type",
+                "id": "4",
                 "settings": {
-                  "size": 500
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "_term",
+                  "size": "10"
                 },
-                "type": "raw_document"
+                "type": "terms"
+              },
+              {
+                "fake": true,
+                "field": "locality",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "_term",
+                  "size": "10"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": null
+                },
+                "type": "date_histogram"
               }
             ],
-            "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
+            "metrics": [
+              {
+                "field": "num_tasks",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "count"
+              }
+            ],
+            "query": "event_type:SPARK_TASK_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id",
             "refId": "A",
+            "target": "",
             "timeField": "timestamp"
           }
         ],
-        "title": "Executor Events",
-        "transform": "json",
-        "type": "table"
-      },
-      {
-        "collapsed": true,
-        "gridPos": {
-          "h": 1,
-          "w": 24,
-          "x": 0,
-          "y": 17
+        "thresholds": [],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Number of Tasks/Locality",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
         },
-        "id": 12,
-        "panels": [
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
           {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "garmadon",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 0,
-              "y": 18
-            },
-            "id": 15,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 50,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "connected",
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "used",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "heap_used",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "max",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "heap_max",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "HEAP Usage",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "deckbytes",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
           },
           {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "garmadon",
-            "fill": 1,
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 12,
-              "y": 18
-            },
-            "id": 24,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 100,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "connected",
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "used",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "nonheap_used",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "OFF-HEAP Usage",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "deckbytes",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "garmadon",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 0,
-              "y": 26
-            },
-            "id": 27,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 150,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "connected",
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "ParNew",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(ParNew)_time",
-                    "hide": true,
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  },
-                  {
-                    "field": "1",
-                    "id": "3",
-                    "meta": {},
-                    "pipelineAgg": "1",
-                    "settings": {},
-                    "type": "derivative"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "G1 Young Generation",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(G1 Young Generation)_time",
-                    "hide": true,
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  },
-                  {
-                    "field": "1",
-                    "id": "3",
-                    "meta": {},
-                    "pipelineAgg": "1",
-                    "settings": {},
-                    "type": "derivative"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "ConcurrentMarkSweep",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(ConcurrentMarkSweep)_time",
-                    "hide": true,
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  },
-                  {
-                    "field": "1",
-                    "id": "3",
-                    "meta": {},
-                    "pipelineAgg": "1",
-                    "settings": {},
-                    "type": "derivative"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "C",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "G1 Old Generation",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(G1 Old Generation)_time",
-                    "hide": true,
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  },
-                  {
-                    "field": "1",
-                    "id": "3",
-                    "meta": {},
-                    "pipelineAgg": "1",
-                    "settings": {},
-                    "type": "derivative"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "D",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "PS MarkSweep",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(PS MarkSweep)_time",
-                    "hide": true,
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  },
-                  {
-                    "field": "1",
-                    "id": "3",
-                    "meta": {},
-                    "pipelineAgg": "1",
-                    "settings": {},
-                    "type": "derivative"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "E",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "PS Scavenge",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(PS Scavenge)_time",
-                    "hide": true,
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  },
-                  {
-                    "field": "1",
-                    "id": "3",
-                    "meta": {},
-                    "pipelineAgg": "1",
-                    "settings": {},
-                    "type": "derivative"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "F",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Total GC duration",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "ms",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "garmadon",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 12,
-              "y": 26
-            },
-            "id": 32,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 150,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "connected",
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "ConcurrentMarkSweep",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "pid",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "_count",
-                      "size": "1"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(ConcurrentMarkSweep)_count",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "C",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "G1 Old Generation",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(G1 Old Generation)_count",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "D",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "G1 Young Generation",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(G1 Young Generation)_time",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "PS MarkSweep",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(PS MarkSweep)_count",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "PS Scavenge",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(PS Scavenge)_count",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "E",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "ParNew",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(ParNew)_count",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "F",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Total GC Count",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
           }
         ],
-        "title": "JVM",
-        "type": "row"
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
       },
       {
         "collapsed": true,
@@ -1379,7 +354,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 18
+          "y": 9
         },
         "id": 55,
         "panels": [
@@ -1389,7 +364,7 @@
               "h": 3,
               "w": 24,
               "x": 0,
-              "y": 19
+              "y": 10
             },
             "id": 76,
             "links": [],
@@ -1410,7 +385,7 @@
               "h": 9,
               "w": 24,
               "x": 0,
-              "y": 22
+              "y": 13
             },
             "id": 62,
             "legend": {
@@ -1463,7 +438,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1491,7 +466,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -1543,7 +518,7 @@
               "h": 5,
               "w": 24,
               "x": 0,
-              "y": 31
+              "y": 22
             },
             "id": 77,
             "links": [],
@@ -1564,7 +539,7 @@
               "h": 9,
               "w": 24,
               "x": 0,
-              "y": 36
+              "y": 27
             },
             "id": 74,
             "legend": {
@@ -1617,7 +592,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1645,7 +620,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -1673,7 +648,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "C",
                 "target": "",
                 "timeField": "timestamp"
@@ -1701,7 +676,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "D",
                 "target": "",
                 "timeField": "timestamp"
@@ -1757,7 +732,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 19
+          "y": 10
         },
         "id": 44,
         "panels": [
@@ -1773,7 +748,7 @@
               "h": 9,
               "w": 12,
               "x": 0,
-              "y": 20
+              "y": 37
             },
             "id": 45,
             "legend": {
@@ -1826,7 +801,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1885,7 +860,7 @@
               "h": 9,
               "w": 12,
               "x": 12,
-              "y": 20
+              "y": 37
             },
             "id": 47,
             "legend": {
@@ -1938,7 +913,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1996,7 +971,7 @@
               "h": 9,
               "w": 12,
               "x": 0,
-              "y": 29
+              "y": 46
             },
             "id": 46,
             "legend": {
@@ -2049,7 +1024,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2077,7 +1052,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -2106,7 +1081,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "C",
                 "target": "",
                 "timeField": "timestamp"
@@ -2164,7 +1139,7 @@
               "h": 9,
               "w": 12,
               "x": 12,
-              "y": 29
+              "y": 46
             },
             "id": 48,
             "legend": {
@@ -2217,7 +1192,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2245,7 +1220,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -2274,7 +1249,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "C",
                 "target": "",
                 "timeField": "timestamp"
@@ -2330,7 +1305,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 20
+          "y": 11
         },
         "id": 39,
         "panels": [
@@ -2346,7 +1321,7 @@
               "h": 9,
               "w": 12,
               "x": 0,
-              "y": 21
+              "y": 56
             },
             "id": 40,
             "legend": {
@@ -2399,7 +1374,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2457,7 +1432,7 @@
               "h": 9,
               "w": 12,
               "x": 12,
-              "y": 21
+              "y": 56
             },
             "id": 41,
             "legend": {
@@ -2510,7 +1485,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2568,7 +1543,7 @@
               "h": 9,
               "w": 12,
               "x": 0,
-              "y": 30
+              "y": 65
             },
             "id": 42,
             "legend": {
@@ -2621,7 +1596,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2677,7 +1652,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 21
+          "y": 12
         },
         "id": 9,
         "panels": [
@@ -2693,7 +1668,7 @@
               "h": 9,
               "w": 12,
               "x": 0,
-              "y": 22
+              "y": 13
             },
             "id": 2,
             "legend": {
@@ -2717,7 +1692,7 @@
             "pointradius": 1,
             "points": true,
             "renderer": "flot",
-            "repeat": "uri",
+            "repeat": null,
             "repeatDirection": "h",
             "scopedVars": {
               "uri": {
@@ -2754,7 +1729,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2782,7 +1757,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -2840,7 +1815,7 @@
               "h": 9,
               "w": 12,
               "x": 12,
-              "y": 22
+              "y": 13
             },
             "id": 37,
             "legend": {
@@ -2893,7 +1868,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2921,7 +1896,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -2977,7 +1952,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 22
+          "y": 13
         },
         "id": 67,
         "panels": [
@@ -2994,7 +1969,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 23
+              "y": 94
             },
             "id": 65,
             "legend": {
@@ -3047,7 +2022,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id",
+                "query": "event_type:SPARK_TASK_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -3106,7 +2081,7 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 23
+              "y": 94
             },
             "id": 64,
             "legend": {
@@ -3159,7 +2134,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id",
+                "query": "event_type:SPARK_TASK_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -3217,7 +2192,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 31
+              "y": 102
             },
             "id": 51,
             "legend": {
@@ -3270,7 +2245,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -3298,7 +2273,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -3347,153 +2322,6 @@
         ],
         "title": "OTHER",
         "type": "row"
-      },
-      {
-        "collapsed": true,
-        "gridPos": {
-          "h": 1,
-          "w": 24,
-          "x": 0,
-          "y": 23
-        },
-        "id": 71,
-        "panels": [
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "garmadon",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 8,
-              "w": 24,
-              "x": 0,
-              "y": 24
-            },
-            "id": 72,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "hideEmpty": false,
-              "hideZero": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": null,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "minSpan": 12,
-            "nullPointMode": "connected",
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "repeat": "uri",
-            "repeatDirection": "h",
-            "scopedVars": {
-              "uri": {
-                "selected": false,
-                "text": "hdfs://namenode",
-                "value": "hdfs://namenode"
-              }
-            },
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "action",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "_term",
-                      "size": "10"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 0,
-                      "trimEdges": null
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "act",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "count"
-                  }
-                ],
-                "query": "event_type:FS_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "FS action on $uri",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          }
-        ],
-        "title": "FS",
-        "type": "row"
       }
     ],
     "refresh": false,
@@ -3517,7 +2345,7 @@
           "multi": false,
           "name": "username",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"username\",\"query\": \"event_type:SPARK_STAGE_EVENT\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"username\",\"query\": \"event_type:SPARK_TASK_EVENT\"}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -3530,9 +2358,8 @@
         {
           "allValue": "*",
           "current": {
-            "tags": [],
-            "text": "application_1535447009207_0006",
-            "value": "application_1535447009207_0006"
+            "text": "application_1536057127243_0004",
+            "value": "application_1536057127243_0004"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -3541,7 +2368,7 @@
           "multi": false,
           "name": "application_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_STAGE_EVENT AND username:$username\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username\"}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -3564,7 +2391,7 @@
           "multi": false,
           "name": "attempt_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"attempt_id\", \"query\": \"event_type:SPARK_STAGE_EVENT AND username:$username AND application_id:$application_id\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"attempt_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username AND application_id:$application_id\"}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -3577,17 +2404,17 @@
         {
           "allValue": "*",
           "current": {
-            "text": "All",
-            "value": "$__all"
+            "text": "0",
+            "value": "0"
           },
           "datasource": "garmadon",
           "hide": 0,
-          "includeAll": true,
+          "includeAll": false,
           "label": null,
           "multi": false,
           "name": "stage_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"stage_id\", \"query\": \"event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"stage_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id\"}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -3600,40 +2427,17 @@
         {
           "allValue": "*",
           "current": {
-            "text": "All",
-            "value": "$__all"
+            "text": "0",
+            "value": "0"
           },
           "datasource": "garmadon",
           "hide": 0,
-          "includeAll": true,
+          "includeAll": false,
           "label": null,
           "multi": false,
           "name": "stage_attempt_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"stage_attempt_id\", \"query\": \"event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id\"}",
-          "refresh": 1,
-          "regex": "",
-          "sort": 1,
-          "tagValuesQuery": "",
-          "tags": [],
-          "tagsQuery": "",
-          "type": "query",
-          "useTags": false
-        },
-        {
-          "allValue": "*",
-          "current": {
-            "text": "All",
-            "value": "$__all"
-          },
-          "datasource": "garmadon",
-          "hide": 2,
-          "includeAll": true,
-          "label": null,
-          "multi": false,
-          "name": "uri",
-          "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"username:$username AND application_id:$application_id AND attempt_id:$attempt_id\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"stage_attempt_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id\"}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -3675,7 +2479,7 @@
       ]
     },
     "timezone": "",
-    "title": "Garmadon - Spark Stages",
+    "title": "Garmadon - Spark Job Stages",
     "uid": null,
     "version": null
   }

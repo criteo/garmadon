@@ -69,3 +69,55 @@ message ExecutorStateEvent {
     optional int32 task_failures = 5;
 }
 
+message TaskEvent {
+    required int64 start_time = 1;
+    required int64 completion_time = 2;
+    required string task_id = 3;
+    required string stage_id = 4;
+    required string attempt_id = 5;
+
+    required string executor_id = 6;
+    required string executor_hostname = 7;
+
+    required string status = 8;
+    optional string failure_reason = 9;
+
+    required int64 executor_cpu_time = 10;
+    required int64 executor_deserialize_cpu_time = 11;
+
+    required int64 executor_run_time = 12;
+    required int64 jvm_gc_time = 13;
+    required int64 executor_deserialize_time = 14;
+    required int64 result_serialization_time = 15;
+
+    required int64 result_size = 16;
+    required int64 peak_execution_memory = 17;
+
+    required int64 disk_bytes_spilled = 18;
+    required int64 memory_bytes_spilled = 19;
+
+    required int64 shuffle_read_records = 20;
+    required int64 shuffle_read_fetch_wait_time = 21;
+    required int64 shuffle_read_local_bytes = 22;
+    required int64 shuffle_read_remote_bytes = 23;
+    required int64 shuffle_read_total_bytes = 24;
+    required int64 shuffle_read_local_blocks_fetched = 25;
+    required int64 shuffle_read_remote_blocks_fetched = 26;
+    required int64 shuffle_read_total_blocks_fetched = 27;
+
+    required int64 shuffle_write_shuffle_records = 28;
+    required int64 shuffle_write_shuffle_time = 29;
+    required int64 shuffle_write_shuffle_bytes = 30;
+
+    required int64 input_records = 31;
+    required int64 input_bytes = 32;
+    required int64 output_records = 33;
+    required int64 output_bytes = 34;
+
+    required string type = 35;
+    required string locality = 36;
+    required int32 attempt_number = 37;
+
+}
+
+

@@ -107,6 +107,53 @@ public class EventHelper {
         eventMap.put("output_bytes", event.getOutputBytes());
     }
 
+    public static void processTaskEvent(String type, SparkEventProtos.TaskEvent event, HashMap<String, Map<String, Object>> eventMaps) {
+        Date timestamp_date = new Date(event.getCompletionTime());
+        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type, timestamp_date));
+        eventMap.put("start_time", new Date(event.getStartTime()));
+        eventMap.put("task_id", event.getTaskId());
+        eventMap.put("stage_id", event.getStageId());
+        eventMap.put("stage_attempt_id", event.getAttemptId());
+        eventMap.put("executor_id", event.getExecutorId());
+        eventMap.put("executor_hostname", event.getExecutorHostname());
+
+        eventMap.put("status", event.getStatus());
+        if (event.hasFailureReason()) {
+            eventMap.put("failure_reason", event.getFailureReason());
+        }
+        eventMap.put("executor_cpu_time", event.getExecutorCpuTime());
+        eventMap.put("executor_deserialize_cpu_time", event.getExecutorDeserializeCpuTime());
+        eventMap.put("executor_run_time", event.getExecutorRunTime());
+        eventMap.put("jvm_gc_time", event.getJvmGcTime());
+        eventMap.put("executor_deserialize_time", event.getExecutorDeserializeTime());
+        eventMap.put("result_serialization_time", event.getResultSerializationTime());
+        eventMap.put("result_size", event.getResultSize());
+        eventMap.put("peak_execution_memory", event.getPeakExecutionMemory());
+        eventMap.put("disk_bytes_spilled", event.getDiskBytesSpilled());
+        eventMap.put("memory_bytes_spilled", event.getMemoryBytesSpilled());
+        eventMap.put("shuffle_read_records", event.getShuffleReadRecords());
+        eventMap.put("shuffle_read_fetch_wait_time", event.getShuffleReadFetchWaitTime());
+        eventMap.put("shuffle_read_local_bytes", event.getShuffleReadLocalBytes());
+        eventMap.put("shuffle_read_remote_bytes", event.getShuffleReadRemoteBytes());
+        eventMap.put("shuffle_read_total_bytes", event.getShuffleReadTotalBytes());
+        eventMap.put("shuffle_read_local_blocks_fetched", event.getShuffleReadLocalBlocksFetched());
+        eventMap.put("shuffle_read_remote_blocks_fetched", event.getShuffleReadRemoteBlocksFetched());
+        eventMap.put("shuffle_read_total_blocks_fetched", event.getShuffleReadTotalBlocksFetched());
+        eventMap.put("shuffle_write_shuffle_records", event.getShuffleWriteShuffleRecords());
+        eventMap.put("shuffle_write_shuffle_time", event.getShuffleWriteShuffleTime());
+        eventMap.put("shuffle_write_shuffle_bytes", event.getShuffleWriteShuffleBytes());
+        eventMap.put("input_records", event.getInputRecords());
+        eventMap.put("input_bytes", event.getInputBytes());
+        eventMap.put("output_records", event.getOutputRecords());
+        eventMap.put("output_bytes", event.getOutputBytes());
+
+        eventMap.put("locality", event.getLocality());
+
+        eventMap.put("type", event.getType());
+
+        eventMap.put("attempt_number", event.getAttemptNumber());
+    }
+
     public static void processStageStateEvent(String type, SparkEventProtos.StageStateEvent event, HashMap<String, Map<String, Object>> eventMaps) {
         Date timestamp_date = new Date(event.getStateEvent().getTimestamp());
         Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type, timestamp_date));

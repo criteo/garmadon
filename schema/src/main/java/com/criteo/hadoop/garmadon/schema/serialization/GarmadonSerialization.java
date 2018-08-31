@@ -30,6 +30,7 @@ public class GarmadonSerialization {
         int SPARK_STAGE_EVENT = 3000;
         int SPARK_STAGE_STATE_EVENT = 3001;
         int SPARK_EXECUTOR_STATE_EVENT = 3002;
+        int SPARK_TASK_EVENT = 3003;
     }
 
     private static HashMap<Integer, Deserializer> typeMarkerToDeserializer = new HashMap<>();
@@ -55,6 +56,7 @@ public class GarmadonSerialization {
         register(SparkEventProtos.StageEvent.class, TypeMarker.SPARK_STAGE_EVENT, "SPARK_STAGE_EVENT", SparkEventProtos.StageEvent::toByteArray, SparkEventProtos.StageEvent::parseFrom);
         register(SparkEventProtos.StageStateEvent.class, TypeMarker.SPARK_STAGE_STATE_EVENT, "SPARK_STAGE_STATE_EVENT", SparkEventProtos.StageStateEvent::toByteArray, SparkEventProtos.StageStateEvent::parseFrom);
         register(SparkEventProtos.ExecutorStateEvent.class, TypeMarker.SPARK_EXECUTOR_STATE_EVENT, "SPARK_EXECUTOR_STATE_EVENT", SparkEventProtos.ExecutorStateEvent::toByteArray, SparkEventProtos.ExecutorStateEvent::parseFrom);
+        register(SparkEventProtos.TaskEvent.class, TypeMarker.SPARK_TASK_EVENT, "SPARK_TASK_EVENT", SparkEventProtos.TaskEvent::toByteArray, SparkEventProtos.TaskEvent::parseFrom);
     }
 
     public static int getMarker(Class aClass) throws TypeMarkerException {

@@ -4,12 +4,15 @@ import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.enums.State;
 import org.apache.spark.scheduler.*;
+
 import scala.Function0;
 import scala.runtime.AbstractFunction0;
 
 import java.util.HashMap;
 import java.util.function.Consumer;
 
+
+// TODO: application name (keyword + better indexing + in the graph?)
 public class GarmadonSparkListener extends SparkListener {
     public final Consumer<Object> eventHandler;
 
@@ -38,11 +41,11 @@ public class GarmadonSparkListener extends SparkListener {
         }
     };
 
-    private void sendStageStateEvent(long completionTime, State state, String name, String stageId,
+    private void sendStageStateEvent(long stateTime, State state, String name, String stageId,
                                      String attemptId, int numTasks) {
         DataAccessEventProtos.StateEvent stateEvent = DataAccessEventProtos.StateEvent
                 .newBuilder()
-                .setTimestamp(completionTime)
+                .setTimestamp(stateTime)
                 .setState(state.name())
                 .build();
 
@@ -152,10 +155,55 @@ public class GarmadonSparkListener extends SparkListener {
     }
 
     @Override
-    public void onExecutorMetricsUpdate(SparkListenerExecutorMetricsUpdate executorMetricsUpdate) {
-        super.onExecutorMetricsUpdate(executorMetricsUpdate);
-    }
+    public void onTaskEnd(SparkListenerTaskEnd taskEnd) {
+        String status = taskEnd.taskInfo().status();
 
+        SparkEventProtos.TaskEvent.Builder taskEventBuilder = SparkEventProtos.TaskEvent
+                .newBuilder()
+                .setStartTime(taskEnd.taskInfo().launchTime())
+                .setCompletionTime(taskEnd.taskInfo().finishTime())
+                .setTaskId(String.valueOf(taskEnd.taskInfo().taskId()))
+                .setStageId(String.valueOf(taskEnd.stageId()))
+                .setAttemptId(String.valueOf(taskEnd.stageAttemptId()))
+                .setExecutorId(taskEnd.taskInfo().executorId())
+                .setExecutorHostname(String.valueOf(taskEnd.taskInfo().host()))
+                .setStatus(status)
+                .setLocality(taskEnd.taskInfo().taskLocality().toString())
+                .setType(taskEnd.taskType())
+                .setAttemptNumber(taskEnd.taskInfo().attemptNumber())
+                .setExecutorCpuTime(taskEnd.taskMetrics().executorCpuTime())
+                .setExecutorDeserializeCpuTime(taskEnd.taskMetrics().executorDeserializeCpuTime())
+                .setExecutorRunTime(taskEnd.taskMetrics().executorRunTime())
+                .setJvmGcTime(taskEnd.taskMetrics().jvmGCTime())
+                .setExecutorDeserializeTime(taskEnd.taskMetrics().executorDeserializeTime())
+                .setResultSerializationTime(taskEnd.taskMetrics().resultSerializationTime())
+                .setResultSize(taskEnd.taskMetrics().resultSize())
+                .setPeakExecutionMemory(taskEnd.taskMetrics().peakExecutionMemory())
+                .setDiskBytesSpilled(taskEnd.taskMetrics().diskBytesSpilled())
+                .setMemoryBytesSpilled(taskEnd.taskMetrics().memoryBytesSpilled())
+                .setShuffleReadRecords(taskEnd.taskMetrics().shuffleReadMetrics().recordsRead())
+                .setShuffleReadFetchWaitTime(taskEnd.taskMetrics().shuffleReadMetrics().fetchWaitTime())
+                .setShuffleReadLocalBytes(taskEnd.taskMetrics().shuffleReadMetrics().localBytesRead())
+                .setShuffleReadRemoteBytes(taskEnd.taskMetrics().shuffleReadMetrics().remoteBytesRead())
+                .setShuffleReadTotalBytes(taskEnd.taskMetrics().shuffleReadMetrics().totalBytesRead())
+                .setShuffleReadLocalBlocksFetched(taskEnd.taskMetrics().shuffleReadMetrics().localBlocksFetched())
+                .setShuffleReadRemoteBlocksFetched(taskEnd.taskMetrics().shuffleReadMetrics().remoteBlocksFetched())
+                .setShuffleReadTotalBlocksFetched(taskEnd.taskMetrics().shuffleReadMetrics().totalBlocksFetched())
+                .setShuffleWriteShuffleRecords(taskEnd.taskMetrics().shuffleWriteMetrics().shuffleRecordsWritten())
+                .setShuffleWriteShuffleTime(taskEnd.taskMetrics().shuffleWriteMetrics().shuffleWriteTime())
+                .setShuffleWriteShuffleBytes(taskEnd.taskMetrics().shuffleWriteMetrics().shuffleBytesWritten())
+                .setInputRecords(taskEnd.taskMetrics().inputMetrics().recordsRead())
+                .setInputBytes(taskEnd.taskMetrics().inputMetrics().bytesRead())
+                .setOutputRecords(taskEnd.taskMetrics().outputMetrics().recordsWritten())
+                .setOutputBytes(taskEnd.taskMetrics().outputMetrics().bytesWritten());
+
+
+        if (!status.equals("succeeded")) {
+            taskEventBuilder.setFailureReason(taskEnd.reason().toString());
+        }
+
+        this.eventHandler.accept(taskEventBuilder.build());
+    }
 
     @Override
     public void onExecutorAdded(SparkListenerExecutorAdded executorAdded) {
