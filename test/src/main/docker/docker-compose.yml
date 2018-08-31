@@ -160,7 +160,7 @@ services:
       - /usr/bin/entrypoint.sh
       - es-reader
     volumes:
-      - ../../../../elasticsearch/target/garmadon-elasticsearch-1.0-SNAPSHOT-uber.jar:/opt/garmadon/lib/garmadon-elasticsearch-1.0-SNAPSHOT-uber.jar
+      - ../../../../readers/elasticsearch/target/garmadon-readers-elasticsearch-1.0-SNAPSHOT-uber.jar:/opt/garmadon/lib/garmadon-readers-elasticsearch-1.0-SNAPSHOT-uber.jar
     env_file: .env
     depends_on:
       - kafka

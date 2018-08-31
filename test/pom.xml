@@ -49,7 +49,7 @@
         <!-- Garmadon dependencies -->
         <dependency>
             <groupId>com.criteo.java</groupId>
-            <artifactId>garmadon-reader</artifactId>
+            <artifactId>garmadon-readers-common</artifactId>
         </dependency>
     </dependencies>
 
