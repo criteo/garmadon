@@ -3,7 +3,6 @@
     "annotations": {
       "list": [
         {
-          "$$hashKey": "object:85",
           "builtIn": 1,
           "datasource": "-- Grafana --",
           "enable": true,
@@ -13,7 +12,6 @@
           "type": "dashboard"
         },
         {
-          "$$hashKey": "object:86",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -1980,8 +1978,33 @@
         {
           "allValue": "*",
           "current": {
-            "text": "application_1531753897584_44651",
-            "value": "application_1531753897584_44651"
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          },
+          "datasource": "garmadon",
+          "hide": 0,
+          "includeAll": true,
+          "label": null,
+          "multi": false,
+          "name": "application_name",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"username:$username AND framework:$framework\"}",
+          "refresh": 1,
+          "regex": "",
+          "sort": 1,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": "*",
+          "current": {
+            "selected": true,
+            "text": "application_1536130043445_0001",
+            "value": "application_1536130043445_0001"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -1990,7 +2013,7 @@
           "multi": false,
           "name": "application_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"username:$username AND framework:$framework\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"username:$username AND framework:$framework AND application_name.keyword:$application_name\"}",
           "refresh": 1,
           "regex": "",
           "sort": 1,

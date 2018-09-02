@@ -15,6 +15,36 @@
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
+          "iconColor": "#508642",
+          "limit": 100,
+          "name": "Stage begin events",
+          "query": "event_type:SPARK_STAGE_STATE_EVENT AND state:BEGIN AND application_id:$application_id AND attempt_id:$attempt_id",
+          "showIn": 0,
+          "tags": [],
+          "tagsField": "stage_id",
+          "textField": "",
+          "timeField": "timestamp",
+          "type": "tags"
+        },
+        {
+          "datasource": "garmadon",
+          "enable": false,
+          "hide": false,
+          "iconColor": "rgba(255, 96, 96, 1)",
+          "limit": 100,
+          "name": "Stage end events",
+          "query": "event_type:SPARK_STAGE_STATE_EVENT AND state:END AND application_id:$application_id AND attempt_id:$attempt_id",
+          "showIn": 0,
+          "tags": [],
+          "tagsField": "stage_id",
+          "textField": "",
+          "timeField": "timestamp",
+          "type": "tags"
+        },
+        {
+          "datasource": "garmadon",
+          "enable": false,
+          "hide": false,
           "iconColor": "#1f78c1",
           "limit": 100,
           "name": "Executor Added",
@@ -103,7 +133,7 @@
           "min": false,
           "rightSide": true,
           "show": true,
-          "sideWidth": 150,
+          "sideWidth": null,
           "total": false,
           "values": false
         },
@@ -121,16 +151,28 @@
         "steppedLine": false,
         "targets": [
           {
-            "alias": "",
+            "alias": "{{type}} - {{status}} - executor:{{executor_id}}",
             "bucketAggs": [
               {
                 "fake": true,
-                "field": "type",
+                "field": "executor_id",
                 "id": "4",
                 "settings": {
                   "min_doc_count": 1,
                   "order": "desc",
-                  "orderBy": "_term",
+                  "orderBy": "_count",
+                  "size": "10"
+                },
+                "type": "terms"
+              },
+              {
+                "fake": true,
+                "field": "type",
+                "id": "5",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "_count",
                   "size": "10"
                 },
                 "type": "terms"
@@ -142,7 +184,7 @@
                 "settings": {
                   "min_doc_count": 1,
                   "order": "desc",
-                  "orderBy": "_term",
+                  "orderBy": "_count",
                   "size": "10"
                 },
                 "type": "terms"
@@ -167,7 +209,7 @@
                 "type": "count"
               }
             ],
-            "query": "event_type:SPARK_TASK_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id",
+            "query": "event_type:SPARK_TASK_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -176,7 +218,7 @@
         "thresholds": [],
         "timeFrom": null,
         "timeShift": null,
-        "title": "Number of Tasks/Status",
+        "title": "Number of Tasks/Status/ExecutorId",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -214,139 +256,89 @@
         }
       },
       {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
+        "columns": [
+          {
+            "text": "executor_hostname",
+            "value": "executor_hostname"
+          },
+          {
+            "text": "executor_id",
+            "value": "executor_id"
+          },
+          {
+            "text": "state",
+            "value": "state"
+          },
+          {
+            "text": "reason",
+            "value": "reason"
+          },
+          {
+            "text": "task_failures",
+            "value": "task_failures"
+          }
+        ],
         "datasource": "garmadon",
-        "decimals": null,
-        "fill": 1,
+        "fontSize": "100%",
         "gridPos": {
           "h": 8,
           "w": 12,
           "x": 12,
           "y": 1
         },
-        "id": 78,
-        "legend": {
-          "alignAsTable": true,
-          "avg": false,
-          "current": false,
-          "hideEmpty": false,
-          "hideZero": false,
-          "max": false,
-          "min": false,
-          "rightSide": true,
-          "show": true,
-          "sideWidth": 180,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
+        "id": 80,
         "links": [],
-        "nullPointMode": "null",
-        "percentage": false,
-        "pointradius": 1,
-        "points": true,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": false,
-        "targets": [
+        "pageSize": 100,
+        "scroll": true,
+        "showHeader": true,
+        "sort": {
+          "col": 0,
+          "desc": true
+        },
+        "styles": [
+          {
+            "alias": "Time",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "pattern": "Time",
+            "type": "date"
+          },
           {
             "alias": "",
-            "bucketAggs": [
-              {
-                "fake": true,
-                "field": "type",
-                "id": "4",
-                "settings": {
-                  "min_doc_count": 1,
-                  "order": "desc",
-                  "orderBy": "_term",
-                  "size": "10"
-                },
-                "type": "terms"
-              },
-              {
-                "fake": true,
-                "field": "locality",
-                "id": "3",
-                "settings": {
-                  "min_doc_count": 1,
-                  "order": "desc",
-                  "orderBy": "_term",
-                  "size": "10"
-                },
-                "type": "terms"
-              },
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "auto",
-                  "min_doc_count": 1,
-                  "trimEdges": null
-                },
-                "type": "date_histogram"
-              }
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
             ],
+            "decimals": 2,
+            "pattern": "/.*/",
+            "thresholds": [],
+            "type": "number",
+            "unit": "short"
+          }
+        ],
+        "targets": [
+          {
+            "bucketAggs": [],
             "metrics": [
               {
-                "field": "num_tasks",
+                "field": "select field",
                 "id": "1",
                 "meta": {},
-                "settings": {},
-                "type": "count"
+                "settings": {
+                  "size": 500
+                },
+                "type": "raw_document"
               }
             ],
-            "query": "event_type:SPARK_TASK_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id",
+            "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
             "refId": "A",
-            "target": "",
             "timeField": "timestamp"
           }
         ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeShift": null,
-        "title": "Number of Tasks/Locality",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
+        "title": "Executor Events",
+        "transform": "json",
+        "type": "table"
       },
       {
         "collapsed": true,
@@ -396,7 +388,7 @@
               "min": false,
               "rightSide": true,
               "show": true,
-              "sideWidth": 150,
+              "sideWidth": null,
               "total": false,
               "values": false
             },
@@ -416,8 +408,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "executor",
+                "alias": "CPU - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -438,14 +442,26 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "executor deserialize",
+                "alias": "CPU deserialize - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -466,7 +482,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -550,7 +566,7 @@
               "min": false,
               "rightSide": true,
               "show": true,
-              "sideWidth": 150,
+              "sideWidth": null,
               "total": false,
               "values": false
             },
@@ -570,8 +586,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "executor run time",
+                "alias": "executor run time - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -592,14 +620,26 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "jvm gc time",
+                "alias": "jvm gc time - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -620,14 +660,26 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "executor deserialize time",
+                "alias": "executor deserialize time - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -648,14 +700,26 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
                 "refId": "C",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "result serialization time",
+                "alias": "result serialization time - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -676,7 +740,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
                 "refId": "D",
                 "target": "",
                 "timeField": "timestamp"
@@ -748,7 +812,7 @@
               "h": 9,
               "w": 12,
               "x": 0,
-              "y": 37
+              "y": 11
             },
             "id": 45,
             "legend": {
@@ -759,7 +823,7 @@
               "min": false,
               "rightSide": true,
               "show": true,
-              "sideWidth": 150,
+              "sideWidth": null,
               "total": false,
               "values": false
             },
@@ -779,8 +843,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "#shuffle read records",
+                "alias": "#shuffle read records - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -801,7 +877,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -860,7 +936,7 @@
               "h": 9,
               "w": 12,
               "x": 12,
-              "y": 37
+              "y": 11
             },
             "id": 47,
             "legend": {
@@ -871,7 +947,7 @@
               "min": false,
               "rightSide": true,
               "show": true,
-              "sideWidth": 150,
+              "sideWidth": null,
               "total": false,
               "values": false
             },
@@ -891,8 +967,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "shuffle fetch wait time",
+                "alias": "shuffle fetch wait time - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -913,7 +1001,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -971,7 +1059,7 @@
               "h": 9,
               "w": 12,
               "x": 0,
-              "y": 46
+              "y": 20
             },
             "id": 46,
             "legend": {
@@ -982,7 +1070,7 @@
               "min": false,
               "rightSide": true,
               "show": true,
-              "sideWidth": 150,
+              "sideWidth": null,
               "total": false,
               "values": false
             },
@@ -1002,8 +1090,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "shuffle read local bytes",
+                "alias": "shuffle read local bytes - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1024,14 +1124,26 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "shuffle read remote bytes",
+                "alias": "shuffle read remote bytes - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1052,14 +1164,26 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "shuffle read total bytes",
+                "alias": "shuffle read total bytes - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1081,7 +1205,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "C",
                 "target": "",
                 "timeField": "timestamp"
@@ -1139,7 +1263,7 @@
               "h": 9,
               "w": 12,
               "x": 12,
-              "y": 46
+              "y": 20
             },
             "id": 48,
             "legend": {
@@ -1150,7 +1274,7 @@
               "min": false,
               "rightSide": true,
               "show": true,
-              "sideWidth": 160,
+              "sideWidth": null,
               "total": false,
               "values": false
             },
@@ -1170,8 +1294,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "shuffle read local blocks",
+                "alias": "shuffle read local blocks - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1192,14 +1328,26 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "shuffle read remote blocks",
+                "alias": "shuffle read remote blocks - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1220,14 +1368,26 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "shuffle read total blocks",
+                "alias": "shuffle read total blocks - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1249,7 +1409,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "C",
                 "target": "",
                 "timeField": "timestamp"
@@ -1321,7 +1481,7 @@
               "h": 9,
               "w": 12,
               "x": 0,
-              "y": 56
+              "y": 12
             },
             "id": 40,
             "legend": {
@@ -1332,7 +1492,7 @@
               "min": false,
               "rightSide": true,
               "show": true,
-              "sideWidth": 150,
+              "sideWidth": null,
               "total": false,
               "values": false
             },
@@ -1352,8 +1512,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "#shuffle write records",
+                "alias": "#shuffle write records - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1374,7 +1546,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1432,7 +1604,7 @@
               "h": 9,
               "w": 12,
               "x": 12,
-              "y": 56
+              "y": 12
             },
             "id": 41,
             "legend": {
@@ -1443,7 +1615,7 @@
               "min": false,
               "rightSide": true,
               "show": true,
-              "sideWidth": 130,
+              "sideWidth": null,
               "total": false,
               "values": false
             },
@@ -1463,8 +1635,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "shuffle write bytes",
+                "alias": "shuffle write bytes - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1485,7 +1669,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1543,7 +1727,7 @@
               "h": 9,
               "w": 12,
               "x": 0,
-              "y": 65
+              "y": 21
             },
             "id": 42,
             "legend": {
@@ -1554,7 +1738,7 @@
               "min": false,
               "rightSide": true,
               "show": true,
-              "sideWidth": 130,
+              "sideWidth": null,
               "total": false,
               "values": false
             },
@@ -1574,8 +1758,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "shuffle write time",
+                "alias": "shuffle write time - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1596,7 +1792,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1679,7 +1875,7 @@
               "min": false,
               "rightSide": true,
               "show": true,
-              "sideWidth": 110,
+              "sideWidth": null,
               "total": false,
               "values": false
             },
@@ -1707,8 +1903,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "#input records",
+                "alias": "#input records - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1729,14 +1937,26 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "#output records",
+                "alias": "#output records - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1757,7 +1977,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -1826,7 +2046,7 @@
               "min": false,
               "rightSide": true,
               "show": true,
-              "sideWidth": 100,
+              "sideWidth": null,
               "total": false,
               "values": false
             },
@@ -1846,8 +2066,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "input bytes",
+                "alias": "input bytes - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1868,14 +2100,26 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "output bytes",
+                "alias": "output bytes - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1896,7 +2140,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -1969,7 +2213,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 94
+              "y": 14
             },
             "id": 65,
             "legend": {
@@ -1982,7 +2226,7 @@
               "min": false,
               "rightSide": true,
               "show": true,
-              "sideWidth": 150,
+              "sideWidth": null,
               "total": false,
               "values": false
             },
@@ -2000,8 +2244,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "peak execution memory",
+                "alias": "peak memory - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -2022,7 +2278,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id",
+                "query": "event_type:SPARK_TASK_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2081,7 +2337,7 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 94
+              "y": 14
             },
             "id": 64,
             "legend": {
@@ -2094,7 +2350,7 @@
               "min": false,
               "rightSide": true,
               "show": true,
-              "sideWidth": 100,
+              "sideWidth": null,
               "total": false,
               "values": false
             },
@@ -2112,8 +2368,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "result size",
+                "alias": "result size - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -2134,7 +2402,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id",
+                "query": "event_type:SPARK_TASK_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2192,7 +2460,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 102
+              "y": 22
             },
             "id": 51,
             "legend": {
@@ -2203,7 +2471,7 @@
               "min": false,
               "rightSide": true,
               "show": true,
-              "sideWidth": 100,
+              "sideWidth": null,
               "total": false,
               "values": false
             },
@@ -2223,8 +2491,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "in-memory",
+                "alias": "in-memory - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -2245,14 +2525,26 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "on-disk",
+                "alias": "on-disk - executor:{{executor_id}}",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -2273,7 +2565,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id AND stage_attempt_id:$stage_attempt_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -2358,8 +2650,32 @@
         {
           "allValue": "*",
           "current": {
-            "text": "application_1536057127243_0004",
-            "value": "application_1536057127243_0004"
+            "text": "All",
+            "value": "$__all"
+          },
+          "datasource": "garmadon",
+          "hide": 0,
+          "includeAll": true,
+          "label": null,
+          "multi": false,
+          "name": "application_name",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username\"}",
+          "refresh": 1,
+          "regex": "",
+          "sort": 1,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": "*",
+          "current": {
+            "isNone": true,
+            "text": "None",
+            "value": ""
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -2368,7 +2684,7 @@
           "multi": false,
           "name": "application_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username AND application_name.keyword:$application_name\"}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -2404,17 +2720,17 @@
         {
           "allValue": "*",
           "current": {
-            "text": "0",
-            "value": "0"
+            "text": "All",
+            "value": "$__all"
           },
           "datasource": "garmadon",
           "hide": 0,
-          "includeAll": false,
+          "includeAll": true,
           "label": null,
           "multi": false,
-          "name": "stage_id",
+          "name": "executor_hostname",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"stage_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"executor_hostname\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username AND application_id:$application_id\"}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -2427,17 +2743,17 @@
         {
           "allValue": "*",
           "current": {
-            "text": "0",
-            "value": "0"
+            "text": "All",
+            "value": "$__all"
           },
           "datasource": "garmadon",
           "hide": 0,
-          "includeAll": false,
+          "includeAll": true,
           "label": null,
           "multi": false,
-          "name": "stage_attempt_id",
+          "name": "executor_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"stage_attempt_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"executor_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username AND application_id:$application_id AND executor_hostname:$executor_hostname\"}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -2479,7 +2795,7 @@
       ]
     },
     "timezone": "",
-    "title": "Garmadon - Spark Job Stages",
+    "title": "Garmadon - Spark Job Executors",
     "uid": null,
     "version": null
   }

@@ -2700,6 +2700,7 @@
         {
           "allValue": "*",
           "current": {
+            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -2723,17 +2724,18 @@
         {
           "allValue": "*",
           "current": {
-            "text": "application_1536057127243_0004",
-            "value": "application_1536057127243_0004"
+            "selected": false,
+            "text": "All",
+            "value": "$__all"
           },
           "datasource": "garmadon",
           "hide": 0,
-          "includeAll": false,
+          "includeAll": true,
           "label": null,
           "multi": false,
-          "name": "application_id",
+          "name": "application_name",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_STAGE_EVENT AND username:$username\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"event_type:SPARK_STAGE_EVENT AND username:$username\"}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -2746,6 +2748,31 @@
         {
           "allValue": "*",
           "current": {
+            "selected": false,
+            "text": "application_1536130043445_0005",
+            "value": "application_1536130043445_0005"
+          },
+          "datasource": "garmadon",
+          "hide": 0,
+          "includeAll": false,
+          "label": null,
+          "multi": false,
+          "name": "application_id",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_STAGE_EVENT AND username:$username AND application_name.keyword:$application_name\"}",
+          "refresh": 1,
+          "regex": "",
+          "sort": 1,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": "*",
+          "current": {
+            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -2769,6 +2796,7 @@
         {
           "allValue": "*",
           "current": {
+            "selected": true,
             "text": "All",
             "value": "$__all"
           },
