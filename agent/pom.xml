@@ -56,12 +56,12 @@
 
         <!-- Criteo dependencies -->
         <dependency>
-            <groupId>com.criteo.jvm</groupId>
-            <artifactId>jvm-statistics-core</artifactId>
+            <groupId>com.criteo.java</groupId>
+            <artifactId>garmadon-jvm-statistics-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.criteo.jvm</groupId>
-            <artifactId>jvm-statistics-protobuf</artifactId>
+            <groupId>com.criteo.java</groupId>
+            <artifactId>garmadon-jvm-statistics-protobuf</artifactId>
         </dependency>
 
         <!-- Test dependencies -->

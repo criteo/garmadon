@@ -22,8 +22,8 @@
 
         <!-- Criteo dependencies -->
         <dependency>
-            <groupId>com.criteo.jvm</groupId>
-            <artifactId>jvm-statistics-protobuf</artifactId>
+            <groupId>com.criteo.java</groupId>
+            <artifactId>garmadon-jvm-statistics-protobuf</artifactId>
         </dependency>
     </dependencies>
 

@@ -21,6 +21,7 @@
 
     <modules>
         <module>schema</module>
+        <module>jvm-statistics</module>
         <module>frameworks</module>
         <module>agent</module>
         <module>forwarder</module>
@@ -41,6 +42,8 @@
         <logback.version>1.2.3</logback.version>
         <prometheus.version>0.4.0</prometheus.version>
         <maria-java-client.version>2.2.6</maria-java-client.version>
+        <oshi.version>3.6.0</oshi.version>
+        <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
 
         <!-- tests -->
         <junit.version>4.12</junit.version>

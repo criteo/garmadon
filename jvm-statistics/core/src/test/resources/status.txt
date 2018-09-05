@@ -1,0 +1,2 @@
+voluntary_ctxt_switches:        4
+nonvoluntary_ctxt_switches:     67
