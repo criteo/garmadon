@@ -2756,7 +2756,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"executor_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username AND application_id:$application_id AND executor_hostname:$executor_hostname\"}",
           "refresh": 1,
           "regex": "",
-          "sort": 1,
+          "sort": 3,
           "tagValuesQuery": "",
           "tags": [],
           "tagsQuery": "",
