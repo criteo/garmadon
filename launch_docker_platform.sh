@@ -26,7 +26,7 @@ curl -XDELETE 'http://localhost:9200/garmadon*' # Ensure no garmadon index have 
 
 # Create Kibana Index Pattern
 block_until_website_available 'http://localhost:5601'
-curl 'http://localhost:5601/api/saved_objects/index-pattern' -H 'Content-Type: application/json' -H 'kbn-version: 6.3.1' -d '{"attributes":{"title":"garmadon*","timeFieldName":"timestamp"}}'
+curl 'http://localhost:5601/api/saved_objects/index-pattern' -H 'Content-Type: application/json' -H 'kbn-version: 6.3.2' -d '{"attributes":{"title":"garmadon*","timeFieldName":"timestamp"}}'
 
 # Create garmadon Grafana Datasource
 block_until_website_available 'http://localhost:3000'

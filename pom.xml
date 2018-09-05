@@ -35,14 +35,14 @@
     </organization>
 
     <properties>
-        <netty-all.version>4.1.28.Final</netty-all.version>
-        <bytebuddy.version>1.8.16</bytebuddy.version>
+        <netty-all.version>4.1.29.Final</netty-all.version>
+        <bytebuddy.version>1.8.22</bytebuddy.version>
         <spark.version>2.2.2</spark.version>
-        <es.version>6.3.1</es.version>
+        <es.version>6.3.2</es.version>
         <logback.version>1.2.3</logback.version>
-        <prometheus.version>0.4.0</prometheus.version>
+        <prometheus.version>0.5.0</prometheus.version>
         <maria-java-client.version>2.2.6</maria-java-client.version>
-        <oshi.version>3.6.0</oshi.version>
+        <oshi.version>3.8.3</oshi.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
 
         <!-- tests -->
