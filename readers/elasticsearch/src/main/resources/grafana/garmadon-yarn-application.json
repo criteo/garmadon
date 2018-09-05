@@ -193,7 +193,7 @@
         "steppedLine": false,
         "targets": [
           {
-            "alias": "used",
+            "alias": "avg used",
             "bucketAggs": [
               {
                 "field": "timestamp",
@@ -221,7 +221,35 @@
             "timeField": "timestamp"
           },
           {
-            "alias": "max",
+            "alias": "max used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tag:NODEMANAGER AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "limit",
             "bucketAggs": [
               {
                 "field": "timestamp",
@@ -1930,7 +1958,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -1954,7 +1981,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -1978,7 +2004,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -2002,9 +2027,8 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
-            "text": "application_1536130043445_0001",
-            "value": "application_1536130043445_0001"
+            "text": "application_1536159124011_0001",
+            "value": "application_1536159124011_0001"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -2026,7 +2050,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -2050,7 +2073,7 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
+            "tags": [],
             "text": "All",
             "value": "$__all"
           },
@@ -2074,7 +2097,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -2098,7 +2120,6 @@
         {
           "allValue": null,
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
