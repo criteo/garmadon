@@ -3,7 +3,6 @@
     "annotations": {
       "list": [
         {
-          "$$hashKey": "object:73",
           "builtIn": 1,
           "datasource": "-- Grafana --",
           "enable": true,
@@ -360,12 +359,105 @@
         }
       },
       {
+        "columns": [
+          {
+            "text": "timestamp",
+            "value": "timestamp"
+          },
+          {
+            "text": "uri",
+            "value": "uri"
+          },
+          {
+            "text": "username",
+            "value": "username"
+          },
+          {
+            "text": "application_id",
+            "value": "application_id"
+          },
+          {
+            "text": "action",
+            "value": "action"
+          },
+          {
+            "text": "src_path",
+            "value": "src_path"
+          },
+          {
+            "text": "dst_path",
+            "value": "dst_path"
+          }
+        ],
+        "datasource": "garmadon",
+        "fontSize": "100%",
+        "gridPos": {
+          "h": 10,
+          "w": 24,
+          "x": 0,
+          "y": 9
+        },
+        "id": 70,
+        "links": [],
+        "pageSize": null,
+        "scroll": true,
+        "showHeader": true,
+        "sort": {
+          "col": 0,
+          "desc": true
+        },
+        "styles": [
+          {
+            "alias": "Time",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss.SSS",
+            "pattern": "timestamp",
+            "type": "date"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "decimals": 2,
+            "pattern": "/.*/",
+            "thresholds": [],
+            "type": "number",
+            "unit": "short"
+          }
+        ],
+        "targets": [
+          {
+            "bucketAggs": [],
+            "metrics": [
+              {
+                "field": "select field",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "size": 500
+                },
+                "type": "raw_document"
+              }
+            ],
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:$path AND action:$action",
+            "refId": "A",
+            "timeField": "timestamp"
+          }
+        ],
+        "title": "",
+        "transform": "json",
+        "type": "table"
+      },
+      {
         "collapsed": true,
         "gridPos": {
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 9
+          "y": 19
         },
         "id": 19,
         "panels": [
@@ -1022,7 +1114,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 10
+          "y": 20
         },
         "id": 27,
         "panels": [
@@ -1550,7 +1642,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 11
+          "y": 21
         },
         "id": 53,
         "panels": [
@@ -1593,7 +1685,6 @@
             "repeatDirection": "h",
             "scopedVars": {
               "action": {
-                "$$hashKey": "object:778",
                 "selected": false,
                 "text": "APPEND",
                 "value": "APPEND"
@@ -1605,11 +1696,9 @@
             "steppedLine": false,
             "targets": [
               {
-                "$$hashKey": "object:231",
                 "alias": "{{framework}}.{{component}}",
                 "bucketAggs": [
                   {
-                    "$$hashKey": "object:489",
                     "fake": true,
                     "field": "framework",
                     "id": "4",
@@ -1622,7 +1711,6 @@
                     "type": "terms"
                   },
                   {
-                    "$$hashKey": "object:240",
                     "fake": true,
                     "field": "component",
                     "id": "3",
@@ -1635,7 +1723,6 @@
                     "type": "terms"
                   },
                   {
-                    "$$hashKey": "object:241",
                     "field": "timestamp",
                     "id": "2",
                     "settings": {
@@ -1648,7 +1735,6 @@
                 ],
                 "metrics": [
                   {
-                    "$$hashKey": "object:238",
                     "field": "select field",
                     "id": "1",
                     "type": "count"
@@ -1741,7 +1827,6 @@
             "repeatPanelId": 57,
             "scopedVars": {
               "action": {
-                "$$hashKey": "object:779",
                 "selected": false,
                 "text": "DELETE",
                 "value": "DELETE"
@@ -1753,11 +1838,9 @@
             "steppedLine": false,
             "targets": [
               {
-                "$$hashKey": "object:231",
                 "alias": "{{framework}}.{{component}}",
                 "bucketAggs": [
                   {
-                    "$$hashKey": "object:489",
                     "fake": true,
                     "field": "framework",
                     "id": "4",
@@ -1770,7 +1853,6 @@
                     "type": "terms"
                   },
                   {
-                    "$$hashKey": "object:240",
                     "fake": true,
                     "field": "component",
                     "id": "3",
@@ -1783,7 +1865,6 @@
                     "type": "terms"
                   },
                   {
-                    "$$hashKey": "object:241",
                     "field": "timestamp",
                     "id": "2",
                     "settings": {
@@ -1796,7 +1877,6 @@
                 ],
                 "metrics": [
                   {
-                    "$$hashKey": "object:238",
                     "field": "select field",
                     "id": "1",
                     "type": "count"
@@ -1889,7 +1969,6 @@
             "repeatPanelId": 57,
             "scopedVars": {
               "action": {
-                "$$hashKey": "object:780",
                 "selected": false,
                 "text": "READ",
                 "value": "READ"
@@ -1901,11 +1980,9 @@
             "steppedLine": false,
             "targets": [
               {
-                "$$hashKey": "object:231",
                 "alias": "{{framework}}.{{component}}",
                 "bucketAggs": [
                   {
-                    "$$hashKey": "object:489",
                     "fake": true,
                     "field": "framework",
                     "id": "4",
@@ -1918,7 +1995,6 @@
                     "type": "terms"
                   },
                   {
-                    "$$hashKey": "object:240",
                     "fake": true,
                     "field": "component",
                     "id": "3",
@@ -1931,7 +2007,6 @@
                     "type": "terms"
                   },
                   {
-                    "$$hashKey": "object:241",
                     "field": "timestamp",
                     "id": "2",
                     "settings": {
@@ -1944,7 +2019,6 @@
                 ],
                 "metrics": [
                   {
-                    "$$hashKey": "object:238",
                     "field": "select field",
                     "id": "1",
                     "type": "count"
@@ -2037,7 +2111,6 @@
             "repeatPanelId": 57,
             "scopedVars": {
               "action": {
-                "$$hashKey": "object:781",
                 "selected": false,
                 "text": "RENAME",
                 "value": "RENAME"
@@ -2049,11 +2122,9 @@
             "steppedLine": false,
             "targets": [
               {
-                "$$hashKey": "object:231",
                 "alias": "{{framework}}.{{component}}",
                 "bucketAggs": [
                   {
-                    "$$hashKey": "object:489",
                     "fake": true,
                     "field": "framework",
                     "id": "4",
@@ -2066,7 +2137,6 @@
                     "type": "terms"
                   },
                   {
-                    "$$hashKey": "object:240",
                     "fake": true,
                     "field": "component",
                     "id": "3",
@@ -2079,7 +2149,6 @@
                     "type": "terms"
                   },
                   {
-                    "$$hashKey": "object:241",
                     "field": "timestamp",
                     "id": "2",
                     "settings": {
@@ -2092,7 +2161,6 @@
                 ],
                 "metrics": [
                   {
-                    "$$hashKey": "object:238",
                     "field": "select field",
                     "id": "1",
                     "type": "count"
@@ -2185,7 +2253,6 @@
             "repeatPanelId": 57,
             "scopedVars": {
               "action": {
-                "$$hashKey": "object:782",
                 "selected": false,
                 "text": "WRITE",
                 "value": "WRITE"
@@ -2197,11 +2264,9 @@
             "steppedLine": false,
             "targets": [
               {
-                "$$hashKey": "object:231",
                 "alias": "{{framework}}.{{component}}",
                 "bucketAggs": [
                   {
-                    "$$hashKey": "object:489",
                     "fake": true,
                     "field": "framework",
                     "id": "4",
@@ -2214,7 +2279,6 @@
                     "type": "terms"
                   },
                   {
-                    "$$hashKey": "object:240",
                     "fake": true,
                     "field": "component",
                     "id": "3",
@@ -2227,7 +2291,6 @@
                     "type": "terms"
                   },
                   {
-                    "$$hashKey": "object:241",
                     "field": "timestamp",
                     "id": "2",
                     "settings": {
@@ -2240,7 +2303,6 @@
                 ],
                 "metrics": [
                   {
-                    "$$hashKey": "object:238",
                     "field": "select field",
                     "id": "1",
                     "type": "count"
@@ -2331,6 +2393,7 @@
         {
           "allValue": "*",
           "current": {
+            "tags": [],
             "text": "All",
             "value": "$__all"
           },
@@ -2341,37 +2404,31 @@
           "name": "path",
           "options": [
             {
-              "$$hashKey": "object:321",
               "selected": true,
               "text": "All",
               "value": "$__all"
             },
             {
-              "$$hashKey": "object:322",
               "selected": false,
               "text": "/apps",
               "value": "/apps"
             },
             {
-              "$$hashKey": "object:323",
               "selected": false,
               "text": "/glup",
               "value": "/glup"
             },
             {
-              "$$hashKey": "object:324",
               "selected": false,
               "text": "/tmp",
               "value": "/tmp"
             },
             {
-              "$$hashKey": "object:325",
               "selected": false,
               "text": "/user",
               "value": "/user"
             },
             {
-              "$$hashKey": "object:326",
               "selected": false,
               "text": "/var",
               "value": "/var"

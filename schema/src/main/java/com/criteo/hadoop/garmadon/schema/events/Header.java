@@ -14,6 +14,7 @@ public class Header {
     protected final String pid;
     protected final String framework;
     protected final String component;
+    protected final String executorId;
 
     public enum Tag {
         YARN_APPLICATION,
@@ -23,7 +24,7 @@ public class Header {
 
     public Header(String applicationID, String appAttemptID, String applicationName,
                   String user, String containerID, String hostname, String tag, String pid,
-                  String framework, String component) {
+                  String framework, String component, String executorId) {
         this.applicationID = applicationID;
         this.appAttemptID = appAttemptID;
         this.applicationName = applicationName;
@@ -34,6 +35,7 @@ public class Header {
         this.pid = pid;
         this.framework = framework;
         this.component = component;
+        this.executorId = executorId;
     }
 
     public byte[] serialize() {
@@ -59,6 +61,8 @@ public class Header {
             builder.setFramework(framework);
         if (component != null)
             builder.setComponent(component);
+        if (executorId != null)
+            builder.setExecutorId(executorId);
         return builder.build().toByteArray();
     }
 
@@ -75,6 +79,7 @@ public class Header {
                 ", pid='" + pid + '\'' +
                 ", framework='" + framework + '\'' +
                 ", component='" + component + '\'' +
+                ", executorId='" + executorId + '\'' +
                 '}';
     }
 
@@ -84,8 +89,9 @@ public class Header {
     public static class BaseHeader extends Header {
         private BaseHeader(String applicationID, String appAttemptID, String applicationName, String user,
                            String containerID, String hostname, String tag, String pid, String framework,
-                           String component) {
-            super(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, pid, framework, component);
+                           String component, String executorId) {
+            super(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, pid, framework,
+                    component, executorId);
         }
 
         public Header cloneAndOverride(Header override) {
@@ -99,6 +105,7 @@ public class Header {
             String pid = override.pid != null ? override.pid : this.pid;
             String framework = override.framework != null ? override.framework : this.framework;
             String component = override.component != null ? override.component : this.component;
+            String executorId = override.executorId != null ? override.executorId : this.executorId;
             return new Header(
                     applicationID,
                     appAttemptID,
@@ -109,7 +116,8 @@ public class Header {
                     tag,
                     pid,
                     framework,
-                    component
+                    component,
+                    executorId
             );
         }
     }
@@ -130,6 +138,7 @@ public class Header {
         private String pid;
         private String framework;
         private String component;
+        private String executorId;
 
         Builder() {
         }
@@ -185,14 +194,20 @@ public class Header {
             return this;
         }
 
+
+        public Builder withExecutorId(String executorId) {
+            this.executorId = executorId;
+            return this;
+        }
+
         public Header build() {
             return new Header(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, pid,
-                    framework, component);
+                    framework, component, executorId);
         }
 
         public BaseHeader buildBaseHeader() {
             return new BaseHeader(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, pid,
-                    framework, component);
+                    framework, component, executorId);
         }
     }
 }

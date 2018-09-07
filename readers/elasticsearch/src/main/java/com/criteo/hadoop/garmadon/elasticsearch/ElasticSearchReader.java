@@ -142,6 +142,8 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
             jsonMap.put("framework", msg.getHeader().getFramework());
         if (msg.getHeader().hasComponent())
             jsonMap.put("component", msg.getHeader().getComponent());
+        if (msg.getHeader().hasExecutorId())
+            jsonMap.put("executor_id", msg.getHeader().getExecutorId());
 
         HashMap<String, Map<String, Object>> eventMaps = putBodySpecificFields(
                 GarmadonSerialization.getTypeName(msg.getType()), msg.getBody());

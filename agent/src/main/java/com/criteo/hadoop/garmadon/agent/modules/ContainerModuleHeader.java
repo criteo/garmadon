@@ -21,6 +21,7 @@ public class ContainerModuleHeader {
 
     private Framework framework = Framework.YARN;
     private Component component = Component.UNKNOWN;
+    private String executorId;
 
     /**
      * Special header that is already serialized
@@ -32,7 +33,7 @@ public class ContainerModuleHeader {
 
         public SerializedHeader(byte[] bytes) {
             super(null, null, null, null, null, null,
-                    null, null, null, null);
+                    null, null, null, null, null);
             this.bytes = bytes;
         }
 
@@ -70,6 +71,16 @@ public class ContainerModuleHeader {
             case "org.apache.spark.executor.CoarseGrainedExecutorBackend":
                 framework = Framework.SPARK;
                 component = Component.EXECUTOR;
+                try {
+                    for (int i = 1; i < commands.length; i++) {
+                        if (commands[i].equals("--executor-id")) {
+                            executorId = commands[i + 1];
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to get executor id from command line", e);
+                }
                 break;
             // FLINK
             case "org.apache.flink.yarn.YarnApplicationMasterRunner":
@@ -120,8 +131,10 @@ public class ContainerModuleHeader {
                 .withPid(pid)
                 .withFramework(framework.name())
                 .withComponent(component.name())
+                .withExecutorId(executorId)
                 .build()
                 .serialize();
+
         return new SerializedHeader(bytes);
     }
 

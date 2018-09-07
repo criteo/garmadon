@@ -3,7 +3,6 @@
     "annotations": {
       "list": [
         {
-          "$$hashKey": "object:82",
           "builtIn": 1,
           "datasource": "-- Grafana --",
           "enable": true,
@@ -13,7 +12,6 @@
           "type": "dashboard"
         },
         {
-          "$$hashKey": "object:83",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -59,7 +57,6 @@
           "type": "tags"
         },
         {
-          "$$hashKey": "object:84",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -75,7 +72,6 @@
           "type": "tags"
         },
         {
-          "$$hashKey": "object:85",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -100,12 +96,27 @@
     "links": [],
     "panels": [
       {
+        "content": "Select executor_id for which you want to see Container/JVM detailed merics and then click here: [Yarn Application Dashboard for $application_id - $container_id](dashboard/db/garmadon-yarn-application?orgId=1&var-username=All&var-framework=All&var-application_name=All&var-application_id=$application_id&var-component=All&var-container_id=$container_id&var-hostname=All&var-uri=All)",
+        "gridPos": {
+          "h": 2,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "id": 82,
+        "links": [],
+        "mode": "markdown",
+        "title": "",
+        "transparent": true,
+        "type": "text"
+      },
+      {
         "collapsed": false,
         "gridPos": {
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 0
+          "y": 2
         },
         "id": 14,
         "panels": [],
@@ -124,7 +135,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 1
+          "y": 3
         },
         "id": 69,
         "legend": {
@@ -262,6 +273,10 @@
       {
         "columns": [
           {
+            "text": "timestamp",
+            "value": "timestamp"
+          },
+          {
             "text": "executor_hostname",
             "value": "executor_hostname"
           },
@@ -288,7 +303,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 1
+          "y": 3
         },
         "id": 80,
         "links": [],
@@ -302,8 +317,8 @@
         "styles": [
           {
             "alias": "Time",
-            "dateFormat": "YYYY-MM-DD HH:mm:ss",
-            "pattern": "Time",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss.SSS",
+            "pattern": "timestamp",
             "type": "date"
           },
           {
@@ -340,7 +355,7 @@
             "timeField": "timestamp"
           }
         ],
-        "title": "Executor Events",
+        "title": "Executors Events",
         "transform": "json",
         "type": "table"
       },
@@ -350,7 +365,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 9
+          "y": 11
         },
         "id": 55,
         "panels": [
@@ -800,7 +815,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 10
+          "y": 12
         },
         "id": 44,
         "panels": [
@@ -1469,7 +1484,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 11
+          "y": 13
         },
         "id": 39,
         "panels": [
@@ -1852,7 +1867,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 12
+          "y": 14
         },
         "id": 9,
         "panels": [
@@ -1868,7 +1883,7 @@
               "h": 9,
               "w": 12,
               "x": 0,
-              "y": 13
+              "y": 15
             },
             "id": 2,
             "legend": {
@@ -1907,7 +1922,7 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "#input records - executor:{{executor_id}}",
+                "alias": "executor:{{executor_id}}",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -1945,52 +1960,12 @@
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
-              },
-              {
-                "alias": "#output records - executor:{{executor_id}}",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "executor_id",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "1",
-                      "size": "10"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "output_records",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
               }
             ],
             "thresholds": [],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Records",
+            "title": "Number of Input Records",
             "tooltip": {
               "shared": true,
               "sort": 0,
@@ -2039,7 +2014,7 @@
               "h": 9,
               "w": 12,
               "x": 12,
-              "y": 13
+              "y": 15
             },
             "id": 37,
             "legend": {
@@ -2070,7 +2045,7 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "input bytes - executor:{{executor_id}}",
+                "alias": "executor:{{executor_id}}",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -2108,9 +2083,215 @@
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Input Bytes",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "bytes",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
               },
               {
-                "alias": "output bytes - executor:{{executor_id}}",
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "garmadon",
+            "decimals": null,
+            "fill": 1,
+            "gridPos": {
+              "h": 9,
+              "w": 12,
+              "x": 0,
+              "y": 24
+            },
+            "id": 83,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": null,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 1,
+            "points": true,
+            "renderer": "flot",
+            "repeatDirection": "h",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "executor:{{executor_id}}",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "executor_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 1,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "output_records",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {},
+                    "type": "sum"
+                  }
+                ],
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
+                "refId": "B",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Number of Output Records",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "garmadon",
+            "decimals": null,
+            "fill": 1,
+            "gridPos": {
+              "h": 9,
+              "w": 12,
+              "x": 12,
+              "y": 24
+            },
+            "id": 84,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": null,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 1,
+            "points": true,
+            "renderer": "flot",
+            "repeatDirection": "h",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "executor:{{executor_id}}",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -2145,7 +2326,7 @@
                   }
                 ],
                 "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
-                "refId": "B",
+                "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               }
@@ -2153,7 +2334,7 @@
             "thresholds": [],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Bytes",
+            "title": "Output Bytes",
             "tooltip": {
               "shared": true,
               "sort": 0,
@@ -2200,7 +2381,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 13
+          "y": 15
         },
         "id": 67,
         "panels": [
@@ -2734,6 +2915,29 @@
           "name": "executor_id",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"executor_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id\"}",
+          "refresh": 2,
+          "regex": "",
+          "sort": 3,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": "*",
+          "current": {
+            "text": "container_1536408291317_0006_01_000002",
+            "value": "container_1536408291317_0006_01_000002"
+          },
+          "datasource": "garmadon",
+          "hide": 2,
+          "includeAll": false,
+          "label": null,
+          "multi": false,
+          "name": "container_id",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"container_id\", \"query\": \"event_type:JVMSTATS_EVENT AND application_id:$application_id AND executor_id:$executor_id\"}",
           "refresh": 2,
           "regex": "",
           "sort": 3,

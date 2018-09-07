@@ -382,6 +382,10 @@
       {
         "columns": [
           {
+            "text": "timestamp",
+            "value": "timestamp"
+          },
+          {
             "text": "stage_name",
             "value": "stage_name"
           },
@@ -422,11 +426,8 @@
         "styles": [
           {
             "alias": "Time",
-            "dateFormat": "YYYY-MM-DD HH:mm:ss",
-            "link": true,
-            "linkTooltip": "toto",
-            "linkUrl": "/test/t?ex=${__cell}",
-            "pattern": "Time",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss.SSS",
+            "pattern": "timestamp",
             "type": "date"
           },
           {
@@ -442,7 +443,7 @@
             "link": true,
             "linkTargetBlank": true,
             "linkTooltip": "Click to display Spark Stages Detailled for this stage",
-            "linkUrl": "dashboard/db/garmadon-spark-job-stages?orgId=1&var-username=All&var-application_id=$application_id&var-attempt_id=All&var-stage_id=${__cell_1}&var-stage_attempt_id=${__cell_2}",
+            "linkUrl": "dashboard/db/garmadon-spark-job-stages?orgId=1&var-username=All&&var-application_id=$application_id&var-attempt_id=All&var-stage_id=${__cell_2}&var-stage_attempt_id=${__cell_3}",
             "mappingType": 1,
             "pattern": "stage_name",
             "thresholds": [],
@@ -490,6 +491,10 @@
       {
         "columns": [
           {
+            "text": "timestamp",
+            "value": "timestamp"
+          },
+          {
             "text": "executor_hostname",
             "value": "executor_hostname"
           },
@@ -530,8 +535,8 @@
         "styles": [
           {
             "alias": "Time",
-            "dateFormat": "YYYY-MM-DD HH:mm:ss",
-            "pattern": "Time",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss.SSS",
+            "pattern": "timestamp",
             "type": "date"
           },
           {
@@ -547,7 +552,7 @@
             "link": true,
             "linkTargetBlank": true,
             "linkTooltip": "Click to display Spark Executor Detailled for this executor",
-            "linkUrl": "dashboard/db/garmadon-spark-job-executors?orgId=1&var-username=All&var-application_id=$application_id&var-attempt_id=All&var-executor_hostname=${__cell_0}&var-executor_id=${__cell_1}",
+            "linkUrl": "dashboard/db/garmadon-spark-job-executors?orgId=1&var-username=All&var-application_id=$application_id&var-attempt_id=All&var-executor_hostname=${__cell_1}&var-executor_id=${__cell_2}",
             "mappingType": 1,
             "pattern": "executor_hostname",
             "thresholds": [],
@@ -588,7 +593,7 @@
             "timeField": "timestamp"
           }
         ],
-        "title": "Executor Events",
+        "title": "Executors Events",
         "transform": "json",
         "type": "table"
       },
