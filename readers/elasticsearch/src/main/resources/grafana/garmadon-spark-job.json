@@ -3,6 +3,7 @@
     "annotations": {
       "list": [
         {
+          "$$hashKey": "object:79",
           "builtIn": 1,
           "datasource": "-- Grafana --",
           "enable": true,
@@ -12,6 +13,7 @@
           "type": "dashboard"
         },
         {
+          "$$hashKey": "object:80",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -27,6 +29,7 @@
           "type": "tags"
         },
         {
+          "$$hashKey": "object:81",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -42,6 +45,7 @@
           "type": "tags"
         },
         {
+          "$$hashKey": "object:82",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -57,6 +61,7 @@
           "type": "tags"
         },
         {
+          "$$hashKey": "object:83",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -72,6 +77,7 @@
           "type": "tags"
         },
         {
+          "$$hashKey": "object:84",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -96,12 +102,27 @@
     "links": [],
     "panels": [
       {
+        "content": "Container metrics/JVM detailed metrics for this app available here: [Yarn Application Dashboard for $application_id](dashboard/db/garmadon-yarn-application?orgId=1&var-username=All&var-framework=All&var-application_name=All&var-application_id=$application_id&var-component=All&var-container_id=All&var-hostname=All&var-uri=All)",
+        "gridPos": {
+          "h": 2,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "id": 82,
+        "links": [],
+        "mode": "markdown",
+        "title": "",
+        "transparent": true,
+        "type": "text"
+      },
+      {
         "collapsed": false,
         "gridPos": {
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 0
+          "y": 2
         },
         "id": 14,
         "panels": [],
@@ -120,7 +141,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 1
+          "y": 3
         },
         "id": 3,
         "legend": {
@@ -231,7 +252,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 1
+          "y": 3
         },
         "id": 68,
         "legend": {
@@ -244,7 +265,7 @@
           "min": false,
           "rightSide": true,
           "show": true,
-          "sideWidth": 50,
+          "sideWidth": 80,
           "total": false,
           "values": false
         },
@@ -262,7 +283,7 @@
         "steppedLine": false,
         "targets": [
           {
-            "alias": "used",
+            "alias": "sum used",
             "bucketAggs": [
               {
                 "field": "timestamp",
@@ -290,7 +311,7 @@
             "timeField": "timestamp"
           },
           {
-            "alias": "max",
+            "alias": "limit",
             "bucketAggs": [
               {
                 "field": "timestamp",
@@ -359,6 +380,219 @@
         }
       },
       {
+        "columns": [
+          {
+            "text": "stage_name",
+            "value": "stage_name"
+          },
+          {
+            "text": "stage_id",
+            "value": "stage_id"
+          },
+          {
+            "text": "stage_attempt_id",
+            "value": "stage_attempt_id"
+          },
+          {
+            "text": "state",
+            "value": "state"
+          },
+          {
+            "text": "num_tasks",
+            "value": "num_tasks"
+          }
+        ],
+        "datasource": "garmadon",
+        "fontSize": "100%",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 11
+        },
+        "id": 80,
+        "links": [],
+        "pageSize": 100,
+        "scroll": true,
+        "showHeader": true,
+        "sort": {
+          "col": null,
+          "desc": false
+        },
+        "styles": [
+          {
+            "alias": "Time",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "link": true,
+            "linkTooltip": "toto",
+            "linkUrl": "/test/t?ex=${__cell}",
+            "pattern": "Time",
+            "type": "date"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 2,
+            "link": true,
+            "linkTargetBlank": true,
+            "linkTooltip": "Click to display Spark Stages Detailled for this stage",
+            "linkUrl": "dashboard/db/garmadon-spark-job-stages?orgId=1&var-username=All&var-application_name=All&var-application_id=$application_id&var-attempt_id=All&var-stage_id=${__cell_1}&var-stage_attempt_id=${__cell_2}",
+            "mappingType": 1,
+            "pattern": "stage_name",
+            "thresholds": [],
+            "type": "string",
+            "unit": "short"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "decimals": 2,
+            "pattern": "/.*/",
+            "thresholds": [],
+            "type": "number",
+            "unit": "short"
+          }
+        ],
+        "targets": [
+          {
+            "bucketAggs": [],
+            "metrics": [
+              {
+                "field": "select field",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "size": 500
+                },
+                "type": "raw_document"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_STATE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "timeField": "timestamp"
+          }
+        ],
+        "title": "Stages Events",
+        "transform": "json",
+        "type": "table"
+      },
+      {
+        "columns": [
+          {
+            "text": "executor_hostname",
+            "value": "executor_hostname"
+          },
+          {
+            "text": "executor_id",
+            "value": "executor_id"
+          },
+          {
+            "text": "state",
+            "value": "state"
+          },
+          {
+            "text": "reason",
+            "value": "reason"
+          },
+          {
+            "text": "task_failures",
+            "value": "task_failures"
+          }
+        ],
+        "datasource": "garmadon",
+        "fontSize": "100%",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 11
+        },
+        "id": 79,
+        "links": [],
+        "pageSize": 100,
+        "scroll": true,
+        "showHeader": true,
+        "sort": {
+          "col": 0,
+          "desc": true
+        },
+        "styles": [
+          {
+            "alias": "Time",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "pattern": "Time",
+            "type": "date"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 2,
+            "link": true,
+            "linkTargetBlank": true,
+            "linkTooltip": "Click to display Spark Executor Detailled for this executor",
+            "linkUrl": "dashboard/db/garmadon-spark-job-executors?orgId=1&var-username=All&var-application_name=All&var-application_id=$application_id&var-attempt_id=All&var-executor_hostname=${__cell_0}&var-executor_id=${__cell_1}",
+            "mappingType": 1,
+            "pattern": "executor_hostname",
+            "thresholds": [],
+            "type": "string",
+            "unit": "short"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "decimals": 2,
+            "pattern": "/.*/",
+            "thresholds": [],
+            "type": "number",
+            "unit": "short"
+          }
+        ],
+        "targets": [
+          {
+            "bucketAggs": [],
+            "metrics": [
+              {
+                "field": "select field",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "size": 500
+                },
+                "type": "raw_document"
+              }
+            ],
+            "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "timeField": "timestamp"
+          }
+        ],
+        "title": "Executor Events",
+        "transform": "json",
+        "type": "table"
+      },
+      {
         "aliasColors": {},
         "bars": false,
         "dashLength": 10,
@@ -368,9 +602,9 @@
         "fill": 1,
         "gridPos": {
           "h": 8,
-          "w": 12,
+          "w": 24,
           "x": 0,
-          "y": 9
+          "y": 19
         },
         "id": 69,
         "legend": {
@@ -482,97 +716,12 @@
         }
       },
       {
-        "columns": [
-          {
-            "text": "executor_hostname",
-            "value": "executor_hostname"
-          },
-          {
-            "text": "executor_id",
-            "value": "executor_id"
-          },
-          {
-            "text": "state",
-            "value": "state"
-          },
-          {
-            "text": "reason",
-            "value": "reason"
-          },
-          {
-            "text": "task_failures",
-            "value": "task_failures"
-          }
-        ],
-        "datasource": "garmadon",
-        "fontSize": "100%",
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 12,
-          "y": 9
-        },
-        "id": 79,
-        "links": [],
-        "pageSize": 100,
-        "scroll": true,
-        "showHeader": true,
-        "sort": {
-          "col": 0,
-          "desc": true
-        },
-        "styles": [
-          {
-            "alias": "Time",
-            "dateFormat": "YYYY-MM-DD HH:mm:ss",
-            "pattern": "Time",
-            "type": "date"
-          },
-          {
-            "alias": "",
-            "colorMode": null,
-            "colors": [
-              "rgba(245, 54, 54, 0.9)",
-              "rgba(237, 129, 40, 0.89)",
-              "rgba(50, 172, 45, 0.97)"
-            ],
-            "decimals": 2,
-            "pattern": "/.*/",
-            "thresholds": [],
-            "type": "number",
-            "unit": "short"
-          }
-        ],
-        "targets": [
-          {
-            "bucketAggs": [],
-            "metrics": [
-              {
-                "field": "select field",
-                "id": "1",
-                "meta": {},
-                "settings": {
-                  "size": 500
-                },
-                "type": "raw_document"
-              }
-            ],
-            "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-            "refId": "A",
-            "timeField": "timestamp"
-          }
-        ],
-        "title": "Executor Events",
-        "transform": "json",
-        "type": "table"
-      },
-      {
         "collapsed": true,
         "gridPos": {
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 17
+          "y": 27
         },
         "id": 55,
         "panels": [
@@ -950,7 +1099,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 18
+          "y": 28
         },
         "id": 44,
         "panels": [
@@ -1523,7 +1672,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 19
+          "y": 29
         },
         "id": 39,
         "panels": [
@@ -1870,7 +2019,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 20
+          "y": 30
         },
         "id": 9,
         "panels": [
@@ -2170,7 +2319,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 21
+          "y": 31
         },
         "id": 67,
         "panels": [
@@ -2547,7 +2696,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 22
+          "y": 32
         },
         "id": 71,
         "panels": [
@@ -2700,7 +2849,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -2712,7 +2860,7 @@
           "name": "username",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"username\",\"query\": \"event_type:SPARK_STAGE_EVENT\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2724,7 +2872,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": false,
             "text": "All",
             "value": "$__all"
           },
@@ -2736,7 +2883,7 @@
           "name": "application_name",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"event_type:SPARK_STAGE_EVENT AND username:$username\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2748,9 +2895,8 @@
         {
           "allValue": "*",
           "current": {
-            "selected": false,
-            "text": "application_1536130043445_0005",
-            "value": "application_1536130043445_0005"
+            "text": "application_1536307673708_32203",
+            "value": "application_1536307673708_32203"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -2760,9 +2906,9 @@
           "name": "application_id",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_STAGE_EVENT AND username:$username AND application_name.keyword:$application_name\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
-          "sort": 1,
+          "sort": 2,
           "tagValuesQuery": "",
           "tags": [],
           "tagsQuery": "",
@@ -2772,7 +2918,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -2784,7 +2929,7 @@
           "name": "attempt_id",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"attempt_id\", \"query\": \"event_type:SPARK_STAGE_EVENT AND username:$username AND application_id:$application_id\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2796,7 +2941,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -2808,7 +2952,7 @@
           "name": "uri",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"username:$username AND application_id:$application_id AND attempt_id:$attempt_id\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2824,11 +2968,8 @@
       "to": "now"
     },
     "timepicker": {
+      "nowDelay": "3m",
       "refresh_intervals": [
-        "5s",
-        "10s",
-        "30s",
-        "1m",
         "5m",
         "15m",
         "30m",

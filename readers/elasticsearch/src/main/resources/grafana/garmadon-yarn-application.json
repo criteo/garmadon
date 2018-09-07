@@ -3,6 +3,7 @@
     "annotations": {
       "list": [
         {
+          "$$hashKey": "object:6802",
           "builtIn": 1,
           "datasource": "-- Grafana --",
           "enable": true,
@@ -12,6 +13,7 @@
           "type": "dashboard"
         },
         {
+          "$$hashKey": "object:6803",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -1947,7 +1949,6 @@
         "type": "row"
       }
     ],
-    "refresh": "5m",
     "schemaVersion": 16,
     "style": "dark",
     "tags": [
@@ -1969,7 +1970,7 @@
           "name": "username",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"username\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -1992,7 +1993,7 @@
           "name": "framework",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"framework\",\"query\":\"username:$username\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2014,8 +2015,8 @@
           "multi": false,
           "name": "application_name",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"username:$username AND framework:$framework\"}",
-          "refresh": 1,
+          "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"username:$username\"}",
+          "refresh": 2,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2027,8 +2028,8 @@
         {
           "allValue": "*",
           "current": {
-            "text": "application_1536159124011_0001",
-            "value": "application_1536159124011_0001"
+            "text": "application_1536307673708_10494",
+            "value": "application_1536307673708_10494"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -2038,9 +2039,9 @@
           "name": "application_id",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"username:$username AND framework:$framework AND application_name.keyword:$application_name\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
-          "sort": 1,
+          "sort": 2,
           "tagValuesQuery": "",
           "tags": [],
           "tagsQuery": "",
@@ -2061,7 +2062,7 @@
           "name": "component",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"component\",\"query\":\"username:$username AND framework:$framework AND application_id:$application_id\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2073,7 +2074,6 @@
         {
           "allValue": "*",
           "current": {
-            "tags": [],
             "text": "All",
             "value": "$__all"
           },
@@ -2085,7 +2085,7 @@
           "name": "container_id",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"container_id\", \"query\": \"username:$username  AND framework:$framework AND application_id:$application_id AND component:$component\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2108,7 +2108,7 @@
           "name": "hostname",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\": \"username:$username AND framework:$framework AND application_id:$application_id AND component:$component AND container_id:$container_id\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2144,14 +2144,11 @@
     },
     "time": {
       "from": "now-1h",
-      "to": "now"
+      "to": "now-3m"
     },
     "timepicker": {
+      "nowDelay": "3m",
       "refresh_intervals": [
-        "5s",
-        "10s",
-        "30s",
-        "1m",
         "5m",
         "15m",
         "30m",

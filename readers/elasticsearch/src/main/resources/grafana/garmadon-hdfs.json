@@ -409,8 +409,8 @@
             "scopedVars": {
               "action": {
                 "selected": false,
-                "text": "DELETE",
-                "value": "DELETE"
+                "text": "APPEND",
+                "value": "APPEND"
               }
             },
             "seriesOverrides": [],
@@ -509,7 +509,7 @@
               "x": 12,
               "y": 10
             },
-            "id": 46,
+            "id": 65,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -533,7 +533,136 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1530696323305,
+            "repeatIteration": 1536308073677,
+            "repeatPanelId": 12,
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "DELETE",
+                "value": "DELETE"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "username",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "20"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "select field",
+                    "id": "1",
+                    "type": "count"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "FS OPS $action per user on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "garmadon",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 18
+            },
+            "id": 66,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": null,
+            "repeatDirection": "h",
+            "repeatIteration": 1536308073677,
             "repeatPanelId": 12,
             "scopedVars": {
               "action": {
@@ -635,10 +764,10 @@
             "gridPos": {
               "h": 8,
               "w": 12,
-              "x": 0,
+              "x": 12,
               "y": 18
             },
-            "id": 47,
+            "id": 67,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -662,7 +791,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1530696323305,
+            "repeatIteration": 1536308073677,
             "repeatPanelId": 12,
             "scopedVars": {
               "action": {
@@ -764,10 +893,10 @@
             "gridPos": {
               "h": 8,
               "w": 12,
-              "x": 12,
-              "y": 18
+              "x": 0,
+              "y": 26
             },
-            "id": 48,
+            "id": 68,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -791,7 +920,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1530696323305,
+            "repeatIteration": 1536308073677,
             "repeatPanelId": 12,
             "scopedVars": {
               "action": {
@@ -2179,8 +2308,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
-            "tags": [],
             "text": "All",
             "value": "$__all"
           },
@@ -2190,70 +2317,9 @@
           "label": null,
           "multi": false,
           "name": "uri",
-          "options": [
-            {
-              "$$hashKey": "object:554",
-              "selected": true,
-              "text": "All",
-              "value": "$__all"
-            },
-            {
-              "$$hashKey": "object:555",
-              "selected": false,
-              "text": "hdfs://glup",
-              "value": "hdfs://glup"
-            },
-            {
-              "$$hashKey": "object:556",
-              "selected": false,
-              "text": "hdfs://glup-preprod-pa4",
-              "value": "hdfs://glup-preprod-pa4"
-            },
-            {
-              "$$hashKey": "object:557",
-              "selected": false,
-              "text": "hdfs://glup-prod-pa4",
-              "value": "hdfs://glup-prod-pa4"
-            },
-            {
-              "$$hashKey": "object:558",
-              "selected": false,
-              "text": "hdfs://pa4",
-              "value": "hdfs://pa4"
-            },
-            {
-              "$$hashKey": "object:559",
-              "selected": false,
-              "text": "hdfs://preprod-pa4",
-              "value": "hdfs://preprod-pa4"
-            },
-            {
-              "$$hashKey": "object:560",
-              "selected": false,
-              "text": "hdfs://prod-pa4",
-              "value": "hdfs://prod-pa4"
-            },
-            {
-              "$$hashKey": "object:561",
-              "selected": false,
-              "text": "hdfs://root",
-              "value": "hdfs://root"
-            },
-            {
-              "$$hashKey": "object:562",
-              "selected": false,
-              "text": "hdfs://root:8020",
-              "value": "hdfs://root:8020"
-            },
-            {
-              "$$hashKey": "object:563",
-              "selected": false,
-              "text": "hdfs://yarn",
-              "value": "hdfs://yarn"
-            }
-          ],
+          "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"uri\"}",
-          "refresh": 0,
+          "refresh": 2,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2265,8 +2331,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
-            "tags": [],
             "text": "All",
             "value": "$__all"
           },
@@ -2277,31 +2341,37 @@
           "name": "path",
           "options": [
             {
+              "$$hashKey": "object:321",
               "selected": true,
               "text": "All",
               "value": "$__all"
             },
             {
+              "$$hashKey": "object:322",
               "selected": false,
               "text": "/apps",
               "value": "/apps"
             },
             {
+              "$$hashKey": "object:323",
               "selected": false,
               "text": "/glup",
               "value": "/glup"
             },
             {
+              "$$hashKey": "object:324",
               "selected": false,
               "text": "/tmp",
               "value": "/tmp"
             },
             {
+              "$$hashKey": "object:325",
               "selected": false,
               "text": "/user",
               "value": "/user"
             },
             {
+              "$$hashKey": "object:326",
               "selected": false,
               "text": "/var",
               "value": "/var"
@@ -2313,7 +2383,6 @@
         {
           "allValue": "*",
           "current": {
-            "tags": [],
             "text": "All",
             "value": "$__all"
           },
@@ -2323,46 +2392,9 @@
           "label": null,
           "multi": false,
           "name": "action",
-          "options": [
-            {
-              "$$hashKey": "object:777",
-              "selected": true,
-              "text": "All",
-              "value": "$__all"
-            },
-            {
-              "$$hashKey": "object:778",
-              "selected": false,
-              "text": "APPEND",
-              "value": "APPEND"
-            },
-            {
-              "$$hashKey": "object:779",
-              "selected": false,
-              "text": "DELETE",
-              "value": "DELETE"
-            },
-            {
-              "$$hashKey": "object:780",
-              "selected": false,
-              "text": "READ",
-              "value": "READ"
-            },
-            {
-              "$$hashKey": "object:781",
-              "selected": false,
-              "text": "RENAME",
-              "value": "RENAME"
-            },
-            {
-              "$$hashKey": "object:782",
-              "selected": false,
-              "text": "WRITE",
-              "value": "WRITE"
-            }
-          ],
+          "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"action\",\"query\":\"uri:$uri AND dst_path:$path\"}",
-          "refresh": 0,
+          "refresh": 2,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2378,11 +2410,8 @@
       "to": "now"
     },
     "timepicker": {
+      "nowDelay": "3m",
       "refresh_intervals": [
-        "5s",
-        "10s",
-        "30s",
-        "1m",
         "5m",
         "15m",
         "30m",

@@ -3,6 +3,7 @@
     "annotations": {
       "list": [
         {
+          "$$hashKey": "object:6111",
           "builtIn": 1,
           "datasource": "-- Grafana --",
           "enable": true,
@@ -12,6 +13,7 @@
           "type": "dashboard"
         },
         {
+          "$$hashKey": "object:6112",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -27,6 +29,7 @@
           "type": "tags"
         },
         {
+          "$$hashKey": "object:6113",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -42,6 +45,7 @@
           "type": "tags"
         },
         {
+          "$$hashKey": "object:6114",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -57,6 +61,7 @@
           "type": "tags"
         },
         {
+          "$$hashKey": "object:6115",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -72,6 +77,7 @@
           "type": "tags"
         },
         {
+          "$$hashKey": "object:6116",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -2638,7 +2644,7 @@
           "name": "username",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"username\",\"query\": \"event_type:SPARK_TASK_EVENT\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2661,7 +2667,7 @@
           "name": "application_name",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2673,9 +2679,8 @@
         {
           "allValue": "*",
           "current": {
-            "isNone": true,
-            "text": "None",
-            "value": ""
+            "text": "application_1536307673708_9902",
+            "value": "application_1536307673708_9902"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -2685,9 +2690,9 @@
           "name": "application_id",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username AND application_name.keyword:$application_name\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
-          "sort": 1,
+          "sort": 2,
           "tagValuesQuery": "",
           "tags": [],
           "tagsQuery": "",
@@ -2708,7 +2713,7 @@
           "name": "attempt_id",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"attempt_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username AND application_id:$application_id\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2731,7 +2736,7 @@
           "name": "executor_hostname",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"executor_hostname\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username AND application_id:$application_id\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2754,7 +2759,7 @@
           "name": "executor_id",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"executor_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username AND application_id:$application_id AND executor_hostname:$executor_hostname\"}",
-          "refresh": 1,
+          "refresh": 2,
           "regex": "",
           "sort": 3,
           "tagValuesQuery": "",
@@ -2770,11 +2775,8 @@
       "to": "now"
     },
     "timepicker": {
+      "nowDelay": "3m",
       "refresh_intervals": [
-        "5s",
-        "10s",
-        "30s",
-        "1m",
         "5m",
         "15m",
         "30m",
