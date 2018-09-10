@@ -14,7 +14,6 @@ public class Header {
     protected final String user;
     protected final String containerID;
     protected final String hostname;
-    protected final String tag;
     protected final String pid;
     protected final String framework;
     protected final String component;
@@ -28,7 +27,7 @@ public class Header {
     }
 
     public Header(String applicationID, String appAttemptID, String applicationName,
-                  String user, String containerID, String hostname, String tag, List<String> tags, String pid,
+                  String user, String containerID, String hostname, List<String> tags, String pid,
                   String framework, String component, String executorId) {
         this.applicationID = applicationID;
         this.appAttemptID = appAttemptID;
@@ -36,7 +35,6 @@ public class Header {
         this.user = user;
         this.containerID = containerID;
         this.hostname = hostname;
-        this.tag = tag;
         this.tags = tags;
         this.pid = pid;
         this.framework = framework;
@@ -59,8 +57,6 @@ public class Header {
             builder.setContainerId(containerID);
         if (hostname != null)
             builder.setHostname(hostname);
-        if (tag != null)
-            builder.setTag(tag);
         if (tags != null && tags.size() > 0)
             for (String tag : tags) {
                 builder.addTags(tag);
@@ -85,7 +81,6 @@ public class Header {
                 ", user='" + user + '\'' +
                 ", containerID='" + containerID + '\'' +
                 ", hostname='" + hostname + '\'' +
-                ", tag='" + tag + '\'' +
                 ", pid='" + pid + '\'' +
                 ", framework='" + framework + '\'' +
                 ", component='" + component + '\'' +
@@ -99,9 +94,9 @@ public class Header {
      */
     public static class BaseHeader extends Header {
         private BaseHeader(String applicationID, String appAttemptID, String applicationName, String user,
-                           String containerID, String hostname, String tag, List<String> tags, String pid, String framework,
+                           String containerID, String hostname, List<String> tags, String pid, String framework,
                            String component, String executorId) {
-            super(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, tags, pid, framework,
+            super(applicationID, appAttemptID, applicationName, user, containerID, hostname, tags, pid, framework,
                     component, executorId);
         }
 
@@ -112,7 +107,6 @@ public class Header {
             String user = override.user != null ? override.user : this.user;
             String containerID = override.containerID != null ? override.containerID : this.containerID;
             String hostname = override.hostname != null ? override.hostname : this.hostname;
-            String tag = override.tag != null ? override.tag : this.tag;
             List<String> tags = (override.tags != null && override.tags.size() > 0) ? override.tags : this.tags;
             String pid = override.pid != null ? override.pid : this.pid;
             String framework = override.framework != null ? override.framework : this.framework;
@@ -125,7 +119,6 @@ public class Header {
                     user,
                     containerID,
                     hostname,
-                    tag,
                     tags,
                     pid,
                     framework,
@@ -147,7 +140,6 @@ public class Header {
         private String user;
         private String containerID;
         private String hostname;
-        private String tag;
         private String pid;
         private String framework;
         private String component;
@@ -188,11 +180,6 @@ public class Header {
             return this;
         }
 
-        public Builder withTag(String tag) {
-            this.tag = tag;
-            return this;
-        }
-
         public Builder addTag(String tag) {
             this.tags.add(tag);
             return this;
@@ -220,12 +207,12 @@ public class Header {
         }
 
         public Header build() {
-            return new Header(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, tags,
+            return new Header(applicationID, appAttemptID, applicationName, user, containerID, hostname, tags,
                     pid, framework, component, executorId);
         }
 
         public BaseHeader buildBaseHeader() {
-            return new BaseHeader(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag,
+            return new BaseHeader(applicationID, appAttemptID, applicationName, user, containerID, hostname,
                     tags, pid, framework, component, executorId);
         }
     }

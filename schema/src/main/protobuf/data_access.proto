@@ -12,8 +12,6 @@ message Header {
     optional string user_name = 4;
     optional string container_id = 5;
     optional string hostname = 6;
-    // TODO remove
-    optional string tag = 7;
     optional string pid = 8;
     optional string framework = 9;
     optional string component = 10;

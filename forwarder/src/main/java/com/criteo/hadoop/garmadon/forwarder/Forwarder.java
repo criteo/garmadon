@@ -56,7 +56,6 @@ public class Forwarder {
 
         Header.Builder headerBuilder = Header.newBuilder()
                 .withHostname(hostname)
-                .withTag(Header.Tag.FORWARDER.name())
                 .addTag(Header.Tag.FORWARDER.name());
 
         for (String tag : properties.getProperty("forwarder.tags", "").split(",")) {

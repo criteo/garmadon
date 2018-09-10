@@ -137,8 +137,6 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
             jsonMap.put("hostname", msg.getHeader().getHostname());
         if (msg.getHeader().hasUserName())
             jsonMap.put("username", msg.getHeader().getUserName());
-        if (msg.getHeader().hasTag())
-            jsonMap.put("tag", msg.getHeader().getTag());
         if (msg.getHeader().hasPid())
             jsonMap.put("pid", msg.getHeader().getPid());
         if (msg.getHeader().hasFramework())
