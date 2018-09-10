@@ -41,7 +41,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
     private static final int CONNECTION_TIMEOUT_MS = 10000;
     private static final int NB_RETRIES = 10;
 
-    private static final Format formatter = new SimpleDateFormat("yyyy-MM-dd");
+    private static final Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH");
 
     private final GarmadonReader reader;
     private final String esIndexPrefix;
