@@ -655,6 +655,11 @@
           "norms": false,
           "index_options": "freqs"
         },
+        "tags": {
+          "type": "keyword",
+          "norms": false,
+          "index_options": "freqs"
+        },
         "task_failures": {
           "type": "integer",
           "index": false

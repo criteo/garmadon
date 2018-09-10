@@ -59,6 +59,7 @@ public class CloseHandlerTest {
                 .withContainerID("container_id")
                 .withUser("user")
                 .withTag(Header.Tag.YARN_APPLICATION.name())
+                .addTag(Header.Tag.YARN_APPLICATION.name())
                 .withPid("pid")
                 .build();
 
@@ -84,6 +85,7 @@ public class CloseHandlerTest {
         Header header = Header.newBuilder()
                 .withHostname("hostname")
                 .withTag(Header.Tag.FORWARDER.name())
+                .addTag(Header.Tag.FORWARDER.name())
                 .build();
 
         byte[] raw = ProtocolMessage.create(header.serialize(), new TestEvent(100));

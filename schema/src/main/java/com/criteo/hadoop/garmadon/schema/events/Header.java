@@ -2,6 +2,10 @@ package com.criteo.hadoop.garmadon.schema.events;
 
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 
+import java.util.ArrayList;
+import java.util.List;
+
+// TODO: remove tag once tags is used everywhere
 public class Header {
 
     protected final String applicationID;
@@ -15,6 +19,7 @@ public class Header {
     protected final String framework;
     protected final String component;
     protected final String executorId;
+    protected final List<String> tags;
 
     public enum Tag {
         YARN_APPLICATION,
@@ -23,7 +28,7 @@ public class Header {
     }
 
     public Header(String applicationID, String appAttemptID, String applicationName,
-                  String user, String containerID, String hostname, String tag, String pid,
+                  String user, String containerID, String hostname, String tag, List<String> tags, String pid,
                   String framework, String component, String executorId) {
         this.applicationID = applicationID;
         this.appAttemptID = appAttemptID;
@@ -32,6 +37,7 @@ public class Header {
         this.containerID = containerID;
         this.hostname = hostname;
         this.tag = tag;
+        this.tags = tags;
         this.pid = pid;
         this.framework = framework;
         this.component = component;
@@ -55,6 +61,10 @@ public class Header {
             builder.setHostname(hostname);
         if (tag != null)
             builder.setTag(tag);
+        if (tags != null && tags.size() > 0)
+            for (String tag : tags) {
+                builder.addTags(tag);
+            }
         if (pid != null)
             builder.setPid(pid);
         if (framework != null)
@@ -80,6 +90,7 @@ public class Header {
                 ", framework='" + framework + '\'' +
                 ", component='" + component + '\'' +
                 ", executorId='" + executorId + '\'' +
+                ", tags=" + tags +
                 '}';
     }
 
@@ -88,9 +99,9 @@ public class Header {
      */
     public static class BaseHeader extends Header {
         private BaseHeader(String applicationID, String appAttemptID, String applicationName, String user,
-                           String containerID, String hostname, String tag, String pid, String framework,
+                           String containerID, String hostname, String tag, List<String> tags, String pid, String framework,
                            String component, String executorId) {
-            super(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, pid, framework,
+            super(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, tags, pid, framework,
                     component, executorId);
         }
 
@@ -102,6 +113,7 @@ public class Header {
             String containerID = override.containerID != null ? override.containerID : this.containerID;
             String hostname = override.hostname != null ? override.hostname : this.hostname;
             String tag = override.tag != null ? override.tag : this.tag;
+            List<String> tags = (override.tags != null && override.tags.size() > 0) ? override.tags : this.tags;
             String pid = override.pid != null ? override.pid : this.pid;
             String framework = override.framework != null ? override.framework : this.framework;
             String component = override.component != null ? override.component : this.component;
@@ -114,6 +126,7 @@ public class Header {
                     containerID,
                     hostname,
                     tag,
+                    tags,
                     pid,
                     framework,
                     component,
@@ -139,6 +152,7 @@ public class Header {
         private String framework;
         private String component;
         private String executorId;
+        private List<String> tags = new ArrayList<>();
 
         Builder() {
         }
@@ -179,6 +193,11 @@ public class Header {
             return this;
         }
 
+        public Builder addTag(String tag) {
+            this.tags.add(tag);
+            return this;
+        }
+
         public Builder withPid(String pid) {
             this.pid = pid;
             return this;
@@ -201,13 +220,13 @@ public class Header {
         }
 
         public Header build() {
-            return new Header(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, pid,
-                    framework, component, executorId);
+            return new Header(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, tags,
+                    pid, framework, component, executorId);
         }
 
         public BaseHeader buildBaseHeader() {
-            return new BaseHeader(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag, pid,
-                    framework, component, executorId);
+            return new BaseHeader(applicationID, appAttemptID, applicationName, user, containerID, hostname, tag,
+                    tags, pid, framework, component, executorId);
         }
     }
 }

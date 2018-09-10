@@ -52,7 +52,7 @@
           "iconColor": "#1f78c1",
           "limit": 100,
           "name": "Executor Added",
-          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tag:YARN_APPLICATION AND state:ADDED AND application_id:$application_id AND attempt_id:$attempt_id",
+          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tags:YARN_APPLICATION AND state:ADDED AND application_id:$application_id AND attempt_id:$attempt_id",
           "showIn": 0,
           "tags": [],
           "tagsField": "state",
@@ -68,7 +68,7 @@
           "iconColor": "#e5ac0e",
           "limit": 100,
           "name": "Executor Removed",
-          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tag:YARN_APPLICATION AND state:REMOVED AND application_id:$application_id AND attempt_id:$attempt_id",
+          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tags:YARN_APPLICATION AND state:REMOVED AND application_id:$application_id AND attempt_id:$attempt_id",
           "showIn": 0,
           "tags": [],
           "tagsField": "state",
@@ -84,7 +84,7 @@
           "iconColor": "#e0752d",
           "limit": 100,
           "name": "Executor Blacklisted/Unblacklisted",
-          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tag:YARN_APPLICATION AND NOT state:REMOVED AND NOT state:ADDED AND application_id:$application_id AND attempt_id:$attempt_id",
+          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tags:YARN_APPLICATION AND NOT state:REMOVED AND NOT state:ADDED AND application_id:$application_id AND attempt_id:$attempt_id",
           "showIn": 0,
           "tags": [],
           "tagsField": "state",
@@ -194,7 +194,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -305,7 +305,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tag:NODEMANAGER AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -333,7 +333,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tag:NODEMANAGER AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND attempt_id:$attempt_id",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -479,7 +479,7 @@
                 "type": "raw_document"
               }
             ],
-            "query": "event_type:SPARK_STAGE_STATE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_STATE_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
             "refId": "A",
             "timeField": "timestamp"
           }
@@ -588,7 +588,7 @@
                 "type": "raw_document"
               }
             ],
-            "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
             "refId": "A",
             "timeField": "timestamp"
           }
@@ -674,7 +674,7 @@
                 "type": "count"
               }
             ],
-            "query": "event_type:SPARK_TASK_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_TASK_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -2394,7 +2394,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
+                "query": "event_type:SPARK_STAGE_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2506,7 +2506,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
+                "query": "event_type:SPARK_STAGE_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"

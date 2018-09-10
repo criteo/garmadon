@@ -110,7 +110,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -217,7 +217,7 @@
                 "type": "avg"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tag:NODEMANAGER AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -245,7 +245,7 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tag:NODEMANAGER AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -273,7 +273,7 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tag:NODEMANAGER AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -418,7 +418,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -446,7 +446,7 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -566,7 +566,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -696,7 +696,7 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -745,7 +745,7 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -794,7 +794,7 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "C",
                 "target": "",
                 "timeField": "timestamp"
@@ -843,7 +843,7 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "D",
                 "target": "",
                 "timeField": "timestamp"
@@ -892,7 +892,7 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "E",
                 "target": "",
                 "timeField": "timestamp"
@@ -941,7 +941,7 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "F",
                 "target": "",
                 "timeField": "timestamp"
@@ -1061,7 +1061,7 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "C",
                 "target": "",
                 "timeField": "timestamp"
@@ -1101,7 +1101,7 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "D",
                 "target": "",
                 "timeField": "timestamp"
@@ -1141,7 +1141,7 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1181,7 +1181,7 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -1221,7 +1221,7 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "E",
                 "target": "",
                 "timeField": "timestamp"
@@ -1261,7 +1261,7 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "F",
                 "target": "",
                 "timeField": "timestamp"
@@ -1381,7 +1381,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1510,7 +1510,7 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -1630,7 +1630,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"

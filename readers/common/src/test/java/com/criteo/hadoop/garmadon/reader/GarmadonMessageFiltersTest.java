@@ -175,8 +175,8 @@ public class GarmadonMessageFiltersTest {
         GarmadonMessageFilter.HeaderFilter forwarderFilter = GarmadonMessageFilters.hasTag(Header.Tag.FORWARDER);
 
         DataAccessEventProtos.Header noTag = DataAccessEventProtos.Header.newBuilder().build();
-        DataAccessEventProtos.Header tagForwarder = DataAccessEventProtos.Header.newBuilder().setTag(Header.Tag.FORWARDER.toString()).build();
-        DataAccessEventProtos.Header tagNodemanager = DataAccessEventProtos.Header.newBuilder().setTag(Header.Tag.NODEMANAGER.toString()).build();
+        DataAccessEventProtos.Header tagForwarder = DataAccessEventProtos.Header.newBuilder().addTags(Header.Tag.FORWARDER.toString()).build();
+        DataAccessEventProtos.Header tagNodemanager = DataAccessEventProtos.Header.newBuilder().addTags(Header.Tag.NODEMANAGER.toString()).build();
 
         assertThat(nodemanagerFilter.accepts(random.nextInt(),noTag), is(false));
         assertThat(nodemanagerFilter.accepts(random.nextInt(),tagForwarder), is(false));

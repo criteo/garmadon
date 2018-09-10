@@ -33,7 +33,7 @@ public class ContainerModuleHeader {
 
         public SerializedHeader(byte[] bytes) {
             super(null, null, null, null, null, null,
-                    null, null, null, null, null);
+                    null, null, null, null, null, null);
             this.bytes = bytes;
         }
 
@@ -123,6 +123,7 @@ public class ContainerModuleHeader {
         //build the header for the whole application once
         byte[] bytes = Header.newBuilder()
                 .withTag(Header.Tag.YARN_APPLICATION.name())
+                .addTag(Header.Tag.YARN_APPLICATION.name())
                 .withHostname(host)
                 .withApplicationID(appId.toString())
                 .withAppAttemptID(appAttemptID.toString())

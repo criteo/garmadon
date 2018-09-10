@@ -95,7 +95,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tag:NODEMANAGER AND hostname:$hostname",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND hostname:$hostname",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -123,7 +123,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tag:NODEMANAGER AND hostname:$hostname",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND hostname:$hostname",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -235,7 +235,7 @@
                 "type": "cardinality"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tag:NODEMANAGER AND hostname:$hostname",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND hostname:$hostname",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -263,7 +263,7 @@
                 "type": "cardinality"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tag:NODEMANAGER AND hostname:$hostname",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND hostname:$hostname",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -372,7 +372,7 @@
                 "type": "sum"
               }
             ],
-            "query": " event_type:OS AND tag:FORWARDER AND hostname:$hostname",
+            "query": " event_type:OS AND tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -400,7 +400,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:OS AND tag:FORWARDER AND hostname:$hostname",
+            "query": "event_type:OS AND tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname",
             "refId": "F",
             "target": "",
             "timeField": "timestamp"
@@ -509,7 +509,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:OS AND tag:FORWARDER AND hostname:$hostname",
+            "query": "event_type:OS AND tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname",
             "refId": "F",
             "target": "",
             "timeField": "timestamp"
@@ -537,7 +537,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:OS AND tag:FORWARDER AND hostname:$hostname",
+            "query": "event_type:OS AND tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -672,7 +672,7 @@
                     "type": "cardinality"
                   }
                 ],
-                "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tag:NODEMANAGER",
+                "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -792,7 +792,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tag:NODEMANAGER",
+                "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -931,7 +931,7 @@
                     "type": "cardinality"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND hostname:$hostname AND username:$username",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND hostname:$hostname AND username:$username",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -1057,7 +1057,7 @@
                     "type": "cardinality"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND hostname:$hostname AND username:$username",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND hostname:$hostname AND username:$username",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1196,7 +1196,7 @@
                     "type": "cardinality"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND hostname:$hostname AND framework:$framework AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND hostname:$hostname AND framework:$framework AND component:$component",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -1334,7 +1334,7 @@
                     "type": "cardinality"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tag:YARN_APPLICATION AND hostname:$hostname AND framework:$framework AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND hostname:$hostname AND framework:$framework AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1455,7 +1455,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "tag:FORWARDER AND hostname:$hostname",
+                "query": "tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1483,7 +1483,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "tag:FORWARDER AND hostname:$hostname",
+                "query": "tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -1511,7 +1511,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "tag:FORWARDER AND hostname:$hostname",
+                "query": "tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname",
                 "refId": "C",
                 "target": "",
                 "timeField": "timestamp"
@@ -1539,7 +1539,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "tag:FORWARDER AND hostname:$hostname",
+                "query": "tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname",
                 "refId": "D",
                 "target": "",
                 "timeField": "timestamp"
@@ -1567,7 +1567,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "tag:FORWARDER AND hostname:$hostname",
+                "query": "tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname",
                 "refId": "E",
                 "target": "",
                 "timeField": "timestamp"
@@ -1595,7 +1595,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "tag:FORWARDER AND hostname:$hostname",
+                "query": "tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname",
                 "refId": "F",
                 "target": "",
                 "timeField": "timestamp"
@@ -1702,7 +1702,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "tag:FORWARDER AND hostname:$hostname",
+                "query": "tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname",
                 "refId": "F",
                 "target": "",
                 "timeField": "timestamp"
@@ -1823,7 +1823,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:OS AND tag:FORWARDER AND hostname:$hostname",
+                "query": "event_type:OS AND tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1864,7 +1864,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:OS AND tag:FORWARDER AND hostname:$hostname AND disk:$disk",
+                "query": "event_type:OS AND tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname AND disk:$disk",
                 "refId": "F",
                 "target": "",
                 "timeField": "timestamp"
@@ -1984,7 +1984,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:OS AND tag:FORWARDER AND hostname:$hostname",
+                "query": "event_type:OS AND tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2024,7 +2024,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:OS AND tag:FORWARDER AND hostname:$hostname AND disk:$disk",
+                "query": "event_type:OS AND tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname AND disk:$disk",
                 "refId": "F",
                 "target": "",
                 "timeField": "timestamp"
@@ -2145,7 +2145,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:OS AND tag:FORWARDER AND hostname:$hostname",
+                "query": "event_type:OS AND tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname",
                 "refId": "F",
                 "target": "",
                 "timeField": "timestamp"
@@ -2185,7 +2185,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:OS AND tag:FORWARDER AND hostname:$hostname AND network:$network",
+                "query": "event_type:OS AND tags:FORWARDER AND tags:NODEMANAGER AND hostname:$hostname AND network:$network",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"

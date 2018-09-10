@@ -37,6 +37,7 @@ public class ContainerResourceMonitoringModule implements GarmadonAgentModule {
         baseHeader = Header.newBuilder()
                 .withHostname(host)
                 .withTag(Header.Tag.NODEMANAGER.name())
+                .addTag(Header.Tag.NODEMANAGER.name())
                 .buildBaseHeader();
     }
 

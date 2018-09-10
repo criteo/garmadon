@@ -16,7 +16,7 @@ public class CloseHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         DataAccessEventProtos.Header header = ctx.channel().attr(headerAttr).get();
-        if (header != null && header.getTag().equals(Header.Tag.YARN_APPLICATION.name())) {
+        if (header != null && header.getTagsList().contains(Header.Tag.YARN_APPLICATION.name())) {
             DataAccessEventProtos.StateEvent stateEvent = DataAccessEventProtos.StateEvent
                     .newBuilder()
                     .setTimestamp(System.currentTimeMillis())

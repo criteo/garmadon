@@ -53,9 +53,17 @@ public class Forwarder {
 
     public Forwarder(Properties properties) {
         this.properties = properties;
-        this.header = Header.newBuilder()
+
+        Header.Builder headerBuilder = Header.newBuilder()
                 .withHostname(hostname)
                 .withTag(Header.Tag.FORWARDER.name())
+                .addTag(Header.Tag.FORWARDER.name());
+
+        for (String tag : properties.getProperty("forwarder.tags", "").split(",")) {
+            headerBuilder.addTag(tag);
+        }
+
+        this.header = headerBuilder
                 .build()
                 .serialize();
     }

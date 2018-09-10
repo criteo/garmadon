@@ -159,7 +159,7 @@ public interface GarmadonMessageFilter {
 
             @Override
             public boolean accepts(DataAccessEventProtos.Header header) {
-                return header.getTag().equals(tag);
+                return header.getTagsList().contains(tag);
             }
 
         }

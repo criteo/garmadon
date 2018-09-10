@@ -7,6 +7,7 @@ import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessageFilter;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
+import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.criteo.jvm.JVMStatisticsProtos;
 import org.apache.http.HttpHost;
@@ -31,6 +32,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+
+import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasTag;
 
 /**
  * A reader that pushes events to elastic search
@@ -144,6 +147,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
             jsonMap.put("component", msg.getHeader().getComponent());
         if (msg.getHeader().hasExecutorId())
             jsonMap.put("executor_id", msg.getHeader().getExecutorId());
+        jsonMap.put("tags", msg.getHeader().getTagsList());
 
         HashMap<String, Map<String, Object>> eventMaps = putBodySpecificFields(
                 GarmadonSerialization.getTypeName(msg.getType()), msg.getBody());
