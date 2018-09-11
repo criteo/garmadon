@@ -2005,31 +2005,8 @@
         {
           "allValue": "*",
           "current": {
-            "text": "All",
-            "value": "$__all"
-          },
-          "datasource": "garmadon",
-          "hide": 0,
-          "includeAll": true,
-          "label": null,
-          "multi": false,
-          "name": "application_name",
-          "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"username:$username\"}",
-          "refresh": 2,
-          "regex": "",
-          "sort": 1,
-          "tagValuesQuery": "",
-          "tags": [],
-          "tagsQuery": "",
-          "type": "query",
-          "useTags": false
-        },
-        {
-          "allValue": "*",
-          "current": {
-            "text": "application_1536307673708_10494",
-            "value": "application_1536307673708_10494"
+            "text": "application_1531753897584_44651",
+            "value": "application_1531753897584_44651"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -2038,7 +2015,7 @@
           "multi": false,
           "name": "application_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"username:$username AND framework:$framework AND application_name.keyword:$application_name\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"username:$username AND framework:$framework\"}",
           "refresh": 2,
           "regex": "",
           "sort": 2,
@@ -2144,7 +2121,7 @@
     },
     "time": {
       "from": "now-1h",
-      "to": "now-3m"
+      "to": "now"
     },
     "timepicker": {
       "nowDelay": "3m",

@@ -8,9 +8,6 @@ import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ContainerId;
-import org.apache.hadoop.yarn.client.api.YarnClient;
-import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,26 +109,11 @@ public class ContainerModuleHeader {
         ApplicationAttemptId appAttemptID = containerId.getApplicationAttemptId();
         ApplicationId appId = appAttemptID.getApplicationId();
 
-        String appName = "";
-        try {
-            YarnClient yarnClient = YarnClient.createYarnClient();
-            yarnClient.init(new YarnConfiguration());
-            yarnClient.start();
-
-            appName = yarnClient.getApplicationReport(appId).getName();
-        } catch (YarnException | IOException e) {
-            LOGGER.warn("Failed to set application name on Garmadon header", e);
-        }catch(Exception e){
-            LOGGER.warn("Failed to set application name on Garmadon header", e);
-
-        }
-
         //build the header for the whole application once
         byte[] bytes = Header.newBuilder()
                 .withTag(Header.Tag.YARN_APPLICATION.name())
                 .withHostname(host)
                 .withApplicationID(appId.toString())
-                .withApplicationName(appName)
                 .withAppAttemptID(appAttemptID.toString())
                 .withUser(user)
                 .withContainerID(containerIdString)

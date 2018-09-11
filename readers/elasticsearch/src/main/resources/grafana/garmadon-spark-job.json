@@ -102,7 +102,7 @@
     "links": [],
     "panels": [
       {
-        "content": "Container metrics/JVM detailed metrics for this app available here: [Yarn Application Dashboard for $application_id](dashboard/db/garmadon-yarn-application?orgId=1&var-username=All&var-framework=All&var-application_name=All&var-application_id=$application_id&var-component=All&var-container_id=All&var-hostname=All&var-uri=All)",
+        "content": "Container metrics/JVM detailed metrics for this app available here: [Yarn Application Dashboard for $application_id](dashboard/db/garmadon-yarn-application?orgId=1&var-username=All&var-framework=All&var-application_id=$application_id&var-component=All&var-container_id=All&var-hostname=All&var-uri=All)",
         "gridPos": {
           "h": 2,
           "w": 24,
@@ -442,7 +442,7 @@
             "link": true,
             "linkTargetBlank": true,
             "linkTooltip": "Click to display Spark Stages Detailled for this stage",
-            "linkUrl": "dashboard/db/garmadon-spark-job-stages?orgId=1&var-username=All&var-application_name=All&var-application_id=$application_id&var-attempt_id=All&var-stage_id=${__cell_1}&var-stage_attempt_id=${__cell_2}",
+            "linkUrl": "dashboard/db/garmadon-spark-job-stages?orgId=1&var-username=All&var-application_id=$application_id&var-attempt_id=All&var-stage_id=${__cell_1}&var-stage_attempt_id=${__cell_2}",
             "mappingType": 1,
             "pattern": "stage_name",
             "thresholds": [],
@@ -547,7 +547,7 @@
             "link": true,
             "linkTargetBlank": true,
             "linkTooltip": "Click to display Spark Executor Detailled for this executor",
-            "linkUrl": "dashboard/db/garmadon-spark-job-executors?orgId=1&var-username=All&var-application_name=All&var-application_id=$application_id&var-attempt_id=All&var-executor_hostname=${__cell_0}&var-executor_id=${__cell_1}",
+            "linkUrl": "dashboard/db/garmadon-spark-job-executors?orgId=1&var-username=All&var-application_id=$application_id&var-attempt_id=All&var-executor_hostname=${__cell_0}&var-executor_id=${__cell_1}",
             "mappingType": 1,
             "pattern": "executor_hostname",
             "thresholds": [],
@@ -2389,7 +2389,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id",
+                "query": "event_type:SPARK_STAGE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2501,7 +2501,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_STAGE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id",
+                "query": "event_type:SPARK_STAGE_EVENT AND tag:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2872,31 +2872,8 @@
         {
           "allValue": "*",
           "current": {
-            "text": "All",
-            "value": "$__all"
-          },
-          "datasource": "garmadon",
-          "hide": 0,
-          "includeAll": true,
-          "label": null,
-          "multi": false,
-          "name": "application_name",
-          "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"event_type:SPARK_STAGE_EVENT AND username:$username\"}",
-          "refresh": 2,
-          "regex": "",
-          "sort": 1,
-          "tagValuesQuery": "",
-          "tags": [],
-          "tagsQuery": "",
-          "type": "query",
-          "useTags": false
-        },
-        {
-          "allValue": "*",
-          "current": {
-            "text": "application_1536307673708_32203",
-            "value": "application_1536307673708_32203"
+            "text": "application_1536057127243_0004",
+            "value": "application_1536057127243_0004"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -2905,7 +2882,7 @@
           "multi": false,
           "name": "application_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_STAGE_EVENT AND username:$username AND application_name.keyword:$application_name\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_STAGE_EVENT AND username:$username\"}",
           "refresh": 2,
           "regex": "",
           "sort": 2,

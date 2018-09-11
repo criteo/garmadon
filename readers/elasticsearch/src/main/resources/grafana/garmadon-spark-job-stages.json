@@ -3,7 +3,7 @@
     "annotations": {
       "list": [
         {
-          "$$hashKey": "object:82",
+          "$$hashKey": "object:6111",
           "builtIn": 1,
           "datasource": "-- Grafana --",
           "enable": true,
@@ -13,7 +13,39 @@
           "type": "dashboard"
         },
         {
-          "$$hashKey": "object:83",
+          "$$hashKey": "object:6112",
+          "datasource": "garmadon",
+          "enable": false,
+          "hide": false,
+          "iconColor": "#508642",
+          "limit": 100,
+          "name": "Stage begin events",
+          "query": "event_type:SPARK_STAGE_STATE_EVENT AND state:BEGIN AND application_id:$application_id AND attempt_id:$attempt_id",
+          "showIn": 0,
+          "tags": [],
+          "tagsField": "stage_id",
+          "textField": "",
+          "timeField": "timestamp",
+          "type": "tags"
+        },
+        {
+          "$$hashKey": "object:6113",
+          "datasource": "garmadon",
+          "enable": false,
+          "hide": false,
+          "iconColor": "rgba(255, 96, 96, 1)",
+          "limit": 100,
+          "name": "Stage end events",
+          "query": "event_type:SPARK_STAGE_STATE_EVENT AND state:END AND application_id:$application_id AND attempt_id:$attempt_id",
+          "showIn": 0,
+          "tags": [],
+          "tagsField": "stage_id",
+          "textField": "",
+          "timeField": "timestamp",
+          "type": "tags"
+        },
+        {
+          "$$hashKey": "object:6114",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -29,7 +61,7 @@
           "type": "tags"
         },
         {
-          "$$hashKey": "object:84",
+          "$$hashKey": "object:6115",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -45,7 +77,7 @@
           "type": "tags"
         },
         {
-          "$$hashKey": "object:85",
+          "$$hashKey": "object:6116",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -2362,33 +2394,8 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
-            "text": "All",
-            "value": "$__all"
-          },
-          "datasource": "garmadon",
-          "hide": 0,
-          "includeAll": true,
-          "label": null,
-          "multi": false,
-          "name": "application_name",
-          "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username\"}",
-          "refresh": 2,
-          "regex": "",
-          "sort": 1,
-          "tagValuesQuery": "",
-          "tags": [],
-          "tagsQuery": "",
-          "type": "query",
-          "useTags": false
-        },
-        {
-          "allValue": "*",
-          "current": {
-            "selected": true,
-            "text": "application_1536307673708_9902",
-            "value": "application_1536307673708_9902"
+            "text": "application_1536057127243_0004",
+            "value": "application_1536057127243_0004"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -2397,7 +2404,7 @@
           "multi": false,
           "name": "application_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username AND application_name.keyword:$application_name\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username\"}",
           "refresh": 2,
           "regex": "",
           "sort": 2,
@@ -2443,10 +2450,10 @@
           "multi": false,
           "name": "stage_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"stage_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"stage_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username AND application_id:$application_id\"}",
           "refresh": 2,
           "regex": "",
-          "sort": 3,
+          "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
           "tagsQuery": "",
@@ -2466,7 +2473,7 @@
           "multi": false,
           "name": "stage_attempt_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"stage_attempt_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND stage_id:$stage_id\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"stage_attempt_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username AND application_id:$application_id AND stage_id:$stage_id\"}",
           "refresh": 2,
           "regex": "",
           "sort": 3,
