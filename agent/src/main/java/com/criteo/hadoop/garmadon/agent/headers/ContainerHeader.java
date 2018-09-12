@@ -1,4 +1,4 @@
-package com.criteo.hadoop.garmadon.agent.modules;
+package com.criteo.hadoop.garmadon.agent.headers;
 
 import com.criteo.hadoop.garmadon.schema.enums.Component;
 import com.criteo.hadoop.garmadon.schema.enums.Framework;
@@ -15,33 +15,13 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
-public class ContainerModuleHeader {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContainerModuleHeader.class);
-    private SerializedHeader header;
+public class ContainerHeader {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContainerHeader.class);
+    private Header.SerializedHeader header;
 
     private Framework framework = Framework.YARN;
     private Component component = Component.UNKNOWN;
     private String executorId;
-
-    /**
-     * Special header that is already serialized
-     * Thus we gain perf just doing it once
-     */
-    public static class SerializedHeader extends Header {
-
-        private final byte[] bytes;
-
-        public SerializedHeader(byte[] bytes) {
-            super(null, null, null, null, null,
-                    null, null, null, null, null, null);
-            this.bytes = bytes;
-        }
-
-        @Override
-        public byte[] serialize() {
-            return bytes;
-        }
-    }
 
     private void setFrameworkComponent() {
         String[] commands = System.getProperty("sun.java.command", "empty_class").split(" ");
@@ -105,15 +85,10 @@ public class ContainerModuleHeader {
         }
     }
 
-    private SerializedHeader createCachedHeader() {
+    private Header.SerializedHeader createCachedHeader() {
         String user = System.getenv(ApplicationConstants.Environment.USER.name());
         String containerIdString = System.getenv(ApplicationConstants.Environment.CONTAINER_ID.name());
         String host = System.getenv(ApplicationConstants.Environment.NM_HOST.name());
-        String pid = "UNKNOWN";
-        try {
-            pid = new File("/proc/self").getCanonicalFile().getName();
-        } catch (IOException ignored) {
-        }
 
         // Get applicationID
         ContainerId containerId = ConverterUtils.toContainerId(containerIdString);
@@ -121,27 +96,24 @@ public class ContainerModuleHeader {
         ApplicationId appId = appAttemptID.getApplicationId();
 
         //build the header for the whole application once
-        byte[] bytes = Header.newBuilder()
+        return Header.newBuilder()
                 .addTag(Header.Tag.YARN_APPLICATION.name())
                 .withHostname(host)
                 .withApplicationID(appId.toString())
                 .withAppAttemptID(appAttemptID.toString())
                 .withUser(user)
                 .withContainerID(containerIdString)
-                .withPid(pid)
+                .withPid(Utils.getPid())
                 .withFramework(framework.name())
                 .withComponent(component.name())
                 .withExecutorId(executorId)
-                .build()
-                .serialize();
-
-        return new SerializedHeader(bytes);
+                .buildSerializedHeader();
     }
 
     /**
      * Constructeur privé
      */
-    private ContainerModuleHeader() {
+    private ContainerHeader() {
         setFrameworkComponent();
         this.header = createCachedHeader();
     }
@@ -153,17 +125,17 @@ public class ContainerModuleHeader {
         /**
          * Instance unique non préinitialisée
          */
-        private final static ContainerModuleHeader instance = new ContainerModuleHeader();
+        private final static ContainerHeader instance = new ContainerHeader();
     }
 
     /**
      * Point d'accès pour l'instance unique du singleton
      */
-    public static ContainerModuleHeader getInstance() {
-        return ContainerModuleHeader.SingletonHolder.instance;
+    public static ContainerHeader getInstance() {
+        return ContainerHeader.SingletonHolder.instance;
     }
 
-    public SerializedHeader getHeader() {
+    public Header.SerializedHeader getHeader() {
         return header;
     }
 

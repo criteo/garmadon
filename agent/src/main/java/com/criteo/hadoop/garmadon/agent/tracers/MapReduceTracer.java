@@ -1,4 +1,4 @@
-package com.criteo.hadoop.garmadon.agent.modules;
+package com.criteo.hadoop.garmadon.agent.tracers;
 
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.schema.enums.PathType;
@@ -20,7 +20,7 @@ import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.isSubTypeOf;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-public class MapReduceModule extends ContainerModule {
+public class MapReduceTracer {
 
     private static Consumer<Object> eventHandler;
 
@@ -41,11 +41,11 @@ public class MapReduceModule extends ContainerModule {
 
         private final TypeDescription typeDescription;
 
-        Types(String name, int modifiers){
+        Types(String name, int modifiers) {
             this(name, modifiers, null);
         }
 
-        Types(String name, int modifiers, TypeDescription.Generic superClass){
+        Types(String name, int modifiers, TypeDescription.Generic superClass) {
             this.typeDescription = new TypeDescription.Latent(name, modifiers, superClass);
         }
 
@@ -54,8 +54,7 @@ public class MapReduceModule extends ContainerModule {
         }
     }
 
-    @Override
-    public void setup0(Instrumentation instrumentation, Consumer<Object> eventConsumer) {
+    public static void setup(Instrumentation instrumentation, Consumer<Object> eventConsumer) {
 
         initEventHandler(eventConsumer);
 
@@ -66,7 +65,7 @@ public class MapReduceModule extends ContainerModule {
     }
 
     public static void initEventHandler(Consumer<Object> eventConsumer) {
-        MapReduceModule.eventHandler = eventConsumer;
+        MapReduceTracer.eventHandler = eventConsumer;
     }
 
     public static class InputFormatTracer extends MethodTracer {
@@ -137,11 +136,11 @@ public class MapReduceModule extends ContainerModule {
                     taskAttemptContext.getConfiguration().get(FILE_OUTPUT_FORMAT_OUTPUT_DIR) : taskAttemptContext.getConfiguration().get(DEPRECATED_FILE_OUTPUT_FORMAT_OUTPUT_DIR);
             if (paths != null) {
                 DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
-                    .newBuilder()
-                    .setTimestamp(System.currentTimeMillis())
-                    .setPath(paths)
-                    .setType(PathType.OUTPUT.name())
-                    .build();
+                        .newBuilder()
+                        .setTimestamp(System.currentTimeMillis())
+                        .setPath(paths)
+                        .setType(PathType.OUTPUT.name())
+                        .build();
                 eventHandler.accept(pathEvent);
             }
         }
@@ -201,11 +200,11 @@ public class MapReduceModule extends ContainerModule {
                     jobConf.get(FILE_OUTPUT_FORMAT_OUTPUT_DIR) : jobConf.get(DEPRECATED_FILE_OUTPUT_FORMAT_OUTPUT_DIR);
             if (paths != null) {
                 DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
-                    .newBuilder()
-                    .setTimestamp(System.currentTimeMillis())
-                    .setPath(paths)
-                    .setType(PathType.OUTPUT.name())
-                    .build();
+                        .newBuilder()
+                        .setTimestamp(System.currentTimeMillis())
+                        .setPath(paths)
+                        .setType(PathType.OUTPUT.name())
+                        .build();
                 eventHandler.accept(pathEvent);
             }
         }

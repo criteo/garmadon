@@ -1,14 +1,17 @@
-package com.criteo.hadoop.garmadon.agent.modules;
+package com.criteo.hadoop.garmadon.agent.tracers;
 
+import com.criteo.hadoop.garmadon.agent.tracers.MapReduceTracer;
 import com.criteo.hadoop.garmadon.agent.utils.AgentAttachmentRule;
 import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.schema.enums.PathType;
-import com.criteo.hadoop.garmadonnotexcluded.MapReduceOutputFormatTestClasses;
+import com.criteo.hadoop.garmadonnotexcluded.MapReduceInputFormatTestClasses;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.loading.ByteArrayClassLoader;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.JobID;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.junit.After;
@@ -31,18 +34,26 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
-public class MapReduceOutputFormatTracerTest {
+/**
+ * IMPORTANT NOTE, we use a specific classloader to allow class redefinition between tests
+ * We need to use reflection even for method calls because class casting cannot be cross classloader
+ * and the test itself is not loaded with our custom classloader
+ */
+public class MapReduceInputFormatTracerTest {
+
     @Rule
     public MethodRule agentAttachmentRule = new AgentAttachmentRule();
 
     private Consumer<Object> eventHandler;
+    private InputSplit inputSplit;
+    private JobContext jobContext;
     private TaskAttemptContext taskAttemptContext;
     private Configuration conf;
 
     private ClassLoader classLoader;
 
-    private String outputPath = "/some/outputpath,/some/other/path";
-    private String deprecatedOutputPath = "/some/outputpathDeprecated";
+    private String inputPath = "/some/inputpath,/some/other/path";
+    private String deprecatedInputPath = "/some/inputpathDeprecated";
 
     private ArgumentCaptor<DataAccessEventProtos.PathEvent> argument;
 
@@ -51,13 +62,22 @@ public class MapReduceOutputFormatTracerTest {
         eventHandler = mock(Consumer.class);
         argument = ArgumentCaptor.forClass(DataAccessEventProtos.PathEvent.class);
 
-        MapReduceModule.initEventHandler(eventHandler);
+        MapReduceTracer.initEventHandler(eventHandler);
+        inputSplit = mock(InputSplit.class);
+        jobContext = mock(JobContext.class);
         taskAttemptContext = mock(TaskAttemptContext.class);
         conf = new Configuration();
-        conf.set("mapreduce.output.fileoutputformat.outputdir", outputPath);
+        conf.set("mapreduce.input.fileinputformat.inputdir", inputPath);
 
+        when(jobContext.getConfiguration())
+                .thenReturn(conf);
         when(taskAttemptContext.getConfiguration())
                 .thenReturn(conf);
+
+        when(jobContext.getJobName())
+                .thenReturn("Application");
+        when(jobContext.getUser())
+                .thenReturn("user");
         when(taskAttemptContext.getJobName())
                 .thenReturn("Application");
         when(taskAttemptContext.getUser())
@@ -66,12 +86,14 @@ public class MapReduceOutputFormatTracerTest {
         JobID jobId = mock(JobID.class);
         when(jobId.toString())
                 .thenReturn("app_1");
+        when(jobContext.getJobID())
+                .thenReturn(jobId);
         when(taskAttemptContext.getJobID())
                 .thenReturn(jobId);
 
         classLoader = new ByteArrayClassLoader.ChildFirst(getClass().getClassLoader(),
                 ClassFileExtraction.of(
-                        MapReduceOutputFormatTestClasses.OneLevelHierarchy.class
+                        MapReduceInputFormatTestClasses.OneLevelHierarchy.class
                 ),
                 ByteArrayClassLoader.PersistenceHandler.MANIFEST);
     }
@@ -79,13 +101,15 @@ public class MapReduceOutputFormatTracerTest {
     @After
     public void tearDown() {
         reset(eventHandler);
+        reset(inputSplit);
+        reset(jobContext);
         reset(taskAttemptContext);
     }
 
     @Test
-    public void OutputFormatTracer_should_use_a_latent_type_definition_equivalent_to_the_ForLoadedType_one(){
-        TypeDescription realTypeDef = TypeDescription.ForLoadedType.of(org.apache.hadoop.mapreduce.OutputFormat.class);
-        TypeDescription latentTypeDef = MapReduceModule.Types.MAPREDUCE_OUTPUT_FORMAT.getTypeDescription();
+    public void InputFormatTracer_should_use_a_latent_type_definition_equivalent_to_the_ForLoadedType_one(){
+        TypeDescription realTypeDef = TypeDescription.ForLoadedType.of(org.apache.hadoop.mapreduce.InputFormat.class);
+        TypeDescription latentTypeDef = MapReduceTracer.Types.MAPREDUCE_INPUT_FORMAT.getTypeDescription();
 
         assertThat(latentTypeDef.getName(), is(realTypeDef.getName()));
         assertThat(latentTypeDef.getModifiers(), is(realTypeDef.getModifiers()));
@@ -98,23 +122,24 @@ public class MapReduceOutputFormatTracerTest {
      */
     @Test
     @AgentAttachmentRule.Enforce
-    public void OutputFormatTracer_should_intercept_InputFormat_direct_implementor() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+    public void InputFormatTracer_should_intercept_InputFormat_direct_implementor() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
         //Install tracer
-        ClassFileTransformer classFileTransformer = new MapReduceModule.OutputFormatTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceTracer.InputFormatTracer().installOnByteBuddyAgent();
         try {
             //Call InputFormat
-            Class<?> type = classLoader.loadClass(MapReduceOutputFormatTestClasses.OneLevelHierarchy.class.getName());
-            invokeRecordWriter(type);
+            Class<?> type = classLoader.loadClass(MapReduceInputFormatTestClasses.OneLevelHierarchy.class.getName());
+            invokeRecordReader(type);
+            invokeListInputSplits(type);
 
             //Verify mock interaction
-            verify(eventHandler).accept(argument.capture());
+            verify(eventHandler, times(2)).accept(argument.capture());
             DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
                     .newBuilder()
                     .setTimestamp(argument.getValue().getTimestamp())
-                    .setPath(outputPath)
-                    .setType(PathType.OUTPUT.name())
+                    .setPath(inputPath)
+                    .setType(PathType.INPUT.name())
                     .build();
             assertEquals(pathEvent, argument.getValue());
         } finally {
@@ -126,26 +151,33 @@ public class MapReduceOutputFormatTracerTest {
         We want to test that we get deprecated path if mapreduce one is not provided
      */
     @Test
-    public void OutputFormatTracer_should_get_deprecated_value() throws Exception {
+    public void InputFormatTracer_should_get_deprecated_value() throws Exception {
         // Configure deprecated output dir
-        conf.unset("mapreduce.output.fileoutputformat.outputdir");
-        conf.set("mapred.output.dir", deprecatedOutputPath);
+        conf.unset("mapreduce.input.fileinputformat.inputdir");
+        conf.set("mapred.input.dir", deprecatedInputPath);
 
-        MapReduceModule.OutputFormatTracer.intercept(taskAttemptContext);
+        MapReduceTracer.InputFormatTracer.intercept(taskAttemptContext);
         verify(eventHandler).accept(argument.capture());
         DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
                 .newBuilder()
                 .setTimestamp(argument.getValue().getTimestamp())
-                .setPath(deprecatedOutputPath)
-                .setType(PathType.OUTPUT.name())
+                .setPath(deprecatedInputPath)
+                .setType(PathType.INPUT.name())
                 .build();
         assertEquals(pathEvent, argument.getValue());
     }
 
-    private Object invokeRecordWriter(Class<?> type) throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Method m = type.getMethod("getRecordWriter", TaskAttemptContext.class);
+    private Object invokeRecordReader(Class<?> type) throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        Method m = type.getMethod("createRecordReader", InputSplit.class, TaskAttemptContext.class);
         Object inFormat = type.newInstance();
-        return m.invoke(inFormat, taskAttemptContext);
+        return m.invoke(inFormat, inputSplit, taskAttemptContext);
     }
+
+    private Object invokeListInputSplits(Class<?> type) throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        Method m = type.getMethod("getSplits", JobContext.class);
+        Object inFormat = type.newInstance();
+        return m.invoke(inFormat, jobContext);
+    }
+
 
 }

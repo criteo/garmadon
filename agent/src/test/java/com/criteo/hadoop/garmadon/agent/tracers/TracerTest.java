@@ -1,4 +1,4 @@
-package com.criteo.hadoop.garmadon.agent.modules;
+package com.criteo.hadoop.garmadon.agent.tracers;
 
 import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.matcher.ElementMatcher;

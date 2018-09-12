@@ -1,4 +1,4 @@
-package com.criteo.hadoop.garmadon.agent.modules;
+package com.criteo.hadoop.garmadon.agent.tracers;
 
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.agent.builder.AgentBuilder.Listener.Filtering;

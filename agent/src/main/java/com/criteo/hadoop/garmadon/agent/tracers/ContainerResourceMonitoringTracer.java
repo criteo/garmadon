@@ -1,4 +1,4 @@
-package com.criteo.hadoop.garmadon.agent.modules;
+package com.criteo.hadoop.garmadon.agent.tracers;
 
 import com.criteo.hadoop.garmadon.agent.AsyncEventProcessor;
 import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
@@ -15,33 +15,16 @@ import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 
 import java.lang.instrument.Instrumentation;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.function.BiConsumer;
 
 import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
-public class ContainerResourceMonitoringModule implements GarmadonAgentModule {
+public class ContainerResourceMonitoringTracer {
 
     private static BiConsumer<Header, Object> eventHandler;
 
-    private static Header.BaseHeader baseHeader;
-
-    static {
-        String host = "";
-        try {
-            host = InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException ignored) {
-        }
-        baseHeader = Header.newBuilder()
-                .withHostname(host)
-                .addTag(Header.Tag.NODEMANAGER.name())
-                .buildBaseHeader();
-    }
-
-    @Override
-    public void setup(Instrumentation instrumentation, AsyncEventProcessor eventProcessor) {
+    public static void setup(Header.BaseHeader baseHeader, Instrumentation instrumentation, AsyncEventProcessor eventProcessor) {
 
         initEventHandler((headerOverride, event) -> {
             Header header = baseHeader.cloneAndOverride(headerOverride);
@@ -52,7 +35,7 @@ public class ContainerResourceMonitoringModule implements GarmadonAgentModule {
     }
 
     public static void initEventHandler(BiConsumer<Header, Object> eventHandler) {
-        ContainerResourceMonitoringModule.eventHandler = eventHandler;
+        ContainerResourceMonitoringTracer.eventHandler = eventHandler;
     }
 
     public static class MemorySizeTracer extends MethodTracer {
@@ -73,7 +56,7 @@ public class ContainerResourceMonitoringModule implements GarmadonAgentModule {
         }
 
         public static void intercept(@Argument(0) String containerID, @Argument(1) long currentMemUsage,
-                              @Argument(3) long limit) throws Exception {
+                                     @Argument(3) long limit) throws Exception {
             try {
                 ContainerId cID = ConverterUtils.toContainerId(containerID);
                 ApplicationAttemptId applicationAttemptId = cID.getApplicationAttemptId();

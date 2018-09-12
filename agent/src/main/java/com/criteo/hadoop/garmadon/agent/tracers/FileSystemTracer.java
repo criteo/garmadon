@@ -1,4 +1,4 @@
-package com.criteo.hadoop.garmadon.agent.modules;
+package com.criteo.hadoop.garmadon.agent.tracers;
 
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.schema.enums.FsAction;
@@ -20,12 +20,11 @@ import java.util.function.Consumer;
 import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
-public class FileSystemModule extends ContainerModule {
+public class FileSystemTracer {
 
     private static Consumer<Object> eventHandler;
 
-    @Override
-    public void setup0(Instrumentation instrumentation, Consumer<Object> eventConsumer) {
+    public static void setup(Instrumentation instrumentation, Consumer<Object> eventConsumer) {
 
         initEventHandler(eventConsumer);
 
@@ -37,7 +36,7 @@ public class FileSystemModule extends ContainerModule {
     }
 
     public static void initEventHandler(Consumer<Object> eventConsumer) {
-        FileSystemModule.eventHandler = eventConsumer;
+        FileSystemTracer.eventHandler = eventConsumer;
     }
 
     public static class DeleteTracer extends MethodTracer {
@@ -189,9 +188,9 @@ public class FileSystemModule extends ContainerModule {
         ElementMatcher<? super MethodDescription> methodMatcher() {
             return named("append").and(
                     takesArguments(
-                        Path.class,
-                        int.class,
-                        Progressable.class
+                            Path.class,
+                            int.class,
+                            Progressable.class
                     )
             );
         }

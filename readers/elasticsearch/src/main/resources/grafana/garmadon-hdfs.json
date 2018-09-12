@@ -472,7 +472,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 10
+              "y": 20
             },
             "id": 12,
             "legend": {
@@ -498,135 +498,6 @@
             "renderer": "flot",
             "repeat": "action",
             "repeatDirection": "h",
-            "scopedVars": {
-              "action": {
-                "selected": false,
-                "text": "APPEND",
-                "value": "APPEND"
-              }
-            },
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "username",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "_count",
-                      "size": "20"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "select field",
-                    "id": "1",
-                    "type": "count"
-                  }
-                ],
-                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "FS OPS $action per user on $uri:$path (top 20)",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "garmadon",
-            "fill": 1,
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 12,
-              "y": 10
-            },
-            "id": 65,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 200,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "minSpan": 12,
-            "nullPointMode": "null",
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "repeat": null,
-            "repeatDirection": "h",
-            "repeatIteration": 1536308073677,
-            "repeatPanelId": 12,
             "scopedVars": {
               "action": {
                 "selected": false,
@@ -727,10 +598,10 @@
             "gridPos": {
               "h": 8,
               "w": 12,
-              "x": 0,
-              "y": 18
+              "x": 12,
+              "y": 20
             },
-            "id": 66,
+            "id": 73,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -754,7 +625,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1536308073677,
+            "repeatIteration": 1537167677858,
             "repeatPanelId": 12,
             "scopedVars": {
               "action": {
@@ -856,10 +727,10 @@
             "gridPos": {
               "h": 8,
               "w": 12,
-              "x": 12,
-              "y": 18
+              "x": 0,
+              "y": 28
             },
-            "id": 67,
+            "id": 74,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -883,7 +754,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1536308073677,
+            "repeatIteration": 1537167677858,
             "repeatPanelId": 12,
             "scopedVars": {
               "action": {
@@ -985,10 +856,10 @@
             "gridPos": {
               "h": 8,
               "w": 12,
-              "x": 0,
-              "y": 26
+              "x": 12,
+              "y": 28
             },
-            "id": 68,
+            "id": 75,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -1012,7 +883,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1536308073677,
+            "repeatIteration": 1537167677858,
             "repeatPanelId": 12,
             "scopedVars": {
               "action": {
@@ -2357,6 +2228,634 @@
         ],
         "title": "FS OPS Per Framework/Component",
         "type": "row"
+      },
+      {
+        "collapsed": true,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 22
+        },
+        "id": 72,
+        "panels": [
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "garmadon",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 23
+            },
+            "id": 76,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": "action",
+            "repeatDirection": "h",
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "DELETE",
+                "value": "DELETE"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "{{hostname}}-{{username}}-{{pid}}",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "hostname",
+                    "id": "4",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "5"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "fake": true,
+                    "field": "username",
+                    "id": "5",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "5"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "select field",
+                    "id": "1",
+                    "type": "count"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND tags:STANDALONE AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "FS OPS $action per host-user-pid on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "garmadon",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 23
+            },
+            "id": 77,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": null,
+            "repeatDirection": "h",
+            "repeatIteration": 1537167677858,
+            "repeatPanelId": 76,
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "READ",
+                "value": "READ"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "{{hostname}}-{{username}}-{{pid}}",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "hostname",
+                    "id": "4",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "5"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "fake": true,
+                    "field": "username",
+                    "id": "5",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "5"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "select field",
+                    "id": "1",
+                    "type": "count"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND tags:STANDALONE AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "FS OPS $action per host-user-pid on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "garmadon",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 31
+            },
+            "id": 78,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": null,
+            "repeatDirection": "h",
+            "repeatIteration": 1537167677858,
+            "repeatPanelId": 76,
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "RENAME",
+                "value": "RENAME"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "{{hostname}}-{{username}}-{{pid}}",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "hostname",
+                    "id": "4",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "5"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "fake": true,
+                    "field": "username",
+                    "id": "5",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "5"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "select field",
+                    "id": "1",
+                    "type": "count"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND tags:STANDALONE AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "FS OPS $action per host-user-pid on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "garmadon",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 31
+            },
+            "id": 79,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": null,
+            "repeatDirection": "h",
+            "repeatIteration": 1537167677858,
+            "repeatPanelId": 76,
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "WRITE",
+                "value": "WRITE"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "{{hostname}}-{{username}}-{{pid}}",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "hostname",
+                    "id": "4",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "5"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "fake": true,
+                    "field": "username",
+                    "id": "5",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "5"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "select field",
+                    "id": "1",
+                    "type": "count"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND tags:STANDALONE AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "FS OPS $action per host-user-pid on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          }
+        ],
+        "title": "FS OPS from StandAlone JVM",
+        "type": "row"
       }
     ],
     "refresh": "5m",
@@ -2464,7 +2963,7 @@
     },
     "time": {
       "from": "now-3h",
-      "to": "now"
+      "to": "now-3m"
     },
     "timepicker": {
       "nowDelay": "3m",

@@ -1,5 +1,6 @@
-package com.criteo.hadoop.garmadon.agent.modules;
+package com.criteo.hadoop.garmadon.agent.tracers;
 
+import com.criteo.hadoop.garmadon.agent.tracers.MapReduceTracer;
 import com.criteo.hadoop.garmadon.agent.utils.AgentAttachmentRule;
 import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
@@ -17,8 +18,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.mockito.ArgumentCaptor;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
@@ -52,7 +51,7 @@ public class MapRedOutputFormatTracerTest {
         eventHandler = mock(Consumer.class);
         argument = ArgumentCaptor.forClass(DataAccessEventProtos.PathEvent.class);
 
-        MapReduceModule.initEventHandler(eventHandler);
+        MapReduceTracer.initEventHandler(eventHandler);
         jobConf = mock(JobConf.class);
 
         when(jobConf.getJobName())
@@ -76,7 +75,7 @@ public class MapRedOutputFormatTracerTest {
     @Test
     public void OutputFormatTracer_should_use_a_latent_type_definition_equivalent_to_the_ForLoadedType_one(){
         TypeDescription realTypeDef = TypeDescription.ForLoadedType.of(org.apache.hadoop.mapred.OutputFormat.class);
-        TypeDescription latentTypeDef = MapReduceModule.Types.MAPRED_OUTPUT_FORMAT.getTypeDescription();
+        TypeDescription latentTypeDef = MapReduceTracer.Types.MAPRED_OUTPUT_FORMAT.getTypeDescription();
 
         assertThat(latentTypeDef.getName(), is(realTypeDef.getName()));
         assertThat(latentTypeDef.getModifiers(), is(realTypeDef.getModifiers()));
@@ -97,7 +96,7 @@ public class MapRedOutputFormatTracerTest {
                 .thenReturn(outputPath);
 
         //Install tracer
-        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedOutputFormatTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceTracer.DeprecatedOutputFormatTracer().installOnByteBuddyAgent();
         try {
             //Call OnputFormat
             Class<?> type = classLoader.loadClass(MapRedOutputFormatTestClasses.OneLevelHierarchy.class.getName());
@@ -126,7 +125,7 @@ public class MapRedOutputFormatTracerTest {
         when(jobConf.get("mapred.output.dir"))
                 .thenReturn(deprecatedOutputPath);
 
-        MapReduceModule.DeprecatedOutputFormatTracer.intercept(jobConf);
+        MapReduceTracer.DeprecatedOutputFormatTracer.intercept(jobConf);
 
         verify(eventHandler).accept(argument.capture());
         DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent

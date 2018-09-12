@@ -1,5 +1,6 @@
-package com.criteo.hadoop.garmadon.agent.modules;
+package com.criteo.hadoop.garmadon.agent.tracers;
 
+import com.criteo.hadoop.garmadon.agent.tracers.MapReduceTracer;
 import com.criteo.hadoop.garmadon.agent.utils.AgentAttachmentRule;
 import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
@@ -61,7 +62,7 @@ public class MapRedInputFormatTracerTest {
         eventHandler = mock(Consumer.class);
         argument = ArgumentCaptor.forClass(DataAccessEventProtos.PathEvent.class);
 
-        MapReduceModule.initEventHandler(eventHandler);
+        MapReduceTracer.initEventHandler(eventHandler);
         inputSplit = mock(InputSplit.class);
         jobConf = mock(JobConf.class);
         reporter = mock(Reporter.class);
@@ -92,7 +93,7 @@ public class MapRedInputFormatTracerTest {
     public void InputFormatTracer_should_not_fail_when_instrumentation_happens_in_a_separate_classloader() throws ClassNotFoundException, IOException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
-        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceTracer.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
 
         try {
             ClassLoader appCl = getClass().getClassLoader();
@@ -136,7 +137,7 @@ public class MapRedInputFormatTracerTest {
     @Test
     public void InputFormatTracer_should_use_a_latent_type_definition_equivalent_to_the_ForLoadedType_one() {
         TypeDescription realTypeDef = TypeDescription.ForLoadedType.of(org.apache.hadoop.mapred.InputFormat.class);
-        TypeDescription latentTypeDef = MapReduceModule.Types.MAPRED_INPUT_FORMAT.getTypeDescription();
+        TypeDescription latentTypeDef = MapReduceTracer.Types.MAPRED_INPUT_FORMAT.getTypeDescription();
 
         assertThat(latentTypeDef.getName(), is(realTypeDef.getName()));
         assertThat(latentTypeDef.getModifiers(), is(realTypeDef.getModifiers()));
@@ -153,7 +154,7 @@ public class MapRedInputFormatTracerTest {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
         //Install tracer
-        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceTracer.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
         try {
             //Prepare JobConf
             when(jobConf.get("mapreduce.input.fileinputformat.inputdir")).thenReturn(inputPath);
@@ -185,7 +186,7 @@ public class MapRedInputFormatTracerTest {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
         //Install tracer
-        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceTracer.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
         try {
             //Prepare JobConf
             when(jobConf.get("mapred.input.dir")).thenReturn(deprecatedInputPath);
@@ -217,7 +218,7 @@ public class MapRedInputFormatTracerTest {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
         //Install tracer
-        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceTracer.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
         try {
             //Prepare JobConf
             when(jobConf.get("mapreduce.input.fileinputformat.inputdir")).thenReturn("/some/path");
@@ -240,7 +241,7 @@ public class MapRedInputFormatTracerTest {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
         //Install tracer
-        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceTracer.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
         try {
             //Prepare JobConf
             when(jobConf.get("mapreduce.input.fileinputformat.inputdir")).thenReturn(inputPath);
@@ -272,7 +273,7 @@ public class MapRedInputFormatTracerTest {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
         //Install tracer
-        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceTracer.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
         try {
             //JobConf is prepared by Level3NotCallingSuper class
             //Testing PathEvent value shows Level3NotCallingSuper
@@ -303,7 +304,7 @@ public class MapRedInputFormatTracerTest {
     public void InputFormatTracer_should_let_getRecordReader_return_its_original_value() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
-        ClassFileTransformer classFileTransformer = new MapReduceModule.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceTracer.DeprecatedInputFormatTracer().installOnByteBuddyAgent();
         try {
             //Prepare JobConf
             when(jobConf.get("mapreduce.input.fileinputformat.inputdir")).thenReturn("/some/path");

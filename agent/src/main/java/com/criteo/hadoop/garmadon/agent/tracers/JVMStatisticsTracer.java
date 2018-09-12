@@ -1,18 +1,16 @@
-package com.criteo.hadoop.garmadon.agent.modules;
+package com.criteo.hadoop.garmadon.agent.tracers;
 
 import com.criteo.jvm.Conf;
 import com.criteo.jvm.JVMStatistics;
 import com.criteo.jvm.JVMStatisticsProtos;
 import com.criteo.jvm.ProtobufHelper;
 
-import java.lang.instrument.Instrumentation;
 import java.time.Duration;
 import java.util.function.Consumer;
 
-public class JVMStatisticsModule extends ContainerModule {
+public class JVMStatisticsTracer {
 
-    @Override
-    public void setup0(Instrumentation instrumentation, Consumer<Object> eventConsumer) {
+    public static void setup(Consumer<Object> eventConsumer) {
         Conf<JVMStatisticsProtos.JVMStatisticsData, JVMStatisticsProtos.GCStatisticsData, Void> conf = new Conf<>();
         int interval = Integer.getInteger("garmadon.jvm-statistics.interval", 10);
         conf.setInterval(Duration.ofSeconds(interval));

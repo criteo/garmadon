@@ -23,7 +23,8 @@ public class Header {
     public enum Tag {
         YARN_APPLICATION,
         FORWARDER,
-        NODEMANAGER
+        NODEMANAGER,
+        STANDALONE
     }
 
     public Header(String applicationID, String appAttemptID, String applicationName,
@@ -128,6 +129,23 @@ public class Header {
         }
     }
 
+    public static class SerializedHeader extends Header {
+        private final byte[] bytes;
+
+        public SerializedHeader(String applicationID, String appAttemptID, String applicationName, String user,
+                                String containerID, String hostname, List<String> tags, String pid, String framework,
+                                String component, String executorId) {
+            super(applicationID, appAttemptID, applicationName, user, containerID, hostname, tags, pid, framework,
+                    component, executorId);
+            this.bytes = super.serialize();
+        }
+
+        @Override
+        public byte[] serialize() {
+            return bytes;
+        }
+    }
+
     public static Builder newBuilder() {
         return new Builder();
     }
@@ -213,6 +231,11 @@ public class Header {
 
         public BaseHeader buildBaseHeader() {
             return new BaseHeader(applicationID, appAttemptID, applicationName, user, containerID, hostname,
+                    tags, pid, framework, component, executorId);
+        }
+
+        public SerializedHeader buildSerializedHeader() {
+            return new SerializedHeader(applicationID, appAttemptID, applicationName, user, containerID, hostname,
                     tags, pid, framework, component, executorId);
         }
     }

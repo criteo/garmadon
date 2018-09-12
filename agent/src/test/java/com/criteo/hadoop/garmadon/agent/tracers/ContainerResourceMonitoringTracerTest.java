@@ -1,5 +1,6 @@
-package com.criteo.hadoop.garmadon.agent.modules;
+package com.criteo.hadoop.garmadon.agent.tracers;
 
+import com.criteo.hadoop.garmadon.agent.tracers.ContainerResourceMonitoringTracer;
 import com.criteo.hadoop.garmadon.agent.utils.AgentAttachmentRule;
 import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
 import com.criteo.hadoop.garmadon.schema.events.Header;
@@ -19,7 +20,6 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.function.BiConsumer;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -51,11 +51,11 @@ public class ContainerResourceMonitoringTracerTest {
 
         final Header[] header = new Header[1];
         final Object[] event = new Object[1];
-        ContainerResourceMonitoringModule.initEventHandler((h,o) -> {
+        ContainerResourceMonitoringTracer.initEventHandler((h, o) -> {
             header[0] = h;
             event[0] = o;
         });
-        ClassFileTransformer classFileTransformer = new ContainerResourceMonitoringModule.MemorySizeTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new ContainerResourceMonitoringTracer.MemorySizeTracer().installOnByteBuddyAgent();
 
         try {
             ContainerExecutor exec = mock(ContainerExecutor.class);

@@ -36,6 +36,7 @@ curl -u admin:secret -XPOST 'http://localhost:3000/api/datasources' -H 'Content-
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @readers/elasticsearch/src/main/resources/grafana/garmadon-compute.json
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @readers/elasticsearch/src/main/resources/grafana/garmadon-hdfs.json
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @readers/elasticsearch/src/main/resources/grafana/garmadon-yarn-application.json
+curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @readers/elasticsearch/src/main/resources/grafana/garmadon-standalone-jvm.json
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @readers/elasticsearch/src/main/resources/grafana/garmadon-spark-job.json
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @readers/elasticsearch/src/main/resources/grafana/garmadon-spark-job-stages.json
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @readers/elasticsearch/src/main/resources/grafana/garmadon-spark-job-executors.json
