@@ -711,7 +711,7 @@
           "eager_global_ordinals": true
         },
         "value": {
-          "type": "long",
+          "type": "float",
           "index": false
         },
         "writes": {

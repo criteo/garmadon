@@ -191,7 +191,11 @@ public class EventHelper {
         Date timestamp_date = new Date(event.getTimestamp());
         Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type, timestamp_date));
         eventMap.put("type", event.getType());
-        eventMap.put("value", event.getValue());
+        if (event.hasValue()) {
+            eventMap.put("value", event.getValue());
+        } else {
+            eventMap.put("value", event.getValueFloat());
+        }
         eventMap.put("limit", event.getLimit());
     }
 }

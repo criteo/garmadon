@@ -3,7 +3,6 @@
     "annotations": {
       "list": [
         {
-          "$$hashKey": "object:79",
           "builtIn": 1,
           "datasource": "-- Grafana --",
           "enable": true,
@@ -13,7 +12,6 @@
           "type": "dashboard"
         },
         {
-          "$$hashKey": "object:80",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -29,7 +27,6 @@
           "type": "tags"
         },
         {
-          "$$hashKey": "object:81",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -45,7 +42,6 @@
           "type": "tags"
         },
         {
-          "$$hashKey": "object:82",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -61,7 +57,6 @@
           "type": "tags"
         },
         {
-          "$$hashKey": "object:83",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -77,7 +72,6 @@
           "type": "tags"
         },
         {
-          "$$hashKey": "object:84",
           "datasource": "garmadon",
           "enable": false,
           "hide": false,
@@ -130,256 +124,6 @@
         "type": "row"
       },
       {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "datasource": "garmadon",
-        "decimals": null,
-        "fill": 1,
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 0,
-          "y": 3
-        },
-        "id": 3,
-        "legend": {
-          "alignAsTable": true,
-          "avg": false,
-          "current": false,
-          "hideEmpty": false,
-          "hideZero": false,
-          "max": false,
-          "min": false,
-          "rightSide": true,
-          "show": true,
-          "sideWidth": 70,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "connected",
-        "percentage": false,
-        "pointradius": 5,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": false,
-        "targets": [
-          {
-            "alias": "%usage",
-            "bucketAggs": [
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "10s",
-                  "min_doc_count": 1,
-                  "trimEdges": null
-                },
-                "type": "date_histogram"
-              }
-            ],
-            "metrics": [
-              {
-                "field": "cpu_%load",
-                "id": "1",
-                "meta": {},
-                "settings": {},
-                "type": "sum"
-              }
-            ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id",
-            "refId": "A",
-            "target": "",
-            "timeField": "timestamp"
-          }
-        ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeShift": null,
-        "title": "Total CPU",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "format": "percent",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "datasource": "garmadon",
-        "decimals": null,
-        "fill": 1,
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 12,
-          "y": 3
-        },
-        "id": 68,
-        "legend": {
-          "alignAsTable": true,
-          "avg": false,
-          "current": false,
-          "hideEmpty": false,
-          "hideZero": false,
-          "max": false,
-          "min": false,
-          "rightSide": true,
-          "show": true,
-          "sideWidth": 80,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "connected",
-        "percentage": false,
-        "pointradius": 5,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": false,
-        "targets": [
-          {
-            "alias": "sum used",
-            "bucketAggs": [
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "10s",
-                  "min_doc_count": 1,
-                  "trimEdges": null
-                },
-                "type": "date_histogram"
-              }
-            ],
-            "metrics": [
-              {
-                "field": "value",
-                "id": "1",
-                "meta": {},
-                "settings": {},
-                "type": "sum"
-              }
-            ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND attempt_id:$attempt_id",
-            "refId": "A",
-            "target": "",
-            "timeField": "timestamp"
-          },
-          {
-            "alias": "limit",
-            "bucketAggs": [
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "10s",
-                  "min_doc_count": 1,
-                  "trimEdges": null
-                },
-                "type": "date_histogram"
-              }
-            ],
-            "metrics": [
-              {
-                "field": "limit",
-                "id": "1",
-                "meta": {},
-                "settings": {},
-                "type": "sum"
-              }
-            ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND attempt_id:$attempt_id",
-            "refId": "B",
-            "target": "",
-            "timeField": "timestamp"
-          }
-        ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeShift": null,
-        "title": "Total Containers Memory",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "format": "bytes",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
-      },
-      {
         "columns": [
           {
             "text": "timestamp",
@@ -412,7 +156,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 11
+          "y": 3
         },
         "id": 80,
         "links": [],
@@ -521,7 +265,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 11
+          "y": 3
         },
         "id": 79,
         "links": [],
@@ -609,7 +353,7 @@
           "h": 8,
           "w": 24,
           "x": 0,
-          "y": 19
+          "y": 11
         },
         "id": 69,
         "legend": {
@@ -726,7 +470,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 27
+          "y": 19
         },
         "id": 55,
         "panels": [
@@ -1104,7 +848,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 28
+          "y": 20
         },
         "id": 44,
         "panels": [
@@ -1677,7 +1421,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 29
+          "y": 21
         },
         "id": 39,
         "panels": [
@@ -2024,7 +1768,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 30
+          "y": 22
         },
         "id": 9,
         "panels": [
@@ -2324,7 +2068,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 31
+          "y": 23
         },
         "id": 67,
         "panels": [
@@ -2701,7 +2445,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 32
+          "y": 24
         },
         "id": 71,
         "panels": [
@@ -2877,8 +2621,8 @@
         {
           "allValue": "*",
           "current": {
-            "text": "application_1536057127243_0004",
-            "value": "application_1536057127243_0004"
+            "text": "application_1537174867142_0006",
+            "value": "application_1537174867142_0006"
           },
           "datasource": "garmadon",
           "hide": 0,

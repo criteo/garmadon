@@ -60,7 +60,7 @@
           "x": 0,
           "y": 1
         },
-        "id": 3,
+        "id": 25,
         "legend": {
           "alignAsTable": true,
           "avg": false,
@@ -86,7 +86,7 @@
         "steppedLine": false,
         "targets": [
           {
-            "alias": "%usage",
+            "alias": "avg used",
             "bucketAggs": [
               {
                 "field": "timestamp",
@@ -101,15 +101,71 @@
             ],
             "metrics": [
               {
-                "field": "cpu_%load",
+                "field": "value",
                 "id": "1",
                 "meta": {},
                 "settings": {},
-                "type": "sum"
+                "type": "avg"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname",
             "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "max used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "requested",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "limit",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname",
+            "refId": "B",
             "target": "",
             "timeField": "timestamp"
           }
@@ -117,7 +173,7 @@
         "thresholds": [],
         "timeFrom": null,
         "timeShift": null,
-        "title": "CPU",
+        "title": "Vcore",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -133,7 +189,7 @@
         },
         "yaxes": [
           {
-            "format": "percent",
+            "format": "short",
             "label": null,
             "logBase": 1,
             "max": null,
@@ -167,7 +223,7 @@
           "x": 12,
           "y": 1
         },
-        "id": 25,
+        "id": 47,
         "legend": {
           "alignAsTable": true,
           "avg": false,
@@ -2779,8 +2835,9 @@
         {
           "allValue": "*",
           "current": {
-            "text": "application_1536670895885_0006",
-            "value": "application_1536670895885_0006"
+            "selected": true,
+            "text": "application_1537039759353_0006",
+            "value": "application_1537039759353_0006"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -2825,8 +2882,8 @@
         {
           "allValue": "*",
           "current": {
-            "text": "container_1536670895885_0006_01_000001",
-            "value": "container_1536670895885_0006_01_000001"
+            "text": "All",
+            "value": "$__all"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -2848,6 +2905,7 @@
         {
           "allValue": "*",
           "current": {
+            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -2871,6 +2929,7 @@
         {
           "allValue": null,
           "current": {
+            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -2895,7 +2954,7 @@
     },
     "time": {
       "from": "now-1h",
-      "to": "now-3m"
+      "to": "now"
     },
     "timepicker": {
       "nowDelay": "3m",

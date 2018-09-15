@@ -58,6 +58,7 @@ public class ContainerResourceMonitoringTracer {
         public static void intercept(@Argument(0) String containerID, @Argument(1) long currentMemUsage,
                                      @Argument(3) long limit) throws Exception {
             try {
+
                 ContainerId cID = ConverterUtils.toContainerId(containerID);
                 ApplicationAttemptId applicationAttemptId = cID.getApplicationAttemptId();
                 String applicationId = applicationAttemptId.getApplicationId().toString();
@@ -73,7 +74,7 @@ public class ContainerResourceMonitoringTracer {
                 ContainerEventProtos.ContainerResourceEvent event = ContainerEventProtos.ContainerResourceEvent.newBuilder()
                         .setTimestamp(System.currentTimeMillis())
                         .setType(ContainerType.MEMORY.name())
-                        .setValue(currentMemUsage)
+                        .setValueFloat(currentMemUsage)
                         .setLimit(limit)
                         .build();
                 eventHandler.accept(header, event);
