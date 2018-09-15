@@ -8,6 +8,7 @@ public class StandaloneHeader {
     private Header.SerializedHeader createCachedHeader() {
         //build the header for the whole application once
         return Header.newBuilder()
+                .withId(Utils.getStandaloneId())
                 .addTag(Header.Tag.STANDALONE.name())
                 .withHostname(Utils.getHostname())
                 .withUser(Utils.getUser())

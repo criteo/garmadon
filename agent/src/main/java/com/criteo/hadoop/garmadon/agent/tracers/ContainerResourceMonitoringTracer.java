@@ -64,6 +64,7 @@ public class ContainerResourceMonitoringTracer {
                 String attemptId = applicationAttemptId.toString();
 
                 Header header = Header.newBuilder()
+                        .withId(applicationId)
                         .withApplicationID(applicationId)
                         .withAppAttemptID(attemptId)
                         .withContainerID(containerID)

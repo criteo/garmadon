@@ -39,7 +39,7 @@ public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
         msg.readBytes(raw);
 
         KafkaMessage kafkaMessage = new KafkaMessage(
-                header.getApplicationId(),
+                header.getId(),
                 raw);
 
         // Push header in context to sendAsync event end container

@@ -53,6 +53,7 @@ public class EventHandlerTest {
     public void EventHandler_should_read_event_according_top_protocol() throws TypeMarkerException, SerializationException {
         Header header = Header.newBuilder()
                 .withHostname("hostname")
+                .withId("app_id")
                 .withApplicationID("app_id")
                 .withAppAttemptID("app_attempt_id")
                 .withApplicationName("app_name")

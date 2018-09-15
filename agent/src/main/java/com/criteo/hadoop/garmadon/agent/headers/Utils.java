@@ -27,4 +27,8 @@ public class Utils {
         }
         return pid;
     }
+
+    public static String getStandaloneId(){
+        return getHostname() + ":" + getUser() + ":" + getPid();
+    }
 }

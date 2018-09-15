@@ -97,6 +97,7 @@ public class ContainerHeader {
 
         //build the header for the whole application once
         return Header.newBuilder()
+                .withId(appId.toString())
                 .addTag(Header.Tag.YARN_APPLICATION.name())
                 .withHostname(host)
                 .withApplicationID(appId.toString())

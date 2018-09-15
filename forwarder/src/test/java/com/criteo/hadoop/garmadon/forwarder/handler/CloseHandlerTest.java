@@ -53,6 +53,7 @@ public class CloseHandlerTest {
     public void CloseHandler_should_fire_an_end_event() throws TypeMarkerException, SerializationException, InvalidProtocolBufferException {
         Header header = Header.newBuilder()
                 .withHostname("hostname")
+                .withId("app_id")
                 .withApplicationID("app_id")
                 .withAppAttemptID("app_attempt_id")
                 .withApplicationName("app_name")

@@ -17,6 +17,7 @@ message Header {
     optional string component = 10;
     optional string executor_id = 11;
     repeated string tags = 12;
+    optional string id = 13;
 }
 
 message PathEvent {
