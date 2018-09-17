@@ -5,7 +5,6 @@ import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO: remove tag once tags is used everywhere
 public class Header {
 
     protected final String id;

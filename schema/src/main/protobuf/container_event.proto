@@ -8,8 +8,6 @@ option java_outer_classname = "ContainerEventProtos";
 message ContainerResourceEvent {
     required uint64 timestamp = 1;
     required string type = 2;
-    // TODO remove once all agent are updated to release using value_float (rename field to value_float to value after)
-    optional uint64 value = 3;
     optional uint64 limit = 4;
-    optional float value_float = 5;
+    optional float value = 5;
 }

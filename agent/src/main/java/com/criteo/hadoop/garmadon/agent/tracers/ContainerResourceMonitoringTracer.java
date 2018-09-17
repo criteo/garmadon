@@ -74,7 +74,7 @@ public class ContainerResourceMonitoringTracer {
                 ContainerEventProtos.ContainerResourceEvent event = ContainerEventProtos.ContainerResourceEvent.newBuilder()
                         .setTimestamp(System.currentTimeMillis())
                         .setType(ContainerType.MEMORY.name())
-                        .setValueFloat(currentMemUsage)
+                        .setValue(currentMemUsage)
                         .setLimit(limit)
                         .build();
                 eventHandler.accept(header, event);

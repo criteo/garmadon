@@ -106,7 +106,7 @@ public class ContainerMetricsTracer {
                     ContainerEventProtos.ContainerResourceEvent event = ContainerEventProtos.ContainerResourceEvent.newBuilder()
                             .setTimestamp(System.currentTimeMillis())
                             .setType(ContainerType.VCORE.name())
-                            .setValueFloat(cpuVcoreUsed)
+                            .setValue(cpuVcoreUsed)
                             .setLimit(cpuVcoreLimit)
                             .build();
                     eventHandler.accept(header, event);
