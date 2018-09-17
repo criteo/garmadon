@@ -2880,7 +2880,7 @@
           "name": "uri",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"uri\"}",
-          "refresh": 2,
+          "refresh": 1,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2950,7 +2950,7 @@
           "name": "action",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"action\",\"query\":\"uri:$uri AND dst_path:$path\"}",
-          "refresh": 2,
+          "refresh": 1,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -2966,7 +2966,7 @@
       "to": "now-3m"
     },
     "timepicker": {
-      "nowDelay": "3m",
+      "nowDelay": "",
       "refresh_intervals": [
         "5m",
         "15m",

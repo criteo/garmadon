@@ -1406,7 +1406,7 @@
           "name": "hostname",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\":\"tags:NODEMANAGER\"}",
-          "refresh": 2,
+          "refresh": 1,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -1429,7 +1429,7 @@
           "name": "username",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"username\"}",
-          "refresh": 2,
+          "refresh": 1,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -1452,7 +1452,7 @@
           "name": "framework",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"framework\"}",
-          "refresh": 2,
+          "refresh": 1,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -1476,7 +1476,7 @@
           "name": "component",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"component\", \"query\":\"framework:$framework\"}",
-          "refresh": 2,
+          "refresh": 1,
           "regex": "",
           "sort": 1,
           "tagValuesQuery": "",
@@ -1489,10 +1489,10 @@
     },
     "time": {
       "from": "now-3h",
-      "to": "now"
+      "to": "now-3m"
     },
     "timepicker": {
-      "nowDelay": "3m",
+      "nowDelay": "",
       "refresh_intervals": [
         "5m",
         "15m",
