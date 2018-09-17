@@ -1,6 +1,7 @@
 package com.criteo.hadoop.garmadon.spark.listener;
 
 import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
+import com.criteo.hadoop.garmadon.schema.events.Header;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -11,6 +12,7 @@ import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static org.mockito.Matchers.any;
@@ -27,12 +29,22 @@ public class GarmadonSparkListenerTest {
 
     private GarmadonSparkListener sparkListener;
 
-    private Consumer<Object> eventHandler;
+    private BiConsumer<Header, Object> eventHandler;
+    private Header.SerializedHeader header;
 
     @Before
     public void setUp() {
-        eventHandler = mock(Consumer.class);
+        eventHandler = mock(BiConsumer.class);
+        header = Header.newBuilder()
+                .withId("id")
+                .addTag(Header.Tag.STANDALONE.name())
+                .withHostname("host")
+                .withUser("user")
+                .withPid("pid")
+                .buildSerializedHeader();
+
         SparkListernerConf.getInstance().setConsumer(eventHandler);
+        SparkListernerConf.getInstance().setHeader(header);
 
         jsc = new JavaSparkContext(
                 new SparkConf()
@@ -53,7 +65,7 @@ public class GarmadonSparkListenerTest {
         jsc.parallelize(data).count();
         jsc.close();
 
-        verify(eventHandler, times(0)).accept(any(SparkEventProtos.StageEvent.class));
+        verify(eventHandler, times(0)).accept(any(Header.class), any(SparkEventProtos.StageEvent.class));
     }
 
     @Test
@@ -63,7 +75,7 @@ public class GarmadonSparkListenerTest {
         jsc.parallelize(data).count();
         jsc.close();
 
-        verify(eventHandler, times(2)).accept(isA(SparkEventProtos.StageStateEvent.class));
-        verify(eventHandler).accept(isA(SparkEventProtos.StageEvent.class));
+        verify(eventHandler, times(2)).accept(isA(Header.class), isA(SparkEventProtos.StageStateEvent.class));
+        verify(eventHandler).accept(isA(Header.class), isA(SparkEventProtos.StageEvent.class));
     }
 }

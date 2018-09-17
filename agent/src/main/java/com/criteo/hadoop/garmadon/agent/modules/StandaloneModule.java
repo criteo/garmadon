@@ -4,6 +4,7 @@ import com.criteo.hadoop.garmadon.agent.AsyncEventProcessor;
 import com.criteo.hadoop.garmadon.agent.headers.StandaloneHeader;
 import com.criteo.hadoop.garmadon.agent.tracers.FileSystemTracer;
 import com.criteo.hadoop.garmadon.agent.tracers.JVMStatisticsTracer;
+import com.criteo.hadoop.garmadon.agent.tracers.SparkListenerTracer;
 
 import java.lang.instrument.Instrumentation;
 import java.util.concurrent.ExecutorService;
@@ -22,6 +23,12 @@ public class StandaloneModule implements GarmadonAgentModule {
         // Byte code instrumentation
         executorService.submit(() -> FileSystemTracer.setup(instrumentation,
                 event -> eventProcessor.offer(StandaloneHeader.getInstance().getHeader(), event)));
+
+        // Set SPARK Listener
+        executorService.submit(() -> {
+            SparkListenerTracer.setup(StandaloneHeader.getInstance().getHeader(),
+                    (header, event) -> eventProcessor.offer(header, event));
+        });
 
         executorService.shutdown();
         // We wait 2 sec executor to instrument classes

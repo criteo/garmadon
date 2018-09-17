@@ -1,10 +1,13 @@
 package com.criteo.hadoop.garmadon.spark.listener;
 
-import java.util.function.Consumer;
+import com.criteo.hadoop.garmadon.schema.events.Header;
+
+import java.util.function.BiConsumer;
 
 public class SparkListernerConf {
 
-    private Consumer<Object> eventHandler;
+    private BiConsumer<Header, Object> eventHandler;
+    private Header.SerializedHeader header;
 
     /**
      * Constructeur privé
@@ -29,11 +32,19 @@ public class SparkListernerConf {
         return SingletonHolder.instance;
     }
 
-    public void setConsumer(Consumer<Object> eventConsumer) {
+    public void setConsumer(BiConsumer<Header, Object> eventConsumer) {
         this.eventHandler = eventConsumer;
     }
 
-    public Consumer<Object> getEventHandler() {
+    public Header.SerializedHeader getHeader() {
+        return header;
+    }
+
+    public void setHeader(Header.SerializedHeader header) {
+        this.header = header;
+    }
+
+    public BiConsumer<Header, Object> getEventHandler() {
         return eventHandler;
     }
 }

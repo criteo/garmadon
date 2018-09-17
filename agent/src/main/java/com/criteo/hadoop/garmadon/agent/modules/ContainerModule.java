@@ -5,11 +5,11 @@ import com.criteo.hadoop.garmadon.agent.headers.ContainerHeader;
 import com.criteo.hadoop.garmadon.agent.tracers.FileSystemTracer;
 import com.criteo.hadoop.garmadon.agent.tracers.JVMStatisticsTracer;
 import com.criteo.hadoop.garmadon.agent.tracers.SparkListenerTracer;
-import com.criteo.hadoop.garmadon.schema.enums.Component;
-import com.criteo.hadoop.garmadon.schema.enums.Framework;
 
 import java.lang.instrument.Instrumentation;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class ContainerModule implements GarmadonAgentModule {
 
@@ -26,10 +26,8 @@ public class ContainerModule implements GarmadonAgentModule {
 
         // Set SPARK Listener
         executorService.submit(() -> {
-            ContainerHeader containerHeader = ContainerHeader.getInstance();
-            if (containerHeader.getFramework().equals(Framework.SPARK) && containerHeader.getComponent().equals(Component.APP_MASTER)) {
-                SparkListenerTracer.setup(event -> eventProcessor.offer(containerHeader.getHeader(), event));
-            }
+            SparkListenerTracer.setup(ContainerHeader.getInstance().getHeader(),
+                    (header, event) -> eventProcessor.offer(header, event));
         });
 
         executorService.shutdown();

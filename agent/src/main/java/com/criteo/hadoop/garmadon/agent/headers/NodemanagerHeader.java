@@ -3,22 +3,22 @@ package com.criteo.hadoop.garmadon.agent.headers;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 
 public class NodemanagerHeader {
-    private Header.BaseHeader baseHeader;
+    private Header header;
 
-    private Header.BaseHeader createCachedHeader() {
+    private Header createCachedHeader() {
         return Header.newBuilder()
                 .withHostname(Utils.getHostname())
                 .withUser(Utils.getUser())
                 .withPid(Utils.getPid())
                 .addTag(Header.Tag.NODEMANAGER.name())
-                .buildBaseHeader();
+                .build();
     }
 
     /**
      * Constructeur privé
      */
     private NodemanagerHeader() {
-        this.baseHeader = createCachedHeader();
+        this.header = createCachedHeader();
     }
 
     /**
@@ -38,8 +38,8 @@ public class NodemanagerHeader {
         return NodemanagerHeader.SingletonHolder.instance;
     }
 
-    public Header.BaseHeader getBaseHeader() {
-        return baseHeader;
+    public Header getBaseHeader() {
+        return header;
     }
 
 }

@@ -32,7 +32,7 @@ public class ContainerMetricsTracer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerMetricsTracer.class);
     private static BiConsumer<Header, Object> eventHandler;
 
-    public static void setup(Header.BaseHeader baseHeader, Instrumentation instrumentation, AsyncEventProcessor eventProcessor) {
+    public static void setup(Header baseHeader, Instrumentation instrumentation, AsyncEventProcessor eventProcessor) {
         initEventHandler((headerOverride, event) -> {
             Header header = baseHeader.cloneAndOverride(headerOverride);
             eventProcessor.offer(header, event);

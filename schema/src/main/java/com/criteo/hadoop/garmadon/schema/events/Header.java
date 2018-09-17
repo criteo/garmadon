@@ -45,6 +45,40 @@ public class Header {
         this.executorId = executorId;
     }
 
+    public Header cloneAndOverride(Header override) {
+        String id = override.id != null ? override.id : this.id;
+        String applicationID = override.applicationID != null ? override.applicationID : this.applicationID;
+        String appAttemptID = override.appAttemptID != null ? override.appAttemptID : this.appAttemptID;
+        String applicationName = override.applicationName != null ? override.applicationName : this.applicationName;
+        String user = override.user != null ? override.user : this.user;
+        String containerID = override.containerID != null ? override.containerID : this.containerID;
+        String hostname = override.hostname != null ? override.hostname : this.hostname;
+        List<String> tags = (override.tags != null && override.tags.size() > 0) ? override.tags : this.tags;
+        String pid = override.pid != null ? override.pid : this.pid;
+        String framework = override.framework != null ? override.framework : this.framework;
+        String component = override.component != null ? override.component : this.component;
+        String executorId = override.executorId != null ? override.executorId : this.executorId;
+        return new Header(
+                id,
+                applicationID,
+                appAttemptID,
+                applicationName,
+                user,
+                containerID,
+                hostname,
+                tags,
+                pid,
+                framework,
+                component,
+                executorId
+        );
+    }
+
+    public SerializedHeader toSerializeHeader() {
+        return new SerializedHeader(id, applicationID, appAttemptID, applicationName, user, containerID, hostname, tags, pid, framework,
+                component, executorId);
+    }
+
     public byte[] serialize() {
         DataAccessEventProtos.Header.Builder builder = DataAccessEventProtos.Header
                 .newBuilder();
@@ -93,47 +127,6 @@ public class Header {
                 ", executorId='" + executorId + '\'' +
                 ", tags=" + tags +
                 '}';
-    }
-
-    /**
-     * Header that can be cloned with overridden values
-     */
-    public static class BaseHeader extends Header {
-        private BaseHeader(String id, String applicationID, String appAttemptID, String applicationName, String user,
-                           String containerID, String hostname, List<String> tags, String pid, String framework,
-                           String component, String executorId) {
-            super(id, applicationID, appAttemptID, applicationName, user, containerID, hostname, tags, pid, framework,
-                    component, executorId);
-        }
-
-        public Header cloneAndOverride(Header override) {
-            String id = override.id != null ? override.id : this.id;
-            String applicationID = override.applicationID != null ? override.applicationID : this.applicationID;
-            String appAttemptID = override.appAttemptID != null ? override.appAttemptID : this.appAttemptID;
-            String applicationName = override.applicationName != null ? override.applicationName : this.applicationName;
-            String user = override.user != null ? override.user : this.user;
-            String containerID = override.containerID != null ? override.containerID : this.containerID;
-            String hostname = override.hostname != null ? override.hostname : this.hostname;
-            List<String> tags = (override.tags != null && override.tags.size() > 0) ? override.tags : this.tags;
-            String pid = override.pid != null ? override.pid : this.pid;
-            String framework = override.framework != null ? override.framework : this.framework;
-            String component = override.component != null ? override.component : this.component;
-            String executorId = override.executorId != null ? override.executorId : this.executorId;
-            return new Header(
-                    id,
-                    applicationID,
-                    appAttemptID,
-                    applicationName,
-                    user,
-                    containerID,
-                    hostname,
-                    tags,
-                    pid,
-                    framework,
-                    component,
-                    executorId
-            );
-        }
     }
 
     public static class SerializedHeader extends Header {
@@ -240,11 +233,6 @@ public class Header {
         public Header build() {
             return new Header(id, applicationID, appAttemptID, applicationName, user, containerID, hostname, tags,
                     pid, framework, component, executorId);
-        }
-
-        public BaseHeader buildBaseHeader() {
-            return new BaseHeader(id, applicationID, appAttemptID, applicationName, user, containerID, hostname,
-                    tags, pid, framework, component, executorId);
         }
 
         public SerializedHeader buildSerializedHeader() {

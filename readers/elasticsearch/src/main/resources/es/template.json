@@ -85,7 +85,13 @@
         "application_name": {
           "type": "text",
           "norms": false,
-          "index_options": "freqs"
+          "index_options": "positions",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 1024
+            }
+          }
         },
         "attempt_id": {
           "type": "keyword",

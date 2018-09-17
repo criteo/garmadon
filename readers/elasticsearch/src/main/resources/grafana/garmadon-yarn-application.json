@@ -406,10 +406,130 @@
             "datasource": "garmadon",
             "fill": 1,
             "gridPos": {
+              "h": 7,
+              "w": 24,
+              "x": 0,
+              "y": 13
+            },
+            "id": 48,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 100,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "nullPointMode": "connected",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "{{pid}}.%used",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "10s",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "cpu_%load",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {},
+                    "type": "avg"
+                  }
+                ],
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "CPU",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "percent",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "garmadon",
+            "fill": 1,
+            "gridPos": {
               "h": 8,
               "w": 8,
               "x": 0,
-              "y": 13
+              "y": 20
             },
             "id": 15,
             "legend": {
@@ -557,7 +677,7 @@
               "h": 8,
               "w": 8,
               "x": 8,
-              "y": 13
+              "y": 20
             },
             "id": 24,
             "legend": {
@@ -677,7 +797,7 @@
               "h": 8,
               "w": 8,
               "x": 16,
-              "y": 13
+              "y": 20
             },
             "id": 40,
             "legend": {
@@ -798,7 +918,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 21
+              "y": 28
             },
             "id": 27,
             "legend": {
@@ -1172,7 +1292,7 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 21
+              "y": 28
             },
             "id": 32,
             "legend": {
@@ -1492,7 +1612,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 29
+              "y": 36
             },
             "id": 26,
             "legend": {
@@ -1612,7 +1732,7 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 29
+              "y": 36
             },
             "id": 29,
             "legend": {
@@ -1741,7 +1861,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 37
+              "y": 44
             },
             "id": 31,
             "legend": {
@@ -2835,9 +2955,8 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
-            "text": "application_1537039759353_0006",
-            "value": "application_1537039759353_0006"
+            "text": "application_1537363228510_0003",
+            "value": "application_1537363228510_0003"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -2905,7 +3024,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -2929,7 +3047,6 @@
         {
           "allValue": null,
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },

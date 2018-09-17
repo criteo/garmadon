@@ -12,9 +12,6 @@ import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-
 public class ContainerHeader {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerHeader.class);
     private Header.SerializedHeader header;
@@ -138,14 +135,6 @@ public class ContainerHeader {
 
     public Header.SerializedHeader getHeader() {
         return header;
-    }
-
-    public Framework getFramework() {
-        return framework;
-    }
-
-    public Component getComponent() {
-        return component;
     }
 
 }

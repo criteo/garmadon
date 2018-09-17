@@ -74,4 +74,12 @@ docker-compose exec client /opt/spark/bin/spark-submit \
     --conf spark.dynamicAllocation.minExecutors=1 --conf spark.dynamicAllocation.initialExecutors=4 \
     --conf spark.dynamicAllocation.maxExecutors=4 --conf spark.dynamicAllocation.executorIdleTimeout=1s \
     --class org.apache.spark.examples.sql.SparkSQLExample /opt/spark/examples/jars/spark-examples_2.11-2.2.2.jar
+
+# Spark yarn client
+docker-compose exec client /opt/spark/bin/spark-submit \
+    --deploy-mode client \
+    --conf spark.shuffle.service.enabled=true --conf spark.dynamicAllocation.enabled=true \
+    --conf spark.dynamicAllocation.minExecutors=1 --conf spark.dynamicAllocation.initialExecutors=4 \
+    --conf spark.dynamicAllocation.maxExecutors=4 --conf spark.dynamicAllocation.executorIdleTimeout=1s \
+    --class org.apache.spark.examples.sql.SparkSQLExample /opt/spark/examples/jars/spark-examples_2.11-2.2.2.jar
 popd

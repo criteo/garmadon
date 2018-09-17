@@ -48,7 +48,7 @@
           "iconColor": "#1f78c1",
           "limit": 100,
           "name": "Executor Added",
-          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tags:YARN_APPLICATION AND state:ADDED AND application_id:$application_id AND attempt_id:$attempt_id",
+          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND state:ADDED AND application_id:$application_id AND attempt_id:$attempt_id",
           "showIn": 0,
           "tags": [],
           "tagsField": "state",
@@ -63,7 +63,7 @@
           "iconColor": "#e5ac0e",
           "limit": 100,
           "name": "Executor Removed",
-          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tags:YARN_APPLICATION AND state:REMOVED AND application_id:$application_id AND attempt_id:$attempt_id",
+          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND state:REMOVED AND application_id:$application_id AND attempt_id:$attempt_id",
           "showIn": 0,
           "tags": [],
           "tagsField": "state",
@@ -78,7 +78,7 @@
           "iconColor": "#e0752d",
           "limit": 100,
           "name": "Executor Blacklisted/Unblacklisted",
-          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tags:YARN_APPLICATION AND NOT state:REMOVED AND NOT state:ADDED AND application_id:$application_id AND attempt_id:$attempt_id",
+          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND NOT state:REMOVED AND NOT state:ADDED AND application_id:$application_id AND attempt_id:$attempt_id",
           "showIn": 0,
           "tags": [],
           "tagsField": "state",
@@ -224,7 +224,7 @@
                 "type": "count"
               }
             ],
-            "query": "event_type:SPARK_TASK_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
+            "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -350,7 +350,7 @@
                 "type": "raw_document"
               }
             ],
-            "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
+            "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
             "refId": "A",
             "timeField": "timestamp"
           }
@@ -375,7 +375,7 @@
               "h": 3,
               "w": 24,
               "x": 0,
-              "y": 10
+              "y": 12
             },
             "id": 76,
             "links": [],
@@ -396,7 +396,7 @@
               "h": 9,
               "w": 24,
               "x": 0,
-              "y": 13
+              "y": 15
             },
             "id": 62,
             "legend": {
@@ -553,7 +553,7 @@
               "h": 5,
               "w": 24,
               "x": 0,
-              "y": 22
+              "y": 24
             },
             "id": 77,
             "links": [],
@@ -574,7 +574,7 @@
               "h": 9,
               "w": 24,
               "x": 0,
-              "y": 27
+              "y": 29
             },
             "id": 74,
             "legend": {
@@ -2463,7 +2463,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2587,7 +2587,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:SPARK_TASK_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
+                "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2835,8 +2835,31 @@
         {
           "allValue": "*",
           "current": {
-            "text": "application_1536057127243_0004",
-            "value": "application_1536057127243_0004"
+            "text": "All",
+            "value": "$__all"
+          },
+          "datasource": "garmadon",
+          "hide": 0,
+          "includeAll": true,
+          "label": null,
+          "multi": false,
+          "name": "application_name",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username\"}",
+          "refresh": 2,
+          "regex": "",
+          "sort": 2,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": "*",
+          "current": {
+            "text": "application_1537173778920_0007",
+            "value": "application_1537173778920_0007"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -2845,7 +2868,7 @@
           "multi": false,
           "name": "application_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_name.keyword:$application_name AND username:$username\"}",
           "refresh": 2,
           "regex": "",
           "sort": 2,
@@ -2868,7 +2891,7 @@
           "multi": false,
           "name": "attempt_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"attempt_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username AND application_id:$application_id\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"attempt_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_id:$application_id\"}",
           "refresh": 2,
           "regex": "",
           "sort": 1,
@@ -2881,8 +2904,8 @@
         {
           "allValue": "*",
           "current": {
-            "text": "0",
-            "value": "0"
+            "text": "All",
+            "value": "$__all"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -2904,8 +2927,8 @@
         {
           "allValue": "*",
           "current": {
-            "text": "0",
-            "value": "0"
+            "text": "All",
+            "value": "$__all"
           },
           "datasource": "garmadon",
           "hide": 0,
@@ -2927,8 +2950,9 @@
         {
           "allValue": "*",
           "current": {
-            "text": "container_1536408291317_0006_01_000002",
-            "value": "container_1536408291317_0006_01_000002"
+            "selected": true,
+            "text": "container_1537173778920_0007_01_000002",
+            "value": "container_1537173778920_0007_01_000002"
           },
           "datasource": "garmadon",
           "hide": 2,
