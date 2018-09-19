@@ -5,15 +5,19 @@ import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.enums.State;
 import org.apache.spark.scheduler.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.Function0;
 import scala.runtime.AbstractFunction0;
 
 import java.util.HashMap;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 
 // TODO: application name (keyword + better indexing + in the graph?)
 public class GarmadonSparkListener extends SparkListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonSparkListener.class);
     public final Consumer<Object> eventHandler;
 
     private final HashMap<String, String> executorHostId = new HashMap<>();
@@ -41,6 +45,22 @@ public class GarmadonSparkListener extends SparkListener {
         }
     };
 
+    private <T> T getValOrNull(Supplier<T> supplier) {
+        try {
+            return supplier.get();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private void tryToSet(Runnable c) {
+        try {
+            c.run();
+        } catch (Throwable t) {
+
+        }
+    }
+
     private void sendStageStateEvent(long stateTime, State state, String name, String stageId,
                                      String attemptId, int numTasks) {
         DataAccessEventProtos.StateEvent stateEvent = DataAccessEventProtos.StateEvent
@@ -49,16 +69,16 @@ public class GarmadonSparkListener extends SparkListener {
                 .setState(state.name())
                 .build();
 
-        SparkEventProtos.StageStateEvent stageStateEvent = SparkEventProtos.StageStateEvent
+        SparkEventProtos.StageStateEvent.Builder stageStateEventBuilder = SparkEventProtos.StageStateEvent
                 .newBuilder()
                 .setStateEvent(stateEvent)
                 .setStageName(name)
                 .setStageId(stageId)
-                .setAttemptId(attemptId)
-                .setNumTasks(numTasks)
-                .build();
+                .setAttemptId(attemptId);
 
-        this.eventHandler.accept(stageStateEvent);
+        tryToSet(() -> stageStateEventBuilder.setNumTasks(numTasks));
+
+        this.eventHandler.accept(stageStateEventBuilder.build());
     }
 
     private void sendExecutorStateEvent(long time, State state, String executorId, String executorHost
@@ -90,159 +110,189 @@ public class GarmadonSparkListener extends SparkListener {
     // Stage Events
     @Override
     public void onStageSubmitted(SparkListenerStageSubmitted stageSubmitted) {
-        long submissionTime = stageSubmitted.stageInfo().submissionTime().getOrElse(currentTimeLongScala);
-        String name = stageSubmitted.stageInfo().name();
-        String stageId = String.valueOf(stageSubmitted.stageInfo().stageId());
-        String attemptId = String.valueOf(stageSubmitted.stageInfo().attemptId());
-        int numTasks = stageSubmitted.stageInfo().numTasks();
+        try {
+            long submissionTime = stageSubmitted.stageInfo().submissionTime().getOrElse(currentTimeLongScala);
+            String name = stageSubmitted.stageInfo().name();
+            String stageId = String.valueOf(stageSubmitted.stageInfo().stageId());
+            String attemptId = String.valueOf(stageSubmitted.stageInfo().attemptId());
+            int numTasks = stageSubmitted.stageInfo().numTasks();
 
-        sendStageStateEvent(submissionTime, State.BEGIN, name, stageId, attemptId, numTasks);
+            sendStageStateEvent(submissionTime, State.BEGIN, name, stageId, attemptId, numTasks);
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to send event for onStageSubmitted", t);
+        }
     }
 
     @Override
     public void onStageCompleted(SparkListenerStageCompleted stageCompleted) {
-        long submissionTime = stageCompleted.stageInfo().submissionTime().getOrElse(zeroLongScala);
-        long completionTime = stageCompleted.stageInfo().completionTime().getOrElse(currentTimeLongScala);
-        String name = stageCompleted.stageInfo().name();
-        String stageId = String.valueOf(stageCompleted.stageInfo().stageId());
-        String attemptId = String.valueOf(stageCompleted.stageInfo().attemptId());
-        int numTasks = stageCompleted.stageInfo().numTasks();
+        try {
+            long submissionTime = stageCompleted.stageInfo().submissionTime().getOrElse(zeroLongScala);
+            long completionTime = stageCompleted.stageInfo().completionTime().getOrElse(currentTimeLongScala);
+            String name = stageCompleted.stageInfo().name();
+            String stageId = String.valueOf(stageCompleted.stageInfo().stageId());
+            String attemptId = String.valueOf(stageCompleted.stageInfo().attemptId());
+            int numTasks = stageCompleted.stageInfo().numTasks();
 
-        sendStageStateEvent(completionTime, State.END, name, stageId, attemptId, numTasks);
+            sendStageStateEvent(completionTime, State.END, name, stageId, attemptId, numTasks);
 
-        String status = stageCompleted.stageInfo().getStatusString();
+            String status = getValOrNull(() -> stageCompleted.stageInfo().getStatusString());
 
-        SparkEventProtos.StageEvent.Builder stageEventBuilder = SparkEventProtos.StageEvent
-                .newBuilder()
-                .setStartTime(submissionTime)
-                .setCompletionTime(completionTime)
-                .setStageName(name)
-                .setStageId(stageId)
-                .setAttemptId(attemptId)
-                .setNumTasks(numTasks)
-                .setStatus(status)
-                .setExecutorCpuTime(stageCompleted.stageInfo().taskMetrics().executorCpuTime())
-                .setExecutorDeserializeCpuTime(stageCompleted.stageInfo().taskMetrics().executorDeserializeCpuTime())
-                .setExecutorRunTime(stageCompleted.stageInfo().taskMetrics().executorRunTime())
-                .setJvmGcTime(stageCompleted.stageInfo().taskMetrics().jvmGCTime())
-                .setExecutorDeserializeTime(stageCompleted.stageInfo().taskMetrics().executorDeserializeTime())
-                .setResultSerializationTime(stageCompleted.stageInfo().taskMetrics().resultSerializationTime())
-                .setResultSize(stageCompleted.stageInfo().taskMetrics().resultSize())
-                .setPeakExecutionMemory(stageCompleted.stageInfo().taskMetrics().peakExecutionMemory())
-                .setDiskBytesSpilled(stageCompleted.stageInfo().taskMetrics().diskBytesSpilled())
-                .setMemoryBytesSpilled(stageCompleted.stageInfo().taskMetrics().memoryBytesSpilled())
-                .setShuffleReadRecords(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().recordsRead())
-                .setShuffleReadFetchWaitTime(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().fetchWaitTime())
-                .setShuffleReadLocalBytes(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().localBytesRead())
-                .setShuffleReadRemoteBytes(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().remoteBytesRead())
-                .setShuffleReadTotalBytes(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().totalBytesRead())
-                .setShuffleReadLocalBlocksFetched(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().localBlocksFetched())
-                .setShuffleReadRemoteBlocksFetched(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().remoteBlocksFetched())
-                .setShuffleReadTotalBlocksFetched(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().totalBlocksFetched())
-                .setShuffleWriteShuffleRecords(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleRecordsWritten())
-                .setShuffleWriteShuffleTime(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleWriteTime())
-                .setShuffleWriteShuffleBytes(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleBytesWritten())
-                .setInputRecords(stageCompleted.stageInfo().taskMetrics().inputMetrics().recordsRead())
-                .setInputBytes(stageCompleted.stageInfo().taskMetrics().inputMetrics().bytesRead())
-                .setOutputRecords(stageCompleted.stageInfo().taskMetrics().outputMetrics().recordsWritten())
-                .setOutputBytes(stageCompleted.stageInfo().taskMetrics().outputMetrics().bytesWritten());
+            SparkEventProtos.StageEvent.Builder stageEventBuilder = SparkEventProtos.StageEvent
+                    .newBuilder()
+                    .setStartTime(submissionTime)
+                    .setCompletionTime(completionTime)
+                    .setStageName(name)
+                    .setStageId(stageId)
+                    .setAttemptId(attemptId);
 
-        if (!status.equals("succeeded")) {
-            stageEventBuilder.setFailureReason(stageCompleted.stageInfo().failureReason().getOrElse(emptyStringScala));
+            tryToSet(() -> stageEventBuilder.setNumTasks(numTasks));
+            tryToSet(() -> stageEventBuilder.setStatus(status));
+            tryToSet(() -> stageEventBuilder.setExecutorCpuTime(stageCompleted.stageInfo().taskMetrics().executorCpuTime()));
+            tryToSet(() -> stageEventBuilder.setExecutorDeserializeCpuTime(stageCompleted.stageInfo().taskMetrics().executorDeserializeCpuTime()));
+            tryToSet(() -> stageEventBuilder.setExecutorRunTime(stageCompleted.stageInfo().taskMetrics().executorRunTime()));
+            tryToSet(() -> stageEventBuilder.setJvmGcTime(stageCompleted.stageInfo().taskMetrics().jvmGCTime()));
+            tryToSet(() -> stageEventBuilder.setExecutorDeserializeTime(stageCompleted.stageInfo().taskMetrics().executorDeserializeTime()));
+            tryToSet(() -> stageEventBuilder.setResultSerializationTime(stageCompleted.stageInfo().taskMetrics().resultSerializationTime()));
+            tryToSet(() -> stageEventBuilder.setResultSize(stageCompleted.stageInfo().taskMetrics().resultSize()));
+            tryToSet(() -> stageEventBuilder.setPeakExecutionMemory(stageCompleted.stageInfo().taskMetrics().peakExecutionMemory()));
+            tryToSet(() -> stageEventBuilder.setDiskBytesSpilled(stageCompleted.stageInfo().taskMetrics().diskBytesSpilled()));
+            tryToSet(() -> stageEventBuilder.setMemoryBytesSpilled(stageCompleted.stageInfo().taskMetrics().memoryBytesSpilled()));
+            tryToSet(() -> stageEventBuilder.setShuffleReadRecords(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().recordsRead()));
+            tryToSet(() -> stageEventBuilder.setShuffleReadFetchWaitTime(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().fetchWaitTime()));
+            tryToSet(() -> stageEventBuilder.setShuffleReadLocalBytes(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().localBytesRead()));
+            tryToSet(() -> stageEventBuilder.setShuffleReadRemoteBytes(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().remoteBytesRead()));
+            tryToSet(() -> stageEventBuilder.setShuffleReadTotalBytes(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().totalBytesRead()));
+            tryToSet(() -> stageEventBuilder.setShuffleReadLocalBlocksFetched(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().localBlocksFetched()));
+            tryToSet(() -> stageEventBuilder.setShuffleReadRemoteBlocksFetched(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().remoteBlocksFetched()));
+            tryToSet(() -> stageEventBuilder.setShuffleReadTotalBlocksFetched(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().totalBlocksFetched()));
+            tryToSet(() -> stageEventBuilder.setShuffleWriteShuffleRecords(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleRecordsWritten()));
+            tryToSet(() -> stageEventBuilder.setShuffleWriteShuffleTime(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleWriteTime()));
+            tryToSet(() -> stageEventBuilder.setShuffleWriteShuffleBytes(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleBytesWritten()));
+            tryToSet(() -> stageEventBuilder.setInputRecords(stageCompleted.stageInfo().taskMetrics().inputMetrics().recordsRead()));
+            tryToSet(() -> stageEventBuilder.setInputBytes(stageCompleted.stageInfo().taskMetrics().inputMetrics().bytesRead()));
+            tryToSet(() -> stageEventBuilder.setOutputRecords(stageCompleted.stageInfo().taskMetrics().outputMetrics().recordsWritten()));
+            tryToSet(() -> stageEventBuilder.setOutputBytes(stageCompleted.stageInfo().taskMetrics().outputMetrics().bytesWritten()));
+
+            if (!status.equals("succeeded")) {
+                tryToSet(() -> stageEventBuilder.setFailureReason(stageCompleted.stageInfo().failureReason().getOrElse(emptyStringScala)));
+            }
+
+            this.eventHandler.accept(stageEventBuilder.build());
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to send event for onStageCompleted", t);
         }
-
-        this.eventHandler.accept(stageEventBuilder.build());
     }
 
     @Override
     public void onTaskEnd(SparkListenerTaskEnd taskEnd) {
-        String status = taskEnd.taskInfo().status();
+        try {
+            String status = taskEnd.taskInfo().status();
 
-        SparkEventProtos.TaskEvent.Builder taskEventBuilder = SparkEventProtos.TaskEvent
-                .newBuilder()
-                .setStartTime(taskEnd.taskInfo().launchTime())
-                .setCompletionTime(taskEnd.taskInfo().finishTime())
-                .setTaskId(String.valueOf(taskEnd.taskInfo().taskId()))
-                .setStageId(String.valueOf(taskEnd.stageId()))
-                .setAttemptId(String.valueOf(taskEnd.stageAttemptId()))
-                .setExecutorId(taskEnd.taskInfo().executorId())
-                .setExecutorHostname(String.valueOf(taskEnd.taskInfo().host()))
-                .setStatus(status)
-                .setLocality(taskEnd.taskInfo().taskLocality().toString())
-                .setType(taskEnd.taskType())
-                .setAttemptNumber(taskEnd.taskInfo().attemptNumber())
-                .setExecutorCpuTime(taskEnd.taskMetrics().executorCpuTime())
-                .setExecutorDeserializeCpuTime(taskEnd.taskMetrics().executorDeserializeCpuTime())
-                .setExecutorRunTime(taskEnd.taskMetrics().executorRunTime())
-                .setJvmGcTime(taskEnd.taskMetrics().jvmGCTime())
-                .setExecutorDeserializeTime(taskEnd.taskMetrics().executorDeserializeTime())
-                .setResultSerializationTime(taskEnd.taskMetrics().resultSerializationTime())
-                .setResultSize(taskEnd.taskMetrics().resultSize())
-                .setPeakExecutionMemory(taskEnd.taskMetrics().peakExecutionMemory())
-                .setDiskBytesSpilled(taskEnd.taskMetrics().diskBytesSpilled())
-                .setMemoryBytesSpilled(taskEnd.taskMetrics().memoryBytesSpilled())
-                .setShuffleReadRecords(taskEnd.taskMetrics().shuffleReadMetrics().recordsRead())
-                .setShuffleReadFetchWaitTime(taskEnd.taskMetrics().shuffleReadMetrics().fetchWaitTime())
-                .setShuffleReadLocalBytes(taskEnd.taskMetrics().shuffleReadMetrics().localBytesRead())
-                .setShuffleReadRemoteBytes(taskEnd.taskMetrics().shuffleReadMetrics().remoteBytesRead())
-                .setShuffleReadTotalBytes(taskEnd.taskMetrics().shuffleReadMetrics().totalBytesRead())
-                .setShuffleReadLocalBlocksFetched(taskEnd.taskMetrics().shuffleReadMetrics().localBlocksFetched())
-                .setShuffleReadRemoteBlocksFetched(taskEnd.taskMetrics().shuffleReadMetrics().remoteBlocksFetched())
-                .setShuffleReadTotalBlocksFetched(taskEnd.taskMetrics().shuffleReadMetrics().totalBlocksFetched())
-                .setShuffleWriteShuffleRecords(taskEnd.taskMetrics().shuffleWriteMetrics().shuffleRecordsWritten())
-                .setShuffleWriteShuffleTime(taskEnd.taskMetrics().shuffleWriteMetrics().shuffleWriteTime())
-                .setShuffleWriteShuffleBytes(taskEnd.taskMetrics().shuffleWriteMetrics().shuffleBytesWritten())
-                .setInputRecords(taskEnd.taskMetrics().inputMetrics().recordsRead())
-                .setInputBytes(taskEnd.taskMetrics().inputMetrics().bytesRead())
-                .setOutputRecords(taskEnd.taskMetrics().outputMetrics().recordsWritten())
-                .setOutputBytes(taskEnd.taskMetrics().outputMetrics().bytesWritten());
+            SparkEventProtos.TaskEvent.Builder taskEventBuilder = SparkEventProtos.TaskEvent
+                    .newBuilder()
+                    .setStartTime(taskEnd.taskInfo().launchTime())
+                    .setCompletionTime(taskEnd.taskInfo().finishTime())
+                    .setTaskId(String.valueOf(taskEnd.taskInfo().taskId()))
+                    .setStageId(String.valueOf(taskEnd.stageId()))
+                    .setAttemptId(String.valueOf(taskEnd.stageAttemptId()))
+                    .setExecutorId(taskEnd.taskInfo().executorId())
+                    .setExecutorHostname(String.valueOf(taskEnd.taskInfo().host()));
+
+            tryToSet(() -> taskEventBuilder.setStatus(status));
+            tryToSet(() -> taskEventBuilder.setLocality(taskEnd.taskInfo().taskLocality().toString()));
+            tryToSet(() -> taskEventBuilder.setType(taskEnd.taskType()));
+            tryToSet(() -> taskEventBuilder.setAttemptNumber(taskEnd.taskInfo().attemptNumber()));
+            tryToSet(() -> taskEventBuilder.setExecutorCpuTime(taskEnd.taskMetrics().executorCpuTime()));
+            tryToSet(() -> taskEventBuilder.setExecutorDeserializeCpuTime(taskEnd.taskMetrics().executorDeserializeCpuTime()));
+            tryToSet(() -> taskEventBuilder.setExecutorRunTime(taskEnd.taskMetrics().executorRunTime()));
+            tryToSet(() -> taskEventBuilder.setJvmGcTime(taskEnd.taskMetrics().jvmGCTime()));
+            tryToSet(() -> taskEventBuilder.setExecutorDeserializeTime(taskEnd.taskMetrics().executorDeserializeTime()));
+            tryToSet(() -> taskEventBuilder.setResultSerializationTime(taskEnd.taskMetrics().resultSerializationTime()));
+            tryToSet(() -> taskEventBuilder.setResultSize(taskEnd.taskMetrics().resultSize()));
+            tryToSet(() -> taskEventBuilder.setPeakExecutionMemory(taskEnd.taskMetrics().peakExecutionMemory()));
+            tryToSet(() -> taskEventBuilder.setDiskBytesSpilled(taskEnd.taskMetrics().diskBytesSpilled()));
+            tryToSet(() -> taskEventBuilder.setMemoryBytesSpilled(taskEnd.taskMetrics().memoryBytesSpilled()));
+            tryToSet(() -> taskEventBuilder.setShuffleReadRecords(taskEnd.taskMetrics().shuffleReadMetrics().recordsRead()));
+            tryToSet(() -> taskEventBuilder.setShuffleReadFetchWaitTime(taskEnd.taskMetrics().shuffleReadMetrics().fetchWaitTime()));
+            tryToSet(() -> taskEventBuilder.setShuffleReadLocalBytes(taskEnd.taskMetrics().shuffleReadMetrics().localBytesRead()));
+            tryToSet(() -> taskEventBuilder.setShuffleReadRemoteBytes(taskEnd.taskMetrics().shuffleReadMetrics().remoteBytesRead()));
+            tryToSet(() -> taskEventBuilder.setShuffleReadTotalBytes(taskEnd.taskMetrics().shuffleReadMetrics().totalBytesRead()));
+            tryToSet(() -> taskEventBuilder.setShuffleReadLocalBlocksFetched(taskEnd.taskMetrics().shuffleReadMetrics().localBlocksFetched()));
+            tryToSet(() -> taskEventBuilder.setShuffleReadRemoteBlocksFetched(taskEnd.taskMetrics().shuffleReadMetrics().remoteBlocksFetched()));
+            tryToSet(() -> taskEventBuilder.setShuffleReadTotalBlocksFetched(taskEnd.taskMetrics().shuffleReadMetrics().totalBlocksFetched()));
+            tryToSet(() -> taskEventBuilder.setShuffleWriteShuffleRecords(taskEnd.taskMetrics().shuffleWriteMetrics().shuffleRecordsWritten()));
+            tryToSet(() -> taskEventBuilder.setShuffleWriteShuffleTime(taskEnd.taskMetrics().shuffleWriteMetrics().shuffleWriteTime()));
+            tryToSet(() -> taskEventBuilder.setShuffleWriteShuffleBytes(taskEnd.taskMetrics().shuffleWriteMetrics().shuffleBytesWritten()));
+            tryToSet(() -> taskEventBuilder.setInputRecords(taskEnd.taskMetrics().inputMetrics().recordsRead()));
+            tryToSet(() -> taskEventBuilder.setInputBytes(taskEnd.taskMetrics().inputMetrics().bytesRead()));
+            tryToSet(() -> taskEventBuilder.setOutputRecords(taskEnd.taskMetrics().outputMetrics().recordsWritten()));
+            tryToSet(() -> taskEventBuilder.setOutputBytes(taskEnd.taskMetrics().outputMetrics().bytesWritten()));
 
 
-        if (!status.equals("succeeded")) {
-            taskEventBuilder.setFailureReason(taskEnd.reason().toString());
+            if (!status.equals("succeeded")) {
+                tryToSet(() -> taskEventBuilder.setFailureReason(taskEnd.reason().toString()));
+            }
+
+            this.eventHandler.accept(taskEventBuilder.build());
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to send event for onTaskEnd", t);
         }
-
-        this.eventHandler.accept(taskEventBuilder.build());
     }
 
     @Override
     public void onExecutorAdded(SparkListenerExecutorAdded executorAdded) {
-        executorHostId.put(executorAdded.executorId(), executorAdded.executorInfo().executorHost());
-        sendExecutorStateEvent(executorAdded.time(),
-                State.ADDED,
-                executorAdded.executorId(),
-                executorAdded.executorInfo().executorHost(),
-                null,
-                0);
+        try {
+            executorHostId.put(executorAdded.executorId(), executorAdded.executorInfo().executorHost());
+            sendExecutorStateEvent(executorAdded.time(),
+                    State.ADDED,
+                    executorAdded.executorId(),
+                    executorAdded.executorInfo().executorHost(),
+                    null,
+                    0);
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to send event for onExecutorAdded", t);
+        }
     }
 
     @Override
     public void onExecutorRemoved(SparkListenerExecutorRemoved executorRemoved) {
-        sendExecutorStateEvent(executorRemoved.time(),
-                State.REMOVED,
-                executorRemoved.executorId(),
-                executorHostId.getOrDefault(executorRemoved.executorId(), "UNKNOWN"),
-                executorRemoved.reason(),
-                0);
+        try {
+            sendExecutorStateEvent(executorRemoved.time(),
+                    State.REMOVED,
+                    executorRemoved.executorId(),
+                    executorHostId.getOrDefault(executorRemoved.executorId(), "UNKNOWN"),
+                    executorRemoved.reason(),
+                    0);
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to send event for onExecutorRemoved", t);
+        }
     }
 
     @Override
     public void onExecutorBlacklisted(SparkListenerExecutorBlacklisted executorBlacklisted) {
-        sendExecutorStateEvent(executorBlacklisted.time(),
-                State.BLACKLISTED,
-                executorBlacklisted.executorId(),
-                executorHostId.getOrDefault(executorBlacklisted.executorId(), "UNKNOWN"),
-                null,
-                executorBlacklisted.taskFailures());
+        try {
+            sendExecutorStateEvent(executorBlacklisted.time(),
+                    State.BLACKLISTED,
+                    executorBlacklisted.executorId(),
+                    executorHostId.getOrDefault(executorBlacklisted.executorId(), "UNKNOWN"),
+                    null,
+                    executorBlacklisted.taskFailures());
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to send event for onExecutorBlacklisted", t);
+        }
     }
 
     @Override
     public void onExecutorUnblacklisted(SparkListenerExecutorUnblacklisted executorUnblacklisted) {
-        sendExecutorStateEvent(executorUnblacklisted.time(),
-                State.UNBLACKLISTED,
-                executorUnblacklisted.executorId(),
-                executorHostId.getOrDefault(executorUnblacklisted.executorId(), "UNKNOWN"),
-                null,
-                0);
+        try {
+            sendExecutorStateEvent(executorUnblacklisted.time(),
+                    State.UNBLACKLISTED,
+                    executorUnblacklisted.executorId(),
+                    executorHostId.getOrDefault(executorUnblacklisted.executorId(), "UNKNOWN"),
+                    null,
+                    0);
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to send event for onExecutorUnblacklisted", t);
+        }
     }
 }
