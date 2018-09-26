@@ -44,6 +44,7 @@
         <maria-java-client.version>2.2.6</maria-java-client.version>
         <oshi.version>3.8.3</oshi.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
+        <slf4j.version>1.7.25</slf4j.version>
 
         <!-- tests -->
         <junit.version>4.12</junit.version>

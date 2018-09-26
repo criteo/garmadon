@@ -15,6 +15,18 @@
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>compile</scope>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy -->
         <dependency>
             <groupId>net.bytebuddy</groupId>
@@ -49,8 +61,6 @@
             <groupId>com.criteo.java</groupId>
             <artifactId>garmadon-frameworks-spark</artifactId>
         </dependency>
-
-        <!-- Criteo dependencies -->
         <dependency>
             <groupId>com.criteo.java</groupId>
             <artifactId>garmadon-jvm-statistics-core</artifactId>
@@ -138,6 +148,23 @@
                                             <exclude>org.apache.maven:lib:tests</exclude>
                                         </excludes>
                                     </artifactSet>
+                                    <relocations>
+                                        <!-- Relocating byte-buddy -->
+                                        <relocation>
+                                            <pattern>net.bytebuddy</pattern>
+                                            <shadedPattern>garmadon.net.bytebuddy</shadedPattern>
+                                        </relocation>
+                                        <!-- Relocating protobuf -->
+                                        <relocation>
+                                            <pattern>com.google.protobuf</pattern>
+                                            <shadedPattern>garmadon.com.google.protobuf</shadedPattern>
+                                        </relocation>
+                                        <!-- Relocating org.slf4j -->
+                                        <relocation>
+                                            <pattern>org.slf4j</pattern>
+                                            <shadedPattern>garmadon.org.slf4j</shadedPattern>
+                                        </relocation>
+                                    </relocations>
                                 </configuration>
                             </execution>
                         </executions>

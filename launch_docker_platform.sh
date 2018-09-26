@@ -48,6 +48,10 @@ block_until_website_available 'http://localhost:19888'
 
 pushd ${DOCKER_COMPOSE_FOLDER}
 
+# Ensure that garmadon agent doesn't failed with StandaloneModule
+# We had issues due to NoClassDefFoundError
+docker-compose exec client java -version
+
 # MapRed Teragen
 docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce2/hadoop-mapreduce-examples-2.6.0-cdh5.15.0.jar \
     teragen 1000000 /tmp/test/teragen
