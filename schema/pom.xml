@@ -5,13 +5,13 @@
     <parent>
         <groupId>com.criteo.java</groupId>
         <artifactId>garmadon</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>garmadon-schema</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <dependencies>
         <dependency>
@@ -23,6 +23,7 @@
         <dependency>
             <groupId>com.criteo.java</groupId>
             <artifactId>garmadon-jvm-statistics-protobuf</artifactId>
+            <version>${garmadon.version}</version>
         </dependency>
     </dependencies>
 

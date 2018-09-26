@@ -7,13 +7,13 @@ services:
     hostname: client
     restart: always
     environment:
-      JAVA_TOOL_OPTIONS: -javaagent:/opt/garmadon/lib/garmadon-agent-1.0-SNAPSHOT-uber.jar=com.criteo.hadoop.garmadon.agent.modules.StandaloneModule
+      JAVA_TOOL_OPTIONS: -javaagent:/opt/garmadon/lib/garmadon-agent-${GARMADON_RELEASE}-uber.jar=com.criteo.hadoop.garmadon.agent.modules.StandaloneModule
     command:
       - /usr/bin/entrypoint.sh
       - client
     volumes:
-    - ../../../../agent/target/garmadon-agent-1.0-SNAPSHOT-uber.jar:/opt/garmadon/lib/garmadon-agent-1.0-SNAPSHOT-uber.jar
-    - ../../../../forwarder/target/garmadon-forwarder-1.0-SNAPSHOT-uber.jar:/opt/garmadon/lib/garmadon-forwarder-1.0-SNAPSHOT-uber.jar
+    - ../../../../agent/target/garmadon-agent-${GARMADON_RELEASE}-uber.jar:/opt/garmadon/lib/garmadon-agent.jar
+    - ../../../../forwarder/target/garmadon-forwarder-${GARMADON_RELEASE}-uber.jar:/opt/garmadon/lib/garmadon-forwarder.jar
     env_file: .env
     depends_on:
       - namenode
@@ -85,8 +85,8 @@ services:
     ports:
       - 8042:8042
     volumes:
-      - ../../../../agent/target/garmadon-agent-1.0-SNAPSHOT-uber.jar:/opt/garmadon/lib/garmadon-agent-1.0-SNAPSHOT-uber.jar
-      - ../../../../forwarder/target/garmadon-forwarder-1.0-SNAPSHOT-uber.jar:/opt/garmadon/lib/garmadon-forwarder-1.0-SNAPSHOT-uber.jar
+      - ../../../../agent/target/garmadon-agent-${GARMADON_RELEASE}-uber.jar:/opt/garmadon/lib/garmadon-agent.jar
+      - ../../../../forwarder/target/garmadon-forwarder-${GARMADON_RELEASE}-uber.jar:/opt/garmadon/lib/garmadon-forwarder.jar
     depends_on:
       - namenode
       - resourcemanager
@@ -165,7 +165,7 @@ services:
       - /usr/bin/entrypoint.sh
       - es-reader
     volumes:
-      - ../../../../readers/elasticsearch/target/garmadon-readers-elasticsearch-1.0-SNAPSHOT-uber.jar:/opt/garmadon/lib/garmadon-readers-elasticsearch-1.0-SNAPSHOT-uber.jar
+      - ../../../../readers/elasticsearch/target/garmadon-readers-elasticsearch-${GARMADON_RELEASE}-uber.jar:/opt/garmadon/lib/garmadon-readers-elasticsearch.jar
     env_file: .env
     depends_on:
       - kafka

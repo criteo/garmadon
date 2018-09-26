@@ -105,7 +105,7 @@
 
     <property>
         <name>yarn.nodemanager.admin-env</name>
-        <value>JAVA_TOOL_OPTIONS=-javaagent:/opt/garmadon/lib/garmadon-agent-1.0-SNAPSHOT-uber.jar=com.criteo.hadoop.garmadon.agent.modules.ContainerModule</value>
+        <value>JAVA_TOOL_OPTIONS=-javaagent:/opt/garmadon/lib/garmadon-agent.jar=com.criteo.hadoop.garmadon.agent.modules.ContainerModule</value>
     </property>
 
 </configuration>

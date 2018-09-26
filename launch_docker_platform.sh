@@ -2,6 +2,7 @@
 
 set -e
 
+export GARMADON_RELEASE=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
 DOCKER_COMPOSE_FOLDER=test/src/main/docker
 
 function block_until_website_available() {

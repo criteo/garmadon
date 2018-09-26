@@ -5,13 +5,13 @@
     <parent>
         <groupId>com.criteo.java</groupId>
         <artifactId>garmadon</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>garmadon-forwarder</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <dependencies>
         <!-- Netty -->
@@ -43,7 +43,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
-            <scope>compile</scope>
         </dependency>
 
         <!-- Prometheus -->
@@ -63,16 +62,16 @@
             <version>${prometheus.version}</version>
         </dependency>
 
-        <!-- JVMStats -->
-        <dependency>
-            <groupId>com.criteo.java</groupId>
-            <artifactId>garmadon-jvm-statistics-core</artifactId>
-        </dependency>
-        
         <!-- Other garmadon modules -->
         <dependency>
             <groupId>com.criteo.java</groupId>
+            <artifactId>garmadon-jvm-statistics-core</artifactId>
+            <version>${garmadon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.criteo.java</groupId>
             <artifactId>garmadon-schema</artifactId>
+            <version>${garmadon.version}</version>
         </dependency>
 
     </dependencies>

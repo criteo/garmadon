@@ -84,7 +84,7 @@ fi
 # These options will be appended to the options specified as YARN_OPTS
 # and therefore may override any similar flags set in YARN_OPTS
 export YARN_USER_CLASSPATH=/opt/spark/yarn/*
-export YARN_NODEMANAGER_OPTS="-javaagent:/opt/garmadon/lib/garmadon-agent-1.0-SNAPSHOT-uber.jar=com.criteo.hadoop.garmadon.agent.modules.NodeManagerModule"
+export YARN_NODEMANAGER_OPTS="-javaagent:/opt/garmadon/lib/garmadon-agent.jar=com.criteo.hadoop.garmadon.agent.modules.NodeManagerModule"
 
 # so that filenames w/ spaces are handled correctly in loops below
 IFS=

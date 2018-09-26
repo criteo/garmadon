@@ -18,13 +18,13 @@ function create_hdfs_folder {
 
 function client {
     sed -i 's/TAGS/GATEWAY/' /opt/garmadon/conf-forwarder/server.properties
-    nohup java -cp /opt/garmadon/conf-forwarder:/opt/garmadon/lib/garmadon-forwarder-1.0-SNAPSHOT-uber.jar \
+    nohup java -cp /opt/garmadon/conf-forwarder:/opt/garmadon/lib/garmadon-forwarder.jar \
           com.criteo.hadoop.garmadon.forwarder.Forwarder > /var/log/garmadon-forwarder.log 2>&1 &
     until false; do sleep 600; done
 }
 
 function es-reader {
-    java -cp /opt/garmadon/conf-es-reader:/opt/garmadon/lib/garmadon-readers-elasticsearch-1.0-SNAPSHOT-uber.jar \
+    java -cp /opt/garmadon/conf-es-reader:/opt/garmadon/lib/garmadon-readers-elasticsearch.jar \
          com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader kafka:9092 es-reader elasticsearch 9200 garmadon esuser espassword
 }
 
@@ -47,7 +47,7 @@ function resourcemanager {
 function nodemanager {
     check_resourcemanager_up
     sed -i 's/TAGS/NODEMANAGER/' /opt/garmadon/conf-forwarder/server.properties
-    nohup java -cp /opt/garmadon/conf-forwarder:/opt/garmadon/lib/garmadon-forwarder-1.0-SNAPSHOT-uber.jar \
+    nohup java -cp /opt/garmadon/conf-forwarder:/opt/garmadon/lib/garmadon-forwarder.jar \
           com.criteo.hadoop.garmadon.forwarder.Forwarder > /var/log/garmadon-forwarder.log 2>&1 &
     yarn nodemanager
 }
