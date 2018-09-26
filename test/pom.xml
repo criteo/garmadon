@@ -5,13 +5,13 @@
     <parent>
         <groupId>com.criteo.java</groupId>
         <artifactId>garmadon</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>garmadon-test</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <dependencies>
         <!-- Logging -->
@@ -29,27 +29,33 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
-            <scope>compile</scope>
         </dependency>
 
         <!-- Hadoop dependencies -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
+            <version>${hadoop.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
+            <version>${hadoop.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-examples</artifactId>
+            <version>${hadoop.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Garmadon dependencies -->
         <dependency>
             <groupId>com.criteo.java</groupId>
             <artifactId>garmadon-readers-common</artifactId>
+            <version>${garmadon.version}</version>
         </dependency>
     </dependencies>
 

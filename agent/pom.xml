@@ -5,27 +5,25 @@
     <parent>
         <groupId>com.criteo.java</groupId>
         <artifactId>garmadon</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>garmadon-agent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
-            <scope>compile</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy -->
         <dependency>
@@ -38,36 +36,48 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
+            <version>${hadoop.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-server-nodemanager</artifactId>
+            <version>${hadoop.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
+            <version>${hadoop.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
+            <version>${hadoop.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Other garmadon modules -->
         <dependency>
             <groupId>com.criteo.java</groupId>
             <artifactId>garmadon-schema</artifactId>
+            <version>${garmadon.version}</version>
         </dependency>
         <dependency>
             <groupId>com.criteo.java</groupId>
             <artifactId>garmadon-frameworks-spark</artifactId>
+            <version>${garmadon.version}</version>
         </dependency>
         <dependency>
             <groupId>com.criteo.java</groupId>
             <artifactId>garmadon-jvm-statistics-core</artifactId>
+            <version>${garmadon.version}</version>
         </dependency>
         <dependency>
             <groupId>com.criteo.java</groupId>
             <artifactId>garmadon-jvm-statistics-protobuf</artifactId>
+            <version>${garmadon.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
@@ -130,12 +140,14 @@
                                     <minimizeJar>false</minimizeJar>
                                     <createDependencyReducedPom>false</createDependencyReducedPom>
                                     <transformers>
-                                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                        <transformer
+                                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                             <manifestEntries>
                                                 <Main-Class>${mainClass}</Main-Class>
                                             </manifestEntries>
                                         </transformer>
-                                        <transformer implementation="com.github.edwgiz.mavenShadePlugin.log4j2CacheTransformer.PluginsCacheFileTransformer" />
+                                        <transformer
+                                                implementation="com.github.edwgiz.mavenShadePlugin.log4j2CacheTransformer.PluginsCacheFileTransformer"/>
                                     </transformers>
                                     <artifactSet>
                                         <excludes>
