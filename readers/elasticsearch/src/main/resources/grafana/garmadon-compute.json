@@ -1405,7 +1405,7 @@
           "multi": false,
           "name": "hostname",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\":\"tags:NODEMANAGER\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\":\"tags:NODEMANAGER\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -1428,7 +1428,7 @@
           "multi": false,
           "name": "username",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"username\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"username\", \"size\": 1000}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -1489,7 +1489,7 @@
     },
     "time": {
       "from": "now-3h",
-      "to": "now-3m"
+      "to": "now"
     },
     "timepicker": {
       "nowDelay": "",

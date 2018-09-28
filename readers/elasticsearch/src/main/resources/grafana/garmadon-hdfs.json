@@ -2963,7 +2963,7 @@
     },
     "time": {
       "from": "now-3h",
-      "to": "now-3m"
+      "to": "now"
     },
     "timepicker": {
       "nowDelay": "",

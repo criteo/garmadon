@@ -2133,7 +2133,7 @@
           "multi": false,
           "name": "hostname",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\": \"tags:STANDALONE\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\": \"tags:STANDALONE\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -2156,7 +2156,7 @@
           "multi": false,
           "name": "username",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"username\", \"query\": \"tags:STANDALONE AND hostname:$hostname\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"username\", \"query\": \"tags:STANDALONE AND hostname:$hostname\", \"size\": 1000}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -2179,7 +2179,7 @@
           "multi": false,
           "name": "pid",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"pid\", \"query\": \"tags:STANDALONE AND hostname:$hostname\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"pid\", \"query\": \"tags:STANDALONE AND hostname:$hostname\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "sort": 2,
@@ -2216,7 +2216,7 @@
     },
     "time": {
       "from": "now-1h",
-      "to": "now-3m"
+      "to": "now"
     },
     "timepicker": {
       "nowDelay": "",

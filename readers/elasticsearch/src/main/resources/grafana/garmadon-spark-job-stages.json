@@ -2375,7 +2375,7 @@
           "multi": false,
           "name": "username",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"username\",\"query\": \"event_type:SPARK_TASK_EVENT\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"username\",\"query\": \"event_type:SPARK_TASK_EVENT\", \"size\": 1000}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -2398,7 +2398,7 @@
           "multi": false,
           "name": "application_name",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "sort": 2,
@@ -2421,7 +2421,7 @@
           "multi": false,
           "name": "application_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_name.keyword:$application_name AND username:$username\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_name.keyword:$application_name AND username:$username\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "sort": 2,
@@ -2444,7 +2444,7 @@
           "multi": false,
           "name": "attempt_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"attempt_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_id:$application_id\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"attempt_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_id:$application_id\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -2467,7 +2467,7 @@
           "multi": false,
           "name": "stage_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"stage_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_id:$application_id\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"stage_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_id:$application_id\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -2504,7 +2504,7 @@
     },
     "time": {
       "from": "now-1h",
-      "to": "now-3m"
+      "to": "now"
     },
     "timepicker": {
       "nowDelay": "",

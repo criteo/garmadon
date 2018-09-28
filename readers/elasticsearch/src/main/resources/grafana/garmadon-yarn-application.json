@@ -2919,7 +2919,7 @@
           "multi": false,
           "name": "username",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"username\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"username\", \"size\": 1000}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -2965,7 +2965,7 @@
           "multi": false,
           "name": "application_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"username:$username AND framework:$framework\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"username:$username AND framework:$framework\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "sort": 2,
@@ -3011,7 +3011,7 @@
           "multi": false,
           "name": "container_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"container_id\", \"query\": \"username:$username  AND framework:$framework AND application_id:$application_id AND component:$component\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"container_id\", \"query\": \"username:$username  AND framework:$framework AND application_id:$application_id AND component:$component\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -3034,7 +3034,7 @@
           "multi": false,
           "name": "hostname",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\": \"username:$username AND framework:$framework AND application_id:$application_id AND component:$component AND container_id:$container_id\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\": \"username:$username AND framework:$framework AND application_id:$application_id AND component:$component AND container_id:$container_id\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -3071,7 +3071,7 @@
     },
     "time": {
       "from": "now-1h",
-      "to": "now-3m"
+      "to": "now"
     },
     "timepicker": {
       "nowDelay": "",
