@@ -24,7 +24,7 @@ public class UriHelperTest {
 
     @Test
     public void getUniformizedUri_should_return_uri_with_env_prefix() {
-        String rootUri = "hdfs://yarn";
+        String rootUri = "hdfs://garmadon";
         Assert.assertEquals(rootUri + "-preprod-pa4", UriHelper.getUniformizedUri(rootUri));
     }
 }

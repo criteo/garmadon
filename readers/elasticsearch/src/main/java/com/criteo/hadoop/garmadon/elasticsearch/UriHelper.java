@@ -1,19 +1,26 @@
 package com.criteo.hadoop.garmadon.elasticsearch;
 
-public class UriHelper {
-    static String envDc = System.getenv("CRITEO_ENV") + "-" + System.getenv("CRITEO_DC");
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-    private static String concatHdfsUri() {
-        return concatHdfsUri(null);
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+public class UriHelper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UriHelper.class);
+    static Properties properties = new Properties();
+
+    static {
+        try (InputStream streamPropFilePath = UriHelper.class.getResourceAsStream("/hdfs-mapping.properties")) {
+            properties.load(streamPropFilePath);
+        } catch (IOException | NullPointerException e) {
+            LOGGER.warn("No hdfs-mapping.properties file define");
+        }
     }
 
-    private static String concatHdfsUri(String prefix) {
-        String concatUri = "hdfs://";
-        if (prefix != null) {
-            concatUri += prefix + "-";
-        }
-        concatUri += envDc;
-        return concatUri;
+    private static String concatHdfsUri(String name) {
+        return "hdfs://" + name;
     }
 
     public static String getUniformizedUri(String uri) {
@@ -23,23 +30,9 @@ public class UriHelper {
             uri = splittedUri[0] + ":" + splittedUri[1];
         }
 
-        // Set environment dc uri
-        String uniformizedUri;
-        switch (uri) {
-            case "hdfs://root":
-                uniformizedUri = concatHdfsUri();
-                break;
-            case "hdfs://yarn":
-                uniformizedUri = concatHdfsUri("yarn");
-                break;
-            case "hdfs://glup":
-                uniformizedUri = concatHdfsUri("glup");
-                break;
-            default:
-                uniformizedUri = uri;
-                break;
-        }
-        return uniformizedUri;
+        uri = uri.replace("hdfs://", "");
+
+        return concatHdfsUri(properties.getProperty(uri, uri));
     }
 
 }
