@@ -18,8 +18,4 @@
         <module>core</module>
         <module>protobuf</module>
     </modules>
-    <inceptionYear>2017</inceptionYear>
-    <organization>
-        <name>Criteo</name>
-    </organization>
 </project>

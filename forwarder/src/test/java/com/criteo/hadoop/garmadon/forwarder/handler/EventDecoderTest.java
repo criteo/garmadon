@@ -112,7 +112,7 @@ public class EventDecoderTest {
                 .withAppAttemptID("app_attempt_id")
                 .withApplicationName("app_name_1")
                 .withContainerID("container_id")
-                .withUser("bidata")
+                .withUser("usertest")
                 .withPid("pid")
                 .build();
 
@@ -125,7 +125,7 @@ public class EventDecoderTest {
                 .withAppAttemptID("app_attempt_id")
                 .withApplicationName("app_name_2")
                 .withContainerID("container_id")
-                .withUser("recocomputer")
+                .withUser("usertest")
                 .withPid("pid")
                 .build();
 
@@ -139,7 +139,7 @@ public class EventDecoderTest {
                 .withAppAttemptID("app_attempt_id")
                 .withApplicationName("app_name_3")
                 .withContainerID("container_id")
-                .withUser("lakeprobes")
+                .withUser("usertest")
                 .withPid("pid")
                 .build();
 

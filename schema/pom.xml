@@ -20,7 +20,6 @@
             <version>${protobuf.version}</version>
         </dependency>
 
-        <!-- Criteo dependencies -->
         <dependency>
             <groupId>com.criteo.java</groupId>
             <artifactId>garmadon-jvm-statistics-protobuf</artifactId>

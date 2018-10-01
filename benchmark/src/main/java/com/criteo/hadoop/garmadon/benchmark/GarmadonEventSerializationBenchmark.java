@@ -38,11 +38,11 @@ public class GarmadonEventSerializationBenchmark {
     public void setUp() {
         header = Header.newBuilder()
                 .withTag(Header.Tag.YARN_APPLICATION.toString())
-                .withHostname("a4-5d-36-fd-71-30.hpc.criteo.preprod")
+                .withHostname("hostname.test")
                 .withApplicationID("application_1518449687010_960473")
-                .withApplicationName("Transformer job: EVANEOSDE.29291.110132/20180216.125438.f9991803-3f05-446b-a8b1-2c36150eaaa8.F")
+                .withApplicationName("ApplicationName For Test")
                 .withAppAttemptID("appattempt_1518778939217_0068_000001")
-                .withUser("lakeprobes")
+                .withUser("userprobes")
                 .withContainerID("container_e619_1518778939217_0068_01_000205")
                 .build();
         headerByte = header.serialize();
@@ -50,13 +50,13 @@ public class GarmadonEventSerializationBenchmark {
         long timestamp = System.currentTimeMillis();
 
         fsEvent = new FsEvent(timestamp,
-                "/tmp/bidata/testpatch/teragen/_temporary_src/1/task_1518778939217_0144_m_000025",
-                "/tmp/bidata/testpatch/teragen/_temporary/1/task_1518778939217_0144_m_000025",
+                "/tmp/testpatch/teragen/_temporary_src/1/task_1518778939217_0144_m_000025",
+                "/tmp/testpatch/teragen/_temporary/1/task_1518778939217_0144_m_000025",
                 FsEvent.Action.RENAME, "hdfs://root");
         fsEventByte = fsEvent.serialize();
 
         pathEvent = new PathEvent(timestamp,
-                "viewfs://root/tmp/bidata/testpatch/terasort",
+                "viewfs://root/tmp/testpatch/terasort",
                 PathEvent.Type.INPUT);
         pathEventByte = pathEvent.serialize();
 

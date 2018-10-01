@@ -51,7 +51,7 @@ public class GarmadonSerializationBenchmark {
 
     @Benchmark
     public Object test_produce_FsEvent() throws InterruptedException {
-        FsEvent fsEvent = new FsEvent(System.currentTimeMillis(), "/tmp/bidata/testpatch/teragen/_temporary/1/task_1517228004270_0053_m_000014", FsEvent.Action.READ, "hdfs://root");
+        FsEvent fsEvent = new FsEvent(System.currentTimeMillis(), "/tmp/testpatch/teragen/_temporary/1/task_1517228004270_0053_m_000014", FsEvent.Action.READ, "hdfs://root");
         queue.put(fsEvent); //use put to block teh thread and thus really see the max number of events we can consume
         return fsEvent;
     }

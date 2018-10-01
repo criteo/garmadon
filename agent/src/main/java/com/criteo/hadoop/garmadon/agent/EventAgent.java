@@ -14,8 +14,6 @@ import java.util.Optional;
  * to produce events in a non blocking fashion via a call to the offer method.
  * Garmadon is based on ByteBuddy to instrument classes and intercept interesting part of the code
  * where we want to trace information.
- * It also uses Criteo's jvm statistics project https://gitlab.criteois.com/jp.bempel/JVMStatistics
- * to produce JVM JMX related events
  * <p>
  * The agent can be disabled if need by setting the -Dgarmadon.disable on the command line
  * <p>

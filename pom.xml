@@ -95,7 +95,7 @@
                 <version>2.22.0</version>
                 <configuration>
                     <environmentVariables>
-                        <USER>lakeprobes</USER>
+                        <USER>userprobes</USER>
                         <NM_HOST>hostname</NM_HOST>
                         <CRITEO_DC>pa4</CRITEO_DC>
                         <CRITEO_ENV>preprod</CRITEO_ENV>
