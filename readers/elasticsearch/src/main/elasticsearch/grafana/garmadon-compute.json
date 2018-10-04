@@ -38,7 +38,7 @@
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "fill": 1,
         "gridPos": {
           "h": 8,
@@ -173,7 +173,7 @@
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "fill": 1,
         "gridPos": {
           "h": 8,
@@ -313,7 +313,7 @@
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "decimals": null,
         "fill": 1,
         "gridPos": {
@@ -450,7 +450,7 @@
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "decimals": null,
         "fill": 1,
         "gridPos": {
@@ -597,7 +597,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "fill": 1,
             "gridPos": {
               "h": 8,
@@ -722,7 +722,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "fill": 1,
             "gridPos": {
               "h": 8,
@@ -856,7 +856,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "fill": 1,
             "gridPos": {
               "h": 8,
@@ -981,7 +981,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "fill": 1,
             "gridPos": {
@@ -1121,7 +1121,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "fill": 1,
             "gridPos": {
               "h": 8,
@@ -1246,7 +1246,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "fill": 1,
             "gridPos": {
@@ -1393,12 +1393,26 @@
     "templating": {
       "list": [
         {
+          "current": {
+            "text": "garmadon",
+            "value": "garmadon"
+          },
+          "hide": 0,
+          "label": null,
+          "name": "datasource",
+          "options": [],
+          "query": "elasticsearch",
+          "refresh": 1,
+          "regex": "/garmadon*/",
+          "type": "datasource"
+        },
+        {
           "allValue": "*",
           "current": {
             "text": "All",
             "value": "$__all"
           },
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -1421,7 +1435,7 @@
             "text": "All",
             "value": "$__all"
           },
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -1444,7 +1458,7 @@
             "text": "All",
             "value": "$__all"
           },
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -1468,7 +1482,7 @@
             "text": "All",
             "value": "$__all"
           },
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "hide": 0,
           "includeAll": true,
           "label": null,

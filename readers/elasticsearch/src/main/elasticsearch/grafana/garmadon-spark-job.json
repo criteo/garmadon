@@ -12,7 +12,7 @@
           "type": "dashboard"
         },
         {
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "enable": false,
           "hide": false,
           "iconColor": "#508642",
@@ -27,7 +27,7 @@
           "type": "tags"
         },
         {
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "enable": false,
           "hide": false,
           "iconColor": "rgba(255, 96, 96, 1)",
@@ -42,7 +42,7 @@
           "type": "tags"
         },
         {
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "enable": false,
           "hide": false,
           "iconColor": "#1f78c1",
@@ -57,7 +57,7 @@
           "type": "tags"
         },
         {
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "enable": false,
           "hide": false,
           "iconColor": "#e5ac0e",
@@ -72,7 +72,7 @@
           "type": "tags"
         },
         {
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "enable": false,
           "hide": false,
           "iconColor": "#e0752d",
@@ -150,7 +150,7 @@
             "value": "num_tasks"
           }
         ],
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "fontSize": "100%",
         "gridPos": {
           "h": 8,
@@ -259,7 +259,7 @@
             "value": "task_failures"
           }
         ],
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "fontSize": "100%",
         "gridPos": {
           "h": 8,
@@ -346,7 +346,7 @@
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "decimals": null,
         "fill": 1,
         "gridPos": {
@@ -494,7 +494,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "fill": 1,
             "gridPos": {
@@ -648,7 +648,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "fill": 1,
             "gridPos": {
@@ -857,7 +857,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "fill": 1,
             "gridPos": {
@@ -968,7 +968,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "description": "This only includes the time blocking on shuffle input data. For instance if block B is being fetched while the task is still not finished processing block A, it is not considered to be blocking on block B.",
             "fill": 1,
@@ -1080,7 +1080,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "fill": 1,
             "gridPos": {
@@ -1248,7 +1248,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "fill": 1,
             "gridPos": {
@@ -1430,7 +1430,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "fill": 1,
             "gridPos": {
@@ -1541,7 +1541,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "fill": 1,
             "gridPos": {
@@ -1652,7 +1652,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "fill": 1,
             "gridPos": {
@@ -1777,7 +1777,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "fill": 1,
             "gridPos": {
@@ -1917,7 +1917,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "fill": 1,
             "gridPos": {
@@ -2070,7 +2070,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "description": "The value of this accumulator should be approximately the sum of the peak sizes across all such data structures created in this task. For SQL jobs, this only tracks all unsafe operators and ExternalSort",
             "fill": 2,
@@ -2183,7 +2183,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "fill": 1,
             "gridPos": {
@@ -2294,7 +2294,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "fill": 1,
             "gridPos": {
@@ -2447,7 +2447,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "fill": 1,
             "gridPos": {
@@ -2589,12 +2589,26 @@
     "templating": {
       "list": [
         {
+          "current": {
+            "text": "garmadon",
+            "value": "garmadon"
+          },
+          "hide": 0,
+          "label": null,
+          "name": "datasource",
+          "options": [],
+          "query": "elasticsearch",
+          "refresh": 1,
+          "regex": "/garmadon*/",
+          "type": "datasource"
+        },
+        {
           "allValue": "*",
           "current": {
             "text": "All",
             "value": "$__all"
           },
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2617,7 +2631,7 @@
             "text": "All",
             "value": "$__all"
           },
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2640,7 +2654,7 @@
             "text": "application_1537173778920_0007",
             "value": "application_1537173778920_0007"
           },
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "hide": 0,
           "includeAll": false,
           "label": null,
@@ -2663,7 +2677,7 @@
             "text": "All",
             "value": "$__all"
           },
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2686,7 +2700,7 @@
             "text": "All",
             "value": "$__all"
           },
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "hide": 2,
           "includeAll": true,
           "label": null,

@@ -38,7 +38,7 @@
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "fill": 1,
         "gridPos": {
           "h": 8,
@@ -145,7 +145,7 @@
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "fill": 1,
         "gridPos": {
           "h": 8,
@@ -281,7 +281,7 @@
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "fill": 1,
         "gridPos": {
           "h": 8,
@@ -389,7 +389,7 @@
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "fill": 1,
         "gridPos": {
           "h": 8,
@@ -497,7 +497,7 @@
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "decimals": null,
         "fill": 1,
         "gridPos": {
@@ -812,7 +812,7 @@
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "fill": 1,
         "gridPos": {
           "h": 8,
@@ -1060,7 +1060,7 @@
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "fill": 1,
         "gridPos": {
           "h": 8,
@@ -1168,7 +1168,7 @@
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "fill": 1,
         "gridPos": {
           "h": 8,
@@ -1285,7 +1285,7 @@
         "bars": false,
         "dashLength": 10,
         "dashes": false,
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "fill": 1,
         "gridPos": {
           "h": 8,
@@ -1403,7 +1403,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "fill": 1,
             "gridPos": {
               "h": 8,
@@ -1511,7 +1511,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "fill": 1,
             "gridPos": {
               "h": 8,
@@ -1619,7 +1619,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "fill": 1,
             "gridPos": {
               "h": 8,
@@ -1727,7 +1727,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "fill": 1,
             "gridPos": {
               "h": 8,
@@ -1835,7 +1835,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "decimals": null,
             "fill": 1,
             "gridPos": {
@@ -1986,7 +1986,7 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "fill": 1,
             "gridPos": {
               "h": 9,
@@ -2121,12 +2121,26 @@
     "templating": {
       "list": [
         {
+          "current": {
+            "text": "garmadon",
+            "value": "garmadon"
+          },
+          "hide": 0,
+          "label": null,
+          "name": "datasource",
+          "options": [],
+          "query": "elasticsearch",
+          "refresh": 1,
+          "regex": "/garmadon*/",
+          "type": "datasource"
+        },
+        {
           "allValue": "*",
           "current": {
             "text": "client",
             "value": "client"
           },
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2149,7 +2163,7 @@
             "text": "root",
             "value": "root"
           },
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2172,7 +2186,7 @@
             "text": "41",
             "value": "41"
           },
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "hide": 0,
           "includeAll": false,
           "label": null,
@@ -2195,7 +2209,7 @@
             "text": "All",
             "value": "$__all"
           },
-          "datasource": "garmadon",
+          "datasource": "$datasource",
           "hide": 0,
           "includeAll": true,
           "label": null,
