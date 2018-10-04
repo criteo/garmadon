@@ -55,7 +55,7 @@ public class EventAgent {
 
                 //load user provided modules
                 loadModules(arguments, instrumentation, eventProcessor);
-                LOGGER.info("Garmadon Agent initialized");
+                LOGGER.debug("Garmadon Agent initialized");
 
             }
         } catch (Exception ex) {
@@ -73,16 +73,16 @@ public class EventAgent {
                 Constructor<?> constructor = clazz.getConstructor();
                 Object o = constructor.newInstance();
                 if (o instanceof GarmadonAgentModule) {
-                    LOGGER.info("Setting up module {}", className);
+                    LOGGER.debug("Setting up module {}", className);
                     GarmadonAgentModule module = (GarmadonAgentModule) o;
                     module.setup(instrumentation, eventProcessor);
                 } else {
-                    LOGGER.warn("module {} should implement GarmadonAgentModule. Skipping...", className);
+                    LOGGER.debug("module {} should implement GarmadonAgentModule. Skipping...", className);
                 }
             } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-                LOGGER.warn("module {} should define public NoArg constructor", className);
+                LOGGER.debug("module {} should define public NoArg constructor", className);
             } catch (ClassNotFoundException e) {
-                LOGGER.warn("module {} could not be found on the classpath", className);
+                LOGGER.debug("module {} could not be found on the classpath", className);
             }
         }
     }

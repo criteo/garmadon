@@ -36,7 +36,7 @@ public class ContainerHeader {
                     try {
                         component = Component.valueOf(firstTaskid.getTaskType().name());
                     } catch (IllegalArgumentException ex) {
-                        LOGGER.warn("Unknown component {}", firstTaskid.getTaskType().name());
+                        LOGGER.debug("Unknown component {}", firstTaskid.getTaskType().name());
                     }
                 }
                 break;
@@ -56,7 +56,7 @@ public class ContainerHeader {
                         }
                     }
                 } catch (Exception e) {
-                    LOGGER.warn("Failed to get executor id from command line", e);
+                    LOGGER.debug("Failed to get executor id from command line", e);
                 }
                 break;
             // FLINK

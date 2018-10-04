@@ -79,7 +79,7 @@ public class SocketAppender {
         public void establishConnection() {
             for (; ; ) {
                 try {
-                    LOGGER.info("try connecting to {}:{}", host, port);
+                    LOGGER.debug("try connecting to {}:{}", host, port);
 
                     socket = new Socket();
                     socket.connect(new InetSocketAddress(host, port), CONNECTION_TIMEOUT);
@@ -90,7 +90,7 @@ public class SocketAppender {
 
                     makeHandshake();
 
-                    LOGGER.info("connection established");
+                    LOGGER.debug("connection established");
                     connectionEstablished = true;
                     return;
                 } catch (IOException | ProtocolVersion.InvalidFrameException | ProtocolVersion.InvalidProtocolVersionException exception) {
@@ -115,7 +115,7 @@ public class SocketAppender {
         }
 
         private void waitBeforeRetry() {
-            LOGGER.warn("cannot connect to {}:{}", host, port);
+            LOGGER.debug("cannot connect to {}:{}", host, port);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
