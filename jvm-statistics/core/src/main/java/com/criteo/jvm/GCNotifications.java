@@ -32,7 +32,7 @@ public class GCNotifications {
             try {
                 emitter.removeNotificationListener(listener);
             } catch (ListenerNotFoundException e) {
-                LOGGER.warn("Error during unsuscribing GC listener", e);
+                LOGGER.debug("Error during unsuscribing GC listener", e);
             }
         }
     }

@@ -33,7 +33,7 @@ public abstract class StatisticCollector<T> {
 
     public void delayRegister(Supplier<AbstractStatistic> registerCallback) {
         delayedRegisterStatistics.add(registerCallback);
-        retries.addAndGet(3); // this is an approximation of 3 retries per statistic to avoid using a more complex structure
+        retries.addAndGet(10);
     }
 
     public void collect() {
@@ -72,11 +72,11 @@ public abstract class StatisticCollector<T> {
                     statistics.add(statistic);
             } catch (Throwable ex) {
                 if (retries.decrementAndGet() > 0) {
+                    LOGGER.debug("Cannot register statistic, retrying: " + ex.toString());
                     delayedRegisterStatistics.add(callback);
-                    LOGGER.warn("Cannot register statistic: " + ex.toString());
                 }
                 else
-                    LOGGER.error("Cannot register statistic: ", ex);
+                    LOGGER.debug("Cannot register statistic: ", ex);
             }
         }
     }

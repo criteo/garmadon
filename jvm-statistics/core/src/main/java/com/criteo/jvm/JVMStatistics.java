@@ -55,7 +55,7 @@ public class JVMStatistics {
         try {
             registerStatistics();
         } catch (Exception ex) {
-            LOGGER.warn("Cannot register statistics", ex);
+            LOGGER.debug("Cannot register statistics", ex);
         }
         executor.scheduleAtFixedRate(this::collect, 0, conf.getInterval().getSeconds(), TimeUnit.SECONDS);
     }
