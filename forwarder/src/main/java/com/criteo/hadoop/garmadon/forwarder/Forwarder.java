@@ -98,10 +98,9 @@ public class Forwarder {
         LOGGER.info("Shutdown netty server");
         if (serverChannel == null) {
             LOGGER.error("Cannot close a non running server");
-            throw new IllegalStateException("Cannot close a non running server");
+        } else {
+            serverChannel.close().syncUninterruptibly();
         }
-
-        serverChannel.close().syncUninterruptibly();
         if (bossGroup != null) {
             bossGroup.shutdownGracefully().syncUninterruptibly();
         }

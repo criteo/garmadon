@@ -15,7 +15,7 @@ public class KafkaService {
     private final KafkaProducer<String, byte[]> producer;
     private final String topic;
 
-    public KafkaService(Properties properties){
+    public KafkaService(Properties properties) {
         this.topic = "garmadon";
         this.producer = new KafkaProducer<>(properties);
     }
@@ -34,7 +34,9 @@ public class KafkaService {
     }
 
     public void shutdown() {
-        producer.flush();
-        producer.close();
+        if (producer != null) {
+            producer.flush();
+            producer.close();
+        }
     }
 }
