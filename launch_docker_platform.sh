@@ -16,7 +16,7 @@ pushd ${DOCKER_COMPOSE_FOLDER}
 docker-compose down
 
 # Start containers
-docker-compose up --build --detach
+docker-compose up --build -d
 popd
 
 # Create garmadon ES template
