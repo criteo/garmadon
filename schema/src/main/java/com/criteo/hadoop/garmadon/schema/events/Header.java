@@ -18,6 +18,7 @@ public class Header {
     protected final String framework;
     protected final String component;
     protected final String executorId;
+    protected final String mainClass;
     protected final List<String> tags;
 
     public enum Tag {
@@ -29,7 +30,7 @@ public class Header {
 
     public Header(String id, String applicationID, String appAttemptID, String applicationName,
                   String user, String containerID, String hostname, List<String> tags, String pid,
-                  String framework, String component, String executorId) {
+                  String framework, String component, String executorId, String mainClass) {
         this.id = id;
         this.applicationID = applicationID;
         this.appAttemptID = appAttemptID;
@@ -42,6 +43,7 @@ public class Header {
         this.framework = framework;
         this.component = component;
         this.executorId = executorId;
+        this.mainClass = mainClass;
     }
 
     public Header cloneAndOverride(Header override) {
@@ -57,6 +59,7 @@ public class Header {
         String framework = override.framework != null ? override.framework : this.framework;
         String component = override.component != null ? override.component : this.component;
         String executorId = override.executorId != null ? override.executorId : this.executorId;
+        String mainClass = override.mainClass != null ? override.mainClass : this.mainClass;
         return new Header(
                 id,
                 applicationID,
@@ -69,13 +72,14 @@ public class Header {
                 pid,
                 framework,
                 component,
-                executorId
+                executorId,
+                mainClass
         );
     }
 
     public SerializedHeader toSerializeHeader() {
         return new SerializedHeader(id, applicationID, appAttemptID, applicationName, user, containerID, hostname, tags, pid, framework,
-                component, executorId);
+                component, executorId, mainClass);
     }
 
     public byte[] serialize() {
@@ -107,6 +111,8 @@ public class Header {
             builder.setComponent(component);
         if (executorId != null)
             builder.setExecutorId(executorId);
+        if (mainClass != null)
+            builder.setMainClass(mainClass);
         return builder.build().toByteArray();
     }
 
@@ -124,6 +130,7 @@ public class Header {
                 ", framework='" + framework + '\'' +
                 ", component='" + component + '\'' +
                 ", executorId='" + executorId + '\'' +
+                ", mainClass='" + mainClass + '\'' +
                 ", tags=" + tags +
                 '}';
     }
@@ -131,11 +138,11 @@ public class Header {
     public static class SerializedHeader extends Header {
         private final byte[] bytes;
 
-        public SerializedHeader(String id, String applicationID, String appAttemptID, String applicationName, String user,
-                                String containerID, String hostname, List<String> tags, String pid, String framework,
-                                String component, String executorId) {
+        SerializedHeader(String id, String applicationID, String appAttemptID, String applicationName, String user,
+                         String containerID, String hostname, List<String> tags, String pid, String framework,
+                         String component, String executorId, String mainClass) {
             super(id, applicationID, appAttemptID, applicationName, user, containerID, hostname, tags, pid, framework,
-                    component, executorId);
+                    component, executorId, mainClass);
             this.bytes = super.serialize();
         }
 
@@ -162,6 +169,7 @@ public class Header {
         private String framework;
         private String component;
         private String executorId;
+        private String mainClass;
         private List<String> tags = new ArrayList<>();
 
         Builder() {
@@ -223,20 +231,24 @@ public class Header {
             return this;
         }
 
-
         public Builder withExecutorId(String executorId) {
             this.executorId = executorId;
             return this;
         }
 
+        public Builder withMainClass(String mainClass) {
+            this.mainClass = mainClass;
+            return this;
+        }
+
         public Header build() {
             return new Header(id, applicationID, appAttemptID, applicationName, user, containerID, hostname, tags,
-                    pid, framework, component, executorId);
+                    pid, framework, component, executorId, mainClass);
         }
 
         public SerializedHeader buildSerializedHeader() {
             return new SerializedHeader(id, applicationID, appAttemptID, applicationName, user, containerID, hostname,
-                    tags, pid, framework, component, executorId);
+                    tags, pid, framework, component, executorId, mainClass);
         }
     }
 }

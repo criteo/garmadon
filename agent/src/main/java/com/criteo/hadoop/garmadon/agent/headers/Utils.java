@@ -31,4 +31,9 @@ public class Utils {
     public static String getStandaloneId(){
         return getHostname() + ":" + getUser() + ":" + getPid();
     }
+
+    public static String[] getArrayJavaCommandLine(){
+        return System.getProperty("sun.java.command", "empty_class").split(" ");
+    }
+
 }

@@ -19,10 +19,11 @@ public class ContainerHeader {
     private Framework framework = Framework.YARN;
     private Component component = Component.UNKNOWN;
     private String executorId;
+    private String mainClass;
 
     private void setFrameworkComponent() {
-        String[] commands = System.getProperty("sun.java.command", "empty_class").split(" ");
-        String mainClass = commands[0];
+        String[] commands = Utils.getArrayJavaCommandLine();
+        mainClass = commands[0];
         switch (mainClass) {
             // MAP_REDUCE
             case "org.apache.hadoop.mapreduce.v2.app.MRAppMaster":
@@ -105,6 +106,7 @@ public class ContainerHeader {
                 .withFramework(framework.name())
                 .withComponent(component.name())
                 .withExecutorId(executorId)
+                .withMainClass(mainClass)
                 .buildSerializedHeader();
     }
 

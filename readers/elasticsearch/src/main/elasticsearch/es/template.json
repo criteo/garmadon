@@ -363,6 +363,12 @@
           "type": "long",
           "index": false
         },
+        "main_class": {
+          "type": "keyword",
+          "norms": false,
+          "index_options": "freqs",
+          "eager_global_ordinals": true
+        },
         "memory_bytes_spilled": {
           "type": "long",
           "index": false

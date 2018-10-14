@@ -142,6 +142,8 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
             jsonMap.put("component", msg.getHeader().getComponent());
         if (msg.getHeader().hasExecutorId())
             jsonMap.put("executor_id", msg.getHeader().getExecutorId());
+        if (msg.getHeader().hasMainClass())
+            jsonMap.put("main_class", msg.getHeader().getMainClass());
         jsonMap.put("tags", msg.getHeader().getTagsList());
 
         HashMap<String, Map<String, Object>> eventMaps = putBodySpecificFields(
