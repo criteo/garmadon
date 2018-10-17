@@ -55,7 +55,7 @@ public class FileSystemTracer {
     public static class DeleteTracer extends MethodTracer {
 
         @Override
-        public ElementMatcher<? super TypeDescription> typeMatcher() {
+        protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
         }
 

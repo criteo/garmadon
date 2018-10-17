@@ -16,6 +16,9 @@ public class ContainerHeader {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerHeader.class);
     private Header.SerializedHeader header;
 
+    // Currently could not only rely on event from RM
+    // as grafana/ES can't join on different event for display HDFS call per framework/component
+    // or compute used per framework/component
     private Framework framework = Framework.YARN;
     private Component component = Component.UNKNOWN;
     private String executorId;
@@ -110,27 +113,15 @@ public class ContainerHeader {
                 .buildSerializedHeader();
     }
 
-    /**
-     * Constructeur privé
-     */
     private ContainerHeader() {
         setFrameworkComponent();
         this.header = createCachedHeader();
     }
 
-    /**
-     * Holder
-     */
     private static class SingletonHolder {
-        /**
-         * Instance unique non préinitialisée
-         */
         private final static ContainerHeader instance = new ContainerHeader();
     }
 
-    /**
-     * Point d'accès pour l'instance unique du singleton
-     */
     public static ContainerHeader getInstance() {
         return ContainerHeader.SingletonHolder.instance;
     }

@@ -7,4 +7,15 @@ public enum State {
     REMOVED,
     BLACKLISTED,
     UNBLACKLISTED,
+    NEW,
+    NEW_SAVING,
+    SUBMITTED,
+    ACCEPTED,
+    RUNNING,
+    FINAL_SAVING,
+    FINISHING,
+    FINISHED,
+    FAILED,
+    KILLING,
+    KILLED
 }

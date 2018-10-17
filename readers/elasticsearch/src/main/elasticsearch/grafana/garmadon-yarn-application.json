@@ -48,6 +48,124 @@
         "type": "row"
       },
       {
+        "columns": [
+          {
+            "text": "tracking_url",
+            "value": "tracking_url"
+          },
+          {
+            "text": "original_tracking_url",
+            "value": "original_tracking_url"
+          },
+          {
+            "text": "state",
+            "value": "state"
+          }
+        ],
+        "datasource": "garmadon",
+        "fontSize": "100%",
+        "gridPos": {
+          "h": 3,
+          "w": 24,
+          "x": 0,
+          "y": 1
+        },
+        "id": 50,
+        "links": [],
+        "pageSize": null,
+        "scroll": true,
+        "showHeader": true,
+        "sort": {
+          "col": 0,
+          "desc": true
+        },
+        "styles": [
+          {
+            "alias": "Time",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "pattern": "Time",
+            "type": "date"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 2,
+            "link": true,
+            "linkTargetBlank": true,
+            "linkTooltip": "${__cell:raw}",
+            "linkUrl": "${__cell:raw}",
+            "mappingType": 1,
+            "pattern": "tracking_url",
+            "thresholds": [],
+            "type": "number",
+            "unit": "short"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 2,
+            "link": true,
+            "linkTargetBlank": true,
+            "linkTooltip": "${__cell:raw}",
+            "linkUrl": "${__cell:raw}",
+            "mappingType": 1,
+            "pattern": "original_tracking_url",
+            "thresholds": [],
+            "type": "number",
+            "unit": "short"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "decimals": 2,
+            "pattern": "/.*/",
+            "thresholds": [],
+            "type": "number",
+            "unit": "short"
+          }
+        ],
+        "targets": [
+          {
+            "bucketAggs": [],
+            "metrics": [
+              {
+                "field": "select field",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "size": 1
+                },
+                "type": "raw_document"
+              }
+            ],
+            "query": "event_type:APPLICATION_EVENT AND application_id:$application_id",
+            "refId": "A",
+            "timeField": "timestamp"
+          }
+        ],
+        "title": "Tracking URLs",
+        "transform": "json",
+        "transparent": true,
+        "type": "table"
+      },
+      {
         "aliasColors": {},
         "bars": false,
         "dashLength": 10,
@@ -58,7 +176,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 1
+          "y": 4
         },
         "id": 25,
         "legend": {
@@ -193,7 +311,7 @@
             "label": null,
             "logBase": 1,
             "max": null,
-            "min": null,
+            "min": "0",
             "show": true
           },
           {
@@ -221,7 +339,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 1
+          "y": 4
         },
         "id": 47,
         "legend": {
@@ -356,7 +474,7 @@
             "label": null,
             "logBase": 1,
             "max": null,
-            "min": null,
+            "min": "0",
             "show": true
           },
           {
@@ -379,7 +497,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 9
+          "y": 12
         },
         "id": 12,
         "panels": [
@@ -1980,7 +2098,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 10
+          "y": 13
         },
         "id": 42,
         "panels": [
@@ -2635,7 +2753,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 11
+          "y": 14
         },
         "id": 9,
         "panels": [
@@ -2678,8 +2796,8 @@
             "scopedVars": {
               "uri": {
                 "selected": false,
-                "text": "hdfs://namenode",
-                "value": "hdfs://namenode"
+                "text": "hdfs://preprod-pa4",
+                "value": "hdfs://preprod-pa4"
               }
             },
             "seriesOverrides": [],
@@ -2938,7 +3056,7 @@
           "multi": false,
           "name": "username",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"username\", \"size\": 1000}",
+          "query": "{\"find\": \"terms\", \"field\": \"username\", \"query\": \"event_type:APPLICATION_EVENT\", \"size\": 1000}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -2961,7 +3079,7 @@
           "multi": false,
           "name": "framework",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"framework\",\"query\":\"username:$username\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"framework\",\"query\":\"event_type:APPLICATION_EVENT AND username:$username\"}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -2974,9 +3092,31 @@
         {
           "allValue": "*",
           "current": {
-            "tags": [],
-            "text": "application_1541514518755_0003",
-            "value": "application_1541514518755_0003"
+            "text": "All",
+            "value": "$__all"
+          },
+          "datasource": "$datasource",
+          "hide": 0,
+          "includeAll": true,
+          "label": null,
+          "multi": false,
+          "name": "application_name",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"event_type:APPLICATION_EVENT AND username:$username AND framework:$framework\"}",
+          "refresh": 1,
+          "regex": "",
+          "sort": 2,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": "*",
+          "current": {
+            "text": "application_1540377037574_0005",
+            "value": "application_1540377037574_0005"
           },
           "datasource": "$datasource",
           "hide": 0,
@@ -2985,7 +3125,7 @@
           "multi": false,
           "name": "application_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"username:$username AND framework:$framework\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:APPLICATION_EVENT AND username:$username AND framework:$framework AND application_name:$application_name\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "sort": 2,
@@ -3008,7 +3148,7 @@
           "multi": false,
           "name": "component",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"component\",\"query\":\"username:$username AND framework:$framework AND application_id:$application_id\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"component\",\"query\":\"application_id:$application_id\"}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -3031,7 +3171,7 @@
           "multi": false,
           "name": "container_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"container_id\", \"query\": \"username:$username  AND framework:$framework AND application_id:$application_id AND component:$component\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"container_id\", \"query\": \"application_id:$application_id AND component:$component\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -3054,7 +3194,7 @@
           "multi": false,
           "name": "hostname",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\": \"username:$username AND framework:$framework AND application_id:$application_id AND component:$component AND container_id:$container_id\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\": \"application_id:$application_id AND component:$component AND container_id:$container_id\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -3077,7 +3217,7 @@
           "multi": false,
           "name": "uri",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"username:$username AND framework:$framework AND application_id:$application_id AND component:$component AND container_id:$container_id\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"application_id:$application_id AND component:$component AND container_id:$container_id\"}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -3090,7 +3230,7 @@
       ]
     },
     "time": {
-      "from": "now-3h",
+      "from": "now-1h",
       "to": "now"
     },
     "timepicker": {

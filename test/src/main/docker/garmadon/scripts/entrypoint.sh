@@ -41,6 +41,9 @@ function datanode {
 function resourcemanager {
     check_namenode_up
     create_hdfs_folder
+    sed -i 's/TAGS/RESOURCEMANAGER/' /opt/garmadon/conf-forwarder/server.properties
+    nohup java -cp /opt/garmadon/conf-forwarder:/opt/garmadon/lib/garmadon-forwarder.jar \
+          com.criteo.hadoop.garmadon.forwarder.Forwarder > /var/log/garmadon-forwarder.log 2>&1 &
     yarn resourcemanager
 }
 

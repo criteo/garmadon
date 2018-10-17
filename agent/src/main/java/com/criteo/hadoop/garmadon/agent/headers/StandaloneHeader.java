@@ -17,26 +17,14 @@ public class StandaloneHeader {
                 .buildSerializedHeader();
     }
 
-    /**
-     * Constructeur privé
-     */
     private StandaloneHeader() {
         this.header = createCachedHeader();
     }
 
-    /**
-     * Holder
-     */
     private static class SingletonHolder {
-        /**
-         * Instance unique non préinitialisée
-         */
         private final static StandaloneHeader instance = new StandaloneHeader();
     }
 
-    /**
-     * Point d'accès pour l'instance unique du singleton
-     */
     public static StandaloneHeader getInstance() {
         return StandaloneHeader.SingletonHolder.instance;
     }

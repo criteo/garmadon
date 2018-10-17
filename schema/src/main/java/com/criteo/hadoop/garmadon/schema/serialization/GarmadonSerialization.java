@@ -2,6 +2,7 @@ package com.criteo.hadoop.garmadon.schema.serialization;
 
 import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.ResourceManagerEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.events.*;
 import com.criteo.hadoop.garmadon.schema.exceptions.DeserializationException;
@@ -31,6 +32,7 @@ public class GarmadonSerialization {
         int SPARK_STAGE_STATE_EVENT = 3001;
         int SPARK_EXECUTOR_STATE_EVENT = 3002;
         int SPARK_TASK_EVENT = 3003;
+        int APPLICATION_EVENT = 4000;
     }
 
     private static HashMap<Integer, Deserializer> typeMarkerToDeserializer = new HashMap<>();
@@ -57,6 +59,9 @@ public class GarmadonSerialization {
         register(SparkEventProtos.StageStateEvent.class, TypeMarker.SPARK_STAGE_STATE_EVENT, "SPARK_STAGE_STATE_EVENT", SparkEventProtos.StageStateEvent::toByteArray, SparkEventProtos.StageStateEvent::parseFrom);
         register(SparkEventProtos.ExecutorStateEvent.class, TypeMarker.SPARK_EXECUTOR_STATE_EVENT, "SPARK_EXECUTOR_STATE_EVENT", SparkEventProtos.ExecutorStateEvent::toByteArray, SparkEventProtos.ExecutorStateEvent::parseFrom);
         register(SparkEventProtos.TaskEvent.class, TypeMarker.SPARK_TASK_EVENT, "SPARK_TASK_EVENT", SparkEventProtos.TaskEvent::toByteArray, SparkEventProtos.TaskEvent::parseFrom);
+
+        // resourcemanager events
+        register(ResourceManagerEventProtos.ApplicationEvent.class, TypeMarker.APPLICATION_EVENT, "APPLICATION_EVENT", ResourceManagerEventProtos.ApplicationEvent::toByteArray, ResourceManagerEventProtos.ApplicationEvent::parseFrom);
     }
 
     public static int getMarker(Class aClass) throws TypeMarkerException {
@@ -68,7 +73,7 @@ public class GarmadonSerialization {
         }
     }
 
-    public static String getTypeName(int typeMarker){
+    public static String getTypeName(int typeMarker) {
         return typeMarkerToName.getOrDefault(typeMarker, "UNKNOWN");
     }
 

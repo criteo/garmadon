@@ -97,9 +97,8 @@ public class FileSystemTracerTest {
                 ),
                 ByteArrayClassLoader.PersistenceHandler.MANIFEST);
 
-
         event = new Object[1];
-        BiConsumer<Long, Object> cons = (l,o) -> event[0] = o;
+        BiConsumer<Long, Object> cons = (l, o) -> event[0] = o;
         ReflectionHelper.setField(null, classLoader.loadClass(FileSystemTracer.class.getName()), "eventHandler", cons);
         ReflectionHelper.setField(conf, Configuration.class, "classLoader", classLoader);
 
@@ -119,7 +118,9 @@ public class FileSystemTracerTest {
 
     @After
     public void SetDown() {
-        hdfsCluster.shutdown();
+        if (hdfsCluster != null) {
+            hdfsCluster.shutdown();
+        }
     }
 
     private void initDFS() throws ClassNotFoundException, NoSuchMethodException, URISyntaxException, InvocationTargetException, IllegalAccessException {
