@@ -66,6 +66,9 @@ services:
       - resourcemanager
     ports:
       - 8088:8088
+    volumes:
+      - ../../../../agent/target/garmadon-agent-${GARMADON_RELEASE}.jar:/opt/garmadon/lib/garmadon-agent.jar
+      - ../../../../forwarder/target/garmadon-forwarder-${GARMADON_RELEASE}.jar:/opt/garmadon/lib/garmadon-forwarder.jar
     depends_on:
       - namenode
     env_file: .env

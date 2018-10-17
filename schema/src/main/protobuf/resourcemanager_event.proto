@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package com.criteo.hadoop.garmadon;
+
+option java_package = "com.criteo.hadoop.garmadon.event.proto";
+option java_outer_classname = "ResourceManagerEventProtos";
+
+message ApplicationEvent {
+    string state = 1;
+    string queue = 2;
+    string tracking_url = 3;
+    string original_tracking_url = 4;
+}

@@ -2,6 +2,7 @@ package com.criteo.hadoop.garmadon.elasticsearch;
 
 import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.ResourceManagerEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.jvm.JVMStatisticsProtos;
 
@@ -175,5 +176,13 @@ class EventHelper {
         eventMap.put("type", event.getType());
         eventMap.put("value", event.getValue());
         eventMap.put("limit", event.getLimit());
+    }
+
+    public static void processApplicationEvent(String type, ResourceManagerEventProtos.ApplicationEvent event, HashMap<String, Map<String, Object>> eventMaps) {
+        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type));
+        eventMap.put("queue", event.getQueue());
+        eventMap.put("state", event.getState());
+        eventMap.put("tracking_url", event.getTrackingUrl());
+        eventMap.put("original_tracking_url", event.getOriginalTrackingUrl());
     }
 }

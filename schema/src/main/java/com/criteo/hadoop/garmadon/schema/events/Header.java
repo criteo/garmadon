@@ -25,6 +25,7 @@ public class Header {
     public enum Tag {
         YARN_APPLICATION,
         FORWARDER,
+        RESOURCEMANAGER,
         NODEMANAGER,
         STANDALONE
     }
