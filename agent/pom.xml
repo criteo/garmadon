@@ -105,85 +105,61 @@
                     </archive>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <minimizeJar>false</minimizeJar>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Main-Class>${mainClass}</Main-Class>
+                                    </manifestEntries>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
+                                </transformer>
+                            </transformers>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>log4j:log4j:jar:</exclude>
+                                    <exclude>org.slf4j:slf4j-log4j12:jar:</exclude>
+                                    <exclude>classworlds:classworlds</exclude>
+                                    <exclude>junit:junit</exclude>
+                                    <exclude>jmock:*</exclude>
+                                    <exclude>*:xml-apis</exclude>
+                                    <exclude>org.apache.maven:lib:tests</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <relocations>
+                                <!-- Relocating byte-buddy -->
+                                <relocation>
+                                    <pattern>net.bytebuddy</pattern>
+                                    <shadedPattern>garmadon.net.bytebuddy</shadedPattern>
+                                </relocation>
+                                <!-- Relocating protobuf -->
+                                <relocation>
+                                    <pattern>com.google.protobuf</pattern>
+                                    <shadedPattern>garmadon.com.google.protobuf</shadedPattern>
+                                </relocation>
+                                <!-- Relocating org.slf4j -->
+                                <relocation>
+                                    <pattern>org.slf4j</pattern>
+                                    <shadedPattern>garmadon.org.slf4j</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>packaging</id>
-            <activation>
-                <property>
-                    <name>packageForDeploy</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-shade-plugin</artifactId>
-                        <dependencies>
-                            <dependency>
-                                <groupId>com.github.edwgiz</groupId>
-                                <artifactId>maven-shade-plugin.log4j2-cachefile-transformer</artifactId>
-                                <version>2.8.1</version>
-                            </dependency>
-                        </dependencies>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>shade</goal>
-                                </goals>
-                                <configuration>
-                                    <shadedArtifactAttached>true</shadedArtifactAttached>
-                                    <shadedClassifierName>uber</shadedClassifierName>
-                                    <minimizeJar>false</minimizeJar>
-                                    <createDependencyReducedPom>false</createDependencyReducedPom>
-                                    <transformers>
-                                        <transformer
-                                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                            <manifestEntries>
-                                                <Main-Class>${mainClass}</Main-Class>
-                                            </manifestEntries>
-                                        </transformer>
-                                        <transformer
-                                                implementation="com.github.edwgiz.mavenShadePlugin.log4j2CacheTransformer.PluginsCacheFileTransformer"/>
-                                    </transformers>
-                                    <artifactSet>
-                                        <excludes>
-                                            <exclude>log4j:log4j:jar:</exclude>
-                                            <exclude>org.slf4j:slf4j-log4j12:jar:</exclude>
-                                            <exclude>classworlds:classworlds</exclude>
-                                            <exclude>junit:junit</exclude>
-                                            <exclude>jmock:*</exclude>
-                                            <exclude>*:xml-apis</exclude>
-                                            <exclude>org.apache.maven:lib:tests</exclude>
-                                        </excludes>
-                                    </artifactSet>
-                                    <relocations>
-                                        <!-- Relocating byte-buddy -->
-                                        <relocation>
-                                            <pattern>net.bytebuddy</pattern>
-                                            <shadedPattern>garmadon.net.bytebuddy</shadedPattern>
-                                        </relocation>
-                                        <!-- Relocating protobuf -->
-                                        <relocation>
-                                            <pattern>com.google.protobuf</pattern>
-                                            <shadedPattern>garmadon.com.google.protobuf</shadedPattern>
-                                        </relocation>
-                                        <!-- Relocating org.slf4j -->
-                                        <relocation>
-                                            <pattern>org.slf4j</pattern>
-                                            <shadedPattern>garmadon.org.slf4j</shadedPattern>
-                                        </relocation>
-                                    </relocations>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-            <dependencies/>
-        </profile>
-    </profiles>
 </project>

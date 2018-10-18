@@ -10,29 +10,67 @@
     <packaging>pom</packaging>
 
     <name>garmadon</name>
-    <description>Template for java program to be build by the jmoab</description>
-
-    <modules>
-        <module>schema</module>
-        <module>jvm-statistics</module>
-        <module>frameworks</module>
-        <module>agent</module>
-        <module>forwarder</module>
-        <module>readers</module>
-        <module>test</module>
-    </modules>
-
+    <description>Garmadon is a java event logs collector for hadoop and frameworks</description>
+    <url>https://github.com/criteo/garmadon</url>
     <inceptionYear>2017</inceptionYear>
     <organization>
         <name>Criteo</name>
+        <url>http://www.criteo.com</url>
     </organization>
 
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>William Montaz</name>
+            <email>w.montaz@criteo.com</email>
+            <url>https://github.com/Willymontaz</url>
+            <organization>Criteo</organization>
+            <organizationUrl>http://www.criteo.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Nicolas Fraison</name>
+            <email>n.fraison@criteo.com</email>
+            <url>https://github.com/ashangit</url>
+            <organization>Criteo</organization>
+            <organizationUrl>http://www.criteo.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Xavier Noelle</name>
+            <email>x.noelle@criteo.com</email>
+            <url>https://github.com/gray-matter</url>
+            <organization>Criteo</organization>
+            <organizationUrl>http://www.criteo.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:github.com/criteo/garmadon.git</connection>
+        <developerConnection>scm:git:git@github.com:criteo/garmadon.git</developerConnection>
+        <url>github.com/criteo/garmadon</url>
+    </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
+    </distributionManagement>
 
     <repositories>
-       <repository>
-          <id>cloudera</id>
-          <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
-       </repository>
+        <repository>
+            <id>cloudera</id>
+            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+        </repository>
     </repositories>
 
     <properties>
@@ -56,6 +94,15 @@
         <mockito.version>1.10.19</mockito.version>
     </properties>
 
+    <modules>
+        <module>schema</module>
+        <module>jvm-statistics</module>
+        <module>frameworks</module>
+        <module>agent</module>
+        <module>forwarder</module>
+        <module>readers</module>
+        <module>test</module>
+    </modules>
 
     <dependencies>
         <!-- Test dependencies -->
@@ -102,11 +149,77 @@
                     <environmentVariables>
                         <USER>userprobes</USER>
                         <NM_HOST>hostname</NM_HOST>
-                        <CRITEO_DC>pa4</CRITEO_DC>
-                        <CRITEO_ENV>preprod</CRITEO_ENV>
                     </environmentVariables>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <properties>
+                <gpg.keyname>85532E9E</gpg.keyname>
+                <gpg.passphrase>${env.SONATYPE_PASSWORD}</gpg.passphrase>
+                <gpg.defaultKeyring>false</gpg.defaultKeyring>
+                <gpg.publicKeyring>.travis/pubring.gpg</gpg.publicKeyring>
+                <gpg.secretKeyring>.travis/secring.gpg</gpg.secretKeyring>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.0.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.0.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

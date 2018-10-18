@@ -3,14 +3,18 @@
 set -e
 
 export GARMADON_RELEASE=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
-DOCKER_COMPOSE_FOLDER=test/src/main/docker
+BASEDIR=$(dirname "$0")/..
+
+pushd ${BASEDIR}
+DOCKER_COMPOSE_FOLDER=${BASEDIR}/test/src/main/docker
+ES_FOLDER=${BASEDIR}/readers/elasticsearch/src/main/elasticsearch
 
 function block_until_website_available() {
     until curl $1 > /dev/null 2>&1; do sleep 1; done
 }
 
 # Build artifacts
-mvn clean install -Ppackaging -DpackageForDeploy -DskipTests
+mvn clean install -DskipTests
 
 # Destroy old containers
 pushd ${DOCKER_COMPOSE_FOLDER}
@@ -22,7 +26,7 @@ popd
 
 # Create garmadon ES template
 block_until_website_available 'http://localhost:9200'
-curl -XPUT 'http://localhost:9200/_template/garmadon' -H 'Content-Type: application/json' -d @readers/elasticsearch/src/main/elasticsearch/es/template.json
+curl -XPUT 'http://localhost:9200/_template/garmadon' -H 'Content-Type: application/json' -d @${ES_FOLDER}/es/template.json
 curl -XDELETE 'http://localhost:9200/garmadon*' # Ensure no garmadon index have been created with bad mapping
 
 # Create Kibana Index Pattern
@@ -34,14 +38,14 @@ block_until_website_available 'http://localhost:3000'
 curl -u admin:secret -XPOST 'http://localhost:3000/api/datasources' -H 'Content-Type: application/json' -d '{"name":"garmadon","isDefault":false,"type":"elasticsearch","url":"http://elasticsearch:9200","access":"proxy","jsonData":{"keepCookies":[],"timeField":"timestamp","esVersion":56,"maxConcurrentShardRequests":256,"interval":"Hourly"},"secureJsonFields":{},"database":"[garmadon-]YYYY-MM-DD-HH"}'
 
 # Import garmadon dashboards
-curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @readers/elasticsearch/src/main/elasticsearch/grafana/garmadon-server-overview.json
-curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @readers/elasticsearch/src/main/elasticsearch/grafana/garmadon-compute.json
-curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @readers/elasticsearch/src/main/elasticsearch/grafana/garmadon-hdfs.json
-curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @readers/elasticsearch/src/main/elasticsearch/grafana/garmadon-yarn-application.json
-curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @readers/elasticsearch/src/main/elasticsearch/grafana/garmadon-standalone-jvm.json
-curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @readers/elasticsearch/src/main/elasticsearch/grafana/garmadon-spark-job.json
-curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @readers/elasticsearch/src/main/elasticsearch/grafana/garmadon-spark-job-stages.json
-curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @readers/elasticsearch/src/main/elasticsearch/grafana/garmadon-spark-job-executors.json
+curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-server-overview.json
+curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-compute.json
+curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-hdfs.json
+curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-yarn-application.json
+curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-standalone-jvm.json
+curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-spark-job.json
+curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-spark-job-stages.json
+curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-spark-job-executors.json
 
 ## Run some test jobs
 block_until_website_available 'http://localhost:8088'
@@ -87,4 +91,5 @@ docker-compose exec client /opt/spark/bin/spark-submit \
     --conf spark.dynamicAllocation.minExecutors=1 --conf spark.dynamicAllocation.initialExecutors=4 \
     --conf spark.dynamicAllocation.maxExecutors=4 --conf spark.dynamicAllocation.executorIdleTimeout=1s \
     --class org.apache.spark.examples.sql.SparkSQLExample /opt/spark/examples/jars/spark-examples_2.11-2.2.2.jar
+popd
 popd

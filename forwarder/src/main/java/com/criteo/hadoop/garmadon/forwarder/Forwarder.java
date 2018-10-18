@@ -71,7 +71,6 @@ public class Forwarder {
      * Starts netty server for forwarder
      *
      * @return a ChannelFuture that completes when server is started.
-     * @throws UnknownHostException
      */
     public ChannelFuture run() throws IOException {
         // initialise kafka
@@ -92,7 +91,6 @@ public class Forwarder {
     /**
      * Closes netty server (in a blocking fashion)
      *
-     * @return a ChannelFuture that completes when server is closed
      */
     public void close() {
         LOGGER.info("Shutdown netty server");
