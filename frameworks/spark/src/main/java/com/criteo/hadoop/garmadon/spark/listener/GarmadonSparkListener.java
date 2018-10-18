@@ -1,6 +1,5 @@
 package com.criteo.hadoop.garmadon.spark.listener;
 
-import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.enums.State;
 import com.criteo.hadoop.garmadon.schema.events.Header;
@@ -64,15 +63,10 @@ public class GarmadonSparkListener extends SparkListener {
 
     private void sendStageStateEvent(long stateTime, State state, String name, String stageId,
                                      String attemptId, int numTasks) {
-        DataAccessEventProtos.StateEvent stateEvent = DataAccessEventProtos.StateEvent
+        SparkEventProtos.StageStateEvent.Builder stageStateEventBuilder = SparkEventProtos.StageStateEvent
                 .newBuilder()
                 .setTimestamp(stateTime)
                 .setState(state.name())
-                .build();
-
-        SparkEventProtos.StageStateEvent.Builder stageStateEventBuilder = SparkEventProtos.StageStateEvent
-                .newBuilder()
-                .setStateEvent(stateEvent)
                 .setStageName(name)
                 .setStageId(stageId)
                 .setAttemptId(attemptId);
@@ -83,15 +77,10 @@ public class GarmadonSparkListener extends SparkListener {
 
     private void sendExecutorStateEvent(long time, State state, String executorId, String executorHost
             , String reason, int taskFailures) {
-        DataAccessEventProtos.StateEvent stateEvent = DataAccessEventProtos.StateEvent
+        SparkEventProtos.ExecutorStateEvent.Builder executorStateEvent = SparkEventProtos.ExecutorStateEvent
                 .newBuilder()
                 .setTimestamp(time)
                 .setState(state.name())
-                .build();
-
-        SparkEventProtos.ExecutorStateEvent.Builder executorStateEvent = SparkEventProtos.ExecutorStateEvent
-                .newBuilder()
-                .setStateEvent(stateEvent)
                 .setExecutorId(executorId)
                 .setExecutorHostname(executorHost);
 

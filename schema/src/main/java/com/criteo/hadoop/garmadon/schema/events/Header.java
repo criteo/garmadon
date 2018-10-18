@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.schema.events;
 
-import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,14 +79,14 @@ public class Header {
     }
 
     public byte[] serialize() {
-        DataAccessEventProtos.Header.Builder builder = DataAccessEventProtos.Header
+        EventHeaderProtos.Header.Builder builder = EventHeaderProtos.Header
                 .newBuilder();
         if (id != null)
             builder.setId(id);
         if (applicationID != null)
             builder.setApplicationId(applicationID);
         if (appAttemptID != null)
-            builder.setAppAttemptID(appAttemptID);
+            builder.setAppAttemptId(appAttemptID);
         if (applicationName != null)
             builder.setApplicationName(applicationName);
         if (user != null)

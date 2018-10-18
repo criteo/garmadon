@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.forwarder.handler;
 
-import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 import com.criteo.hadoop.garmadon.forwarder.message.KafkaMessage;
 import com.criteo.hadoop.garmadon.forwarder.metrics.PrometheusHttpMetrics;
 import com.criteo.hadoop.garmadon.protocol.ProtocolConstants;
@@ -11,10 +11,8 @@ import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
-
 public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
-    private static final AttributeKey<DataAccessEventProtos.Header> headerAttr = AttributeKey.valueOf("header");
+    private static final AttributeKey<EventHeaderProtos.Header> headerAttr = AttributeKey.valueOf("header");
     private static final Logger LOGGER = LoggerFactory.getLogger(EventHandler.class);
 
     private boolean isFirst = true;
@@ -29,7 +27,7 @@ public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
         byte[] headerByte = new byte[headerSize];
         msg.getBytes(ProtocolConstants.FRAME_DELIMITER_SIZE, headerByte);
 
-        DataAccessEventProtos.Header header = DataAccessEventProtos.Header.parseFrom(headerByte);
+        EventHeaderProtos.Header header = EventHeaderProtos.Header.parseFrom(headerByte);
 
         if(LOGGER.isDebugEnabled()) {
             LOGGER.debug("received event {} size {}", msg.getInt(0), msg.readableBytes());

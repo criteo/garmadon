@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.reader;
 
-import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 
 /**
  * A message from GarmadonReader
@@ -20,11 +20,11 @@ import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
  */
 public class GarmadonMessage {
     private final int type;
-    private final DataAccessEventProtos.Header header;
+    private final EventHeaderProtos.Header header;
     private final Object body;
     private final CommittableOffset committableOffset;
 
-    public GarmadonMessage(int type, DataAccessEventProtos.Header header, Object body, CommittableOffset committableOffset) {
+    public GarmadonMessage(int type, EventHeaderProtos.Header header, Object body, CommittableOffset committableOffset) {
         this.type = type;
         this.header = header;
         this.body = body;
@@ -35,7 +35,7 @@ public class GarmadonMessage {
         return type;
     }
 
-    public DataAccessEventProtos.Header getHeader() {
+    public EventHeaderProtos.Header getHeader() {
         return header;
     }
 

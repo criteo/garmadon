@@ -2,8 +2,6 @@ syntax = "proto2";
 
 package com.criteo.hadoop.garmadon;
 
-import "data_access.proto";
-
 option java_package = "com.criteo.hadoop.garmadon.event.proto";
 option java_outer_classname = "SparkEventProtos";
 
@@ -52,21 +50,23 @@ message StageEvent {
 }
 
 message StageStateEvent {
-    required StateEvent state_event = 1;
+    required uint64 timestamp = 1;
+    required string state = 2;
 
-    required string stage_name = 2;
-    required string stage_id = 3;
-    required string attempt_id = 4;
-    optional int32 num_tasks = 5;
+    required string stage_name = 3;
+    required string stage_id = 4;
+    required string attempt_id = 5;
+    optional int32 num_tasks = 6;
 }
 
 message ExecutorStateEvent {
-    required StateEvent state_event = 1;
+    required uint64 timestamp = 1;
+    required string state = 2;
 
-    required string executor_id = 2;
-    required string executor_hostname = 3;
-    optional string reason = 4;
-    optional int32 task_failures = 5;
+    required string executor_id = 3;
+    required string executor_hostname = 4;
+    optional string reason = 5;
+    optional int32 task_failures = 6;
 }
 
 message TaskEvent {

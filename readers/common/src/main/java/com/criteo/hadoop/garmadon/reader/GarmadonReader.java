@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.reader;
 
-import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 import com.criteo.hadoop.garmadon.schema.exceptions.DeserializationException;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import org.apache.kafka.clients.consumer.*;
@@ -96,14 +96,14 @@ public class GarmadonReader {
                         int headerSize = buf.getInt();
                         int bodySize = buf.getInt();
 
-                        DataAccessEventProtos.Header header = null;
+                        EventHeaderProtos.Header header = null;
                         Object body = null;
 
                         for (GarmadonMessageFilter filter : filters) {
                             if (filter.accepts(typeMarker)) {
 
                                 if (header == null) {
-                                    header = DataAccessEventProtos.Header.parseFrom(new ByteArrayInputStream(raw, HEADER_OFFSET, headerSize));
+                                    header = EventHeaderProtos.Header.parseFrom(new ByteArrayInputStream(raw, HEADER_OFFSET, headerSize));
                                 }
 
                                 if (filter.accepts(typeMarker, header)) {

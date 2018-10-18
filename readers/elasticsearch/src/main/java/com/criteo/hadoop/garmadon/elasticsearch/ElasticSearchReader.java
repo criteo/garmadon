@@ -7,7 +7,6 @@ import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessageFilter;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
-import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.criteo.jvm.JVMStatisticsProtos;
 import org.apache.http.HttpHost;
@@ -32,8 +31,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-
-import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasTag;
 
 /**
  * A reader that pushes events to elastic search
@@ -127,8 +124,8 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
 
         if (msg.getHeader().hasApplicationId())
             jsonMap.put("application_id", msg.getHeader().getApplicationId());
-        if (msg.getHeader().hasAppAttemptID())
-            jsonMap.put("attempt_id", msg.getHeader().getAppAttemptID());
+        if (msg.getHeader().hasAppAttemptId())
+            jsonMap.put("attempt_id", msg.getHeader().getAppAttemptId());
         if (msg.getHeader().hasApplicationName())
             jsonMap.put("application_name", msg.getHeader().getApplicationName());
         if (msg.getHeader().hasContainerId())

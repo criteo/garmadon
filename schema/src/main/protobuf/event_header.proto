@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+package com.criteo.hadoop.garmadon;
+
+option java_package = "com.criteo.hadoop.garmadon.event.proto";
+option java_outer_classname = "EventHeaderProtos";
+
+message Header {
+    optional string application_id = 1;
+    optional string app_attempt_id = 2;
+    optional string application_name = 3;
+    optional string user_name = 4;
+    optional string container_id = 5;
+    optional string hostname = 6;
+    optional string pid = 8;
+    optional string framework = 9;
+    optional string component = 10;
+    optional string executor_id = 11;
+    repeated string tags = 12;
+    optional string id = 13;
+}

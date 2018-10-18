@@ -102,7 +102,7 @@ public class GarmadonEventSerializationBenchmark {
 
     @Benchmark
     public Object test_deserialize_Header() throws InvalidProtocolBufferException {
-        return DataAccessEventProtos.Header.parseFrom(headerByte);
+        return EventHeaderProtos.Header.parseFrom(headerByte);
     }
 
     public static void main(String[] args) throws RunnerException {

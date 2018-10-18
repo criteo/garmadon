@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.reader;
 
-import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import org.junit.Test;
@@ -25,19 +25,19 @@ public class GarmadonMessageFiltersTest {
 
         when(left.accepts(anyInt(), any())).thenReturn(true);
         when(right.accepts(anyInt(), any())).thenReturn(true);
-        assertThat(filter.accepts(random.nextInt(), DataAccessEventProtos.Header.getDefaultInstance()), is(true));
+        assertThat(filter.accepts(random.nextInt(), EventHeaderProtos.Header.getDefaultInstance()), is(true));
 
         when(left.accepts(anyInt(), any())).thenReturn(true);
         when(right.accepts(anyInt(), any())).thenReturn(false);
-        assertThat(filter.accepts(random.nextInt(), DataAccessEventProtos.Header.getDefaultInstance()), is(true));
+        assertThat(filter.accepts(random.nextInt(), EventHeaderProtos.Header.getDefaultInstance()), is(true));
 
         when(left.accepts(anyInt(), any())).thenReturn(false);
         when(right.accepts(anyInt(), any())).thenReturn(true);
-        assertThat(filter.accepts(random.nextInt(), DataAccessEventProtos.Header.getDefaultInstance()), is(true));
+        assertThat(filter.accepts(random.nextInt(), EventHeaderProtos.Header.getDefaultInstance()), is(true));
 
         when(left.accepts(anyInt(), any())).thenReturn(false);
         when(right.accepts(anyInt(), any())).thenReturn(false);
-        assertThat(filter.accepts(random.nextInt(), DataAccessEventProtos.Header.getDefaultInstance()), is(false));
+        assertThat(filter.accepts(random.nextInt(), EventHeaderProtos.Header.getDefaultInstance()), is(false));
     }
 
     @Test
@@ -70,11 +70,11 @@ public class GarmadonMessageFiltersTest {
         GarmadonMessageFilter.Junction filter = left.or(right);
 
         when(left.accepts(anyInt(), any())).thenReturn(true);
-        filter.accepts(random.nextInt(), DataAccessEventProtos.Header.getDefaultInstance());
+        filter.accepts(random.nextInt(), EventHeaderProtos.Header.getDefaultInstance());
         verify(right, never()).accepts(anyInt(), any());
 
         when(left.accepts(anyInt(), any())).thenReturn(false);
-        filter.accepts(random.nextInt(),DataAccessEventProtos.Header.getDefaultInstance());
+        filter.accepts(random.nextInt(),EventHeaderProtos.Header.getDefaultInstance());
         verify(right).accepts(anyInt(), any());
     }
 
@@ -101,19 +101,19 @@ public class GarmadonMessageFiltersTest {
 
         when(left.accepts(anyInt(), any())).thenReturn(true);
         when(right.accepts(anyInt(), any())).thenReturn(true);
-        assertThat(filter.accepts(random.nextInt(),DataAccessEventProtos.Header.getDefaultInstance()), is(true));
+        assertThat(filter.accepts(random.nextInt(),EventHeaderProtos.Header.getDefaultInstance()), is(true));
 
         when(left.accepts(anyInt(), any())).thenReturn(true);
         when(right.accepts(anyInt(), any())).thenReturn(false);
-        assertThat(filter.accepts(random.nextInt(),DataAccessEventProtos.Header.getDefaultInstance()), is(false));
+        assertThat(filter.accepts(random.nextInt(),EventHeaderProtos.Header.getDefaultInstance()), is(false));
 
         when(left.accepts(anyInt(), any())).thenReturn(false);
         when(right.accepts(anyInt(), any())).thenReturn(true);
-        assertThat(filter.accepts(random.nextInt(),DataAccessEventProtos.Header.getDefaultInstance()), is(false));
+        assertThat(filter.accepts(random.nextInt(),EventHeaderProtos.Header.getDefaultInstance()), is(false));
 
         when(left.accepts(anyInt(), any())).thenReturn(false);
         when(right.accepts(anyInt(), any())).thenReturn(false);
-        assertThat(filter.accepts(random.nextInt(),DataAccessEventProtos.Header.getDefaultInstance()), is(false));
+        assertThat(filter.accepts(random.nextInt(),EventHeaderProtos.Header.getDefaultInstance()), is(false));
     }
 
     @Test
@@ -146,11 +146,11 @@ public class GarmadonMessageFiltersTest {
         GarmadonMessageFilter.Junction filter = left.and(right);
 
         when(left.accepts(anyInt(), any())).thenReturn(true);
-        filter.accepts(random.nextInt(),DataAccessEventProtos.Header.getDefaultInstance());
+        filter.accepts(random.nextInt(),EventHeaderProtos.Header.getDefaultInstance());
         verify(right).accepts(anyInt(), any());
 
         when(left.accepts(anyInt(), any())).thenReturn(false);
-        filter.accepts(random.nextInt(),DataAccessEventProtos.Header.getDefaultInstance());
+        filter.accepts(random.nextInt(),EventHeaderProtos.Header.getDefaultInstance());
         verify(right).accepts(anyInt(), any());
     }
 
@@ -174,9 +174,9 @@ public class GarmadonMessageFiltersTest {
         GarmadonMessageFilter.HeaderFilter nodemanagerFilter = GarmadonMessageFilters.hasTag(Header.Tag.NODEMANAGER);
         GarmadonMessageFilter.HeaderFilter forwarderFilter = GarmadonMessageFilters.hasTag(Header.Tag.FORWARDER);
 
-        DataAccessEventProtos.Header noTag = DataAccessEventProtos.Header.newBuilder().build();
-        DataAccessEventProtos.Header tagForwarder = DataAccessEventProtos.Header.newBuilder().addTags(Header.Tag.FORWARDER.toString()).build();
-        DataAccessEventProtos.Header tagNodemanager = DataAccessEventProtos.Header.newBuilder().addTags(Header.Tag.NODEMANAGER.toString()).build();
+        EventHeaderProtos.Header noTag = EventHeaderProtos.Header.newBuilder().build();
+        EventHeaderProtos.Header tagForwarder = EventHeaderProtos.Header.newBuilder().addTags(Header.Tag.FORWARDER.toString()).build();
+        EventHeaderProtos.Header tagNodemanager = EventHeaderProtos.Header.newBuilder().addTags(Header.Tag.NODEMANAGER.toString()).build();
 
         assertThat(nodemanagerFilter.accepts(random.nextInt(),noTag), is(false));
         assertThat(nodemanagerFilter.accepts(random.nextInt(),tagForwarder), is(false));
@@ -214,12 +214,12 @@ public class GarmadonMessageFiltersTest {
 
         when(filter.accepts(anyInt())).thenReturn(true);
         when(filter.accepts(anyInt(), any())).thenReturn(true);
-        assertThat(GarmadonMessageFilters.not(filter).accepts(random.nextInt(), DataAccessEventProtos.Header.getDefaultInstance()), is(false));
+        assertThat(GarmadonMessageFilters.not(filter).accepts(random.nextInt(), EventHeaderProtos.Header.getDefaultInstance()), is(false));
         assertThat(GarmadonMessageFilters.not(filter).accepts(random.nextInt()), is(false));
 
         when(filter.accepts(anyInt())).thenReturn(false);
         when(filter.accepts(anyInt(), any())).thenReturn(false);
-        assertThat(GarmadonMessageFilters.not(filter).accepts(random.nextInt(),DataAccessEventProtos.Header.getDefaultInstance()), is(true));
+        assertThat(GarmadonMessageFilters.not(filter).accepts(random.nextInt(),EventHeaderProtos.Header.getDefaultInstance()), is(true));
         assertThat(GarmadonMessageFilters.not(filter).accepts(random.nextInt()), is(true));
     }
 
@@ -236,8 +236,8 @@ public class GarmadonMessageFiltersTest {
 
         /* If the header is not accepted, maybe we must still accept because the type was correct */
         when(hFilter.accepts(any())).thenReturn(false);
-        assertThat(dis.accepts(type - 1, DataAccessEventProtos.Header.getDefaultInstance()), is(false));
-        assertThat(dis.accepts(type, DataAccessEventProtos.Header.getDefaultInstance()), is(true));
+        assertThat(dis.accepts(type - 1, EventHeaderProtos.Header.getDefaultInstance()), is(false));
+        assertThat(dis.accepts(type, EventHeaderProtos.Header.getDefaultInstance()), is(true));
     }
 
     private GarmadonMessageFilter.Junction.AbstractBase newMockableJunction() {

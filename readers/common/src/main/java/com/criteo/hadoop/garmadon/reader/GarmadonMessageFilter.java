@@ -1,13 +1,13 @@
 package com.criteo.hadoop.garmadon.reader;
 
-import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 
 public interface GarmadonMessageFilter {
 
     boolean accepts(int type);
 
-    boolean accepts(int type, DataAccessEventProtos.Header header);
+    boolean accepts(int type, EventHeaderProtos.Header header);
 
     interface Junction extends GarmadonMessageFilter {
 
@@ -46,7 +46,7 @@ public interface GarmadonMessageFilter {
             }
 
             @Override
-            public boolean accepts(int type, DataAccessEventProtos.Header header) {
+            public boolean accepts(int type, EventHeaderProtos.Header header) {
                 return left.accepts(type, header) && right.accepts(type, header);
             }
 
@@ -68,7 +68,7 @@ public interface GarmadonMessageFilter {
             }
 
             @Override
-            public boolean accepts(int type, DataAccessEventProtos.Header header) {
+            public boolean accepts(int type, EventHeaderProtos.Header header) {
                 return left.accepts(type, header) || right.accepts(type, header);
             }
 
@@ -86,7 +86,7 @@ public interface GarmadonMessageFilter {
         }
 
         @Override
-        public boolean accepts(int type, DataAccessEventProtos.Header header) {
+        public boolean accepts(int type, EventHeaderProtos.Header header) {
             return true;
         }
     }
@@ -101,7 +101,7 @@ public interface GarmadonMessageFilter {
         }
 
         @Override
-        public boolean accepts(int type, DataAccessEventProtos.Header header) {
+        public boolean accepts(int type, EventHeaderProtos.Header header) {
             return false;
         }
     }
@@ -121,7 +121,7 @@ public interface GarmadonMessageFilter {
         }
 
         @Override
-        public boolean accepts(int type, DataAccessEventProtos.Header header) {
+        public boolean accepts(int type, EventHeaderProtos.Header header) {
             return !other.accepts(type, header);
         }
 
@@ -141,7 +141,7 @@ public interface GarmadonMessageFilter {
         }
 
         @Override
-        public boolean accepts(int type, DataAccessEventProtos.Header header) {
+        public boolean accepts(int type, EventHeaderProtos.Header header) {
             return this.accepts(type);
         }
     }
@@ -158,7 +158,7 @@ public interface GarmadonMessageFilter {
             }
 
             @Override
-            public boolean accepts(DataAccessEventProtos.Header header) {
+            public boolean accepts(EventHeaderProtos.Header header) {
                 return header.getTagsList().contains(tag);
             }
 
@@ -174,7 +174,7 @@ public interface GarmadonMessageFilter {
             }
 
             @Override
-            public boolean accepts(DataAccessEventProtos.Header header) {
+            public boolean accepts(EventHeaderProtos.Header header) {
                 return id.equals(header.getContainerId());
             }
         }
@@ -189,7 +189,7 @@ public interface GarmadonMessageFilter {
             }
 
             @Override
-            public boolean accepts(DataAccessEventProtos.Header header) {
+            public boolean accepts(EventHeaderProtos.Header header) {
                 return framework.equals(header.getFramework());
             }
         }
@@ -200,11 +200,11 @@ public interface GarmadonMessageFilter {
         }
 
         @Override
-        public boolean accepts(int type, DataAccessEventProtos.Header header) {
+        public boolean accepts(int type, EventHeaderProtos.Header header) {
             return accepts(header);
         }
 
-        protected abstract boolean accepts(DataAccessEventProtos.Header header);
+        protected abstract boolean accepts(EventHeaderProtos.Header header);
     }
 
 }
