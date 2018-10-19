@@ -1,5 +1,6 @@
-package com.criteo.hadoop.garmadon.agent.tracers;
+package com.criteo.hadoop.garmadon.agent.tracers.hadoop.hdfs;
 
+import com.criteo.hadoop.garmadon.agent.tracers.MethodTracer;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.schema.enums.FsAction;
 import net.bytebuddy.description.method.MethodDescription;
@@ -29,8 +30,7 @@ import java.util.function.BiConsumer;
 import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
-public class HdfsCallTracer {
-
+public class FileSystemTracer {
     private static long NANOSECONDS_PER_MILLISECOND = 1000000;
     private static BiConsumer<Long, Object> eventHandler;
 
@@ -38,18 +38,18 @@ public class HdfsCallTracer {
 
         initEventHandler(eventConsumer);
 
-        new ReadTracer().installOn(instrumentation);
-        new WriteTracer().installOn(instrumentation);
-        new RenameTracer().installOn(instrumentation);
-        new DeleteTracer().installOn(instrumentation);
-        new AppendTracer().installOn(instrumentation);
-        new ListStatusTracer().installOn(instrumentation);
-        new GetContentSummaryTracer().installOn(instrumentation);
-        new AddBlockTracer().installOn(instrumentation);
+        new FileSystemTracer.ReadTracer().installOn(instrumentation);
+        new FileSystemTracer.WriteTracer().installOn(instrumentation);
+        new FileSystemTracer.RenameTracer().installOn(instrumentation);
+        new FileSystemTracer.DeleteTracer().installOn(instrumentation);
+        new FileSystemTracer.AppendTracer().installOn(instrumentation);
+        new FileSystemTracer.ListStatusTracer().installOn(instrumentation);
+        new FileSystemTracer.GetContentSummaryTracer().installOn(instrumentation);
+        new FileSystemTracer.AddBlockTracer().installOn(instrumentation);
     }
 
     public static void initEventHandler(BiConsumer<Long, Object> eventConsumer) {
-        HdfsCallTracer.eventHandler = eventConsumer;
+        FileSystemTracer.eventHandler = eventConsumer;
     }
 
     public static class DeleteTracer extends MethodTracer {
@@ -66,7 +66,7 @@ public class HdfsCallTracer {
 
         @Override
         protected Implementation newImplementation() {
-            return to(DeleteTracer.class);
+            return to(FileSystemTracer.DeleteTracer.class);
         }
 
         @RuntimeType
@@ -82,7 +82,7 @@ public class HdfsCallTracer {
     public static class ReadTracer extends MethodTracer {
 
         @Override
-        ElementMatcher<? super TypeDescription> typeMatcher() {
+        protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
         }
 
@@ -93,7 +93,7 @@ public class HdfsCallTracer {
 
         @Override
         protected Implementation newImplementation() {
-            return to(ReadTracer.class);
+            return to(FileSystemTracer.ReadTracer.class);
         }
 
         @RuntimeType
@@ -109,18 +109,18 @@ public class HdfsCallTracer {
     public static class RenameTracer extends MethodTracer {
 
         @Override
-        ElementMatcher<? super TypeDescription> typeMatcher() {
+        protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
         }
 
         @Override
-        ElementMatcher<? super MethodDescription> methodMatcher() {
+        protected ElementMatcher<? super MethodDescription> methodMatcher() {
             return named("rename");
         }
 
         @Override
-        Implementation newImplementation() {
-            return to(RenameTracer.class);
+        protected Implementation newImplementation() {
+            return to(FileSystemTracer.RenameTracer.class);
         }
 
         @RuntimeType
@@ -137,12 +137,12 @@ public class HdfsCallTracer {
     public static class WriteTracer extends MethodTracer {
 
         @Override
-        ElementMatcher<? super TypeDescription> typeMatcher() {
+        protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
         }
 
         @Override
-        ElementMatcher<? super MethodDescription> methodMatcher() {
+        protected ElementMatcher<? super MethodDescription> methodMatcher() {
             return named("create").and(
                     takesArguments(
                             Path.class,
@@ -156,8 +156,8 @@ public class HdfsCallTracer {
         }
 
         @Override
-        Implementation newImplementation() {
-            return to(WriteTracer.class);
+        protected Implementation newImplementation() {
+            return to(FileSystemTracer.WriteTracer.class);
         }
 
         @RuntimeType
@@ -173,12 +173,12 @@ public class HdfsCallTracer {
     public static class AppendTracer extends MethodTracer {
 
         @Override
-        ElementMatcher<? super TypeDescription> typeMatcher() {
+        protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
         }
 
         @Override
-        ElementMatcher<? super MethodDescription> methodMatcher() {
+        protected ElementMatcher<? super MethodDescription> methodMatcher() {
             return named("append").and(
                     takesArguments(
                             Path.class,
@@ -189,8 +189,8 @@ public class HdfsCallTracer {
         }
 
         @Override
-        Implementation newImplementation() {
-            return to(AppendTracer.class);
+        protected Implementation newImplementation() {
+            return to(FileSystemTracer.AppendTracer.class);
         }
 
         @RuntimeType
@@ -206,12 +206,12 @@ public class HdfsCallTracer {
     public static class ListStatusTracer extends MethodTracer {
 
         @Override
-        ElementMatcher<? super TypeDescription> typeMatcher() {
+        protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
         }
 
         @Override
-        ElementMatcher<? super MethodDescription> methodMatcher() {
+        protected ElementMatcher<? super MethodDescription> methodMatcher() {
             return named("listStatus").and(
                     takesArguments(
                             Path.class
@@ -220,8 +220,8 @@ public class HdfsCallTracer {
         }
 
         @Override
-        Implementation newImplementation() {
-            return to(ListStatusTracer.class);
+        protected Implementation newImplementation() {
+            return to(FileSystemTracer.ListStatusTracer.class);
         }
 
         @RuntimeType
@@ -237,12 +237,12 @@ public class HdfsCallTracer {
     public static class GetContentSummaryTracer extends MethodTracer {
 
         @Override
-        ElementMatcher<? super TypeDescription> typeMatcher() {
+        protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
         }
 
         @Override
-        ElementMatcher<? super MethodDescription> methodMatcher() {
+        protected ElementMatcher<? super MethodDescription> methodMatcher() {
             return named("getContentSummary").and(
                     takesArguments(
                             Path.class
@@ -251,8 +251,8 @@ public class HdfsCallTracer {
         }
 
         @Override
-        Implementation newImplementation() {
-            return to(GetContentSummaryTracer.class);
+        protected Implementation newImplementation() {
+            return to(FileSystemTracer.GetContentSummaryTracer.class);
         }
 
         @RuntimeType
@@ -285,7 +285,7 @@ public class HdfsCallTracer {
         }
 
         static Field getField() {
-            return SingletonHolder.field;
+            return FileSystemTracer.AddBlockTracer.SingletonHolder.field;
         }
 
 
@@ -302,7 +302,7 @@ public class HdfsCallTracer {
 
         @Override
         protected Implementation newImplementation() {
-            return to(AddBlockTracer.class);
+            return to(FileSystemTracer.AddBlockTracer.class);
         }
 
         @RuntimeType

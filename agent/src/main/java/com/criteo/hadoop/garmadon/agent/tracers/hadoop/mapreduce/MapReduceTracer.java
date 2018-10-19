@@ -1,5 +1,6 @@
-package com.criteo.hadoop.garmadon.agent.tracers;
+package com.criteo.hadoop.garmadon.agent.tracers.hadoop.mapreduce;
 
+import com.criteo.hadoop.garmadon.agent.tracers.MethodTracer;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.schema.enums.PathType;
 import net.bytebuddy.description.method.MethodDescription;
@@ -72,17 +73,17 @@ public class MapReduceTracer {
     public static class InputFormatTracer extends MethodTracer {
 
         @Override
-        ElementMatcher<? super TypeDescription> typeMatcher() {
+        protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return isSubTypeOf(Types.MAPREDUCE_INPUT_FORMAT.getTypeDescription());
         }
 
         @Override
-        ElementMatcher<? super MethodDescription> methodMatcher() {
+        protected ElementMatcher<? super MethodDescription> methodMatcher() {
             return named("getSplits").or(named("createRecordReader"));
         }
 
         @Override
-        Implementation newImplementation() {
+        protected Implementation newImplementation() {
             return to(InputFormatTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 
@@ -116,17 +117,17 @@ public class MapReduceTracer {
     public static class OutputFormatTracer extends MethodTracer {
 
         @Override
-        ElementMatcher<? super TypeDescription> typeMatcher() {
+        protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return isSubTypeOf(Types.MAPREDUCE_OUTPUT_FORMAT.getTypeDescription());
         }
 
         @Override
-        ElementMatcher<? super MethodDescription> methodMatcher() {
+        protected ElementMatcher<? super MethodDescription> methodMatcher() {
             return named("getRecordWriter");
         }
 
         @Override
-        Implementation newImplementation() {
+        protected Implementation newImplementation() {
             return to(OutputFormatTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 
@@ -147,17 +148,17 @@ public class MapReduceTracer {
     public static class DeprecatedInputFormatTracer extends MethodTracer {
 
         @Override
-        ElementMatcher<? super TypeDescription> typeMatcher() {
+        protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return isSubTypeOf(Types.MAPRED_INPUT_FORMAT.getTypeDescription());
         }
 
         @Override
-        ElementMatcher<? super MethodDescription> methodMatcher() {
+        protected ElementMatcher<? super MethodDescription> methodMatcher() {
             return named("getRecordReader");
         }
 
         @Override
-        Implementation newImplementation() {
+        protected Implementation newImplementation() {
             return to(DeprecatedInputFormatTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 
@@ -178,17 +179,17 @@ public class MapReduceTracer {
     public static class DeprecatedOutputFormatTracer extends MethodTracer {
 
         @Override
-        ElementMatcher<? super TypeDescription> typeMatcher() {
+        protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return isSubTypeOf(Types.MAPRED_OUTPUT_FORMAT.getTypeDescription());
         }
 
         @Override
-        ElementMatcher<? super MethodDescription> methodMatcher() {
+        protected ElementMatcher<? super MethodDescription> methodMatcher() {
             return named("getRecordWriter");
         }
 
         @Override
-        Implementation newImplementation() {
+        protected Implementation newImplementation() {
             return to(DeprecatedOutputFormatTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 

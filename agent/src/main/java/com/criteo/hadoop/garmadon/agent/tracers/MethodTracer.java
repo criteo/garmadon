@@ -5,9 +5,9 @@ import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.matcher.ElementMatcher;
 
-abstract class MethodTracer extends Tracer {
+public abstract class MethodTracer extends Tracer {
 
-    MethodTracer() {
+    protected MethodTracer() {
         agentBuilder = agentBuilder
                 .type(typeMatcher())
                 .transform((builder, type, classLoader, module) ->
@@ -18,10 +18,10 @@ abstract class MethodTracer extends Tracer {
     }
 
 
-    abstract ElementMatcher<? super TypeDescription> typeMatcher();
+    protected abstract ElementMatcher<? super TypeDescription> typeMatcher();
 
-    abstract ElementMatcher<? super MethodDescription> methodMatcher();
+    protected abstract ElementMatcher<? super MethodDescription> methodMatcher();
 
-    abstract Implementation newImplementation();
+    protected abstract Implementation newImplementation();
 
 }

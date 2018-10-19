@@ -2,9 +2,9 @@ package com.criteo.hadoop.garmadon.agent.modules;
 
 import com.criteo.hadoop.garmadon.agent.AsyncEventProcessor;
 import com.criteo.hadoop.garmadon.agent.headers.ContainerHeader;
-import com.criteo.hadoop.garmadon.agent.tracers.HdfsCallTracer;
-import com.criteo.hadoop.garmadon.agent.tracers.JVMStatisticsTracer;
-import com.criteo.hadoop.garmadon.agent.tracers.SparkListenerTracer;
+import com.criteo.hadoop.garmadon.agent.tracers.hadoop.hdfs.FileSystemTracer;
+import com.criteo.hadoop.garmadon.agent.tracers.jvm.JVMStatisticsTracer;
+import com.criteo.hadoop.garmadon.agent.tracers.spark.SparkListenerTracer;
 
 import java.lang.instrument.Instrumentation;
 import java.util.concurrent.ExecutorService;
@@ -21,7 +21,7 @@ public class ContainerModule implements GarmadonAgentModule {
                 eventProcessor.offer(timestamp, ContainerHeader.getInstance().getHeader(), event)));
 
         // Byte code instrumentation
-        executorService.submit(() -> HdfsCallTracer.setup(instrumentation,
+        executorService.submit(() -> FileSystemTracer.setup(instrumentation,
                 (timestamp, event)  -> eventProcessor.offer(timestamp, ContainerHeader.getInstance().getHeader(), event)));
 
         // Set SPARK Listener

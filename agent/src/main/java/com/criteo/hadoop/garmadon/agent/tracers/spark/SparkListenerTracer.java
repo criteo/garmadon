@@ -1,4 +1,4 @@
-package com.criteo.hadoop.garmadon.agent.tracers;
+package com.criteo.hadoop.garmadon.agent.tracers.spark;
 
 import com.criteo.hadoop.garmadon.TriConsumer;
 import com.criteo.hadoop.garmadon.schema.events.Header;
