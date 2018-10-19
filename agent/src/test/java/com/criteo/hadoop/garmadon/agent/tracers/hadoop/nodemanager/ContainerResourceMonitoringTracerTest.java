@@ -1,6 +1,8 @@
-package com.criteo.hadoop.garmadon.agent.tracers;
+package com.criteo.hadoop.garmadon.agent.tracers.hadoop.nodemanager;
 
 import com.criteo.hadoop.garmadon.TriConsumer;
+import com.criteo.hadoop.garmadon.agent.tracers.MethodTracer;
+import com.criteo.hadoop.garmadon.agent.tracers.Tracer;
 import com.criteo.hadoop.garmadon.agent.utils.AgentAttachmentRule;
 import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
 import com.criteo.hadoop.garmadon.agent.utils.ReflectionHelper;
@@ -25,7 +27,6 @@ import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.function.BiConsumer;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;

@@ -1,17 +1,16 @@
-package com.criteo.hadoop.garmadon.agent.tracers;
+package com.criteo.hadoop.garmadon.agent.tracers.hadoop.mapreduce;
 
-import com.criteo.hadoop.garmadon.agent.tracers.MapReduceTracer;
 import com.criteo.hadoop.garmadon.agent.utils.AgentAttachmentRule;
 import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.schema.enums.PathType;
-import com.criteo.hadoop.garmadonnotexcluded.MapRedOutputFormatTestClasses;
+import com.criteo.hadoop.garmadonnotexcluded.MapReduceOutputFormatTestClasses;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.loading.ByteArrayClassLoader;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.util.Progressable;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.JobID;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,7 +24,6 @@ import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -33,12 +31,13 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
-public class MapRedOutputFormatTracerTest {
+public class MapReduceOutputFormatTracerTest {
     @Rule
     public MethodRule agentAttachmentRule = new AgentAttachmentRule();
 
     private BiConsumer<Long, Object> eventHandler;
-    private JobConf jobConf;
+    private TaskAttemptContext taskAttemptContext;
+    private Configuration conf;
 
     private ClassLoader classLoader;
 
@@ -53,16 +52,26 @@ public class MapRedOutputFormatTracerTest {
         argument = ArgumentCaptor.forClass(DataAccessEventProtos.PathEvent.class);
 
         MapReduceTracer.initEventHandler(eventHandler);
-        jobConf = mock(JobConf.class);
+        taskAttemptContext = mock(TaskAttemptContext.class);
+        conf = new Configuration();
+        conf.set("mapreduce.output.fileoutputformat.outputdir", outputPath);
 
-        when(jobConf.getJobName())
+        when(taskAttemptContext.getConfiguration())
+                .thenReturn(conf);
+        when(taskAttemptContext.getJobName())
                 .thenReturn("Application");
-        when(jobConf.getUser())
+        when(taskAttemptContext.getUser())
                 .thenReturn("user");
+
+        JobID jobId = mock(JobID.class);
+        when(jobId.toString())
+                .thenReturn("app_1");
+        when(taskAttemptContext.getJobID())
+                .thenReturn(jobId);
 
         classLoader = new ByteArrayClassLoader.ChildFirst(getClass().getClassLoader(),
                 ClassFileExtraction.of(
-                        MapRedOutputFormatTestClasses.OneLevelHierarchy.class
+                        MapReduceOutputFormatTestClasses.OneLevelHierarchy.class
                 ),
                 ByteArrayClassLoader.PersistenceHandler.MANIFEST);
     }
@@ -70,13 +79,13 @@ public class MapRedOutputFormatTracerTest {
     @After
     public void tearDown() {
         reset(eventHandler);
-        reset(jobConf);
+        reset(taskAttemptContext);
     }
 
     @Test
     public void OutputFormatTracer_should_use_a_latent_type_definition_equivalent_to_the_ForLoadedType_one(){
-        TypeDescription realTypeDef = TypeDescription.ForLoadedType.of(org.apache.hadoop.mapred.OutputFormat.class);
-        TypeDescription latentTypeDef = MapReduceTracer.Types.MAPRED_OUTPUT_FORMAT.getTypeDescription();
+        TypeDescription realTypeDef = TypeDescription.ForLoadedType.of(org.apache.hadoop.mapreduce.OutputFormat.class);
+        TypeDescription latentTypeDef = MapReduceTracer.Types.MAPREDUCE_OUTPUT_FORMAT.getTypeDescription();
 
         assertThat(latentTypeDef.getName(), is(realTypeDef.getName()));
         assertThat(latentTypeDef.getModifiers(), is(realTypeDef.getModifiers()));
@@ -92,15 +101,11 @@ public class MapRedOutputFormatTracerTest {
     public void OutputFormatTracer_should_intercept_InputFormat_direct_implementor() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
-        // Prepare jobConf
-        when(jobConf.get("mapreduce.output.fileoutputformat.outputdir"))
-                .thenReturn(outputPath);
-
         //Install tracer
-        ClassFileTransformer classFileTransformer = new MapReduceTracer.DeprecatedOutputFormatTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new MapReduceTracer.OutputFormatTracer().installOnByteBuddyAgent();
         try {
-            //Call OnputFormat
-            Class<?> type = classLoader.loadClass(MapRedOutputFormatTestClasses.OneLevelHierarchy.class.getName());
+            //Call InputFormat
+            Class<?> type = classLoader.loadClass(MapReduceOutputFormatTestClasses.OneLevelHierarchy.class.getName());
             invokeRecordWriter(type);
 
             //Verify mock interaction
@@ -122,11 +127,10 @@ public class MapRedOutputFormatTracerTest {
     @Test
     public void OutputFormatTracer_should_get_deprecated_value() throws Exception {
         // Configure deprecated output dir
-        when(jobConf.get("mapred.output.dir"))
-                .thenReturn(deprecatedOutputPath);
+        conf.unset("mapreduce.output.fileoutputformat.outputdir");
+        conf.set("mapred.output.dir", deprecatedOutputPath);
 
-        MapReduceTracer.DeprecatedOutputFormatTracer.intercept(jobConf);
-
+        MapReduceTracer.OutputFormatTracer.intercept(taskAttemptContext);
         verify(eventHandler).accept(any(Long.class), argument.capture());
         DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
                 .newBuilder()
@@ -137,9 +141,9 @@ public class MapRedOutputFormatTracerTest {
     }
 
     private Object invokeRecordWriter(Class<?> type) throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Method m = type.getMethod("getRecordWriter", FileSystem.class, JobConf.class, String.class, Progressable.class);
+        Method m = type.getMethod("getRecordWriter", TaskAttemptContext.class);
         Object inFormat = type.newInstance();
-        return m.invoke(inFormat, mock(FileSystem.class), jobConf, "test", mock(Progressable.class));
+        return m.invoke(inFormat, taskAttemptContext);
     }
 
 }

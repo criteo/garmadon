@@ -10,7 +10,7 @@ import java.lang.instrument.Instrumentation;
 
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
-abstract class Tracer {
+public abstract class Tracer {
 
     protected AgentBuilder agentBuilder;
 
@@ -63,11 +63,11 @@ abstract class Tracer {
                 );
     }
 
-    void installOn(Instrumentation instrumentation) {
+    public void installOn(Instrumentation instrumentation) {
         this.agentBuilder.installOn(instrumentation);
     }
 
-    ResettableClassFileTransformer installOnByteBuddyAgent() {
+    public ResettableClassFileTransformer installOnByteBuddyAgent() {
         return this.agentBuilder.installOnByteBuddyAgent();
     }
 

@@ -1,7 +1,8 @@
-package com.criteo.hadoop.garmadon.agent.tracers;
+package com.criteo.hadoop.garmadon.agent.tracers.hadoop.nodemanager;
 
 import com.criteo.hadoop.garmadon.TriConsumer;
 import com.criteo.hadoop.garmadon.agent.AsyncEventProcessor;
+import com.criteo.hadoop.garmadon.agent.tracers.MethodTracer;
 import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
 import com.criteo.hadoop.garmadon.schema.enums.ContainerType;
 import com.criteo.hadoop.garmadon.schema.events.Header;
@@ -48,17 +49,17 @@ public class ContainerResourceMonitoringTracer {
     public static class MemorySizeTracer extends MethodTracer {
 
         @Override
-        ElementMatcher<? super TypeDescription> typeMatcher() {
+        protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.yarn.server.nodemanager.containermanager.monitor.ContainersMonitorImpl");
         }
 
         @Override
-        ElementMatcher<? super MethodDescription> methodMatcher() {
+        protected ElementMatcher<? super MethodDescription> methodMatcher() {
             return named("isProcessTreeOverLimit").and(takesArguments(String.class, long.class, long.class, long.class));
         }
 
         @Override
-        Implementation newImplementation() {
+        protected Implementation newImplementation() {
             return to(MemorySizeTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 
@@ -115,17 +116,17 @@ public class ContainerResourceMonitoringTracer {
 
 
         @Override
-        ElementMatcher<? super TypeDescription> typeMatcher() {
+        protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.yarn.server.nodemanager.containermanager.monitor.ContainerMetrics");
         }
 
         @Override
-        ElementMatcher<? super MethodDescription> methodMatcher() {
+        protected ElementMatcher<? super MethodDescription> methodMatcher() {
             return named("recordCpuUsage").and(takesArguments(int.class, int.class));
         }
 
         @Override
-        Implementation newImplementation() {
+        protected Implementation newImplementation() {
             return to(VcoreUsageTracer.class).andThen(SuperMethodCall.INSTANCE);
         }
 

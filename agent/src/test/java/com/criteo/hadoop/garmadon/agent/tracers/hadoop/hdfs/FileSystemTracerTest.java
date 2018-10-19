@@ -1,5 +1,7 @@
-package com.criteo.hadoop.garmadon.agent.tracers;
+package com.criteo.hadoop.garmadon.agent.tracers.hadoop.hdfs;
 
+import com.criteo.hadoop.garmadon.agent.tracers.MethodTracer;
+import com.criteo.hadoop.garmadon.agent.tracers.Tracer;
 import com.criteo.hadoop.garmadon.agent.utils.AgentAttachmentRule;
 import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
 import com.criteo.hadoop.garmadon.agent.utils.ReflectionHelper;
@@ -33,7 +35,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 
-public class HdfsCallTracerTest {
+public class FileSystemTracerTest {
     private final Path pathFolder = new Path("/test");
     private final Path pathSrc = new Path("/test/garmadon");
     private final Path pathDst = new Path("/test1");
@@ -51,18 +53,18 @@ public class HdfsCallTracerTest {
 
     @BeforeClass
     public static void setUpClass() throws IOException, NoSuchFieldException, IllegalAccessException, ClassNotFoundException {
-        classLoader = new ByteArrayClassLoader.ChildFirst(HdfsCallTracerTest.class.getClassLoader(),
+        classLoader = new ByteArrayClassLoader.ChildFirst(FileSystemTracerTest.class.getClassLoader(),
                 ClassFileExtraction.of(
                         Tracer.class,
                         MethodTracer.class,
-                        HdfsCallTracer.class,
-                        HdfsCallTracer.WriteTracer.class,
-                        HdfsCallTracer.ReadTracer.class,
-                        HdfsCallTracer.AddBlockTracer.class,
-                        HdfsCallTracer.ListStatusTracer.class,
-                        HdfsCallTracer.GetContentSummaryTracer.class,
-                        HdfsCallTracer.RenameTracer.class,
-                        HdfsCallTracer.DeleteTracer.class,
+                        FileSystemTracer.class,
+                        FileSystemTracer.WriteTracer.class,
+                        FileSystemTracer.ReadTracer.class,
+                        FileSystemTracer.AddBlockTracer.class,
+                        FileSystemTracer.ListStatusTracer.class,
+                        FileSystemTracer.GetContentSummaryTracer.class,
+                        FileSystemTracer.RenameTracer.class,
+                        FileSystemTracer.DeleteTracer.class,
                         DFSClient.class,
                         DFSClient.Conf.class,
                         ClientContext.class,
@@ -75,7 +77,7 @@ public class HdfsCallTracerTest {
                         HdfsDataOutputStream.class,
                         ClientNamenodeProtocolTranslatorPB.class,
                         Class.forName("org.apache.hadoop.hdfs.BlockReaderLocal"),
-                        Class.forName(HdfsCallTracer.AddBlockTracer.class.getName() + "$SingletonHolder"),
+                        Class.forName(FileSystemTracer.AddBlockTracer.class.getName() + "$SingletonHolder"),
                         Class.forName(DFSOutputStream.class.getName() + "$Packet"),
                         Class.forName(DFSOutputStream.class.getName() + "$DataStreamer"),
                         Class.forName(DFSOutputStream.class.getName() + "$DataStreamer$1"),
@@ -98,7 +100,7 @@ public class HdfsCallTracerTest {
 
         event = new Object[1];
         BiConsumer<Long, Object> cons = (l,o) -> event[0] = o;
-        ReflectionHelper.setField(null, classLoader.loadClass(HdfsCallTracer.class.getName()), "eventHandler", cons);
+        ReflectionHelper.setField(null, classLoader.loadClass(FileSystemTracer.class.getName()), "eventHandler", cons);
         ReflectionHelper.setField(conf, Configuration.class, "classLoader", classLoader);
 
         conf.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
@@ -132,10 +134,10 @@ public class HdfsCallTracerTest {
 
     @Test
     @AgentAttachmentRule.Enforce
-    public void HdfsCallTracer_should_attach_to_write() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, URISyntaxException {
+    public void FileSystemTracer_should_attach_to_write() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, URISyntaxException {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
-        ClassFileTransformer classFileTransformer = new HdfsCallTracer.WriteTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new FileSystemTracer.WriteTracer().installOnByteBuddyAgent();
 
         try {
             initDFS();
@@ -157,10 +159,10 @@ public class HdfsCallTracerTest {
 
     @Test
     @AgentAttachmentRule.Enforce
-    public void HdfsCallTracer_should_attach_to_read() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, URISyntaxException, IOException {
+    public void FileSystemTracer_should_attach_to_read() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, URISyntaxException, IOException {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
-        ClassFileTransformer classFileTransformer = new HdfsCallTracer.ReadTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new FileSystemTracer.ReadTracer().installOnByteBuddyAgent();
 
         try {
             initDFS();
@@ -190,10 +192,10 @@ public class HdfsCallTracerTest {
 
     @Test
     @AgentAttachmentRule.Enforce
-    public void HdfsCallTracer_should_attach_to_list() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, URISyntaxException, IOException {
+    public void FileSystemTracer_should_attach_to_list() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, URISyntaxException, IOException {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
-        ClassFileTransformer classFileTransformer = new HdfsCallTracer.ListStatusTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new FileSystemTracer.ListStatusTracer().installOnByteBuddyAgent();
 
         try {
             initDFS();
@@ -209,10 +211,10 @@ public class HdfsCallTracerTest {
 
     @Test
     @AgentAttachmentRule.Enforce
-    public void HdfsCallTracer_should_attach_to_get_content() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, URISyntaxException, IOException {
+    public void FileSystemTracer_should_attach_to_get_content() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, URISyntaxException, IOException {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
-        ClassFileTransformer classFileTransformer = new HdfsCallTracer.GetContentSummaryTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new FileSystemTracer.GetContentSummaryTracer().installOnByteBuddyAgent();
 
         try {
             initDFS();
@@ -228,10 +230,10 @@ public class HdfsCallTracerTest {
 
     @Test
     @AgentAttachmentRule.Enforce
-    public void HdfsCallTracer_should_attach_to_delete() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, URISyntaxException {
+    public void FileSystemTracer_should_attach_to_delete() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, URISyntaxException {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
-        ClassFileTransformer classFileTransformer = new HdfsCallTracer.DeleteTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new FileSystemTracer.DeleteTracer().installOnByteBuddyAgent();
 
         try {
             initDFS();
@@ -247,10 +249,10 @@ public class HdfsCallTracerTest {
 
     @Test
     @AgentAttachmentRule.Enforce
-    public void HdfsCallTracer_should_attach_to_rename() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, URISyntaxException {
+    public void FileSystemTracer_should_attach_to_rename() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, URISyntaxException {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
-        ClassFileTransformer classFileTransformer = new HdfsCallTracer.RenameTracer().installOnByteBuddyAgent();
+        ClassFileTransformer classFileTransformer = new FileSystemTracer.RenameTracer().installOnByteBuddyAgent();
 
         try {
             initDFS();

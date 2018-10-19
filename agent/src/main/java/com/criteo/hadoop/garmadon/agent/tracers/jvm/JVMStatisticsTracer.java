@@ -1,4 +1,4 @@
-package com.criteo.hadoop.garmadon.agent.tracers;
+package com.criteo.hadoop.garmadon.agent.tracers.jvm;
 
 import com.criteo.jvm.Conf;
 import com.criteo.jvm.JVMStatistics;
