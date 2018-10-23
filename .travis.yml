@@ -1,4 +1,10 @@
 language: java
 jdk:
-  - oraclejdk8
-  - openjdk8
+- oraclejdk8
+- openjdk8
+env:
+  global:
+    secure: o2HyqCaCFHRTkncncfKJPxgkdTm2qG/+qjs0cu55TobbgLaTW8kNJYEAVaHTpKFylWaSLplPmD+FbP788AFtmVMGRK5Z+b1+zeZsDTLUeli+9DxpOwdpveM97E9zFwyioT+glaAsVvxsWgX7i+yw9Z23BDVBcC50x5E1huOjBl0U4zyrrPNL/sjv5EjQ5IYrq3HNcUQFdUgyE6pWtN2ibBW5jwycRKYyjsGXnF6htWb4yBdf78rmaWblV4fRvVtlJJj+e+WFnYhr+s3Fb3roG1BkujWxQ3AtlEXDoaLrvKqGzClsDQlcbF0Dffl1xLAK3fIFuX3GOwBPg4rAEttM6zGcNOZXIh/+uGyN238bOs1q5h+S80SsQsqO32Ox34EhIcXDWIxg4C9ZE0NMtPts/kd8vGfld6p7yImHR+tcOe+HEKpF0lWSPirVtZNRkjZRQ9ZnGI02p9Pug9OX42Ux3hukS3JzYXYujLaNS8tb29Q9pg0IISUJkRNlDEeRK+H4y0D4eGiuxGPDFS09a8NhCBcI8OwFLAewckuoTD46RaoqazlFnsJc1mUumejbZhHFx8ZTdG2k8QZq51oiN3kvZjZSRgxTf19zNEyjg7uko5lnu/P2o6BcX/yrdVPTvUztl1du8lz/F6UNxp4SUadnwUJWI/Xow+izoFuOM2ROfy8=
+before_deploy:
+- openssl aes-256-cbc -K $encrypted_91ee6a0187b8_key -iv $encrypted_91ee6a0187b8_iv
+  -in .travis/keys.tar.enc -out .travis/keys.tar -d
