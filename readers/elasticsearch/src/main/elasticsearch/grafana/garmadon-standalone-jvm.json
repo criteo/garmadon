@@ -2183,6 +2183,7 @@
         {
           "allValue": "*",
           "current": {
+            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -2193,7 +2194,7 @@
           "multi": false,
           "name": "main_class",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"main_class\", \"query\": \"tags:STANDALONE AND hostname:$hostname\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"main_class\", \"query\": \"tags:STANDALONE AND hostname:$hostname AND username:$username\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -2216,7 +2217,7 @@
           "multi": false,
           "name": "pid",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"pid\", \"query\": \"tags:STANDALONE AND hostname:$hostname AND main_class:$main_class\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"pid\", \"query\": \"tags:STANDALONE AND hostname:$hostname AND username:$username AND main_class:$main_class\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "sort": 2,
