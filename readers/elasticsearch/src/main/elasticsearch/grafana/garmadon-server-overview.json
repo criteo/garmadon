@@ -883,8 +883,9 @@
         {
           "allValue": "*",
           "current": {
-            "text": "NODEMANAGER",
-            "value": "NODEMANAGER"
+            "tags": [],
+            "text": "RESOURCEMANAGER",
+            "value": "RESOURCEMANAGER"
           },
           "datasource": "$datasource",
           "hide": 0,
@@ -893,7 +894,7 @@
           "multi": false,
           "name": "tags",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"tags\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"tags\",\"query\": \"NOT tags:YARN_APPLICATION AND NOT tags:STANDALONE\"}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
