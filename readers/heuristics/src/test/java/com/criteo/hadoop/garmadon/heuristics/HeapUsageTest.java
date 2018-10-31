@@ -79,7 +79,7 @@ public class HeapUsageTest {
         HeapUsage heapUsage = new HeapUsage(mockDB);
         JVMStatisticsProtos.JVMStatisticsData jvmStats = buildHeapData(used, max);
         for (int i = 0; i < nbContainers; i++) {
-            heapUsage.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, jvmStats);
+            heapUsage.process(System.currentTimeMillis(), APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, jvmStats);
             heapUsage.onContainerCompleted(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i);
         }
         heapUsage.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);

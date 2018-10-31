@@ -1,6 +1,5 @@
 package com.criteo.hadoop.garmadon.agent.tracers;
 
-import com.criteo.hadoop.garmadon.agent.tracers.ContainerResourceMonitoringTracer;
 import com.criteo.hadoop.garmadon.agent.utils.AgentAttachmentRule;
 import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
 import com.criteo.hadoop.garmadon.schema.events.Header;
@@ -51,7 +50,7 @@ public class ContainerResourceMonitoringTracerTest {
 
         final Header[] header = new Header[1];
         final Object[] event = new Object[1];
-        ContainerResourceMonitoringTracer.initEventHandler((h, o) -> {
+        ContainerResourceMonitoringTracer.initEventHandler((t, h, o) -> {
             header[0] = h;
             event[0] = o;
         });

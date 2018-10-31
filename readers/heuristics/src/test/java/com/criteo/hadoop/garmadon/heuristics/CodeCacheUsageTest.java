@@ -53,7 +53,7 @@ public class CodeCacheUsageTest {
         CodeCacheUsage codeCacheUsage = new CodeCacheUsage(mockDB);
         JVMStatisticsProtos.JVMStatisticsData jvmStats = buildCodeCacheData(63 * 1024 * 1024, 64 * 1024 * 1024);
         for (int i = 0; i < nbContainers; i++) {
-            codeCacheUsage.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, jvmStats);
+            codeCacheUsage.process(System.currentTimeMillis(), APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, jvmStats);
             codeCacheUsage.onContainerCompleted(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i);
         }
         codeCacheUsage.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);

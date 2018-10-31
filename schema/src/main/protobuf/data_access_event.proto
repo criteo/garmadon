@@ -6,20 +6,17 @@ option java_package = "com.criteo.hadoop.garmadon.event.proto";
 option java_outer_classname = "DataAccessEventProtos";
 
 message PathEvent {
-    uint64 timestamp = 1;
-    string path = 2;
-    string type = 3;
+    string path = 1;
+    string type = 2;
 }
 
 message FsEvent {
-    uint64 timestamp = 1;
-    string src_path = 2;
-    string dst_path = 3;
-    string action = 4;
-    string uri = 5;
+    string src_path = 1;
+    string dst_path = 2;
+    string action = 3;
+    string uri = 4;
 }
 
 message StateEvent {
-    uint64 timestamp = 1;
-    string state = 2;
+    string state = 1;
 }

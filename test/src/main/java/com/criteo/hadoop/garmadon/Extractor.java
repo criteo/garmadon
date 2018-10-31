@@ -2,10 +2,9 @@ package com.criteo.hadoop.garmadon;
 
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
-import com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
-import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.enums.State;
+import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.criteo.jvm.JVMStatisticsProtos;
 
@@ -22,7 +21,7 @@ public class Extractor {
     private final GarmadonReader reader;
     private Map<String, Stats> containers = new HashMap<>();
 
-    public Extractor(String kafkaConnectString) {
+    private Extractor(String kafkaConnectString) {
         reader = GarmadonReader.Builder
                 .stream(kafkaConnectString)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)), msg -> getStats(msg).gcStatCount++)
@@ -31,7 +30,7 @@ public class Extractor {
                 .build();
     }
 
-    public Extractor(String kafkaConnectString, String containerId) {
+    private Extractor(String kafkaConnectString, String containerId) {
         reader = GarmadonReader.Builder.stream(kafkaConnectString)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)), this::processGcEvent)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)), this::processJvmStatEvent)
@@ -39,11 +38,11 @@ public class Extractor {
                 .build();
     }
 
-    public void start() {
+    private void start() {
         reader.startReading().whenComplete(this::completeReading);
     }
 
-    public void stop() {
+    private void stop() {
         reader.stopReading().whenComplete(this::completeReading);
     }
 
@@ -57,7 +56,7 @@ public class Extractor {
     private void processGcEvent(GarmadonMessage msg) {
         JVMStatisticsProtos.GCStatisticsData gcStats = (JVMStatisticsProtos.GCStatisticsData) msg.getBody();
         StringBuilder sb = new StringBuilder();
-        String timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(gcStats.getTimestamp()));
+        String timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(msg.getTimestamp()));
         sb.append(timestamp).append(" ");
         sb.append(gcStats.getCollectorName()).append(" occurred, took ").append(gcStats.getPauseTime()).append("ms");
         sb.append(" (").append(gcStats.getCause()).append(") ");
@@ -72,7 +71,7 @@ public class Extractor {
     private void processJvmStatEvent(GarmadonMessage msg) {
         JVMStatisticsProtos.JVMStatisticsData jvmStats = (JVMStatisticsProtos.JVMStatisticsData) msg.getBody();
         StringBuilder sb = new StringBuilder();
-        String timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(jvmStats.getTimestamp()));
+        String timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(msg.getTimestamp()));
         sb.append(timestamp).append(" ");
         for (JVMStatisticsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             sb.append(section.getName()).append("[");

@@ -1,12 +1,13 @@
 package com.criteo.hadoop.garmadon.spark.listener;
 
+import com.criteo.hadoop.garmadon.TriConsumer;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 
 import java.util.function.BiConsumer;
 
 public class SparkListernerConf {
 
-    private BiConsumer<Header, Object> eventHandler;
+    private TriConsumer<Long, Header, Object> eventHandler;
     private Header.SerializedHeader header;
 
     /**
@@ -32,7 +33,7 @@ public class SparkListernerConf {
         return SingletonHolder.instance;
     }
 
-    public void setConsumer(BiConsumer<Header, Object> eventConsumer) {
+    public void setConsumer(TriConsumer<Long, Header, Object> eventConsumer) {
         this.eventHandler = eventConsumer;
     }
 
@@ -44,7 +45,7 @@ public class SparkListernerConf {
         this.header = header;
     }
 
-    public BiConsumer<Header, Object> getEventHandler() {
+    public TriConsumer<Long, Header, Object> getEventHandler() {
         return eventHandler;
     }
 }

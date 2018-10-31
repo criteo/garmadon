@@ -134,7 +134,6 @@ public class FileHeuristicTest {
 
     private DataAccessEventProtos.StateEvent newEndEvent() {
         return DataAccessEventProtos.StateEvent.newBuilder()
-                .setTimestamp(System.currentTimeMillis())
                 .setState(State.END.toString())
                 .build();
     }
@@ -145,7 +144,6 @@ public class FileHeuristicTest {
 
     private DataAccessEventProtos.FsEvent newFsEvent(String action) {
         return DataAccessEventProtos.FsEvent.newBuilder()
-                .setTimestamp(System.currentTimeMillis())
                 .setDstPath("/tmp")
                 .setSrcPath("/tmp")
                 .setUri("/tmp")

@@ -14,7 +14,7 @@ public class Safepoints implements JVMStatsHeuristic {
     }
 
     @Override
-    public void process(String applicationId, String attemptId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
+    public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
         for (JVMStatisticsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             if ("safepoints".equals(section.getName())) {
                 Map<String, SafepointsCounters> containerCounters = appCounters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());
@@ -24,7 +24,7 @@ public class Safepoints implements JVMStatsHeuristic {
                         long lastCount = safepointsCounters.lastCount;
                         long lastTimestamp = safepointsCounters.lastTimestamp;
                         long currentCount = Long.parseLong(property.getValue());
-                        long currentTimestamp = jvmStats.getTimestamp();
+                        long currentTimestamp = timestamp;
                         safepointsCounters.lastCount = currentCount;
                         safepointsCounters.lastTimestamp = currentTimestamp;
                         if (currentTimestamp == lastTimestamp) // avoid case of / 0

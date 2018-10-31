@@ -6,14 +6,14 @@ import org.junit.Test;
 import javax.management.Notification;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class GCNotificationsTest {
     @Test
     public void triggeredListenerOnGC() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         GCNotifications notif = new GCNotifications(GCNotificationsTest::handleNotification);
-        notif.subscribe(s -> {
+        notif.subscribe((t, s) -> {
             Assert.assertEquals("GC", s);
             latch.countDown();
         });
@@ -22,8 +22,8 @@ public class GCNotificationsTest {
     }
 
     static void handleNotification(Notification notification, Object handback) {
-        Consumer<String> printer = (Consumer<String>) handback;
+        BiConsumer<Long, String> printer = (BiConsumer<Long, String>) handback;
         if (printer != null)
-            printer.accept("GC");
+            printer.accept(System.currentTimeMillis(), "GC");
     }
 }

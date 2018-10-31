@@ -89,16 +89,15 @@ public class SafepointsTest {
 
         Safepoints safepoints = new Safepoints(mockDB);
         for (int i = 0; i < nbContainers; i++) {
-            safepoints.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildSafepointData(count1, timestamp));
-            safepoints.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildSafepointData(count2, timestamp + 1000));
+            safepoints.process(timestamp, APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildSafepointData(count1));
+            safepoints.process(timestamp + 1000, APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildSafepointData(count2));
             safepoints.onContainerCompleted(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i);
         }
         safepoints.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);
     }
 
-    JVMStatisticsProtos.JVMStatisticsData buildSafepointData(int count, long timestamp) {
+    JVMStatisticsProtos.JVMStatisticsData buildSafepointData(int count) {
         JVMStatisticsProtos.JVMStatisticsData.Builder builder = JVMStatisticsProtos.JVMStatisticsData.newBuilder();
-        builder.setTimestamp(timestamp);
         JVMStatisticsProtos.JVMStatisticsData.Section.Builder sectionBuilder = builder.addSectionBuilder().setName("safepoints");
         sectionBuilder.addPropertyBuilder().setName("count").setValue(String.valueOf(count));
         return builder.build();

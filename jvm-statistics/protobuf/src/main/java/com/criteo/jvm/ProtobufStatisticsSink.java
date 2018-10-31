@@ -57,7 +57,6 @@ public class ProtobufStatisticsSink implements StatisticsSink<JVMStatisticsProto
 
     @Override
     public JVMStatisticsProtos.JVMStatisticsData flush() {
-        dataBuilder.setTimestamp(System.currentTimeMillis());
         JVMStatisticsProtos.JVMStatisticsData data = dataBuilder.build();
         dataBuilder = JVMStatisticsProtos.JVMStatisticsData.newBuilder();
         return data;

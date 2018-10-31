@@ -79,11 +79,10 @@ public class GCCauseTest {
         JVMStatisticsProtos.GCStatisticsData.Builder builder = JVMStatisticsProtos.GCStatisticsData.newBuilder()
                 .setCause(cause)
                 .setCollectorName("PS MarkSweep")
-                .setPauseTime(1234)
-                .setTimestamp(timestamp);
+                .setPauseTime(1234);
         JVMStatisticsProtos.GCStatisticsData gcStats = builder.build();
         for (int i = 0; i < nbContainers; i++)
-            gcCause.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, gcStats);
+            gcCause.process(timestamp, APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, gcStats);
         gcCause.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);
     }
 }

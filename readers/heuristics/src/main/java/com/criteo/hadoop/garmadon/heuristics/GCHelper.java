@@ -49,8 +49,8 @@ public class GCHelper {
         throw new IllegalArgumentException("Unknown gc name: " + gcName);
     }
 
-    public static HeuristicResult addGCDetails(HeuristicResult result, JVMStatisticsProtos.GCStatisticsData gcStats) {
-        result.addDetail("Timestamp", String.valueOf(gcStats.getTimestamp()), HeuristicResult.formatTimestamp(gcStats.getTimestamp()));
+    public static HeuristicResult addGCDetails(HeuristicResult result, Long timestamp, JVMStatisticsProtos.GCStatisticsData gcStats) {
+        result.addDetail("Timestamp", String.valueOf(timestamp), HeuristicResult.formatTimestamp(timestamp));
         result.addDetail("Collector", gcStats.getCollectorName());
         result.addDetail("Pause", String.valueOf(gcStats.getPauseTime()));
         return result;

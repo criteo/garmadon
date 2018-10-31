@@ -14,6 +14,7 @@ import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import java.lang.instrument.Instrumentation;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static net.bytebuddy.implementation.MethodDelegation.to;
@@ -22,7 +23,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class MapReduceTracer {
 
-    private static Consumer<Object> eventHandler;
+    private static BiConsumer<Long, Object> eventHandler;
 
     // Output format configuration
     private static final String DEPRECATED_FILE_OUTPUT_FORMAT_OUTPUT_DIR = "mapred.output.dir";
@@ -54,7 +55,7 @@ public class MapReduceTracer {
         }
     }
 
-    public static void setup(Instrumentation instrumentation, Consumer<Object> eventConsumer) {
+    public static void setup(Instrumentation instrumentation, BiConsumer<Long, Object> eventConsumer) {
 
         initEventHandler(eventConsumer);
 
@@ -64,7 +65,7 @@ public class MapReduceTracer {
         new DeprecatedOutputFormatTracer().installOn(instrumentation);
     }
 
-    public static void initEventHandler(Consumer<Object> eventConsumer) {
+    public static void initEventHandler(BiConsumer<Long, Object> eventConsumer) {
         MapReduceTracer.eventHandler = eventConsumer;
     }
 
@@ -91,11 +92,10 @@ public class MapReduceTracer {
             if (paths != null) {
                 DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
                         .newBuilder()
-                        .setTimestamp(System.currentTimeMillis())
                         .setPath(paths)
                         .setType(PathType.INPUT.name())
                         .build();
-                eventHandler.accept(pathEvent);
+                eventHandler.accept(System.currentTimeMillis(), pathEvent);
             }
         }
 
@@ -105,11 +105,10 @@ public class MapReduceTracer {
             if (paths != null) {
                 DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
                         .newBuilder()
-                        .setTimestamp(System.currentTimeMillis())
                         .setPath(paths)
                         .setType(PathType.INPUT.name())
                         .build();
-                eventHandler.accept(pathEvent);
+                eventHandler.accept(System.currentTimeMillis(), pathEvent);
             }
         }
     }
@@ -137,11 +136,10 @@ public class MapReduceTracer {
             if (paths != null) {
                 DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
                         .newBuilder()
-                        .setTimestamp(System.currentTimeMillis())
                         .setPath(paths)
                         .setType(PathType.OUTPUT.name())
                         .build();
-                eventHandler.accept(pathEvent);
+                eventHandler.accept(System.currentTimeMillis(), pathEvent);
             }
         }
     }
@@ -169,11 +167,10 @@ public class MapReduceTracer {
             if (paths != null) {
                 DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
                         .newBuilder()
-                        .setTimestamp(System.currentTimeMillis())
                         .setPath(paths)
                         .setType(PathType.INPUT.name())
                         .build();
-                eventHandler.accept(pathEvent);
+                eventHandler.accept(System.currentTimeMillis(), pathEvent);
             }
         }
     }
@@ -201,11 +198,10 @@ public class MapReduceTracer {
             if (paths != null) {
                 DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
                         .newBuilder()
-                        .setTimestamp(System.currentTimeMillis())
                         .setPath(paths)
                         .setType(PathType.OUTPUT.name())
                         .build();
-                eventHandler.accept(pathEvent);
+                eventHandler.accept(System.currentTimeMillis(), pathEvent);
             }
         }
     }

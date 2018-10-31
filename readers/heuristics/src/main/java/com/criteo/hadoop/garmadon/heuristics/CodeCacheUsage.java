@@ -14,7 +14,7 @@ public class CodeCacheUsage implements JVMStatsHeuristic {
     }
 
     @Override
-    public void process(String applicationId, String attemptId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
+    public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
         for (JVMStatisticsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             if ("code".equals(section.getName())) {
                 Map<String, CodeCacheCounters> containerCounters = appCounters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());

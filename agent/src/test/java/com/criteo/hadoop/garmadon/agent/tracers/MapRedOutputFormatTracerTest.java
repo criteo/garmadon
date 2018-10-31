@@ -24,6 +24,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -36,7 +37,7 @@ public class MapRedOutputFormatTracerTest {
     @Rule
     public MethodRule agentAttachmentRule = new AgentAttachmentRule();
 
-    private Consumer<Object> eventHandler;
+    private BiConsumer<Long, Object> eventHandler;
     private JobConf jobConf;
 
     private ClassLoader classLoader;
@@ -48,7 +49,7 @@ public class MapRedOutputFormatTracerTest {
 
     @Before
     public void setUp() throws IOException {
-        eventHandler = mock(Consumer.class);
+        eventHandler = mock(BiConsumer.class);
         argument = ArgumentCaptor.forClass(DataAccessEventProtos.PathEvent.class);
 
         MapReduceTracer.initEventHandler(eventHandler);
@@ -103,10 +104,9 @@ public class MapRedOutputFormatTracerTest {
             invokeRecordWriter(type);
 
             //Verify mock interaction
-            verify(eventHandler).accept(argument.capture());
+            verify(eventHandler).accept(any(Long.class), argument.capture());
             DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
                     .newBuilder()
-                    .setTimestamp(argument.getValue().getTimestamp())
                     .setPath(outputPath)
                     .setType(PathType.OUTPUT.name())
                     .build();
@@ -127,10 +127,9 @@ public class MapRedOutputFormatTracerTest {
 
         MapReduceTracer.DeprecatedOutputFormatTracer.intercept(jobConf);
 
-        verify(eventHandler).accept(argument.capture());
+        verify(eventHandler).accept(any(Long.class), argument.capture());
         DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
                 .newBuilder()
-                .setTimestamp(argument.getValue().getTimestamp())
                 .setPath(deprecatedOutputPath)
                 .setType(PathType.OUTPUT.name())
                 .build();

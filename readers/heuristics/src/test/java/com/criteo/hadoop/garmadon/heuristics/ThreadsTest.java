@@ -68,8 +68,8 @@ public class ThreadsTest {
 
         Threads threads = new Threads(mockDB);
         for (int i = 0; i < nbContainers; i++) {
-            threads.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildThreadData(12, 6, 12));
-            threads.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildThreadData(12, 6, total));
+            threads.process(System.currentTimeMillis(), APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildThreadData(12, 6, 12));
+            threads.process(System.currentTimeMillis(), APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildThreadData(12, 6, total));
             threads.onContainerCompleted(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i);
         }
         threads.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);

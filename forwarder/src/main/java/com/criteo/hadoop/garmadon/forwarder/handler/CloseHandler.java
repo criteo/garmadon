@@ -20,13 +20,12 @@ public class CloseHandler extends ChannelInboundHandlerAdapter {
         if (header != null && header.getTagsList().contains(Header.Tag.YARN_APPLICATION.name())) {
             DataAccessEventProtos.StateEvent stateEvent = DataAccessEventProtos.StateEvent
                     .newBuilder()
-                    .setTimestamp(System.currentTimeMillis())
                     .setState(State.END.name())
                     .build();
 
             KafkaMessage kafkaMessage = new KafkaMessage(
                     header.getApplicationId(),
-                    ProtocolMessage.create(header.toByteArray(), stateEvent)
+                    ProtocolMessage.create(System.currentTimeMillis(), header.toByteArray(), stateEvent)
             );
 
             ctx.fireChannelRead(kafkaMessage);

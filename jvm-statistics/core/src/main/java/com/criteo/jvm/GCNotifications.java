@@ -8,6 +8,7 @@ import javax.management.NotificationEmitter;
 import javax.management.NotificationListener;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class GCNotifications {
@@ -19,7 +20,7 @@ public class GCNotifications {
          this.listener = listener;
     }
 
-    public void subscribe(Consumer<?> printer) {
+    public void subscribe(BiConsumer<Long, ?> printer) {
         for (GarbageCollectorMXBean bean : ManagementFactory.getGarbageCollectorMXBeans()) {
             NotificationEmitter emitter = (NotificationEmitter) bean;
             emitter.addNotificationListener(listener, null, printer);

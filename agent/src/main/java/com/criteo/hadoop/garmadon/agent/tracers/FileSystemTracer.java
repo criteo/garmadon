@@ -15,6 +15,7 @@ import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.util.Progressable;
 
 import java.lang.instrument.Instrumentation;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static net.bytebuddy.implementation.MethodDelegation.to;
@@ -22,9 +23,9 @@ import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public class FileSystemTracer {
 
-    private static Consumer<Object> eventHandler;
+    private static BiConsumer<Long, Object> eventHandler;
 
-    public static void setup(Instrumentation instrumentation, Consumer<Object> eventConsumer) {
+    public static void setup(Instrumentation instrumentation, BiConsumer<Long, Object> eventConsumer) {
 
         initEventHandler(eventConsumer);
 
@@ -35,7 +36,7 @@ public class FileSystemTracer {
         new AppendTracer().installOn(instrumentation);
     }
 
-    public static void initEventHandler(Consumer<Object> eventConsumer) {
+    public static void initEventHandler(BiConsumer<Long, Object> eventConsumer) {
         FileSystemTracer.eventHandler = eventConsumer;
     }
 
@@ -62,12 +63,11 @@ public class FileSystemTracer {
             Object uri = ((DistributedFileSystem) o).getUri();
             DataAccessEventProtos.FsEvent event = DataAccessEventProtos.FsEvent
                     .newBuilder()
-                    .setTimestamp(System.currentTimeMillis())
                     .setAction(FsAction.DELETE.name())
                     .setDstPath(dst.toString())
                     .setUri(uri.toString())
                     .build();
-            eventHandler.accept(event);
+            eventHandler.accept(System.currentTimeMillis(), event);
         }
 
     }
@@ -95,12 +95,11 @@ public class FileSystemTracer {
             Object uri = ((DistributedFileSystem) o).getUri();
             DataAccessEventProtos.FsEvent event = DataAccessEventProtos.FsEvent
                     .newBuilder()
-                    .setTimestamp(System.currentTimeMillis())
                     .setAction(FsAction.READ.name())
                     .setDstPath(dst.toString())
                     .setUri(uri.toString())
                     .build();
-            eventHandler.accept(event);
+            eventHandler.accept(System.currentTimeMillis(), event);
         }
     }
 
@@ -128,13 +127,12 @@ public class FileSystemTracer {
             Object uri = ((DistributedFileSystem) o).getUri();
             DataAccessEventProtos.FsEvent event = DataAccessEventProtos.FsEvent
                     .newBuilder()
-                    .setTimestamp(System.currentTimeMillis())
                     .setAction(FsAction.RENAME.name())
                     .setSrcPath(src.toString())
                     .setDstPath(dst.toString())
                     .setUri(uri.toString())
                     .build();
-            eventHandler.accept(event);
+            eventHandler.accept(System.currentTimeMillis(), event);
         }
     }
 
@@ -168,12 +166,11 @@ public class FileSystemTracer {
             Object uri = ((DistributedFileSystem) o).getUri();
             DataAccessEventProtos.FsEvent event = DataAccessEventProtos.FsEvent
                     .newBuilder()
-                    .setTimestamp(System.currentTimeMillis())
                     .setAction(FsAction.WRITE.name())
                     .setDstPath(dst.toString())
                     .setUri(uri.toString())
                     .build();
-            eventHandler.accept(event);
+            eventHandler.accept(System.currentTimeMillis(), event);
         }
     }
 
@@ -204,12 +201,11 @@ public class FileSystemTracer {
             Object uri = ((DistributedFileSystem) o).getUri();
             DataAccessEventProtos.FsEvent event = DataAccessEventProtos.FsEvent
                     .newBuilder()
-                    .setTimestamp(System.currentTimeMillis())
                     .setAction(FsAction.APPEND.name())
                     .setDstPath(dst.toString())
                     .setUri(uri.toString())
                     .build();
-            eventHandler.accept(event);
+            eventHandler.accept(System.currentTimeMillis(), event);
         }
     }
 }

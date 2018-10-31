@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class LogGCNotifications extends GCNotifications {
@@ -30,12 +31,12 @@ public class LogGCNotifications extends GCNotifications {
     }
 
     static void handleNotification(Notification notification, Object handback) {
-        Consumer<String> printer = (Consumer<String>) handback;
-        printer.accept("GC occurred");
+        BiConsumer<Long, String> printer = (BiConsumer<Long, String>) handback;
+        printer.accept(System.currentTimeMillis(), "GC occurred");
     }
 
     static void handleHSNotification(Notification notification, Object handback) {
-        Consumer<String> printer = (Consumer<String>) handback;
+        BiConsumer<Long, String> printer = (BiConsumer<Long, String>) handback;
         GarbageCollectionNotificationInfo gcNotifInfo = GarbageCollectionNotificationInfo.from((CompositeData) notification.getUserData());
         GcInfo gcInfo = gcNotifInfo.getGcInfo();
         long start = gcInfo.getStartTime();
@@ -67,7 +68,7 @@ public class LogGCNotifications extends GCNotifications {
                 sb.append("(").append(before.getUsed() / 1024).append("->").append(after.getUsed() / 1024).append(")");
             }
         }
-        printer.accept(sb.toString());
+        printer.accept(start, sb.toString());
     }
 
     private static NotificationListener getNotificationListener() {

@@ -16,13 +16,13 @@ public class G1GC implements GCStatsHeuristic {
     }
 
     @Override
-    public void process(String applicationId, String attemptId, String containerId, JVMStatisticsProtos.GCStatisticsData gcStats) {
+    public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsProtos.GCStatisticsData gcStats) {
         if (GCHelper.gcKind(gcStats.getCollectorName()) != GCHelper.GCKind.G1)
             return;
         GCHelper.GCGenKind gcGenKind = GCHelper.gcGenKind(gcStats.getCollectorName());
         if (gcGenKind == GCHelper.GCGenKind.MAJOR) {
             Map<String, FullGCCounters> containerFullGC = appFullGC.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());
-            FullGCCounters details = containerFullGC.computeIfAbsent(containerId, s -> new FullGCCounters(gcStats.getTimestamp(), gcStats.getPauseTime()));
+            FullGCCounters details = containerFullGC.computeIfAbsent(containerId, s -> new FullGCCounters(timestamp, gcStats.getPauseTime()));
             details.count++;
             if (details.count > 1)
                 details.pauseTime += gcStats.getPauseTime();

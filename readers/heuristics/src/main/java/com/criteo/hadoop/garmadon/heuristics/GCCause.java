@@ -19,7 +19,7 @@ public class GCCause implements GCStatsHeuristic {
     }
 
     @Override
-    public void process(String applicationId, String attemptId, String containerId, JVMStatisticsProtos.GCStatisticsData gcStats) {
+    public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsProtos.GCStatisticsData gcStats) {
         if (METADATA_THRESHOLD.equals(gcStats.getCause()) || ERGONOMICS.equals(gcStats.getCause())) {
             Map<String, GCCauseStats> containerStats = appStats.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());
             GCCauseStats stats = containerStats.computeIfAbsent(containerId, s -> new GCCauseStats());

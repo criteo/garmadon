@@ -18,16 +18,16 @@ public class StandaloneModule implements GarmadonAgentModule {
         ExecutorService executorService = Executors.newFixedThreadPool(5);
         // JVM/GC metrics/events
         executorService.submit(() -> JVMStatisticsTracer.setup(
-                event -> eventProcessor.offer(StandaloneHeader.getInstance().getHeader(), event)));
+                (timestamp, event) -> eventProcessor.offer(timestamp, StandaloneHeader.getInstance().getHeader(), event)));
 
         // Byte code instrumentation
         executorService.submit(() -> FileSystemTracer.setup(instrumentation,
-                event -> eventProcessor.offer(StandaloneHeader.getInstance().getHeader(), event)));
+                (timestamp, event) -> eventProcessor.offer(timestamp, StandaloneHeader.getInstance().getHeader(), event)));
 
         // Set SPARK Listener
         executorService.submit(() -> {
             SparkListenerTracer.setup(StandaloneHeader.getInstance().getHeader(),
-                    (header, event) -> eventProcessor.offer(header, event));
+                    (timestamp, header, event) -> eventProcessor.offer(timestamp, header, event));
         });
 
         executorService.shutdown();

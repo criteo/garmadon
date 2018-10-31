@@ -14,7 +14,6 @@ public class ProtobufStatisticsSinkTest {
         ProtobufStatisticsSink sink = new ProtobufStatisticsSink();
         sink.add("foo", "bar");
         Pattern expected = Pattern.compile(
-                "timestamp: \\d+\n" +
                 "section \\{\n" +
                 "  property \\{\n" +
                 "    name: \"foo\"\n" +
@@ -31,7 +30,6 @@ public class ProtobufStatisticsSinkTest {
         sink.beginSection("foo");
         sink.endSection();
         Pattern expected = Pattern.compile(
-                "timestamp: \\d+\n" +
                 "section \\{\n" +
                 "  name: \"foo\"\n" +
                 "}\n", Pattern.DOTALL);
@@ -47,7 +45,6 @@ public class ProtobufStatisticsSinkTest {
         sink.endSection();
 
         Pattern expected = Pattern.compile(
-                "timestamp: \\d+\n" +
                 "section \\{\n" +
                 "  name: \"foo\"\n" +
                 "  property \\{\n" +
@@ -71,7 +68,6 @@ public class ProtobufStatisticsSinkTest {
         sink.addSize("sizeName", 1025);
         sink.endSection();
         Pattern expected = Pattern.compile(
-                "timestamp: \\d+\n" +
                 "section \\{\n" +
                 "  name: \"section\"\n" +
                 "  property \\{\n" +
@@ -102,6 +98,6 @@ public class ProtobufStatisticsSinkTest {
         String actual = sink.flush().toString();
         assertThat(actual, matchesPattern(expected));
         // flush should have call reset
-        assertThat(sink.flush().toString(), matchesPattern("timestamp: \\d+\n"));
+        assertThat(sink.flush().toString(), matchesPattern(""));
     }
 }
