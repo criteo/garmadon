@@ -78,7 +78,7 @@
         <hadoop.version>2.6.0-cdh5.11.0</hadoop.version>
         <netty-all.version>4.1.30.Final</netty-all.version>
         <bytebuddy.version>1.9.2</bytebuddy.version>
-        <spark.version>2.2.2</spark.version>
+        <spark.version>2.3.2</spark.version>
         <es.version>6.3.2</es.version>
         <logback.version>1.2.3</logback.version>
         <prometheus.version>0.5.0</prometheus.version>

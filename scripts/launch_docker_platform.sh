@@ -22,6 +22,10 @@ docker-compose down
 
 # Start containers
 docker-compose up --build -d
+
+# Get spark and hadoop release
+HADOOP_VERSION=$(grep "ENV HADOOP_VERSION" garmadon/Dockerfile|cut -d= -f2)
+SPARK_VERSION=$(grep "ENV SPARK_VERSION" garmadon/Dockerfile|cut -d= -f2)
 popd
 
 # Create garmadon ES template
@@ -58,31 +62,31 @@ pushd ${DOCKER_COMPOSE_FOLDER}
 docker-compose exec client java -version
 
 # MapRed Teragen
-docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce2/hadoop-mapreduce-examples-2.6.0-cdh5.15.0.jar \
+docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce2/hadoop-mapreduce-examples-${HADOOP_VERSION}.jar \
     teragen 1000000 /tmp/test/teragen
 
 # MapRed Terasort
-docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce2/hadoop-mapreduce-examples-2.6.0-cdh5.15.0.jar \
+docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce2/hadoop-mapreduce-examples-${HADOOP_VERSION}.jar \
     terasort /tmp/test/teragen /tmp/test/terasort
 
 # MapRed Pi
-docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce2/hadoop-mapreduce-examples-2.6.0-cdh5.15.0.jar \
+docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce2/hadoop-mapreduce-examples-${HADOOP_VERSION}.jar \
     pi 2 1000
 
 # SparkPi (Compute)
 docker-compose exec client /opt/spark/bin/spark-submit --class org.apache.spark.examples.SparkPi \
-    /opt/spark/examples/jars/spark-examples_2.11-2.2.2.jar 100
+    /opt/spark/examples/jars/spark-examples_2.11-${SPARK_VERSION}.jar 100
 
 # Spark DFSReadWriteTest (Read/Write/Shuffle)
 docker-compose exec client /opt/spark/bin/spark-submit --class org.apache.spark.examples.DFSReadWriteTest \
-    /opt/spark/examples/jars/spark-examples_2.11-2.2.2.jar /opt/garmadon/conf-forwarder/server.properties /tmp
+    /opt/spark/examples/jars/spark-examples_2.11-${SPARK_VERSION}.jar /opt/garmadon/conf-forwarder/server.properties /tmp
 
 # Spark SQL (Interact with HDFS and execute lots of stage)
 docker-compose exec client /opt/spark/bin/spark-submit \
     --conf spark.shuffle.service.enabled=true --conf spark.dynamicAllocation.enabled=true \
     --conf spark.dynamicAllocation.minExecutors=1 --conf spark.dynamicAllocation.initialExecutors=4 \
     --conf spark.dynamicAllocation.maxExecutors=4 --conf spark.dynamicAllocation.executorIdleTimeout=1s \
-    --class org.apache.spark.examples.sql.SparkSQLExample /opt/spark/examples/jars/spark-examples_2.11-2.2.2.jar
+    --class org.apache.spark.examples.sql.SparkSQLExample /opt/spark/examples/jars/spark-examples_2.11-${SPARK_VERSION}.jar
 
 # Spark yarn client
 docker-compose exec client /opt/spark/bin/spark-submit \
@@ -90,6 +94,6 @@ docker-compose exec client /opt/spark/bin/spark-submit \
     --conf spark.shuffle.service.enabled=true --conf spark.dynamicAllocation.enabled=true \
     --conf spark.dynamicAllocation.minExecutors=1 --conf spark.dynamicAllocation.initialExecutors=4 \
     --conf spark.dynamicAllocation.maxExecutors=4 --conf spark.dynamicAllocation.executorIdleTimeout=1s \
-    --class org.apache.spark.examples.sql.SparkSQLExample /opt/spark/examples/jars/spark-examples_2.11-2.2.2.jar
+    --class org.apache.spark.examples.sql.SparkSQLExample /opt/spark/examples/jars/spark-examples_2.11-${SPARK_VERSION}.jar
 popd
 popd
