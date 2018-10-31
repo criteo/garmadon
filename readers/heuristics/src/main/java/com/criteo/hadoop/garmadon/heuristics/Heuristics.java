@@ -3,6 +3,7 @@ package com.criteo.hadoop.garmadon.heuristics;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
+import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
 import com.criteo.hadoop.garmadon.schema.enums.Framework;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.enums.State;
@@ -12,12 +13,14 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasFramework;
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasTag;
@@ -33,9 +36,13 @@ public class Heuristics {
     private final Map<String, Set<String>> containersPerApp = new HashMap<>();
 
     private final FileHeuristic fileHeuristic;
+    private PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics;
 
-    public Heuristics(String kafkaConnectString, String kafkaGroupId, HeuristicsResultDB db) {
+    public Heuristics(String kafkaConnectString, String kafkaGroupId, int prometheusPort, HeuristicsResultDB db) {
         this.fileHeuristic = new FileHeuristic(db);
+
+        //setup Prometheus client
+        prometheusHttpConsumerMetrics = new PrometheusHttpConsumerMetrics(prometheusPort);
 
         this.reader = GarmadonReader.Builder
                 .stream(kafkaConnectString)
@@ -78,7 +85,7 @@ public class Heuristics {
     }
 
     public void stop() {
-        reader.stopReading();
+        reader.stopReading().whenComplete((vd, ex) -> prometheusHttpConsumerMetrics.terminate());
     }
 
     private void completeReading(Void dummy, Throwable ex) {
@@ -108,8 +115,8 @@ public class Heuristics {
         jvmStatsHeuristics.forEach(h -> h.process(timestamp, applicationId, attemptId, containerId, jvmStats));
     }
 
-    private void registerAppContainer(GarmadonMessage msg){
-        if(msg.getType() != GarmadonSerialization.TypeMarker.STATE_EVENT) {
+    private void registerAppContainer(GarmadonMessage msg) {
+        if (msg.getType() != GarmadonSerialization.TypeMarker.STATE_EVENT) {
             String applicationId = msg.getHeader().getApplicationId();
             String attemptId = msg.getHeader().getAppAttemptId();
             String containerId = msg.getHeader().getContainerId();
@@ -140,24 +147,25 @@ public class Heuristics {
     }
 
     public static void main(String[] args) {
-        if (args.length < 5) {
+        if (args.length < 6) {
             printHelp();
             return;
         }
         String kafkaConnectString = args[0];
         String kafkaGroupId = args[1];
-        String dbConnectionString = args[2];
-        String dbUser = args[3];
-        String dbPassword = args[4];
+        int prometheusPort = Integer.parseInt(args[2]);
+        String dbConnectionString = args[3];
+        String dbUser = args[4];
+        String dbPassword = args[5];
         HeuristicsResultDB db = new HeuristicsResultDB(dbConnectionString, dbUser, dbPassword);
-        Heuristics heuristics = new Heuristics(kafkaConnectString, kafkaGroupId, db);
+        Heuristics heuristics = new Heuristics(kafkaConnectString, kafkaGroupId, prometheusPort, db);
         heuristics.start();
         Runtime.getRuntime().addShutdownHook(new Thread(heuristics::stop));
     }
 
     private static void printHelp() {
         System.out.println("Usage:");
-        System.out.println("\tjava com.criteo.hadoop.garmadon.heuristics.Heuristics <kafkaConnectionString> <kafkaGroupId> <DrElephantDBConnectionString> <DrElephantDBUser> <DrElephantDBPassword>");
+        System.out.println("\tjava com.criteo.hadoop.garmadon.heuristics.Heuristics <kafkaConnectionString> <kafkaGroupId> <prometheusPort> <DrElephantDBConnectionString> <DrElephantDBUser> <DrElephantDBPassword>");
     }
 
 }
