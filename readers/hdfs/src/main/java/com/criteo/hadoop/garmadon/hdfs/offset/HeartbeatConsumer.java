@@ -1,0 +1,85 @@
+package com.criteo.hadoop.garmadon.hdfs.offset;
+
+import com.criteo.hadoop.garmadon.hdfs.writer.PartitionedWriter;
+import com.criteo.hadoop.garmadon.reader.CommittableOffset;
+import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
+import com.criteo.hadoop.garmadon.reader.GarmadonReader;
+import com.criteo.hadoop.garmadon.reader.Offset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+public class HeartbeatConsumer<MessageKind> implements Runnable, GarmadonReader.GarmadonMessageHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HeartbeatConsumer.class);
+    private final Map<Integer, Offset> latestPartitionsOffset;
+    private final Map<Integer, Offset> latestHeartbeats;
+    private boolean shouldStop;
+    private TemporalAmount period;
+    private Collection<PartitionedWriter<MessageKind>> writers;
+
+    /**
+     * Send periodic heartbeats to a collection of writers, only if different from previous heartbeat.
+     *
+     * @param writers   Writers to send heartbeats to.
+     * @param period    How frequently heartbeats should be sent.
+     */
+    public HeartbeatConsumer(Collection<PartitionedWriter<MessageKind>> writers, TemporalAmount period) {
+        this.latestPartitionsOffset = new HashMap<>();
+        this.latestHeartbeats = new HashMap<>();
+        this.writers = writers;
+        this.shouldStop = false;
+        this.period = period;
+    }
+
+    @Override
+    public void run() {
+        while (!shouldStop) {
+            synchronized (latestPartitionsOffset) {
+                for (Map.Entry<Integer, Offset> partitionOffset : latestPartitionsOffset.entrySet()) {
+                    int partition = partitionOffset.getKey();
+                    Offset offset = partitionOffset.getValue();
+                    Offset latestHeartbeat = latestHeartbeats.get(partition);
+
+                    if (!offset.equals(latestHeartbeat)) {
+                        latestHeartbeats.put(partition, offset);
+                        writers.forEach((writer) -> writer.heartbeat(partition, offset));
+                    }
+                }
+            }
+
+            try {
+                Thread.sleep(period.get(ChronoUnit.SECONDS) * 1000);
+            } catch (InterruptedException e) {
+                LOGGER.warn("Got interrupted in between heartbeats", e);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void handle(GarmadonMessage msg) {
+        synchronized (latestPartitionsOffset) {
+            CommittableOffset offset = msg.getCommittableOffset();
+            Offset currentMaxOffset = latestPartitionsOffset.get(offset.getPartition());
+
+            if (currentMaxOffset == null || offset.getOffset() > currentMaxOffset.getOffset())
+                latestPartitionsOffset.put(offset.getPartition(), offset);
+        }
+    }
+
+    public void stop() {
+        shouldStop = true;
+    }
+
+    void dropPartition(int partition) {
+        synchronized (latestPartitionsOffset) {
+            latestPartitionsOffset.remove(partition);
+            latestHeartbeats.remove(partition);
+        }
+    }
+}

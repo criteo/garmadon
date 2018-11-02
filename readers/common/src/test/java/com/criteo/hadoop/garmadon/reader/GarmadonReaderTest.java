@@ -8,15 +8,14 @@ import com.criteo.hadoop.garmadon.schema.enums.State;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.exceptions.SerializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.TypeMarkerException;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.MockConsumer;
-import org.apache.kafka.clients.consumer.OffsetResetStrategy;
+import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasTag;
@@ -62,11 +61,10 @@ public class GarmadonReaderTest {
     }
 
     private void setReader(GarmadonMessageFilter filter) {
-        GarmadonReader.Builder builder = GarmadonReader.Builder.stream("kafkastring");
+        GarmadonReader.Builder builder = GarmadonReader.Builder.stream(kafkaConsumer);
         GarmadonReader garmadonReader = builder
-                .withGroupId(GROUP_ID)
                 .intercept(filter, garmadonMessageHandler)
-                .build(kafkaConsumer);
+                .build(false);
 
         reader = garmadonReader.reader;
     }

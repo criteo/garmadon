@@ -51,6 +51,12 @@
             <artifactId>garmadon-schema</artifactId>
             <version>${garmadon.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.os72</groupId>
+            <artifactId>protobuf-dynamic</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
