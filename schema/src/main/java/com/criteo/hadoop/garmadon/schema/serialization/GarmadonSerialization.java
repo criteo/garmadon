@@ -1,6 +1,10 @@
 package com.criteo.hadoop.garmadon.schema.serialization;
 
 import com.criteo.hadoop.garmadon.event.proto.*;
+import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.ResourceManagerEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.exceptions.DeserializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.SerializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.TypeMarkerException;

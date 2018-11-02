@@ -6,6 +6,8 @@ import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.exceptions.SerializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.TypeMarkerException;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
+import com.google.protobuf.GeneratedMessage;
+import com.google.protobuf.Message;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Assert;
@@ -23,26 +25,12 @@ public class EventDecoderTest {
     @Rule
     public WithEmbeddedChannel channel = new WithEmbeddedChannel();
 
-    static class TestEvent {
-
-        byte[] bytes;
-
-        TestEvent(int size){
-            bytes = new byte[size];
-            new Random().nextBytes(bytes);
-        }
-
-        TestEvent(InputStream is) throws IOException {
-            bytes = IOUtils.readFully(is, 0, false);
-        }
-    }
-
     @Before
     public void executedBeforeEach() {
         EventDecoder eventDecoder = new EventDecoder();
         channel.get().pipeline().addLast(eventDecoder);
 
-        GarmadonSerialization.register(EventDecoderTest.TestEvent.class, Integer.MAX_VALUE, "TestEvent", event -> event.bytes, EventDecoderTest.TestEvent::new);
+        GarmadonSerialization.register(TestEvent.class, Integer.MAX_VALUE, "TestEvent", event -> event.bytes, TestEvent::new);
     }
 
     @Test
@@ -58,7 +46,7 @@ public class EventDecoderTest {
                 .build();
 
 
-        byte[] raw = ProtocolMessage.create(System.currentTimeMillis(), header.serialize(), new EventDecoderTest.TestEvent(100));
+        byte[] raw = ProtocolMessage.create(System.currentTimeMillis(), header.serialize(), new TestEvent(100));
 
         ByteBuf input = Unpooled.wrappedBuffer(raw);
         Assert.assertTrue(channel.get().writeInbound(input));
@@ -83,7 +71,7 @@ public class EventDecoderTest {
                 .build();
 
 
-        byte[] raw = ProtocolMessage.create(System.currentTimeMillis(), header.serialize(), new EventDecoderTest.TestEvent(100));
+        byte[] raw = ProtocolMessage.create(System.currentTimeMillis(), header.serialize(), new TestEvent(100));
 
         ByteBuf input = Unpooled.wrappedBuffer(raw);
 
@@ -116,7 +104,7 @@ public class EventDecoderTest {
                 .withPid("pid")
                 .build();
 
-        byte[] raw1 = ProtocolMessage.create(System.currentTimeMillis(), header1.serialize(), new EventDecoderTest.TestEvent(100));
+        byte[] raw1 = ProtocolMessage.create(System.currentTimeMillis(), header1.serialize(), new TestEvent(100));
 
         //create a message with bigger size
         Header header2 = Header.newBuilder()
@@ -129,7 +117,7 @@ public class EventDecoderTest {
                 .withPid("pid")
                 .build();
 
-        byte[] raw2 = ProtocolMessage.create(System.currentTimeMillis(), header2.serialize(), new EventDecoderTest.TestEvent(200));
+        byte[] raw2 = ProtocolMessage.create(System.currentTimeMillis(), header2.serialize(), new TestEvent(200));
 
         //create message with lower size
         Header header3 = Header.newBuilder()
@@ -143,7 +131,7 @@ public class EventDecoderTest {
                 .withPid("pid")
                 .build();
 
-        byte[] raw3 = ProtocolMessage.create(System.currentTimeMillis(), header3.serialize(), new EventDecoderTest.TestEvent(50));
+        byte[] raw3 = ProtocolMessage.create(System.currentTimeMillis(), header3.serialize(), new TestEvent(50));
 
         //sendAsync the events all at once
         Assert.assertTrue(channel.get().writeInbound(Unpooled.wrappedBuffer(raw1, raw2, raw3)));

@@ -1,0 +1,63 @@
+package com.criteo.hadoop.garmadon.hdfs.writer;
+
+import com.criteo.hadoop.garmadon.reader.Offset;
+import org.apache.hadoop.fs.Path;
+
+import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.TemporalAmount;
+
+/**
+ * Consumer exposing an "expired" status (but not auto-closing) after a set idle time or number of messages. When
+ * closing, commit the latest processed offset
+ *
+ * @param <MessageType>     The actual consumed message type
+ */
+public class ExpiringConsumer<MessageType> implements CloseableBiConsumer<MessageType, Offset> {
+    private final CloseableBiConsumer<MessageType, Offset> writer;
+    private final TemporalAmount expirationDelay;
+    private long messagesReceived;
+    private long messagesBeforeExpiring;
+    private Instant lastUpdate = Instant.now();
+
+    /**
+     * @param writer                    The underlying messages writer. Must support receiving null events, which is a
+     *                                  no-op
+     * @param expirationDelay           Idle delay after which the writer should get closed
+     * @param messagesBeforeExpiring    Number of messages to write before expiring
+     */
+    public ExpiringConsumer(CloseableBiConsumer<MessageType, Offset> writer, TemporalAmount expirationDelay, long messagesBeforeExpiring) {
+        this.writer = writer;
+        this.expirationDelay = expirationDelay;
+        this.messagesBeforeExpiring = messagesBeforeExpiring;
+        this.messagesReceived = 0;
+    }
+
+    /**
+     * Write a given message and update both the "last write" time and the number of messages written
+     *
+     * @param message   The message to be written
+     */
+    @Override
+    public void write(MessageType message, Offset offset) throws IOException {
+        this.lastUpdate = Instant.now();
+        ++this.messagesReceived;
+
+        this.writer.write(message, offset);
+    }
+
+    @Override
+    public Path close() throws IOException {
+        return writer.close();
+    }
+
+    /**
+     * @return  True if the writer is expired because of last update time being too far away in the past, or enough
+     *          messages being written
+     */
+    boolean isExpired() {
+        Instant expirationInstant = lastUpdate.plus(expirationDelay);
+
+        return messagesReceived >= messagesBeforeExpiring || Instant.now().isAfter(expirationInstant);
+    }
+}
