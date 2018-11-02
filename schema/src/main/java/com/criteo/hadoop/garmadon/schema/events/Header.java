@@ -4,6 +4,7 @@ import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Header {
 
@@ -44,6 +45,27 @@ public class Header {
         this.component = component;
         this.executorId = executorId;
         this.mainClass = mainClass;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof Header))
+            return false;
+
+        Header otherHeader = (Header) other;
+
+        return Objects.equals(this.id, otherHeader.id) && Objects.equals(otherHeader.appAttemptID, this.appAttemptID) &&
+                Objects.equals(this.applicationID, otherHeader.applicationID) &&
+                Objects.equals(this.appAttemptID, otherHeader.appAttemptID) &&
+                Objects.equals(this.applicationName, otherHeader.applicationName) &&
+                Objects.equals(this.user, otherHeader.user) &&
+                Objects.equals(this.containerID, otherHeader.containerID) &&
+                Objects.equals(this.hostname, otherHeader.hostname) &&
+                Objects.equals(this.tags, otherHeader.tags) && Objects.equals(this.pid, otherHeader.pid) &&
+                Objects.equals(this.framework, otherHeader.framework) &&
+                Objects.equals(this.component, otherHeader.component) &&
+                Objects.equals(this.executorId, otherHeader.executorId) &&
+                Objects.equals(this.mainClass, otherHeader.mainClass);
     }
 
     public Header cloneAndOverride(Header override) {

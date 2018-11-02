@@ -63,7 +63,6 @@ message ExecutorStateEvent {
     required uint64 timestamp = 1;
     required string state = 2;
 
-    required string executor_id = 3;
     required string executor_hostname = 4;
     optional string reason = 5;
     optional int32 task_failures = 6;
@@ -76,7 +75,6 @@ message TaskEvent {
     required string stage_id = 4;
     required string attempt_id = 5;
 
-    required string executor_id = 6;
     required string executor_hostname = 7;
 
     optional string status = 8;

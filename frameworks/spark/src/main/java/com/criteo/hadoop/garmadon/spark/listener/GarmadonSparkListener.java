@@ -22,8 +22,12 @@ public class GarmadonSparkListener extends SparkListener {
     private final HashMap<String, String> executorHostId = new HashMap<>();
 
     public GarmadonSparkListener() {
-        this.eventHandler = SparkListernerConf.getInstance().getEventHandler();
-        this.header = SparkListernerConf.getInstance().getHeader();
+        this(SparkListernerConf.getInstance().getEventHandler(), SparkListernerConf.getInstance().getHeader());
+    }
+
+    public GarmadonSparkListener(BiConsumer<Header, Object> eventHandler, Header.SerializedHeader header) {
+        this.eventHandler = eventHandler;
+        this.header = header;
     }
 
     private Function0<Long> zeroLongScala = new AbstractFunction0<Long>() {
@@ -44,6 +48,8 @@ public class GarmadonSparkListener extends SparkListener {
             return "";
         }
     };
+
+
 
     private <T> T getValOrNull(Supplier<T> supplier) {
         try {
@@ -81,7 +87,6 @@ public class GarmadonSparkListener extends SparkListener {
                 .newBuilder()
                 .setTimestamp(time)
                 .setState(state.name())
-                .setExecutorId(executorId)
                 .setExecutorHostname(executorHost);
 
         if (reason != null) {
@@ -92,7 +97,7 @@ public class GarmadonSparkListener extends SparkListener {
             executorStateEvent.setTaskFailures(taskFailures);
         }
 
-        this.eventHandler.accept(header, executorStateEvent.build());
+        this.eventHandler.accept(buildOverrideHeader(executorId), executorStateEvent.build());
     }
 
     @Override
@@ -197,7 +202,6 @@ public class GarmadonSparkListener extends SparkListener {
                     .setTaskId(String.valueOf(taskEnd.taskInfo().taskId()))
                     .setStageId(String.valueOf(taskEnd.stageId()))
                     .setAttemptId(String.valueOf(taskEnd.stageAttemptId()))
-                    .setExecutorId(taskEnd.taskInfo().executorId())
                     .setExecutorHostname(String.valueOf(taskEnd.taskInfo().host()));
 
             tryToSet(() -> taskEventBuilder.setStatus(status));
@@ -235,7 +239,7 @@ public class GarmadonSparkListener extends SparkListener {
                 tryToSet(() -> taskEventBuilder.setFailureReason(taskEnd.reason().toString()));
             }
 
-            this.eventHandler.accept(header, taskEventBuilder.build());
+            this.eventHandler.accept(buildOverrideHeader(taskEnd.taskInfo().executorId()), taskEventBuilder.build());
         } catch (Throwable t) {
             LOGGER.warn("Failed to send event for onTaskEnd", t);
         }
@@ -296,5 +300,11 @@ public class GarmadonSparkListener extends SparkListener {
         } catch (Throwable t) {
             LOGGER.warn("Failed to send event for onExecutorUnblacklisted", t);
         }
+    }
+
+    private Header buildOverrideHeader(String executorId) {
+        return header.cloneAndOverride(Header.newBuilder()
+                .withExecutorId(executorId)
+                .build()).toSerializeHeader();
     }
 }
