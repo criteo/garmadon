@@ -122,28 +122,17 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
     private void writeToES(GarmadonMessage msg) {
         Map<String, Object> jsonMap = new HashMap<>();
 
-        if (msg.getHeader().hasApplicationId())
-            jsonMap.put("application_id", msg.getHeader().getApplicationId());
-        if (msg.getHeader().hasAppAttemptId())
-            jsonMap.put("attempt_id", msg.getHeader().getAppAttemptId());
-        if (msg.getHeader().hasApplicationName())
-            jsonMap.put("application_name", msg.getHeader().getApplicationName());
-        if (msg.getHeader().hasContainerId())
-            jsonMap.put("container_id", msg.getHeader().getContainerId());
-        if (msg.getHeader().hasHostname())
-            jsonMap.put("hostname", msg.getHeader().getHostname());
-        if (msg.getHeader().hasUserName())
-            jsonMap.put("username", msg.getHeader().getUserName());
-        if (msg.getHeader().hasPid())
-            jsonMap.put("pid", msg.getHeader().getPid());
-        if (msg.getHeader().hasFramework())
-            jsonMap.put("framework", msg.getHeader().getFramework());
-        if (msg.getHeader().hasComponent())
-            jsonMap.put("component", msg.getHeader().getComponent());
-        if (msg.getHeader().hasExecutorId())
-            jsonMap.put("executor_id", msg.getHeader().getExecutorId());
-        if (msg.getHeader().hasMainClass())
-            jsonMap.put("main_class", msg.getHeader().getMainClass());
+        jsonMap.put("application_id", msg.getHeader().getApplicationId());
+        jsonMap.put("attempt_id", msg.getHeader().getAppAttemptId());
+        jsonMap.put("application_name", msg.getHeader().getApplicationName());
+        jsonMap.put("container_id", msg.getHeader().getContainerId());
+        jsonMap.put("hostname", msg.getHeader().getHostname());
+        jsonMap.put("username", msg.getHeader().getUserName());
+        jsonMap.put("pid", msg.getHeader().getPid());
+        jsonMap.put("framework", msg.getHeader().getFramework());
+        jsonMap.put("component", msg.getHeader().getComponent());
+        jsonMap.put("executor_id", msg.getHeader().getExecutorId());
+        jsonMap.put("main_class", msg.getHeader().getMainClass());
         jsonMap.put("tags", msg.getHeader().getTagsList());
 
         HashMap<String, Map<String, Object>> eventMaps = putBodySpecificFields(

@@ -1,4 +1,4 @@
-syntax = "proto2";
+syntax = "proto3";
 
 package jvmstatistics;
 
@@ -7,30 +7,30 @@ option java_outer_classname = "JVMStatisticsProtos";
 
 message JVMStatisticsData {
     message Property {
-        optional string name = 1;
-        optional string value = 2;
+        string name = 1;
+        string value = 2;
     }
     message Section {
-        optional string name = 1;
+        string name = 1;
         repeated Property property = 2;
     }
-    optional fixed64 timestamp = 1;
+    fixed64 timestamp = 1;
     repeated Section section = 2;
 }
 
 message GCStatisticsData {
-    optional fixed64 timestamp = 1;
-    optional string collector_name = 2;
-    optional int64 pause_time = 3;
-    optional string cause = 4;
-    optional int64 eden_before = 5;
-    optional int64 eden_after = 6;
-    optional int64 survivor_before = 7;
-    optional int64 survivor_after = 8;
-    optional int64 old_before = 9;
-    optional int64 old_after = 10;
-    optional int64 code_before = 11;
-    optional int64 code_after = 12;
-    optional int64 metaspace_before = 13;
-    optional int64 metaspace_after = 14;
+    fixed64 timestamp = 1;
+    string collector_name = 2;
+    int64 pause_time = 3;
+    string cause = 4;
+    int64 eden_before = 5;
+    int64 eden_after = 6;
+    int64 survivor_before = 7;
+    int64 survivor_after = 8;
+    int64 old_before = 9;
+    int64 old_after = 10;
+    int64 code_before = 11;
+    int64 code_after = 12;
+    int64 metaspace_before = 13;
+    int64 metaspace_after = 14;
 }

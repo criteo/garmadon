@@ -1,7 +1,5 @@
 package com.criteo.jvm;
 
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.text.MatchesPattern;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,11 +16,7 @@ public class ProtobufGCNotificationsTest {
             "collector_name: \".*\"\\s+" +
             "pause_time: \\d+\\s+" +
             "cause: \"System.gc\\(\\)\"\\s+" +
-            "eden_before: \\d+\\s+" +
-            "eden_after: \\d+\\s+" +
-            "survivor_before: \\d+\\s+" +
-            "survivor_after: \\d+\\s+" +
-            "old_before: \\d+\\s+" +
+            ".*" +
             "old_after: \\d+\\s+" +
             "code_before: \\d+\\s+" +
             "code_after: \\d+\\s+" +
