@@ -104,11 +104,11 @@
           "index": false
         },
         "class_initialized": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "class_inittime": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "class_loaded": {
@@ -116,43 +116,43 @@
           "index": false
         },
         "class_loadtime": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "class_unloaded": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "class_veriftime": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "code_committed": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "code_init": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "code_max": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "code_used": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "compile_count": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "compile_failed": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "compile_invalidated": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "compile_threads": {
@@ -160,7 +160,7 @@
           "index": false
         },
         "compile_time": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "component": {
@@ -170,19 +170,19 @@
           "eager_global_ordinals": true
         },
         "compressedclassspace_committed": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "compressedclassspace_init": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "compressedclassspace_max": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "compressedclassspace_used": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "container_id": {
@@ -382,19 +382,19 @@
           "index": false
         },
         "metaspace_committed": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "metaspace_init": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "metaspace_max": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "metaspace_used": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "network": {
@@ -403,39 +403,39 @@
           "index_options": "freqs"
         },
         "nonheap_committed": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "nonheap_init": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "nonheap_max": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "nonheap_used": {
-          "type": "integer",
-          "index": false
-        },
-        "old_committed": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "num_tasks": {
           "type": "long",
           "index": false
         },
+        "old_committed": {
+          "type": "long",
+          "index": false
+        },
         "old_init": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "old_max": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "old_used": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "os_physicalfree": {
@@ -619,47 +619,47 @@
           "index_options": "freqs"
         },
         "survivor_committed": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "survivor_init": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "survivor_max": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "survivor_used": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "synclocks_contendedlockattempts": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "synclocks_deflations": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "synclocks_futilewakeups": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "synclocks_inflations": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "synclocks_monextant": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "synclocks_notifications": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "synclocks_parks": {
-          "type": "integer",
+          "type": "long",
           "index": false
         },
         "tag": {
