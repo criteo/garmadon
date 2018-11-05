@@ -10,13 +10,17 @@ import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.implementation.bind.annotation.Argument;
+import net.bytebuddy.implementation.bind.annotation.This;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ContainerId;
+import org.apache.hadoop.yarn.server.nodemanager.containermanager.monitor.ContainerMetrics;
 import org.apache.hadoop.yarn.util.ConverterUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.Instrumentation;
-import java.util.function.BiConsumer;
+import java.lang.reflect.Field;
 
 import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.*;
@@ -24,6 +28,7 @@ import static net.bytebuddy.matcher.ElementMatchers.*;
 public class ContainerResourceMonitoringTracer {
 
     private static TriConsumer<Long, Header, Object> eventHandler;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContainerResourceMonitoringTracer.class);
 
     public static void setup(Header baseHeader, Instrumentation instrumentation, AsyncEventProcessor eventProcessor) {
 
@@ -33,6 +38,7 @@ public class ContainerResourceMonitoringTracer {
         });
 
         new MemorySizeTracer().installOn(instrumentation);
+        new VcoreUsageTracer().installOn(instrumentation);
     }
 
     public static void initEventHandler(TriConsumer<Long, Header, Object> eventHandler) {
@@ -78,6 +84,79 @@ public class ContainerResourceMonitoringTracer {
                         .setLimit(limit)
                         .build();
                 eventHandler.accept(System.currentTimeMillis(), header, event);
+            } catch (Exception ignore) {
+            }
+        }
+    }
+
+    public static class VcoreUsageTracer extends MethodTracer {
+
+        /**
+         * We have to load the class ContainerMetrics after instrumenting it
+         * If we set it directly in a static in VcoreUsageTracer it will load the class
+         * before instrumenting it
+         * With Singleton mechanism we ensure load of class only when accesing to getField method
+         */
+        private static class SingletonHolder {
+            private static Field field;
+
+            static {
+                try {
+                    field = ContainerMetrics.class.getDeclaredField("containerId");
+                    field.setAccessible(true);
+                } catch (Exception ignore) {
+                }
+            }
+        }
+
+        static Field getField() {
+            return SingletonHolder.field;
+        }
+
+
+        @Override
+        ElementMatcher<? super TypeDescription> typeMatcher() {
+            return nameStartsWith("org.apache.hadoop.yarn.server.nodemanager.containermanager.monitor.ContainerMetrics");
+        }
+
+        @Override
+        ElementMatcher<? super MethodDescription> methodMatcher() {
+            return named("recordCpuUsage").and(takesArguments(int.class, int.class));
+        }
+
+        @Override
+        Implementation newImplementation() {
+            return to(VcoreUsageTracer.class).andThen(SuperMethodCall.INSTANCE);
+        }
+
+        public static void intercept(@This Object containerMetrics,
+                                     @Argument(1) int milliVcoresUsed) throws Exception {
+            try {
+                if (getField() != null) {
+                    ContainerId cID = (ContainerId) getField().get(containerMetrics);
+                    ApplicationAttemptId applicationAttemptId = cID.getApplicationAttemptId();
+                    String applicationId = applicationAttemptId.getApplicationId().toString();
+                    String attemptId = applicationAttemptId.toString();
+
+                    float cpuVcoreUsed = (float) milliVcoresUsed / 1000;
+                    int cpuVcoreLimit =  ((ContainerMetrics) containerMetrics).cpuVcoreLimit.value();
+
+                    Header header = Header.newBuilder()
+                            .withId(applicationId)
+                            .withApplicationID(applicationId)
+                            .withAppAttemptID(attemptId)
+                            .withContainerID(cID.toString())
+                            .build();
+
+                    ContainerEventProtos.ContainerResourceEvent event = ContainerEventProtos.ContainerResourceEvent.newBuilder()
+                            .setType(ContainerType.VCORE.name())
+                            .setValue(cpuVcoreUsed)
+                            .setLimit(cpuVcoreLimit)
+                            .build();
+                    eventHandler.accept(System.currentTimeMillis(), header, event);
+                } else {
+                    LOGGER.warn("ContainerMetrics class does not have containerId field");
+                }
             } catch (Exception ignore) {
             }
         }

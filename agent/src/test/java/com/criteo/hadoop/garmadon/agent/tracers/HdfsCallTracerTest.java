@@ -2,6 +2,7 @@ package com.criteo.hadoop.garmadon.agent.tracers;
 
 import com.criteo.hadoop.garmadon.agent.utils.AgentAttachmentRule;
 import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
+import com.criteo.hadoop.garmadon.agent.utils.ReflectionHelper;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.dynamic.loading.ByteArrayClassLoader;
 import org.apache.hadoop.conf.Configuration;
@@ -12,16 +13,8 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.*;
 import org.apache.hadoop.hdfs.client.HdfsDataInputStream;
 import org.apache.hadoop.hdfs.client.HdfsDataOutputStream;
-import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
-import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
-import org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolPB;
 import org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolTranslatorPB;
-import org.apache.hadoop.hdfs.server.namenode.SafeModeException;
 import org.apache.hadoop.hdfs.shortcircuit.DomainSocketFactory;
-import org.apache.hadoop.io.retry.RetryUtils;
-import org.apache.hadoop.ipc.RPC;
-import org.apache.hadoop.net.NetUtils;
-import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.Progressable;
 import org.junit.*;
 import org.junit.rules.MethodRule;
@@ -30,21 +23,15 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.EnumSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
 
 public class HdfsCallTracerTest {
     private final Path pathFolder = new Path("/test");
@@ -111,18 +98,11 @@ public class HdfsCallTracerTest {
 
         event = new Object[1];
         BiConsumer<Long, Object> cons = (l,o) -> event[0] = o;
-        setField(null, classLoader.loadClass(HdfsCallTracer.class.getName()), "eventHandler", cons);
-        setField(conf, Configuration.class, "classLoader", classLoader);
+        ReflectionHelper.setField(null, classLoader.loadClass(HdfsCallTracer.class.getName()), "eventHandler", cons);
+        ReflectionHelper.setField(conf, Configuration.class, "classLoader", classLoader);
 
         conf.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
     }
-
-    private static void setField(Object o, Class<?> clazz, String filedName, Object fieldValue) throws NoSuchFieldException, IllegalAccessException {
-        Field fieldConf = clazz.getDeclaredField(filedName);
-        fieldConf.setAccessible(true);
-        fieldConf.set(o, fieldValue);
-    }
-
 
     @Before
     public void setUp() throws IOException {
