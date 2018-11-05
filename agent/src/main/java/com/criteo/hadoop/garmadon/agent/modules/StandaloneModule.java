@@ -2,7 +2,7 @@ package com.criteo.hadoop.garmadon.agent.modules;
 
 import com.criteo.hadoop.garmadon.agent.AsyncEventProcessor;
 import com.criteo.hadoop.garmadon.agent.headers.StandaloneHeader;
-import com.criteo.hadoop.garmadon.agent.tracers.FileSystemTracer;
+import com.criteo.hadoop.garmadon.agent.tracers.HdfsCallTracer;
 import com.criteo.hadoop.garmadon.agent.tracers.JVMStatisticsTracer;
 import com.criteo.hadoop.garmadon.agent.tracers.SparkListenerTracer;
 
@@ -21,7 +21,7 @@ public class StandaloneModule implements GarmadonAgentModule {
                 (timestamp, event) -> eventProcessor.offer(timestamp, StandaloneHeader.getInstance().getHeader(), event)));
 
         // Byte code instrumentation
-        executorService.submit(() -> FileSystemTracer.setup(instrumentation,
+        executorService.submit(() -> HdfsCallTracer.setup(instrumentation,
                 (timestamp, event) -> eventProcessor.offer(timestamp, StandaloneHeader.getInstance().getHeader(), event)));
 
         // Set SPARK Listener
