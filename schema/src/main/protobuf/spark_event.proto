@@ -1,4 +1,4 @@
-syntax = "proto2";
+syntax = "proto3";
 
 package com.criteo.hadoop.garmadon;
 
@@ -6,115 +6,115 @@ option java_package = "com.criteo.hadoop.garmadon.event.proto";
 option java_outer_classname = "SparkEventProtos";
 
 message StageEvent {
-    required int64 start_time = 1;
-    required int64 completion_time = 2;
-    required string stage_name = 3;
-    required string stage_id = 4;
-    required string attempt_id = 5;
-    optional int32 num_tasks = 6;
+    int64 start_time = 1;
+    int64 completion_time = 2;
+    string stage_name = 3;
+    string stage_id = 4;
+    string attempt_id = 5;
+    int32 num_tasks = 6;
 
-    optional string status = 7;
-    optional string failure_reason = 8;
+    string status = 7;
+    string failure_reason = 8;
 
-    optional int64 executor_cpu_time = 9;
-    optional int64 executor_deserialize_cpu_time = 10;
+    int64 executor_cpu_time = 9;
+    int64 executor_deserialize_cpu_time = 10;
 
-    optional int64 executor_run_time = 11;
-    optional int64 jvm_gc_time = 12;
-    optional int64 executor_deserialize_time = 13;
-    optional int64 result_serialization_time = 14;
+    int64 executor_run_time = 11;
+    int64 jvm_gc_time = 12;
+    int64 executor_deserialize_time = 13;
+    int64 result_serialization_time = 14;
 
-    optional int64 result_size = 15;
-    optional int64 peak_execution_memory = 16;
+    int64 result_size = 15;
+    int64 peak_execution_memory = 16;
 
-    optional int64 disk_bytes_spilled = 17;
-    optional int64 memory_bytes_spilled = 18;
+    int64 disk_bytes_spilled = 17;
+    int64 memory_bytes_spilled = 18;
 
-    optional int64 shuffle_read_records = 19;
-    optional int64 shuffle_read_fetch_wait_time = 20;
-    optional int64 shuffle_read_local_bytes = 21;
-    optional int64 shuffle_read_remote_bytes = 22;
-    optional int64 shuffle_read_total_bytes = 23;
-    optional int64 shuffle_read_local_blocks_fetched = 24;
-    optional int64 shuffle_read_remote_blocks_fetched = 25;
-    optional int64 shuffle_read_total_blocks_fetched = 26;
+    int64 shuffle_read_records = 19;
+    int64 shuffle_read_fetch_wait_time = 20;
+    int64 shuffle_read_local_bytes = 21;
+    int64 shuffle_read_remote_bytes = 22;
+    int64 shuffle_read_total_bytes = 23;
+    int64 shuffle_read_local_blocks_fetched = 24;
+    int64 shuffle_read_remote_blocks_fetched = 25;
+    int64 shuffle_read_total_blocks_fetched = 26;
 
-    optional int64 shuffle_write_shuffle_records = 27;
-    optional int64 shuffle_write_shuffle_time = 28;
-    optional int64 shuffle_write_shuffle_bytes = 29;
+    int64 shuffle_write_shuffle_records = 27;
+    int64 shuffle_write_shuffle_time = 28;
+    int64 shuffle_write_shuffle_bytes = 29;
 
-    optional int64 input_records = 30;
-    optional int64 input_bytes = 31;
-    optional int64 output_records = 32;
-    optional int64 output_bytes = 33;
+    int64 input_records = 30;
+    int64 input_bytes = 31;
+    int64 output_records = 32;
+    int64 output_bytes = 33;
 }
 
 message StageStateEvent {
-    required uint64 timestamp = 1;
-    required string state = 2;
+    uint64 timestamp = 1;
+    string state = 2;
 
-    required string stage_name = 3;
-    required string stage_id = 4;
-    required string attempt_id = 5;
-    optional int32 num_tasks = 6;
+    string stage_name = 3;
+    string stage_id = 4;
+    string attempt_id = 5;
+    int32 num_tasks = 6;
 }
 
 message ExecutorStateEvent {
-    required uint64 timestamp = 1;
-    required string state = 2;
+    uint64 timestamp = 1;
+    string state = 2;
 
-    required string executor_hostname = 4;
-    optional string reason = 5;
-    optional int32 task_failures = 6;
+    string executor_hostname = 4;
+    string reason = 5;
+    int32 task_failures = 6;
 }
 
 message TaskEvent {
-    required int64 start_time = 1;
-    required int64 completion_time = 2;
-    required string task_id = 3;
-    required string stage_id = 4;
-    required string attempt_id = 5;
+    int64 start_time = 1;
+    int64 completion_time = 2;
+    string task_id = 3;
+    string stage_id = 4;
+    string attempt_id = 5;
 
-    required string executor_hostname = 7;
+    string executor_hostname = 7;
 
-    optional string status = 8;
-    optional string failure_reason = 9;
+    string status = 8;
+    string failure_reason = 9;
 
-    optional int64 executor_cpu_time = 10;
-    optional int64 executor_deserialize_cpu_time = 11;
+    int64 executor_cpu_time = 10;
+    int64 executor_deserialize_cpu_time = 11;
 
-    optional int64 executor_run_time = 12;
-    optional int64 jvm_gc_time = 13;
-    optional int64 executor_deserialize_time = 14;
-    optional int64 result_serialization_time = 15;
+    int64 executor_run_time = 12;
+    int64 jvm_gc_time = 13;
+    int64 executor_deserialize_time = 14;
+    int64 result_serialization_time = 15;
 
-    optional int64 result_size = 16;
-    optional int64 peak_execution_memory = 17;
+    int64 result_size = 16;
+    int64 peak_execution_memory = 17;
 
-    optional int64 disk_bytes_spilled = 18;
-    optional int64 memory_bytes_spilled = 19;
+    int64 disk_bytes_spilled = 18;
+    int64 memory_bytes_spilled = 19;
 
-    optional int64 shuffle_read_records = 20;
-    optional int64 shuffle_read_fetch_wait_time = 21;
-    optional int64 shuffle_read_local_bytes = 22;
-    optional int64 shuffle_read_remote_bytes = 23;
-    optional int64 shuffle_read_total_bytes = 24;
-    optional int64 shuffle_read_local_blocks_fetched = 25;
-    optional int64 shuffle_read_remote_blocks_fetched = 26;
-    optional int64 shuffle_read_total_blocks_fetched = 27;
+    int64 shuffle_read_records = 20;
+    int64 shuffle_read_fetch_wait_time = 21;
+    int64 shuffle_read_local_bytes = 22;
+    int64 shuffle_read_remote_bytes = 23;
+    int64 shuffle_read_total_bytes = 24;
+    int64 shuffle_read_local_blocks_fetched = 25;
+    int64 shuffle_read_remote_blocks_fetched = 26;
+    int64 shuffle_read_total_blocks_fetched = 27;
 
-    optional int64 shuffle_write_shuffle_records = 28;
-    optional int64 shuffle_write_shuffle_time = 29;
-    optional int64 shuffle_write_shuffle_bytes = 30;
+    int64 shuffle_write_shuffle_records = 28;
+    int64 shuffle_write_shuffle_time = 29;
+    int64 shuffle_write_shuffle_bytes = 30;
 
-    optional int64 input_records = 31;
-    optional int64 input_bytes = 32;
-    optional int64 output_records = 33;
-    optional int64 output_bytes = 34;
+    int64 input_records = 31;
+    int64 input_bytes = 32;
+    int64 output_records = 33;
+    int64 output_bytes = 34;
 
-    optional string type = 35;
-    optional string locality = 36;
-    optional int32 attempt_number = 37;
+    string type = 35;
+    string locality = 36;
+    int32 attempt_number = 37;
 
 }
 

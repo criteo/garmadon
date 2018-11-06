@@ -77,9 +77,7 @@ public class EventHelper {
         eventMap.put("num_tasks", event.getNumTasks());
 
         eventMap.put("status", event.getStatus());
-        if (event.hasFailureReason()) {
-            eventMap.put("failure_reason", event.getFailureReason());
-        }
+        eventMap.put("failure_reason", event.getFailureReason());
         eventMap.put("executor_cpu_time", event.getExecutorCpuTime());
         eventMap.put("executor_deserialize_cpu_time", event.getExecutorDeserializeCpuTime());
         eventMap.put("executor_run_time", event.getExecutorRunTime());
@@ -117,9 +115,7 @@ public class EventHelper {
         eventMap.put("executor_hostname", event.getExecutorHostname());
 
         eventMap.put("status", event.getStatus());
-        if (event.hasFailureReason()) {
-            eventMap.put("failure_reason", event.getFailureReason());
-        }
+        eventMap.put("failure_reason", event.getFailureReason());
         eventMap.put("executor_cpu_time", event.getExecutorCpuTime());
         eventMap.put("executor_deserialize_cpu_time", event.getExecutorDeserializeCpuTime());
         eventMap.put("executor_run_time", event.getExecutorRunTime());

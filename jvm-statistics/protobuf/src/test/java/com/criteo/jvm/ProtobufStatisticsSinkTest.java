@@ -1,7 +1,5 @@
 package com.criteo.jvm;
 
-import com.criteo.jvm.ProtobufStatisticsSink;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.regex.Pattern;

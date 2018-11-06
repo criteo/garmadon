@@ -24,7 +24,7 @@ public class JVMStatisticsTest {
             "class\\[loaded=\\d+, unloaded=\\d+, initialized=\\d+, loadtime=\\d+, inittime=\\d+, veriftime=\\d+\\], " +
             "os\\[%loadavg=\\d+, physicalfree=\\d+, physicaltotal=\\d+, swapfree=\\d+, swaptotal=\\d+, virtual=\\d+\\], " +
             "cpu\\[cores=\\d+, %load=\\d+\\], " +
-            "process\\[threads=\\d+, rss=\\d+, vsz=\\d+, %user=\\d+, %sys=\\d+, read=\\d+, written=\\d+, ctxtswitches=\\d+, interrupts=\\d+\\], " +
+            "process\\[threads=\\d+, rss=\\d+, vsz=\\d+, %user=\\d+, %sys=\\d+, read=\\d+, written=\\d+.*\\], " +
             "safepoints\\[count=\\d+, synctime=\\d+, totaltime=\\d+\\], " +
             "synclocks\\[contendedlockattempts=\\d+, deflations=\\d+, futilewakeups=\\d+, inflations=\\d+, monextant=\\d+, notifications=\\d+, parks=\\d+\\].*");
     private static final Pattern GCSTATS_PATTERN = Pattern.compile(".* occurred at \\d+-\\d+-\\d+ \\d+:\\d+:\\d+.\\d+, took \\d+ms \\(System\\.gc\\(\\)\\)  (eden|survivor|old)\\[[-+]\\d+\\]\\(\\d+->\\d+\\) (eden|survivor|old)\\[[-+]\\d+\\]\\(\\d+->\\d+\\).*");
