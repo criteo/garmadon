@@ -79,7 +79,7 @@
                 "id": "3",
                 "settings": {
                   "min_doc_count": 1,
-                  "order": "desc",
+                  "order": "asc",
                   "orderBy": "_term",
                   "size": "10"
                 },
@@ -359,6 +359,369 @@
         }
       },
       {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 9
+        },
+        "id": 80,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null as zero",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "{{metric}} {{action}} (ms)",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "action",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "missing": null,
+                  "order": "asc",
+                  "orderBy": "_term",
+                  "size": "10"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "method_duration_millis",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "percents": [
+                    "99"
+                  ]
+                },
+                "type": "percentiles"
+              }
+            ],
+            "query": "event_type:FS_EVENT AND uri:$uri",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "FS Latency per on $uri",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 9
+        },
+        "id": 81,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "{{metric}} apps (ms)",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "method_duration_millis",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "percents": [
+                    "95"
+                  ]
+                },
+                "type": "percentiles"
+              }
+            ],
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/apps\"",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "{{metric}} glup (ms)",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "method_duration_millis",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "percents": [
+                    "95"
+                  ]
+                },
+                "type": "percentiles"
+              }
+            ],
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/glup\"",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "{{metric}} user (ms)",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "method_duration_millis",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "percents": [
+                    "95"
+                  ]
+                },
+                "type": "percentiles"
+              }
+            ],
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/user\"",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "{{metric}} tmp (ms)",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "method_duration_millis",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "percents": [
+                    "95"
+                  ]
+                },
+                "type": "percentiles"
+              }
+            ],
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/tmp\"",
+            "refId": "D",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "{{metric}} var (ms)",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "method_duration_millis",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "percents": [
+                    "95"
+                  ]
+                },
+                "type": "percentiles"
+              }
+            ],
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/var\"",
+            "refId": "E",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "FS Latency per path on action $action on $uri",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
         "columns": [
           {
             "text": "timestamp",
@@ -395,7 +758,7 @@
           "h": 10,
           "w": 24,
           "x": 0,
-          "y": 9
+          "y": 17
         },
         "id": 70,
         "links": [],
@@ -457,7 +820,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 19
+          "y": 27
         },
         "id": 19,
         "panels": [
@@ -472,7 +835,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 20
+              "y": 28
             },
             "id": 12,
             "legend": {
@@ -498,6 +861,135 @@
             "renderer": "flot",
             "repeat": "action",
             "repeatDirection": "h",
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "ADD_BLOCK",
+                "value": "ADD_BLOCK"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "username",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "20"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "select field",
+                    "id": "1",
+                    "type": "count"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "FS OPS $action per user on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 28
+            },
+            "id": 125,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": null,
+            "repeatDirection": "h",
+            "repeatIteration": 1541514691907,
+            "repeatPanelId": 12,
             "scopedVars": {
               "action": {
                 "selected": false,
@@ -598,10 +1090,10 @@
             "gridPos": {
               "h": 8,
               "w": 12,
-              "x": 12,
-              "y": 20
+              "x": 0,
+              "y": 36
             },
-            "id": 73,
+            "id": 126,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -625,7 +1117,136 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1537167677858,
+            "repeatIteration": 1541514691907,
+            "repeatPanelId": 12,
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "LIST_STATUS",
+                "value": "LIST_STATUS"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "username",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "20"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "select field",
+                    "id": "1",
+                    "type": "count"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "FS OPS $action per user on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 36
+            },
+            "id": 127,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": null,
+            "repeatDirection": "h",
+            "repeatIteration": 1541514691907,
             "repeatPanelId": 12,
             "scopedVars": {
               "action": {
@@ -728,9 +1349,9 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 28
+              "y": 44
             },
-            "id": 74,
+            "id": 128,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -754,7 +1375,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1537167677858,
+            "repeatIteration": 1541514691907,
             "repeatPanelId": 12,
             "scopedVars": {
               "action": {
@@ -857,9 +1478,9 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 28
+              "y": 44
             },
-            "id": 75,
+            "id": 129,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -883,7 +1504,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1537167677858,
+            "repeatIteration": 1541514691907,
             "repeatPanelId": 12,
             "scopedVars": {
               "action": {
@@ -985,7 +1606,835 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 20
+          "y": 28
+        },
+        "id": 109,
+        "panels": [
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 29
+            },
+            "id": 97,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": "action",
+            "repeatDirection": "h",
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "ADD_BLOCK",
+                "value": "ADD_BLOCK"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "{{metric}} {{username}} (ms)",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "username",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "20"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "method_duration_millis",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {
+                      "percents": [
+                        "99"
+                      ]
+                    },
+                    "type": "percentiles"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "FS Latency $action per user on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 29
+            },
+            "id": 130,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": null,
+            "repeatDirection": "h",
+            "repeatIteration": 1541514691907,
+            "repeatPanelId": 97,
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "DELETE",
+                "value": "DELETE"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "{{metric}} {{username}} (ms)",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "username",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "20"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "method_duration_millis",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {
+                      "percents": [
+                        "99"
+                      ]
+                    },
+                    "type": "percentiles"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "FS Latency $action per user on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 37
+            },
+            "id": 131,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": null,
+            "repeatDirection": "h",
+            "repeatIteration": 1541514691907,
+            "repeatPanelId": 97,
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "LIST_STATUS",
+                "value": "LIST_STATUS"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "{{metric}} {{username}} (ms)",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "username",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "20"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "method_duration_millis",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {
+                      "percents": [
+                        "99"
+                      ]
+                    },
+                    "type": "percentiles"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "FS Latency $action per user on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 37
+            },
+            "id": 132,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": null,
+            "repeatDirection": "h",
+            "repeatIteration": 1541514691907,
+            "repeatPanelId": 97,
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "READ",
+                "value": "READ"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "{{metric}} {{username}} (ms)",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "username",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "20"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "method_duration_millis",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {
+                      "percents": [
+                        "99"
+                      ]
+                    },
+                    "type": "percentiles"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "FS Latency $action per user on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 45
+            },
+            "id": 133,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": null,
+            "repeatDirection": "h",
+            "repeatIteration": 1541514691907,
+            "repeatPanelId": 97,
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "RENAME",
+                "value": "RENAME"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "{{metric}} {{username}} (ms)",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "username",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "20"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "method_duration_millis",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {
+                      "percents": [
+                        "99"
+                      ]
+                    },
+                    "type": "percentiles"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "FS Latency $action per user on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 45
+            },
+            "id": 134,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": null,
+            "repeatDirection": "h",
+            "repeatIteration": 1541514691907,
+            "repeatPanelId": 97,
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "WRITE",
+                "value": "WRITE"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "{{metric}} {{username}} (ms)",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "username",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "20"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "method_duration_millis",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {
+                      "percents": [
+                        "99"
+                      ]
+                    },
+                    "type": "percentiles"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "FS Latency $action per user on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          }
+        ],
+        "title": "FS Latency Per User",
+        "type": "row"
+      },
+      {
+        "collapsed": true,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 29
         },
         "id": 27,
         "panels": [
@@ -1000,7 +2449,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 3
+              "y": 29
             },
             "id": 16,
             "legend": {
@@ -1026,6 +2475,135 @@
             "renderer": "flot",
             "repeat": "action",
             "repeatDirection": "h",
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "ADD_BLOCK",
+                "value": "ADD_BLOCK"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "application_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "20"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "select field",
+                    "id": "1",
+                    "type": "count"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "FS OPS $action per application on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 29
+            },
+            "id": 87,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 230,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": null,
+            "repeatDirection": "h",
+            "repeatIteration": 1541514691905,
+            "repeatPanelId": 16,
             "scopedVars": {
               "action": {
                 "selected": false,
@@ -1126,10 +2704,10 @@
             "gridPos": {
               "h": 8,
               "w": 12,
-              "x": 12,
-              "y": 3
+              "x": 0,
+              "y": 37
             },
-            "id": 58,
+            "id": 88,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -1153,7 +2731,136 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1530696383343,
+            "repeatIteration": 1541514691905,
+            "repeatPanelId": 16,
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "LIST_STATUS",
+                "value": "LIST_STATUS"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "application_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "20"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "select field",
+                    "id": "1",
+                    "type": "count"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "FS OPS $action per application on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 37
+            },
+            "id": 89,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 230,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": null,
+            "repeatDirection": "h",
+            "repeatIteration": 1541514691905,
             "repeatPanelId": 16,
             "scopedVars": {
               "action": {
@@ -1256,9 +2963,9 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 11
+              "y": 45
             },
-            "id": 59,
+            "id": 90,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -1282,7 +2989,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1530696383343,
+            "repeatIteration": 1541514691905,
             "repeatPanelId": 16,
             "scopedVars": {
               "action": {
@@ -1385,9 +3092,9 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 11
+              "y": 45
             },
-            "id": 60,
+            "id": 91,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -1411,7 +3118,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1530696383343,
+            "repeatIteration": 1541514691905,
             "repeatPanelId": 16,
             "scopedVars": {
               "action": {
@@ -1513,7 +3220,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 21
+          "y": 30
         },
         "id": 53,
         "panels": [
@@ -2235,7 +3942,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 22
+          "y": 31
         },
         "id": 72,
         "panels": [
@@ -2953,6 +4660,7 @@
         {
           "allValue": "*",
           "current": {
+            "tags": [],
             "text": "All",
             "value": "$__all"
           },

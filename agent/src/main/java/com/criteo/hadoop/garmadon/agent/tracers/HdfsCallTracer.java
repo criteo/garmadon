@@ -5,8 +5,9 @@ import com.criteo.hadoop.garmadon.schema.enums.FsAction;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.implementation.Implementation;
-import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.implementation.bind.annotation.Argument;
+import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import net.bytebuddy.implementation.bind.annotation.SuperCall;
 import net.bytebuddy.implementation.bind.annotation.This;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.hadoop.fs.Path;
@@ -22,6 +23,7 @@ import org.apache.hadoop.util.Progressable;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Field;
 import java.util.EnumSet;
+import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 
 import static net.bytebuddy.implementation.MethodDelegation.to;
@@ -29,6 +31,7 @@ import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public class HdfsCallTracer {
 
+    private static long NANOSECONDS_PER_MILLISECOND = 1000000;
     private static BiConsumer<Long, Object> eventHandler;
 
     public static void setup(Instrumentation instrumentation, BiConsumer<Long, Object> eventConsumer) {
@@ -63,16 +66,17 @@ public class HdfsCallTracer {
 
         @Override
         protected Implementation newImplementation() {
-            return to(DeleteTracer.class).andThen(SuperMethodCall.INSTANCE);
+            return to(DeleteTracer.class);
         }
 
-        public static void intercept(
+        @RuntimeType
+        public static Object intercept(
+                @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Path dst) throws Exception {
             Object uri = ((DistributedFileSystem) o).getUri();
-            sendFsEvent(uri.toString(), null, dst.toString(), FsAction.DELETE.name());
+            return executeMethod(zuper, uri.toString(), null, dst.toString(), FsAction.DELETE.name());
         }
-
     }
 
     public static class ReadTracer extends MethodTracer {
@@ -89,14 +93,16 @@ public class HdfsCallTracer {
 
         @Override
         protected Implementation newImplementation() {
-            return to(ReadTracer.class).andThen(SuperMethodCall.INSTANCE);
+            return to(ReadTracer.class);
         }
 
-        public static void intercept(
+        @RuntimeType
+        public static Object intercept(
+                @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Path dst) throws Exception {
             Object uri = ((DistributedFileSystem) o).getUri();
-            sendFsEvent(uri.toString(), null, dst.toString(), FsAction.READ.name());
+            return executeMethod(zuper, uri.toString(), null, dst.toString(), FsAction.READ.name());
         }
     }
 
@@ -114,15 +120,17 @@ public class HdfsCallTracer {
 
         @Override
         Implementation newImplementation() {
-            return to(RenameTracer.class).andThen(SuperMethodCall.INSTANCE);
+            return to(RenameTracer.class);
         }
 
-        public static void intercept(
+        @RuntimeType
+        public static Object intercept(
+                @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Path src,
                 @Argument(1) Path dst) throws Exception {
             Object uri = ((DistributedFileSystem) o).getUri();
-            sendFsEvent(uri.toString(), src.toString(), dst.toString(), FsAction.RENAME.name());
+            return executeMethod(zuper, uri.toString(), src.toString(), dst.toString(), FsAction.RENAME.name());
         }
     }
 
@@ -149,14 +157,16 @@ public class HdfsCallTracer {
 
         @Override
         Implementation newImplementation() {
-            return to(WriteTracer.class).andThen(SuperMethodCall.INSTANCE);
+            return to(WriteTracer.class);
         }
 
-        public static void intercept(
+        @RuntimeType
+        public static Object intercept(
+                @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Path dst) throws Exception {
             Object uri = ((DistributedFileSystem) o).getUri();
-            sendFsEvent(uri.toString(), null, dst.toString(), FsAction.WRITE.name());
+            return executeMethod(zuper, uri.toString(), null, dst.toString(), FsAction.WRITE.name());
         }
     }
 
@@ -180,12 +190,16 @@ public class HdfsCallTracer {
 
         @Override
         Implementation newImplementation() {
-            return to(AppendTracer.class).andThen(SuperMethodCall.INSTANCE);
+            return to(AppendTracer.class);
         }
 
-        public static void intercept(@This Object o, @Argument(0) Path dst) throws Exception {
+        @RuntimeType
+        public static Object intercept(
+                @SuperCall Callable<?> zuper,
+                @This Object o,
+                @Argument(0) Path dst) throws Exception {
             Object uri = ((DistributedFileSystem) o).getUri();
-            sendFsEvent(uri.toString(), null, dst.toString(), FsAction.APPEND.name());
+            return executeMethod(zuper, uri.toString(), null, dst.toString(), FsAction.APPEND.name());
         }
     }
 
@@ -207,12 +221,16 @@ public class HdfsCallTracer {
 
         @Override
         Implementation newImplementation() {
-            return to(ListStatusTracer.class).andThen(SuperMethodCall.INSTANCE);
+            return to(ListStatusTracer.class);
         }
 
-        public static void intercept(@This Object o, @Argument(0) Path dst) throws Exception {
+        @RuntimeType
+        public static Object intercept(
+                @SuperCall Callable<?> zuper,
+                @This Object o,
+                @Argument(0) Path dst) throws Exception {
             Object uri = ((DistributedFileSystem) o).getUri();
-            sendFsEvent(uri.toString(), null, dst.toString(), FsAction.LIST_STATUS.name());
+            return executeMethod(zuper, uri.toString(), null, dst.toString(), FsAction.LIST_STATUS.name());
         }
     }
 
@@ -234,14 +252,16 @@ public class HdfsCallTracer {
 
         @Override
         Implementation newImplementation() {
-            return to(GetContentSummaryTracer.class).andThen(SuperMethodCall.INSTANCE);
+            return to(GetContentSummaryTracer.class);
         }
 
-        public static void intercept(
+        @RuntimeType
+        public static Object intercept(
+                @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Path dst) throws Exception {
             Object uri = ((DistributedFileSystem) o).getUri();
-            sendFsEvent(uri.toString(), null, dst.toString(), FsAction.GET_CONTENT_SUMMARY.name());
+            return executeMethod(zuper, uri.toString(), null, dst.toString(), FsAction.GET_CONTENT_SUMMARY.name());
         }
     }
 
@@ -264,7 +284,7 @@ public class HdfsCallTracer {
             }
         }
 
-        public static Field getField() {
+        static Field getField() {
             return SingletonHolder.field;
         }
 
@@ -282,28 +302,44 @@ public class HdfsCallTracer {
 
         @Override
         protected Implementation newImplementation() {
-            return to(AddBlockTracer.class).andThen(SuperMethodCall.INSTANCE);
+            return to(AddBlockTracer.class);
         }
 
-        public static void intercept(
+        @RuntimeType
+        public static Object intercept(
+                @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) String dst) throws Exception {
             if (getField() != null) {
                 ClientNamenodeProtocolPB rpcProxy = (ClientNamenodeProtocolPB) getField().get(o);
-                sendFsEvent(
-                        "hdfs://" + RPC.getServerAddress(rpcProxy).getHostString() + ":" + RPC.getServerAddress(rpcProxy).getPort(),
+                return executeMethod(zuper, "hdfs://" + RPC.getServerAddress(rpcProxy).getHostString() + ":" + RPC.getServerAddress(rpcProxy).getPort(),
                         null, dst, FsAction.ADD_BLOCK.name());
+            } else {
+                return zuper.call();
             }
         }
     }
 
-    private static void sendFsEvent(String uri, String src, String dst, String fsAction) {
+    private static Object executeMethod(@SuperCall Callable<?> zuper, String uri, String src, String dst, String fsAction) throws Exception {
+        long startTime = System.nanoTime();
+        try {
+            return zuper.call();
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            long elapsedTime = (System.nanoTime() - startTime) / NANOSECONDS_PER_MILLISECOND;
+            sendFsEvent(uri, src, dst, fsAction, elapsedTime);
+        }
+    }
+
+    private static void sendFsEvent(String uri, String src, String dst, String fsAction, long durationMillis) {
         DataAccessEventProtos.FsEvent.Builder eventBuilder = DataAccessEventProtos.FsEvent
                 .newBuilder();
 
         eventBuilder.setAction(fsAction)
                 .setDstPath(dst)
-                .setUri(uri);
+                .setUri(uri)
+                .setMethodDurationMillis(durationMillis);
 
         if (src != null) {
             eventBuilder.setSrcPath(src);
