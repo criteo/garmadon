@@ -49,8 +49,6 @@ public class GarmadonSparkListener extends SparkListener {
         }
     };
 
-
-
     private <T> T getValOrNull(Supplier<T> supplier) {
         try {
             return supplier.get();
