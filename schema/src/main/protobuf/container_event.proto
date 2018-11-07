@@ -6,8 +6,7 @@ option java_package = "com.criteo.hadoop.garmadon.event.proto";
 option java_outer_classname = "ContainerEventProtos";
 
 message ContainerResourceEvent {
-    uint64 timestamp = 1;
-    string type = 2;
-    uint64 limit = 4;
-    float value = 5;
+    string type = 1;
+    uint64 limit = 2;
+    float value = 3;
 }

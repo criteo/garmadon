@@ -26,7 +26,7 @@ public class EventHelperTest {
     @Test
     public void initEvent_should_return_a_hashmap() {
         String type = "TEST";
-        Map<String, Object> res = EventHelper.initEvent(type, new Date(timestamp));
+        Map<String, Object> res = EventHelper.initEvent(type);
         Assert.assertEquals(type, res.get("event_type"));
     }
 
@@ -35,7 +35,6 @@ public class EventHelperTest {
         String path = "datadisco:/click_cas/day=2018-06-26/hour=03/platform=EU";
         DataAccessEventProtos.PathEvent event = DataAccessEventProtos.PathEvent
                 .newBuilder()
-                .setTimestamp(timestamp)
                 .setType("INPUT")
                 .setPath(path)
                 .build();
@@ -48,7 +47,6 @@ public class EventHelperTest {
         String path = "/click_cas/day=2018-06-26/hour=03/platform=EU";
         DataAccessEventProtos.FsEvent event = DataAccessEventProtos.FsEvent
                 .newBuilder()
-                .setTimestamp(timestamp)
                 .setAction("RENAME")
                 .setDstPath(path)
                 .setUri("hdfs://root")
@@ -63,7 +61,6 @@ public class EventHelperTest {
         String path = uri + "/click_cas/day=2018-06-26/hour=03/platform=EU";
         DataAccessEventProtos.FsEvent event = DataAccessEventProtos.FsEvent
                 .newBuilder()
-                .setTimestamp(timestamp)
                 .setAction("RENAME")
                 .setDstPath(path)
                 .setUri(uri)
@@ -77,7 +74,6 @@ public class EventHelperTest {
         String state = "END";
         DataAccessEventProtos.StateEvent event = DataAccessEventProtos.StateEvent
                 .newBuilder()
-                .setTimestamp(timestamp)
                 .setState(state)
                 .build();
         EventHelper.processStateEvent(GarmadonSerialization.getTypeName(3), event, eventMaps);
@@ -133,7 +129,6 @@ public class EventHelperTest {
 
         JVMStatisticsProtos.JVMStatisticsData event = JVMStatisticsProtos.JVMStatisticsData
                 .newBuilder()
-                .setTimestamp(timestamp)
                 .addSection(sectionDisk)
                 .addSection(sectionNetwork)
                 .addSection(sectionOther1)
@@ -152,7 +147,6 @@ public class EventHelperTest {
         String collector_name = "PS Scavenge";
         JVMStatisticsProtos.GCStatisticsData event = JVMStatisticsProtos.GCStatisticsData
                 .newBuilder()
-                .setTimestamp(timestamp)
                 .setCause("Allocation Failure")
                 .setCollectorName(collector_name)
                 .build();
@@ -166,7 +160,6 @@ public class EventHelperTest {
         long limit = 4831838208L;
         ContainerEventProtos.ContainerResourceEvent event = ContainerEventProtos.ContainerResourceEvent
                 .newBuilder()
-                .setTimestamp(timestamp)
                 .setType("MEMORY")
                 .setLimit(limit)
                 .setValue(2528430080L)
@@ -181,7 +174,6 @@ public class EventHelperTest {
         long limit = 4831838208L;
         SparkEventProtos.StageEvent event = SparkEventProtos.StageEvent
                 .newBuilder()
-                .setCompletionTime(timestamp)
                 .setStartTime(timestamp)
                 .setStageName("stage0")
                 .setStageId("0")

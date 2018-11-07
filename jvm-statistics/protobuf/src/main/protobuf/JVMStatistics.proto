@@ -14,23 +14,21 @@ message JVMStatisticsData {
         string name = 1;
         repeated Property property = 2;
     }
-    fixed64 timestamp = 1;
-    repeated Section section = 2;
+    repeated Section section = 1;
 }
 
 message GCStatisticsData {
-    fixed64 timestamp = 1;
-    string collector_name = 2;
-    int64 pause_time = 3;
-    string cause = 4;
-    int64 eden_before = 5;
-    int64 eden_after = 6;
-    int64 survivor_before = 7;
-    int64 survivor_after = 8;
-    int64 old_before = 9;
-    int64 old_after = 10;
-    int64 code_before = 11;
-    int64 code_after = 12;
-    int64 metaspace_before = 13;
-    int64 metaspace_after = 14;
+    string collector_name = 1;
+    int64 pause_time = 2;
+    string cause = 3;
+    int64 eden_before = 4;
+    int64 eden_after = 5;
+    int64 survivor_before = 6;
+    int64 survivor_after = 7;
+    int64 old_before = 8;
+    int64 old_after = 9;
+    int64 code_before = 10;
+    int64 code_after = 11;
+    int64 metaspace_before = 12;
+    int64 metaspace_after = 13;
 }

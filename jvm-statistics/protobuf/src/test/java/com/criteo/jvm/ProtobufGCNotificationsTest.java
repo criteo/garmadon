@@ -12,8 +12,7 @@ import static org.hamcrest.text.MatchesPattern.matchesPattern;
 
 public class ProtobufGCNotificationsTest {
 
-    private static final Pattern GC_PATTERN = Pattern.compile("timestamp: \\d+\n" +
-            "collector_name: \".*\"\\s+" +
+    private static final Pattern GC_PATTERN = Pattern.compile("collector_name: \".*\"\\s+" +
             "pause_time: \\d+\\s+" +
             "cause: \"System.gc\\(\\)\"\\s+" +
             ".*" +
@@ -27,8 +26,9 @@ public class ProtobufGCNotificationsTest {
     public void getGCNotificationWithInfos() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         ProtobufGCNotifications notif = new ProtobufGCNotifications();
-        notif.subscribe(stats -> {
+        notif.subscribe((timestamp, stats) -> {
             String s = stats.toString();
+            System.out.println(s);
             assertThat(s, matchesPattern(GC_PATTERN));
             latch.countDown();
         });

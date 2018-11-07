@@ -6,7 +6,6 @@ import com.criteo.jvm.statistics.MachineStatistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -17,7 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class JVMStatistics {
     public static final String DEFAULT_SINK_TYPE = "log";
@@ -75,13 +74,13 @@ public class JVMStatistics {
         machineStatsCollector.collect();
     }
 
-    private  static StatisticCollector<?> createStatisticCollector(Conf conf, Consumer<?> logStatistics) {
+    private  static StatisticCollector<?> createStatisticCollector(Conf conf, BiConsumer<Long, ?> logStatistics) {
         Class<?> clazz = statisticCollectorClasses.get(conf.getSinkType());
         if (clazz == null)
             throw new UnsupportedOperationException(conf.getSinkType()+ " statistics collector not supported");
         Constructor<?> constructor;
         try {
-            constructor = clazz.getConstructor(Consumer.class);
+            constructor = clazz.getConstructor(BiConsumer.class);
             return (StatisticCollector<?>)constructor.newInstance(logStatistics);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -121,7 +120,7 @@ public class JVMStatistics {
     /**
      * Used to test JVM stats on a specific environment
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Conf<String, String, String> conf = new Conf<>();
         conf.setInterval(Duration.ofSeconds(1));
         conf.setLogJVMStats(JVMStatistics::log);
@@ -144,7 +143,7 @@ public class JVMStatistics {
         stats.stop();
     }
 
-    private static void log(String str) {
+    private static void log(Long timestamp, String str) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss,SSS");
         System.out.println(LocalDateTime.now().format(formatter) + " " + str);
     }

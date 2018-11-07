@@ -17,17 +17,17 @@ public class ContainerModule implements GarmadonAgentModule {
     public void setup(Instrumentation instrumentation, AsyncEventProcessor eventProcessor) {
         ExecutorService executorService = Executors.newFixedThreadPool(5);
         // JVM/GC metrics/events
-        executorService.submit(() -> JVMStatisticsTracer.setup(event ->
-                eventProcessor.offer(ContainerHeader.getInstance().getHeader(), event)));
+        executorService.submit(() -> JVMStatisticsTracer.setup((timestamp, event) ->
+                eventProcessor.offer(timestamp, ContainerHeader.getInstance().getHeader(), event)));
 
         // Byte code instrumentation
         executorService.submit(() -> FileSystemTracer.setup(instrumentation,
-                event -> eventProcessor.offer(ContainerHeader.getInstance().getHeader(), event)));
+                (timestamp, event) -> eventProcessor.offer(timestamp, ContainerHeader.getInstance().getHeader(), event)));
 
         // Set SPARK Listener
         executorService.submit(() -> {
             SparkListenerTracer.setup(ContainerHeader.getInstance().getHeader(),
-                    (header, event) -> eventProcessor.offer(header, event));
+                    (timestamp, header, event) -> eventProcessor.offer(timestamp, header, event));
         });
 
         executorService.shutdown();

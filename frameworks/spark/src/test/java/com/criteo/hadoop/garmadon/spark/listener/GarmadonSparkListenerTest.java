@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.spark.listener;
 
+import com.criteo.hadoop.garmadon.TriConsumer;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import org.apache.spark.scheduler.*;
 import org.apache.spark.scheduler.cluster.ExecutorInfo;
@@ -22,7 +23,7 @@ public class GarmadonSparkListenerTest {
 
     @Test
     public void onExecutorAdded() {
-        BiConsumer<Header, Object> handlerMock = mock(BiConsumer.class);
+        TriConsumer<Long, Header, Object> handlerMock = mock(TriConsumer.class);
         SparkListener listener = new GarmadonSparkListener(handlerMock, DUMMY_HEADER.toSerializeHeader());
 
         listener.onExecutorAdded(new SparkListenerExecutorAdded(1, "invokationExecutorId",
@@ -33,7 +34,7 @@ public class GarmadonSparkListenerTest {
 
     @Test
     public void onExecutorRemoved() {
-        BiConsumer<Header, Object> handlerMock = mock(BiConsumer.class);
+        TriConsumer<Long,Header, Object> handlerMock = mock(TriConsumer.class);
         SparkListener listener = new GarmadonSparkListener(handlerMock, DUMMY_HEADER.toSerializeHeader());
 
         listener.onExecutorRemoved(new SparkListenerExecutorRemoved(1, "invokationExecutorId",
@@ -44,7 +45,7 @@ public class GarmadonSparkListenerTest {
 
     @Test
     public void onExecutorBlacklisted() {
-        BiConsumer<Header, Object> handlerMock = mock(BiConsumer.class);
+        TriConsumer<Long,Header, Object> handlerMock = mock(TriConsumer.class);
         SparkListener listener = new GarmadonSparkListener(handlerMock, DUMMY_HEADER.toSerializeHeader());
 
         listener.onExecutorBlacklisted(new SparkListenerExecutorBlacklisted(1, "invokationExecutorId",
@@ -55,7 +56,7 @@ public class GarmadonSparkListenerTest {
 
     @Test
     public void onExecutorUnblacklisted() {
-        BiConsumer<Header, Object> handlerMock = mock(BiConsumer.class);
+        TriConsumer<Long,Header, Object> handlerMock = mock(TriConsumer.class);
         SparkListener listener = new GarmadonSparkListener(handlerMock, DUMMY_HEADER.toSerializeHeader());
 
         listener.onExecutorUnblacklisted(new SparkListenerExecutorUnblacklisted(1, "invokationExecutorId"));
@@ -63,9 +64,9 @@ public class GarmadonSparkListenerTest {
                 .withExecutorId("invokationExecutorId").build()));
     }
 
-    private void checkExecutorEventHeader(BiConsumer<Header, Object> handlerMock, Header expectedHeader) {
+    private void checkExecutorEventHeader(TriConsumer<Long,Header, Object> handlerMock, Header expectedHeader) {
         ArgumentCaptor<Header> argumentCaptor = ArgumentCaptor.forClass(Header.class);
-        verify(handlerMock, times(1)).accept(argumentCaptor.capture(), any(Object.class));
+        verify(handlerMock, times(1)).accept(any(Long.class), argumentCaptor.capture(), any(Object.class));
         Assert.assertEquals(expectedHeader, argumentCaptor.getValue());
     }
 }

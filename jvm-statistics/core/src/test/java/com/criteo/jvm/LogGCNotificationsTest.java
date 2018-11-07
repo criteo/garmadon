@@ -15,7 +15,7 @@ public class LogGCNotificationsTest {
     public void getGCNotificationWithInfos() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         LogGCNotifications notif = new LogGCNotifications();
-        notif.subscribe(s -> {
+        notif.subscribe((t, s) -> {
             Assert.assertTrue(GC_PATTERN.matcher((String)s).find());
             latch.countDown();
         });

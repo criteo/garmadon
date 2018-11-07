@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.spark.listener;
 
+import com.criteo.hadoop.garmadon.TriConsumer;
 import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import org.apache.spark.SparkConf;
@@ -23,12 +24,12 @@ public class GarmadonSparkListenerIntegrationTest {
 
     private GarmadonSparkListener sparkListener;
 
-    private BiConsumer<Header, Object> eventHandler;
+    private TriConsumer<Long, Header, Object> eventHandler;
     private Header.SerializedHeader header;
 
     @Before
     public void setUp() {
-        eventHandler = mock(BiConsumer.class);
+        eventHandler = mock(TriConsumer.class);
         header = Header.newBuilder()
                 .withId("id")
                 .addTag(Header.Tag.STANDALONE.name())
@@ -59,7 +60,7 @@ public class GarmadonSparkListenerIntegrationTest {
         jsc.parallelize(data).count();
         jsc.close();
 
-        verify(eventHandler, times(0)).accept(any(Header.class), any(SparkEventProtos.StageEvent.class));
+        verify(eventHandler, times(0)).accept(any(Long.class), any(Header.class), any(SparkEventProtos.StageEvent.class));
     }
 
     @Test
@@ -69,7 +70,7 @@ public class GarmadonSparkListenerIntegrationTest {
         jsc.parallelize(data).count();
         jsc.close();
 
-        verify(eventHandler, times(2)).accept(isA(Header.class), isA(SparkEventProtos.StageStateEvent.class));
-        verify(eventHandler).accept(isA(Header.class), isA(SparkEventProtos.StageEvent.class));
+        verify(eventHandler, times(2)).accept(isA(Long.class), isA(Header.class), isA(SparkEventProtos.StageStateEvent.class));
+        verify(eventHandler).accept(isA(Long.class), isA(Header.class), isA(SparkEventProtos.StageEvent.class));
     }
 }

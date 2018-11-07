@@ -54,11 +54,10 @@ public class G1GCTest {
         G1GC g1GC = new G1GC(mockDB);
         JVMStatisticsProtos.GCStatisticsData.Builder builder = JVMStatisticsProtos.GCStatisticsData.newBuilder()
                 .setCollectorName("G1 Old Generation")
-                .setPauseTime(1234)
-                .setTimestamp(timestamp);
+                .setPauseTime(1234);
         JVMStatisticsProtos.GCStatisticsData gcStats = builder.build();
         for (int i = 0; i < nbContainers; i++)
-            g1GC.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, gcStats);
+            g1GC.process(timestamp, APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, gcStats);
         g1GC.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);
     }
 

@@ -7,114 +7,108 @@ option java_outer_classname = "SparkEventProtos";
 
 message StageEvent {
     int64 start_time = 1;
-    int64 completion_time = 2;
-    string stage_name = 3;
-    string stage_id = 4;
-    string attempt_id = 5;
-    int32 num_tasks = 6;
+    string stage_name = 2;
+    string stage_id = 3;
+    string attempt_id = 4;
+    int32 num_tasks = 5;
 
-    string status = 7;
-    string failure_reason = 8;
+    string status = 6;
+    string failure_reason = 7;
 
-    int64 executor_cpu_time = 9;
-    int64 executor_deserialize_cpu_time = 10;
+    int64 executor_cpu_time = 8;
+    int64 executor_deserialize_cpu_time = 9;
 
-    int64 executor_run_time = 11;
-    int64 jvm_gc_time = 12;
-    int64 executor_deserialize_time = 13;
-    int64 result_serialization_time = 14;
+    int64 executor_run_time = 10;
+    int64 jvm_gc_time = 11;
+    int64 executor_deserialize_time = 12;
+    int64 result_serialization_time = 13;
 
-    int64 result_size = 15;
-    int64 peak_execution_memory = 16;
+    int64 result_size = 14;
+    int64 peak_execution_memory = 15;
 
-    int64 disk_bytes_spilled = 17;
-    int64 memory_bytes_spilled = 18;
+    int64 disk_bytes_spilled = 16;
+    int64 memory_bytes_spilled = 17;
 
-    int64 shuffle_read_records = 19;
-    int64 shuffle_read_fetch_wait_time = 20;
-    int64 shuffle_read_local_bytes = 21;
-    int64 shuffle_read_remote_bytes = 22;
-    int64 shuffle_read_total_bytes = 23;
-    int64 shuffle_read_local_blocks_fetched = 24;
-    int64 shuffle_read_remote_blocks_fetched = 25;
-    int64 shuffle_read_total_blocks_fetched = 26;
+    int64 shuffle_read_records = 18;
+    int64 shuffle_read_fetch_wait_time = 19;
+    int64 shuffle_read_local_bytes = 20;
+    int64 shuffle_read_remote_bytes = 21;
+    int64 shuffle_read_total_bytes = 22;
+    int64 shuffle_read_local_blocks_fetched = 23;
+    int64 shuffle_read_remote_blocks_fetched = 24;
+    int64 shuffle_read_total_blocks_fetched = 25;
 
-    int64 shuffle_write_shuffle_records = 27;
-    int64 shuffle_write_shuffle_time = 28;
-    int64 shuffle_write_shuffle_bytes = 29;
+    int64 shuffle_write_shuffle_records = 26;
+    int64 shuffle_write_shuffle_time = 27;
+    int64 shuffle_write_shuffle_bytes = 28;
 
-    int64 input_records = 30;
-    int64 input_bytes = 31;
-    int64 output_records = 32;
-    int64 output_bytes = 33;
+    int64 input_records = 29;
+    int64 input_bytes = 30;
+    int64 output_records = 31;
+    int64 output_bytes = 32;
 }
 
 message StageStateEvent {
-    uint64 timestamp = 1;
-    string state = 2;
-
-    string stage_name = 3;
-    string stage_id = 4;
-    string attempt_id = 5;
-    int32 num_tasks = 6;
+    string state = 1;
+    string stage_name = 2;
+    string stage_id = 3;
+    string attempt_id = 4;
+    int32 num_tasks = 5;
 }
 
 message ExecutorStateEvent {
-    uint64 timestamp = 1;
-    string state = 2;
-
-    string executor_hostname = 4;
-    string reason = 5;
-    int32 task_failures = 6;
+    string state = 1;
+    string executor_hostname = 2;
+    string reason = 3;
+    int32 task_failures = 4;
 }
 
 message TaskEvent {
     int64 start_time = 1;
-    int64 completion_time = 2;
-    string task_id = 3;
-    string stage_id = 4;
-    string attempt_id = 5;
+    string task_id = 2;
+    string stage_id = 3;
+    string attempt_id = 4;
 
-    string executor_hostname = 7;
+    string executor_hostname = 5;
 
-    string status = 8;
-    string failure_reason = 9;
+    string status = 6;
+    string failure_reason = 7;
 
-    int64 executor_cpu_time = 10;
-    int64 executor_deserialize_cpu_time = 11;
+    int64 executor_cpu_time = 8;
+    int64 executor_deserialize_cpu_time = 9;
 
-    int64 executor_run_time = 12;
-    int64 jvm_gc_time = 13;
-    int64 executor_deserialize_time = 14;
-    int64 result_serialization_time = 15;
+    int64 executor_run_time = 10;
+    int64 jvm_gc_time = 11;
+    int64 executor_deserialize_time = 12;
+    int64 result_serialization_time = 13;
 
-    int64 result_size = 16;
-    int64 peak_execution_memory = 17;
+    int64 result_size = 14;
+    int64 peak_execution_memory = 15;
 
-    int64 disk_bytes_spilled = 18;
-    int64 memory_bytes_spilled = 19;
+    int64 disk_bytes_spilled = 16;
+    int64 memory_bytes_spilled = 17;
 
-    int64 shuffle_read_records = 20;
-    int64 shuffle_read_fetch_wait_time = 21;
-    int64 shuffle_read_local_bytes = 22;
-    int64 shuffle_read_remote_bytes = 23;
-    int64 shuffle_read_total_bytes = 24;
-    int64 shuffle_read_local_blocks_fetched = 25;
-    int64 shuffle_read_remote_blocks_fetched = 26;
-    int64 shuffle_read_total_blocks_fetched = 27;
+    int64 shuffle_read_records = 18;
+    int64 shuffle_read_fetch_wait_time = 19;
+    int64 shuffle_read_local_bytes = 20;
+    int64 shuffle_read_remote_bytes = 21;
+    int64 shuffle_read_total_bytes = 22;
+    int64 shuffle_read_local_blocks_fetched = 23;
+    int64 shuffle_read_remote_blocks_fetched = 24;
+    int64 shuffle_read_total_blocks_fetched = 25;
 
-    int64 shuffle_write_shuffle_records = 28;
-    int64 shuffle_write_shuffle_time = 29;
-    int64 shuffle_write_shuffle_bytes = 30;
+    int64 shuffle_write_shuffle_records = 26;
+    int64 shuffle_write_shuffle_time = 27;
+    int64 shuffle_write_shuffle_bytes = 28;
 
-    int64 input_records = 31;
-    int64 input_bytes = 32;
-    int64 output_records = 33;
-    int64 output_bytes = 34;
+    int64 input_records = 29;
+    int64 input_bytes = 30;
+    int64 output_records = 31;
+    int64 output_bytes = 32;
 
-    string type = 35;
-    string locality = 36;
-    int32 attempt_number = 37;
+    string type = 33;
+    string locality = 34;
+    int32 attempt_number = 35;
 
 }
 

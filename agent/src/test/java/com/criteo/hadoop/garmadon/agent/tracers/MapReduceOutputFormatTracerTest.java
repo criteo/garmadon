@@ -1,6 +1,5 @@
 package com.criteo.hadoop.garmadon.agent.tracers;
 
-import com.criteo.hadoop.garmadon.agent.tracers.MapReduceTracer;
 import com.criteo.hadoop.garmadon.agent.utils.AgentAttachmentRule;
 import com.criteo.hadoop.garmadon.agent.utils.ClassFileExtraction;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
@@ -24,7 +23,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,7 +35,7 @@ public class MapReduceOutputFormatTracerTest {
     @Rule
     public MethodRule agentAttachmentRule = new AgentAttachmentRule();
 
-    private Consumer<Object> eventHandler;
+    private BiConsumer<Long, Object> eventHandler;
     private TaskAttemptContext taskAttemptContext;
     private Configuration conf;
 
@@ -49,7 +48,7 @@ public class MapReduceOutputFormatTracerTest {
 
     @Before
     public void setUp() throws IOException {
-        eventHandler = mock(Consumer.class);
+        eventHandler = mock(BiConsumer.class);
         argument = ArgumentCaptor.forClass(DataAccessEventProtos.PathEvent.class);
 
         MapReduceTracer.initEventHandler(eventHandler);
@@ -110,10 +109,9 @@ public class MapReduceOutputFormatTracerTest {
             invokeRecordWriter(type);
 
             //Verify mock interaction
-            verify(eventHandler).accept(argument.capture());
+            verify(eventHandler).accept(any(Long.class), argument.capture());
             DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
                     .newBuilder()
-                    .setTimestamp(argument.getValue().getTimestamp())
                     .setPath(outputPath)
                     .setType(PathType.OUTPUT.name())
                     .build();
@@ -133,10 +131,9 @@ public class MapReduceOutputFormatTracerTest {
         conf.set("mapred.output.dir", deprecatedOutputPath);
 
         MapReduceTracer.OutputFormatTracer.intercept(taskAttemptContext);
-        verify(eventHandler).accept(argument.capture());
+        verify(eventHandler).accept(any(Long.class), argument.capture());
         DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
                 .newBuilder()
-                .setTimestamp(argument.getValue().getTimestamp())
                 .setPath(deprecatedOutputPath)
                 .setType(PathType.OUTPUT.name())
                 .build();

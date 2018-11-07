@@ -1,6 +1,7 @@
 package com.criteo.jvm;
 
 import java.time.Duration;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class Conf<JVMSTATS, GCSTATS, MACHINESTATS> {
@@ -8,9 +9,9 @@ public class Conf<JVMSTATS, GCSTATS, MACHINESTATS> {
 
     private Duration interval = Duration.ofMinutes(1);
     private String sinkType = DEFAULT_SINK_TYPE;
-    private Consumer<JVMSTATS> logJVMStats;
-    private Consumer<GCSTATS> logGcStats;
-    private Consumer<MACHINESTATS> logMachineStats;
+    private BiConsumer<Long, JVMSTATS> logJVMStats;
+    private BiConsumer<Long, GCSTATS> logGcStats;
+    private BiConsumer<Long, MACHINESTATS> logMachineStats;
     private boolean OSStatsInJVMStats;
 
     public Duration getInterval() {
@@ -33,11 +34,11 @@ public class Conf<JVMSTATS, GCSTATS, MACHINESTATS> {
         return logJVMStats != null;
     }
 
-    public Consumer<JVMSTATS> getLogJVMStats() {
+    public BiConsumer<Long, JVMSTATS> getLogJVMStats() {
         return logJVMStats;
     }
 
-    public void setLogJVMStats(Consumer<JVMSTATS> logJVMStats) {
+    public void setLogJVMStats(BiConsumer<Long, JVMSTATS> logJVMStats) {
         this.logJVMStats = logJVMStats;
     }
 
@@ -45,11 +46,11 @@ public class Conf<JVMSTATS, GCSTATS, MACHINESTATS> {
         return logGcStats != null;
     }
 
-    public Consumer<GCSTATS> getLogGcStats() {
+    public BiConsumer<Long, GCSTATS> getLogGcStats() {
         return logGcStats;
     }
 
-    public void setLogGcStats(Consumer<GCSTATS> logGCStats) {
+    public void setLogGcStats(BiConsumer<Long, GCSTATS> logGCStats) {
         this.logGcStats = logGCStats;
     }
 
@@ -57,11 +58,11 @@ public class Conf<JVMSTATS, GCSTATS, MACHINESTATS> {
         return logMachineStats != null;
     }
 
-    public Consumer<MACHINESTATS> getLogMachineStats() {
+    public BiConsumer<Long, MACHINESTATS> getLogMachineStats() {
         return logMachineStats;
     }
 
-    public void setLogMachineStats(Consumer<MACHINESTATS> logMachineStats) {
+    public void setLogMachineStats(BiConsumer<Long, MACHINESTATS> logMachineStats) {
         this.logMachineStats = logMachineStats;
     }
 

@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class StatisticCollectorTest {
 
@@ -16,7 +16,7 @@ public class StatisticCollectorTest {
     public void collect() {
         AtomicBoolean executed = new AtomicBoolean(false);
 
-        TestStatisticCollector statisticCollector = new TestStatisticCollector(s -> {
+        TestStatisticCollector statisticCollector = new TestStatisticCollector((t, s) -> {
             if (retries.get() >= 0)
                 Assert.assertEquals("foo[name=value]", s);
             else
@@ -40,7 +40,7 @@ public class StatisticCollectorTest {
 
     private static class TestStatisticCollector extends StatisticCollector<String> {
 
-        public TestStatisticCollector(Consumer<String> printer) {
+        public TestStatisticCollector(BiConsumer<Long, String> printer) {
             super(printer, new StatisticsLog());
         }
     }

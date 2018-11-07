@@ -64,7 +64,7 @@ public class CloseHandlerTest {
                 .build();
 
 
-        byte[] raw = ProtocolMessage.create(header.serialize(), new TestEvent(100));
+        byte[] raw = ProtocolMessage.create(System.currentTimeMillis(), header.serialize(), new TestEvent(100));
 
         ByteBuf input = Unpooled.wrappedBuffer(raw);
         Assert.assertTrue(channel.get().writeInbound(input));
@@ -87,7 +87,7 @@ public class CloseHandlerTest {
                 .addTag(Header.Tag.FORWARDER.name())
                 .build();
 
-        byte[] raw = ProtocolMessage.create(header.serialize(), new TestEvent(100));
+        byte[] raw = ProtocolMessage.create(System.currentTimeMillis(), header.serialize(), new TestEvent(100));
 
         ByteBuf input = Unpooled.wrappedBuffer(raw);
         Assert.assertTrue(channel.get().writeInbound(input));

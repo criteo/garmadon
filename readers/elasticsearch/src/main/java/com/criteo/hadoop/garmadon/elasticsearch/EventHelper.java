@@ -9,24 +9,21 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EventHelper {
-    public static Map<String, Object> initEvent(String type, Date timestamp_date) {
+class EventHelper {
+    static Map<String, Object> initEvent(String type) {
         HashMap<String, Object> json = new HashMap<>();
-        json.put("timestamp", timestamp_date);
         json.put("event_type", type);
         return json;
     }
 
-    public static void processPathEvent(String type, DataAccessEventProtos.PathEvent event, HashMap<String, Map<String, Object>> eventMaps) {
-        Date timestamp_date = new Date(event.getTimestamp());
-        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type, timestamp_date));
+    static void processPathEvent(String type, DataAccessEventProtos.PathEvent event, HashMap<String, Map<String, Object>> eventMaps) {
+        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type));
         eventMap.put("type", event.getType());
         eventMap.put("path", event.getPath());
     }
 
-    public static void processFsEvent(String type, DataAccessEventProtos.FsEvent event, HashMap<String, Map<String, Object>> eventMaps) {
-        Date timestamp_date = new Date(event.getTimestamp());
-        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type, timestamp_date));
+    static void processFsEvent(String type, DataAccessEventProtos.FsEvent event, HashMap<String, Map<String, Object>> eventMaps) {
+        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type));
         String uri = event.getUri();
         eventMap.put("src_path", event.getSrcPath().replace(uri, ""));
         eventMap.put("dst_path", event.getDstPath().replace(uri, ""));
@@ -34,28 +31,24 @@ public class EventHelper {
         eventMap.put("uri", UriHelper.getUniformizedUri(uri));
     }
 
-    public static void processStateEvent(String type, DataAccessEventProtos.StateEvent event, HashMap<String, Map<String, Object>> eventMaps) {
-        Date timestamp_date = new Date(event.getTimestamp());
-        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type, timestamp_date));
+    static void processStateEvent(String type, DataAccessEventProtos.StateEvent event, HashMap<String, Map<String, Object>> eventMaps) {
+        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type));
         eventMap.put("state", event.getState());
     }
 
-    public static void processJVMStatisticsData(String type, JVMStatisticsProtos.JVMStatisticsData event, HashMap<String, Map<String, Object>> eventMaps) {
-        Date timestamp_date = new Date(event.getTimestamp());
-
+    static void processJVMStatisticsData(String type, JVMStatisticsProtos.JVMStatisticsData event, HashMap<String, Map<String, Object>> eventMaps) {
         for (JVMStatisticsProtos.JVMStatisticsData.Section section : event.getSectionList()) {
             if (section.getName().equals("disk") || section.getName().equals("network")) {
                 for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     String[] device = property.getName().split("_");
                     if (device.length == 2) {
-                        Map<String, Object> eventMap = eventMaps.computeIfAbsent(device[0], s -> EventHelper.initEvent("OS",
-                                timestamp_date));
+                        Map<String, Object> eventMap = eventMaps.computeIfAbsent(device[0], s -> EventHelper.initEvent("OS"));
                         eventMap.put(section.getName(), device[0]);
                         eventMap.put(device[1], Double.parseDouble(property.getValue()));
                     }
                 }
             } else {
-                Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type, timestamp_date));
+                Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type));
                 for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     try {
                         eventMap.put(section.getName() + "_" + property.getName(), Double.parseDouble(property.getValue()));
@@ -67,9 +60,8 @@ public class EventHelper {
         }
     }
 
-    public static void processStageEvent(String type, SparkEventProtos.StageEvent event, HashMap<String, Map<String, Object>> eventMaps) {
-        Date timestamp_date = new Date(event.getCompletionTime());
-        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type, timestamp_date));
+    static void processStageEvent(String type, SparkEventProtos.StageEvent event, HashMap<String, Map<String, Object>> eventMaps) {
+        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type));
         eventMap.put("start_time", new Date(event.getStartTime()));
         eventMap.put("stage_name", event.getStageName());
         eventMap.put("stage_id", event.getStageId());
@@ -105,9 +97,8 @@ public class EventHelper {
         eventMap.put("output_bytes", event.getOutputBytes());
     }
 
-    public static void processTaskEvent(String type, SparkEventProtos.TaskEvent event, HashMap<String, Map<String, Object>> eventMaps) {
-        Date timestamp_date = new Date(event.getCompletionTime());
-        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type, timestamp_date));
+    static void processTaskEvent(String type, SparkEventProtos.TaskEvent event, HashMap<String, Map<String, Object>> eventMaps) {
+        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type));
         eventMap.put("start_time", new Date(event.getStartTime()));
         eventMap.put("task_id", event.getTaskId());
         eventMap.put("stage_id", event.getStageId());
@@ -149,9 +140,8 @@ public class EventHelper {
         eventMap.put("attempt_number", event.getAttemptNumber());
     }
 
-    public static void processStageStateEvent(String type, SparkEventProtos.StageStateEvent event, HashMap<String, Map<String, Object>> eventMaps) {
-        Date timestamp_date = new Date(event.getTimestamp());
-        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type, timestamp_date));
+    static void processStageStateEvent(String type, SparkEventProtos.StageStateEvent event, HashMap<String, Map<String, Object>> eventMaps) {
+        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type));
         eventMap.put("stage_name", event.getStageName());
         eventMap.put("stage_id", event.getStageId());
         eventMap.put("stage_attempt_id", event.getAttemptId());
@@ -159,18 +149,16 @@ public class EventHelper {
         eventMap.put("state", event.getState());
     }
 
-    public static void processExecutorStateEvent(String type, SparkEventProtos.ExecutorStateEvent event, HashMap<String, Map<String, Object>> eventMaps) {
-        Date timestamp_date = new Date(event.getTimestamp());
-        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type, timestamp_date));
+    static void processExecutorStateEvent(String type, SparkEventProtos.ExecutorStateEvent event, HashMap<String, Map<String, Object>> eventMaps) {
+        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type));
         eventMap.put("executor_hostname", event.getExecutorHostname());
         eventMap.put("reason", event.getReason());
         eventMap.put("task_failures", event.getTaskFailures());
         eventMap.put("state", event.getState());
     }
 
-    public static void processGCStatisticsData(String type, JVMStatisticsProtos.GCStatisticsData event, HashMap<String, Map<String, Object>> eventMaps) {
-        Date timestamp_date = new Date(event.getTimestamp());
-        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type, timestamp_date));
+    static void processGCStatisticsData(String type, JVMStatisticsProtos.GCStatisticsData event, HashMap<String, Map<String, Object>> eventMaps) {
+        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type));
         eventMap.put("collector_name", event.getCollectorName());
         eventMap.put("pause_time", event.getPauseTime());
         eventMap.put("cause", event.getCause());
@@ -181,9 +169,8 @@ public class EventHelper {
         eventMap.put("delta_metaspace", event.getMetaspaceBefore() - event.getMetaspaceAfter());
     }
 
-    public static void processContainerResourceEvent(String type, ContainerEventProtos.ContainerResourceEvent event, HashMap<String, Map<String, Object>> eventMaps) {
-        Date timestamp_date = new Date(event.getTimestamp());
-        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type, timestamp_date));
+    static void processContainerResourceEvent(String type, ContainerEventProtos.ContainerResourceEvent event, HashMap<String, Map<String, Object>> eventMaps) {
+        Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type));
         eventMap.put("type", event.getType());
         eventMap.put("value", event.getValue());
         eventMap.put("limit", event.getLimit());

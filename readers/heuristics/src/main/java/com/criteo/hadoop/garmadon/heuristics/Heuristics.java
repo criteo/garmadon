@@ -94,16 +94,18 @@ public class Heuristics {
         String applicationId = msg.getHeader().getApplicationId();
         String attemptId = msg.getHeader().getAppAttemptId();
         String containerId = msg.getHeader().getContainerId();
+        Long timestamp = msg.getTimestamp();
         JVMStatisticsProtos.GCStatisticsData gcStats = (JVMStatisticsProtos.GCStatisticsData) msg.getBody();
-        gcStatsHeuristics.forEach(h -> h.process(applicationId, attemptId, containerId, gcStats));
+        gcStatsHeuristics.forEach(h -> h.process(timestamp, applicationId, attemptId, containerId, gcStats));
     }
 
     private void processJvmStatEvent(GarmadonMessage msg) {
         String applicationId = msg.getHeader().getApplicationId();
         String attemptId = msg.getHeader().getAppAttemptId();
         String containerId = msg.getHeader().getContainerId();
+        Long timestamp = msg.getTimestamp();
         JVMStatisticsProtos.JVMStatisticsData jvmStats = (JVMStatisticsProtos.JVMStatisticsData) msg.getBody();
-        jvmStatsHeuristics.forEach(h -> h.process(applicationId, attemptId, containerId, jvmStats));
+        jvmStatsHeuristics.forEach(h -> h.process(timestamp, applicationId, attemptId, containerId, jvmStats));
     }
 
     private void registerAppContainer(GarmadonMessage msg){

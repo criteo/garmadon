@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -18,11 +19,11 @@ public abstract class StatisticCollector<T> {
 
     protected final List<AbstractStatistic> statistics = new CopyOnWriteArrayList<>();
     protected final List<Supplier<AbstractStatistic>> delayedRegisterStatistics = new CopyOnWriteArrayList<>();
-    protected final Consumer<T> printer;
+    protected final BiConsumer<Long, T> printer;
     protected final StatisticsSink<T> sink;
     private final AtomicInteger retries = new AtomicInteger(0);
 
-    public StatisticCollector(Consumer<T> printer, StatisticsSink<T> sink) {
+    public StatisticCollector(BiConsumer<Long, T> printer, StatisticsSink<T> sink) {
         this.printer = printer;
         this.sink = sink;
     }
@@ -47,7 +48,7 @@ public abstract class StatisticCollector<T> {
             }
         }
         if (printer != null)
-            printer.accept(sink.flush());
+            printer.accept(System.currentTimeMillis(), sink.flush());
     }
 
     public void unregister() {

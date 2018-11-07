@@ -20,7 +20,7 @@ public class ProtocolMessage {
      * @throws SerializationException
      * @throws TypeMarkerException
      */
-    public static byte[] create(byte[] hBytes, Object body) throws SerializationException, TypeMarkerException {
+    public static byte[] create(long timestamp, byte[] hBytes, Object body) throws SerializationException, TypeMarkerException {
         byte[] pBytes = GarmadonSerialization.serialize(body);
         int mark = GarmadonSerialization.getMarker(body.getClass());
 
@@ -29,6 +29,7 @@ public class ProtocolMessage {
         return ByteBuffer
                 .allocate(size)
                 .putInt(mark)
+                .putLong(timestamp)
                 .putInt(hBytes.length)
                 .putInt(pBytes.length)
                 .put(hBytes)

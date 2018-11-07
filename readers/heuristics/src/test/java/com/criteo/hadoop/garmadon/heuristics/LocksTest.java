@@ -89,16 +89,15 @@ public class LocksTest {
 
         Locks locks = new Locks(mockDB);
         for (int i = 0; i < nbContainers; i++) {
-            locks.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildSynclocksData(count1, timestamp));
-            locks.process(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildSynclocksData(count2, timestamp + 1000));
+            locks.process(timestamp, APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildSynclocksData(count1));
+            locks.process(timestamp + 1000, APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, buildSynclocksData(count2));
             locks.onContainerCompleted(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i);
         }
         locks.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);
     }
 
-    JVMStatisticsProtos.JVMStatisticsData buildSynclocksData(int count, long timestamp) {
+    JVMStatisticsProtos.JVMStatisticsData buildSynclocksData(int count) {
         JVMStatisticsProtos.JVMStatisticsData.Builder builder = JVMStatisticsProtos.JVMStatisticsData.newBuilder();
-        builder.setTimestamp(timestamp);
         JVMStatisticsProtos.JVMStatisticsData.Section.Builder sectionBuilder = builder.addSectionBuilder().setName("synclocks");
         sectionBuilder.addPropertyBuilder().setName("contendedlockattempts").setValue(String.valueOf(count));
         return builder.build();

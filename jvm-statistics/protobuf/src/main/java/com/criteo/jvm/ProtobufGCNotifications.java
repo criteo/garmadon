@@ -9,6 +9,7 @@ import javax.management.openmbean.CompositeData;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class ProtobufGCNotifications extends GCNotifications {
@@ -18,7 +19,7 @@ public class ProtobufGCNotifications extends GCNotifications {
     }
 
     static void handleHSNotification(Notification notification, Object handback) {
-        Consumer<JVMStatisticsProtos.GCStatisticsData> printer = (Consumer<JVMStatisticsProtos.GCStatisticsData>) handback;
+        BiConsumer<Long, JVMStatisticsProtos.GCStatisticsData> printer = (BiConsumer<Long, JVMStatisticsProtos.GCStatisticsData>) handback;
         GarbageCollectionNotificationInfo gcNotifInfo = GarbageCollectionNotificationInfo.from((CompositeData) notification.getUserData());
         GcInfo gcInfo = gcNotifInfo.getGcInfo();
         long pauseTime = gcInfo.getEndTime() - gcInfo.getStartTime();
@@ -29,7 +30,6 @@ public class ProtobufGCNotifications extends GCNotifications {
         JVMStatisticsProtos.GCStatisticsData.Builder builder = JVMStatisticsProtos.GCStatisticsData.newBuilder();
         builder.setPauseTime(pauseTime);
         builder.setCollectorName(collectorName);
-        builder.setTimestamp(timestamp);
         builder.setCause(cause);
         Map<String, MemoryUsage> memoryUsageBeforeGc = gcInfo.getMemoryUsageBeforeGc();
         Map<String, MemoryUsage> memoryUsageAfterGc = gcInfo.getMemoryUsageAfterGc();
@@ -64,7 +64,7 @@ public class ProtobufGCNotifications extends GCNotifications {
                 default: throw new UnsupportedOperationException(entry.getKey() + " not supported");
             }
         }
-        printer.accept(builder.build());
+        printer.accept(timestamp, builder.build());
     }
 
     private static NotificationListener getNotificationListener() {

@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.agent.tracers;
 
+import com.criteo.hadoop.garmadon.TriConsumer;
 import com.criteo.hadoop.garmadon.agent.AsyncEventProcessor;
 import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
 import com.criteo.hadoop.garmadon.schema.enums.ContainerType;
@@ -22,19 +23,19 @@ import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public class ContainerResourceMonitoringTracer {
 
-    private static BiConsumer<Header, Object> eventHandler;
+    private static TriConsumer<Long, Header, Object> eventHandler;
 
     public static void setup(Header baseHeader, Instrumentation instrumentation, AsyncEventProcessor eventProcessor) {
 
-        initEventHandler((headerOverride, event) -> {
+        initEventHandler((timestamp, headerOverride, event) -> {
             Header header = baseHeader.cloneAndOverride(headerOverride);
-            eventProcessor.offer(header, event);
+            eventProcessor.offer(timestamp, header, event);
         });
 
         new MemorySizeTracer().installOn(instrumentation);
     }
 
-    public static void initEventHandler(BiConsumer<Header, Object> eventHandler) {
+    public static void initEventHandler(TriConsumer<Long, Header, Object> eventHandler) {
         ContainerResourceMonitoringTracer.eventHandler = eventHandler;
     }
 
@@ -72,12 +73,11 @@ public class ContainerResourceMonitoringTracer {
                         .build();
 
                 ContainerEventProtos.ContainerResourceEvent event = ContainerEventProtos.ContainerResourceEvent.newBuilder()
-                        .setTimestamp(System.currentTimeMillis())
                         .setType(ContainerType.MEMORY.name())
                         .setValue(currentMemUsage)
                         .setLimit(limit)
                         .build();
-                eventHandler.accept(header, event);
+                eventHandler.accept(System.currentTimeMillis(), header, event);
             } catch (Exception ignore) {
             }
         }

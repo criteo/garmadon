@@ -41,17 +41,19 @@ public class AsyncEventProcessor implements Runnable {
 
     private static class Message {
 
+        private final long timestamp;
         private final Header header;
         private final Object body;
 
-        public Message(Header header, Object body) {
+        public Message(long timestamp, Header header, Object body) {
+            this.timestamp = timestamp;
             this.header = header;
             this.body = body;
         }
     }
 
-    public void offer(Header header, Object event) {
-        this.queue.offer(new Message(header, event));
+    public void offer(long timestamp, Header header, Object event) {
+        this.queue.offer(new Message(timestamp, header, event));
     }
 
     @Override
@@ -60,7 +62,7 @@ public class AsyncEventProcessor implements Runnable {
             try {
                 Message msg = queue.poll(100, TimeUnit.MILLISECONDS);
                 if (msg != null) {
-                    byte[] bytes = createProtocolMessage(msg.header, msg.body);
+                    byte[] bytes = createProtocolMessage(msg.timestamp, msg.header, msg.body);
                     if (bytes != null) {
                         appender.append(bytes);
                     }
@@ -71,10 +73,10 @@ public class AsyncEventProcessor implements Runnable {
         }
     }
 
-    private byte[] createProtocolMessage(Header header, Object body) {
+    private byte[] createProtocolMessage(long timestamp, Header header, Object body) {
         byte[] bytes = null;
         try {
-            bytes = ProtocolMessage.create(header.serialize(), body);
+            bytes = ProtocolMessage.create(timestamp, header.serialize(), body);
         } catch (TypeMarkerException typeMarkerException) {
             LOGGER.error("cannot serialize event {} because a corresponding type marker does not exists", body);
         } catch (SerializationException e) {

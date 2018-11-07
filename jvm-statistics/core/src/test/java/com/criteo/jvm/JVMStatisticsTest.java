@@ -86,19 +86,19 @@ public class JVMStatisticsTest {
         Assert.assertTrue(isMatches.get());
     }
 
-    private void assertJVMStatsLog(String s) {
+    private void assertJVMStatsLog(Long timestamp, String s) {
         logLine = s;
         isMatches.set(JVMSTATS_PATTERN.matcher(s).matches());
         latch.countDown();
     }
 
-    private void assertGCStatsLog(String s) {
+    private void assertGCStatsLog(Long timestamp, String s) {
         logLine = s;
         isMatches.set(GCSTATS_PATTERN.matcher(s).matches());
         latch.countDown();
     }
 
-    private void assertMachineStatsLog(String s) {
+    private void assertMachineStatsLog(Long timestamp, String s) {
         logLine = s;
         isMatches.set(MACHINESTATS_PATTERN.matcher(s).matches());
         latch.countDown();

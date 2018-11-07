@@ -1,7 +1,7 @@
 package com.criteo.hadoop.garmadon.agent.tracers;
 
+import com.criteo.hadoop.garmadon.TriConsumer;
 import com.criteo.hadoop.garmadon.agent.AsyncEventProcessor;
-import com.criteo.hadoop.garmadon.agent.headers.ContainerHeader;
 import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
 import com.criteo.hadoop.garmadon.schema.enums.ContainerType;
 import com.criteo.hadoop.garmadon.schema.events.Header;
@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Field;
-import java.util.function.BiConsumer;
 
 import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.*;
@@ -30,17 +29,17 @@ import static net.bytebuddy.matcher.ElementMatchers.*;
 public class ContainerMetricsTracer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerMetricsTracer.class);
-    private static BiConsumer<Header, Object> eventHandler;
+    private static TriConsumer<Long, Header, Object> eventHandler;
 
     public static void setup(Header baseHeader, Instrumentation instrumentation, AsyncEventProcessor eventProcessor) {
-        initEventHandler((headerOverride, event) -> {
+        initEventHandler((timestamp, headerOverride, event) -> {
             Header header = baseHeader.cloneAndOverride(headerOverride);
-            eventProcessor.offer(header, event);
+            eventProcessor.offer(timestamp, header, event);
         });
         new VcoreUsageTracer().installOn(instrumentation);
     }
 
-    public static void initEventHandler(BiConsumer<Header, Object> eventHandler) {
+    public static void initEventHandler(TriConsumer<Long, Header, Object> eventHandler) {
         ContainerMetricsTracer.eventHandler = eventHandler;
     }
 
@@ -104,12 +103,11 @@ public class ContainerMetricsTracer {
                             .build();
 
                     ContainerEventProtos.ContainerResourceEvent event = ContainerEventProtos.ContainerResourceEvent.newBuilder()
-                            .setTimestamp(System.currentTimeMillis())
                             .setType(ContainerType.VCORE.name())
                             .setValue(cpuVcoreUsed)
                             .setLimit(cpuVcoreLimit)
                             .build();
-                    eventHandler.accept(header, event);
+                    eventHandler.accept(System.currentTimeMillis(), header, event);
                 } else {
                     LOGGER.warn("ContainerMetrics class does not have containerId field");
                 }

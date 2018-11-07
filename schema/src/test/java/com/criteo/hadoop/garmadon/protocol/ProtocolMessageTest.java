@@ -13,11 +13,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ProtocolMessageTest {
+    private final long timestamp = System.currentTimeMillis();
 
     public static class TestEvent {
-        public byte[] buffer;
+        byte[] buffer;
 
-        public TestEvent(byte[] buffer) {
+        TestEvent(byte[] buffer) {
             this.buffer = buffer;
         }
     }
@@ -37,10 +38,12 @@ public class ProtocolMessageTest {
         byte[] headerBytes = new byte[42]; //arbitrary length for header
         new Random().nextBytes(headerBytes);
 
-        byte[] actualBytes = ProtocolMessage.create(headerBytes, testEvent);
+        byte[] actualBytes = ProtocolMessage.create(timestamp, headerBytes, testEvent);
         ByteBuffer buf = ByteBuffer.wrap(actualBytes);
         //first 4 bytes is the event type
         assertThat(buf.getInt(), is(Integer.MAX_VALUE));
+        //next 8 bytes is timestamp event
+        assertThat(buf.getLong(), is(timestamp));
         //next 4 bytes is header length
         int headerLen = buf.getInt();
         //next 4 bytes bytes is payload length

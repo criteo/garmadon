@@ -122,6 +122,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
     private void writeToES(GarmadonMessage msg) {
         Map<String, Object> jsonMap = new HashMap<>();
 
+        jsonMap.put("timestamp", msg.getTimestamp());
         jsonMap.put("application_id", msg.getHeader().getApplicationId());
         jsonMap.put("attempt_id", msg.getHeader().getAppAttemptId());
         jsonMap.put("application_name", msg.getHeader().getApplicationName());
@@ -139,7 +140,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
                 GarmadonSerialization.getTypeName(msg.getType()), msg.getBody());
         for (Map<String, Object> eventMap : eventMaps.values()) {
             eventMap.putAll(jsonMap);
-            String daily_index = esIndexPrefix + "-" + formatter.format(eventMap.get("timestamp"));
+            String daily_index = esIndexPrefix + "-" + formatter.format(msg.getTimestamp());
             IndexRequest req = new IndexRequest(daily_index, "doc")
                     .source(eventMap);
             bulkProcessor.add(req, msg.getCommittableOffset());

@@ -15,6 +15,8 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+import static com.criteo.hadoop.garmadon.protocol.ProtocolConstants.FRAME_DELIMITER_SIZE;
+
 public class GarmadonReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonReader.class);
@@ -55,8 +57,6 @@ public class GarmadonReader {
 
     private static class Reader implements Runnable {
 
-        private static final int HEADER_OFFSET = 12;
-
         private final SynchronizedConsumer<String, byte[]> consumer;
         private final CompletableFuture<Void> cf;
         private final List<GarmadonMessageHandler> beforeInterceptHandlers;
@@ -93,6 +93,7 @@ public class GarmadonReader {
                         ByteBuffer buf = ByteBuffer.wrap(raw);
 
                         int typeMarker = buf.getInt();
+                        long timestamp = buf.getLong();
                         int headerSize = buf.getInt();
                         int bodySize = buf.getInt();
 
@@ -103,13 +104,13 @@ public class GarmadonReader {
                             if (filter.accepts(typeMarker)) {
 
                                 if (header == null) {
-                                    header = EventHeaderProtos.Header.parseFrom(new ByteArrayInputStream(raw, HEADER_OFFSET, headerSize));
+                                    header = EventHeaderProtos.Header.parseFrom(new ByteArrayInputStream(raw, FRAME_DELIMITER_SIZE, headerSize));
                                 }
 
                                 if (filter.accepts(typeMarker, header)) {
 
                                     if (body == null) {
-                                        int bodyOffset = HEADER_OFFSET + headerSize;
+                                        int bodyOffset = FRAME_DELIMITER_SIZE + headerSize;
                                         try {
                                             body = GarmadonSerialization.parseFrom(typeMarker, new ByteArrayInputStream(raw, bodyOffset, bodySize));
                                         } catch (DeserializationException e) {
@@ -118,7 +119,7 @@ public class GarmadonReader {
                                     }
 
                                     CommittableOffset<String, byte[]> committableOffset = new CommittableOffset<>(consumer, record.topic(), record.partition(), record.offset());
-                                    GarmadonMessage msg = new GarmadonMessage(typeMarker, header, body, committableOffset);
+                                    GarmadonMessage msg = new GarmadonMessage(typeMarker, timestamp, header, body, committableOffset);
 
                                     beforeInterceptHandlers.forEach(c -> c.handle(msg));
                                     listeners.get(filter).handle(msg);

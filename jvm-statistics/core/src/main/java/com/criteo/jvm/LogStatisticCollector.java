@@ -1,9 +1,9 @@
 package com.criteo.jvm;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class LogStatisticCollector extends StatisticCollector<String> {
-    public LogStatisticCollector(Consumer<String> printer) {
+    public LogStatisticCollector(BiConsumer<Long, String> printer) {
         super(printer, new StatisticsLog());
     }
 }

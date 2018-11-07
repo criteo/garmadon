@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.spark.listener;
 
+import com.criteo.hadoop.garmadon.TriConsumer;
 import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.enums.State;
 import com.criteo.hadoop.garmadon.schema.events.Header;
@@ -10,13 +11,12 @@ import scala.Function0;
 import scala.runtime.AbstractFunction0;
 
 import java.util.HashMap;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 
 public class GarmadonSparkListener extends SparkListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonSparkListener.class);
-    private final BiConsumer<Header, Object> eventHandler;
+    private final TriConsumer<Long, Header, Object> eventHandler;
     private Header.SerializedHeader header;
 
     private final HashMap<String, String> executorHostId = new HashMap<>();
@@ -25,7 +25,7 @@ public class GarmadonSparkListener extends SparkListener {
         this(SparkListernerConf.getInstance().getEventHandler(), SparkListernerConf.getInstance().getHeader());
     }
 
-    public GarmadonSparkListener(BiConsumer<Header, Object> eventHandler, Header.SerializedHeader header) {
+    public GarmadonSparkListener(TriConsumer<Long, Header, Object> eventHandler, Header.SerializedHeader header) {
         this.eventHandler = eventHandler;
         this.header = header;
     }
@@ -69,21 +69,19 @@ public class GarmadonSparkListener extends SparkListener {
                                      String attemptId, int numTasks) {
         SparkEventProtos.StageStateEvent.Builder stageStateEventBuilder = SparkEventProtos.StageStateEvent
                 .newBuilder()
-                .setTimestamp(stateTime)
                 .setState(state.name())
                 .setStageName(name)
                 .setStageId(stageId)
                 .setAttemptId(attemptId);
 
         tryToSet(() -> stageStateEventBuilder.setNumTasks(numTasks));
-        this.eventHandler.accept(header, stageStateEventBuilder.build());
+        this.eventHandler.accept(stateTime, header, stageStateEventBuilder.build());
     }
 
     private void sendExecutorStateEvent(long time, State state, String executorId, String executorHost
             , String reason, int taskFailures) {
         SparkEventProtos.ExecutorStateEvent.Builder executorStateEvent = SparkEventProtos.ExecutorStateEvent
                 .newBuilder()
-                .setTimestamp(time)
                 .setState(state.name())
                 .setExecutorHostname(executorHost);
 
@@ -95,7 +93,7 @@ public class GarmadonSparkListener extends SparkListener {
             executorStateEvent.setTaskFailures(taskFailures);
         }
 
-        this.eventHandler.accept(buildOverrideHeader(executorId), executorStateEvent.build());
+        this.eventHandler.accept(time, buildOverrideHeader(executorId), executorStateEvent.build());
     }
 
     @Override
@@ -145,7 +143,6 @@ public class GarmadonSparkListener extends SparkListener {
             SparkEventProtos.StageEvent.Builder stageEventBuilder = SparkEventProtos.StageEvent
                     .newBuilder()
                     .setStartTime(submissionTime)
-                    .setCompletionTime(completionTime)
                     .setStageName(name)
                     .setStageId(stageId)
                     .setAttemptId(attemptId);
@@ -182,7 +179,7 @@ public class GarmadonSparkListener extends SparkListener {
                 tryToSet(() -> stageEventBuilder.setFailureReason(stageCompleted.stageInfo().failureReason().getOrElse(emptyStringScala)));
             }
 
-            this.eventHandler.accept(header, stageEventBuilder.build());
+            this.eventHandler.accept(completionTime, header, stageEventBuilder.build());
         } catch (Throwable t) {
             LOGGER.warn("Failed to send event for onStageCompleted", t);
         }
@@ -196,7 +193,6 @@ public class GarmadonSparkListener extends SparkListener {
             SparkEventProtos.TaskEvent.Builder taskEventBuilder = SparkEventProtos.TaskEvent
                     .newBuilder()
                     .setStartTime(taskEnd.taskInfo().launchTime())
-                    .setCompletionTime(taskEnd.taskInfo().finishTime())
                     .setTaskId(String.valueOf(taskEnd.taskInfo().taskId()))
                     .setStageId(String.valueOf(taskEnd.stageId()))
                     .setAttemptId(String.valueOf(taskEnd.stageAttemptId()))
@@ -232,12 +228,11 @@ public class GarmadonSparkListener extends SparkListener {
             tryToSet(() -> taskEventBuilder.setOutputRecords(taskEnd.taskMetrics().outputMetrics().recordsWritten()));
             tryToSet(() -> taskEventBuilder.setOutputBytes(taskEnd.taskMetrics().outputMetrics().bytesWritten()));
 
-
             if (!status.equals("succeeded")) {
                 tryToSet(() -> taskEventBuilder.setFailureReason(taskEnd.reason().toString()));
             }
 
-            this.eventHandler.accept(buildOverrideHeader(taskEnd.taskInfo().executorId()), taskEventBuilder.build());
+            this.eventHandler.accept(taskEnd.taskInfo().finishTime(), buildOverrideHeader(taskEnd.taskInfo().executorId()), taskEventBuilder.build());
         } catch (Throwable t) {
             LOGGER.warn("Failed to send event for onTaskEnd", t);
         }

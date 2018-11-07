@@ -58,7 +58,7 @@ public class EventDecoderTest {
                 .build();
 
 
-        byte[] raw = ProtocolMessage.create(header.serialize(), new EventDecoderTest.TestEvent(100));
+        byte[] raw = ProtocolMessage.create(System.currentTimeMillis(), header.serialize(), new EventDecoderTest.TestEvent(100));
 
         ByteBuf input = Unpooled.wrappedBuffer(raw);
         Assert.assertTrue(channel.get().writeInbound(input));
@@ -83,7 +83,7 @@ public class EventDecoderTest {
                 .build();
 
 
-        byte[] raw = ProtocolMessage.create(header.serialize(), new EventDecoderTest.TestEvent(100));
+        byte[] raw = ProtocolMessage.create(System.currentTimeMillis(), header.serialize(), new EventDecoderTest.TestEvent(100));
 
         ByteBuf input = Unpooled.wrappedBuffer(raw);
 
@@ -116,7 +116,7 @@ public class EventDecoderTest {
                 .withPid("pid")
                 .build();
 
-        byte[] raw1 = ProtocolMessage.create(header1.serialize(), new EventDecoderTest.TestEvent(100));
+        byte[] raw1 = ProtocolMessage.create(System.currentTimeMillis(), header1.serialize(), new EventDecoderTest.TestEvent(100));
 
         //create a message with bigger size
         Header header2 = Header.newBuilder()
@@ -129,7 +129,7 @@ public class EventDecoderTest {
                 .withPid("pid")
                 .build();
 
-        byte[] raw2 = ProtocolMessage.create(header2.serialize(), new EventDecoderTest.TestEvent(200));
+        byte[] raw2 = ProtocolMessage.create(System.currentTimeMillis(), header2.serialize(), new EventDecoderTest.TestEvent(200));
 
         //create message with lower size
         Header header3 = Header.newBuilder()
@@ -143,7 +143,7 @@ public class EventDecoderTest {
                 .withPid("pid")
                 .build();
 
-        byte[] raw3 = ProtocolMessage.create(header3.serialize(), new EventDecoderTest.TestEvent(50));
+        byte[] raw3 = ProtocolMessage.create(System.currentTimeMillis(), header3.serialize(), new EventDecoderTest.TestEvent(50));
 
         //sendAsync the events all at once
         Assert.assertTrue(channel.get().writeInbound(Unpooled.wrappedBuffer(raw1, raw2, raw3)));
