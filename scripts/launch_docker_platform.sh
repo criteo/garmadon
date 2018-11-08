@@ -92,4 +92,8 @@ docker-compose exec client /opt/spark/bin/spark-submit \
     --conf spark.dynamicAllocation.minExecutors=1 --conf spark.dynamicAllocation.initialExecutors=4 \
     --conf spark.dynamicAllocation.maxExecutors=4 --conf spark.dynamicAllocation.executorIdleTimeout=1s \
     --class org.apache.spark.examples.sql.SparkSQLExample /opt/spark/examples/jars/spark-examples_2.11-${SPARK_VERSION}.jar
+
+# Flink wordcount job
+docker-compose exec client flink run -m yarn-cluster -yn 1  -yD metrics.reporters=garmadon \
+    -yD metrics.reporter.garmadon.class=com.criteo.hadoop.garmadon.flink.GarmadonFlinkReporter /opt/flink/examples/batch/WordCount.jar
 popd

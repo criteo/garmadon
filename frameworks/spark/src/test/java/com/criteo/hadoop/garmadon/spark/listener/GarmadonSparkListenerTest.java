@@ -10,7 +10,6 @@ import org.mockito.ArgumentCaptor;
 import scala.collection.immutable.HashMap;
 
 import java.util.Collections;
-import java.util.function.BiConsumer;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
