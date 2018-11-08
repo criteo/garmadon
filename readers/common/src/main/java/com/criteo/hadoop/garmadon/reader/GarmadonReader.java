@@ -118,7 +118,7 @@ public class GarmadonReader {
                             try {
                                 header = EventHeaderProtos.Header.parseFrom(new ByteArrayInputStream(raw, FRAME_DELIMITER_SIZE, headerSize));
                             } catch (IOException e) {
-                                LOGGER.error("Cannot deserialize header for kafka record " + record + " with type " + typeMarker);
+                                LOGGER.debug("Cannot deserialize header for kafka record " + record + " with type " + typeMarker);
                             }
                         }
 
@@ -129,7 +129,7 @@ public class GarmadonReader {
                                 try {
                                     body = GarmadonSerialization.parseFrom(typeMarker, new ByteArrayInputStream(raw, bodyOffset, bodySize));
                                 } catch (DeserializationException e) {
-                                    LOGGER.error("Cannot deserialize event from kafka record " + record + " with type " + typeMarker);
+                                    LOGGER.debug("Cannot deserialize event from kafka record " + record + " with type " + typeMarker);
                                 }
                             }
 
