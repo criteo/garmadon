@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -21,15 +22,12 @@ public class GarmadonReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonReader.class);
 
-    private final Reader reader;
+    protected final Reader reader;
     private final CompletableFuture<Void> cf;
 
     private boolean reading = false;
 
-    private GarmadonReader(List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, Properties props) {
-        KafkaConsumer<String, byte[]> kafkaConsumer = new KafkaConsumer<>(props);
-        kafkaConsumer.subscribe(Collections.singletonList("garmadon"));
-
+    private GarmadonReader(Consumer<String, byte[]> kafkaConsumer, List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners) {
         this.cf = new CompletableFuture<>();
         this.reader = new Reader(kafkaConsumer, beforeInterceptHandlers, listeners, cf);
     }
@@ -55,7 +53,7 @@ public class GarmadonReader {
         } else return CompletableFuture.completedFuture(null);
     }
 
-    private static class Reader implements Runnable {
+    protected static class Reader implements Runnable {
 
         private final SynchronizedConsumer<String, byte[]> consumer;
         private final CompletableFuture<Void> cf;
@@ -67,7 +65,7 @@ public class GarmadonReader {
 
         private volatile boolean keepOnReading = true;
 
-        Reader(KafkaConsumer<String, byte[]> consumer, List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, CompletableFuture<Void> cf) {
+        Reader(Consumer<String, byte[]> consumer, List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, CompletableFuture<Void> cf) {
             this.consumer = SynchronizedConsumer.synchronize(consumer);
             this.beforeInterceptHandlers = beforeInterceptHandlers;
             this.listeners = listeners;
@@ -82,51 +80,7 @@ public class GarmadonReader {
                 LOGGER.info("start reading");
 
                 while (keepOnReading) {
-
-                    ConsumerRecords<String, byte[]> records = consumer.poll(1000L);
-
-                    for (ConsumerRecord<String, byte[]> record : records) {
-
-                        receivedCounter.increment();
-
-                        byte[] raw = record.value();
-                        ByteBuffer buf = ByteBuffer.wrap(raw);
-
-                        int typeMarker = buf.getInt();
-                        long timestamp = buf.getLong();
-                        int headerSize = buf.getInt();
-                        int bodySize = buf.getInt();
-
-                        EventHeaderProtos.Header header = null;
-                        Object body = null;
-
-                        for (GarmadonMessageFilter filter : filters) {
-                            if (filter.accepts(typeMarker)) {
-
-                                if (header == null) {
-                                    header = EventHeaderProtos.Header.parseFrom(new ByteArrayInputStream(raw, FRAME_DELIMITER_SIZE, headerSize));
-                                }
-
-                                if (filter.accepts(typeMarker, header)) {
-
-                                    if (body == null) {
-                                        int bodyOffset = FRAME_DELIMITER_SIZE + headerSize;
-                                        try {
-                                            body = GarmadonSerialization.parseFrom(typeMarker, new ByteArrayInputStream(raw, bodyOffset, bodySize));
-                                        } catch (DeserializationException e) {
-                                            LOGGER.error("Cannot deserialize event from kafka record " + record + "with type " + typeMarker);
-                                        }
-                                    }
-
-                                    CommittableOffset<String, byte[]> committableOffset = new CommittableOffset<>(consumer, record.topic(), record.partition(), record.offset());
-                                    GarmadonMessage msg = new GarmadonMessage(typeMarker, timestamp, header, body, committableOffset);
-
-                                    beforeInterceptHandlers.forEach(c -> c.handle(msg));
-                                    listeners.get(filter).handle(msg);
-                                }
-                            }
-                        }
-                    }
+                    readMsg();
                 }
             } catch (Exception e) {
                 LOGGER.error("unexpected exception while reading", e);
@@ -139,6 +93,60 @@ public class GarmadonReader {
             LOGGER.info("received {} messages", receivedCounter.get());
         }
 
+        protected void readMsg() {
+            ConsumerRecords<String, byte[]> records = consumer.poll(1000L);
+
+            for (ConsumerRecord<String, byte[]> record : records) {
+
+                receivedCounter.increment();
+
+                byte[] raw = record.value();
+                ByteBuffer buf = ByteBuffer.wrap(raw);
+
+                int typeMarker = buf.getInt();
+                long timestamp = buf.getLong();
+                int headerSize = buf.getInt();
+                int bodySize = buf.getInt();
+
+                EventHeaderProtos.Header header = null;
+                Object body = null;
+
+                for (GarmadonMessageFilter filter : filters) {
+                    if (filter.accepts(typeMarker)) {
+
+                        if (header == null) {
+                            try {
+                                header = EventHeaderProtos.Header.parseFrom(new ByteArrayInputStream(raw, FRAME_DELIMITER_SIZE, headerSize));
+                            } catch (IOException e) {
+                                LOGGER.error("Cannot deserialize header for kafka record " + record + " with type " + typeMarker);
+                            }
+                        }
+
+                        if (filter.accepts(typeMarker, header)) {
+
+                            if (body == null) {
+                                int bodyOffset = FRAME_DELIMITER_SIZE + headerSize;
+                                try {
+                                    body = GarmadonSerialization.parseFrom(typeMarker, new ByteArrayInputStream(raw, bodyOffset, bodySize));
+                                } catch (DeserializationException e) {
+                                    LOGGER.error("Cannot deserialize event from kafka record " + record + " with type " + typeMarker);
+                                }
+                            }
+
+                            CommittableOffset<String, byte[]> committableOffset = new CommittableOffset<>(consumer, record.topic(), record.partition(), record.offset());
+
+                            if (header != null && body != null) {
+                                GarmadonMessage msg = new GarmadonMessage(typeMarker, timestamp, header, body, committableOffset);
+
+                                beforeInterceptHandlers.forEach(c -> c.handle(msg));
+                                listeners.get(filter).handle(msg);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         void stop() {
             keepOnReading = false;
         }
@@ -147,14 +155,14 @@ public class GarmadonReader {
 
             int count = 0;
 
-            void increment(){
+            void increment() {
                 count++;
-                if(count % 500 == 0){
+                if (count % 500 == 0) {
                     LOGGER.debug("Received {} messages so far", count);
                 }
             }
 
-            int get(){
+            int get() {
                 return count;
             }
         }
@@ -162,9 +170,9 @@ public class GarmadonReader {
 
     static class SynchronizedConsumer<K, V> {
 
-        private final KafkaConsumer<K, V> consumer;
+        private final Consumer<K, V> consumer;
 
-        private SynchronizedConsumer(KafkaConsumer<K, V> consumer) {
+        private SynchronizedConsumer(Consumer<K, V> consumer) {
             this.consumer = consumer;
         }
 
@@ -176,11 +184,11 @@ public class GarmadonReader {
             consumer.commitSync(offsets);
         }
 
-        synchronized void commitAsync(Map<TopicPartition, OffsetAndMetadata> offsets, OffsetCommitCallback callback){
+        synchronized void commitAsync(Map<TopicPartition, OffsetAndMetadata> offsets, OffsetCommitCallback callback) {
             consumer.commitAsync(offsets, callback);
         }
 
-        static <K,V> SynchronizedConsumer<K, V> synchronize(KafkaConsumer<K, V> consumer){
+        static <K, V> SynchronizedConsumer<K, V> synchronize(Consumer<K, V> consumer) {
             return new SynchronizedConsumer<>(consumer);
         }
     }
@@ -225,7 +233,14 @@ public class GarmadonReader {
         }
 
         public GarmadonReader build() {
-            return new GarmadonReader(beforeInterceptHandlers, listeners, props);
+            Consumer<String, byte[]> kafkaConsumer = new KafkaConsumer<>(props);
+            kafkaConsumer.subscribe(Collections.singletonList("garmadon"));
+
+            return new GarmadonReader(kafkaConsumer, beforeInterceptHandlers, listeners);
+        }
+
+        public GarmadonReader build(Consumer<String, byte[]> kafkaConsumer) {
+            return new GarmadonReader(kafkaConsumer, beforeInterceptHandlers, listeners);
         }
     }
 
