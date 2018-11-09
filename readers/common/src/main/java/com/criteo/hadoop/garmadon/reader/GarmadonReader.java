@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -80,7 +81,7 @@ public class GarmadonReader {
                 LOGGER.info("start reading");
 
                 while (keepOnReading) {
-                    readMsg();
+                    readConsumerRecords();
                 }
             } catch (Exception e) {
                 LOGGER.error("unexpected exception while reading", e);
@@ -93,7 +94,7 @@ public class GarmadonReader {
             LOGGER.info("received {} messages", receivedCounter.get());
         }
 
-        protected void readMsg() {
+        protected void readConsumerRecords() {
             ConsumerRecords<String, byte[]> records = consumer.poll(1000L);
 
             for (ConsumerRecord<String, byte[]> record : records) {
@@ -103,10 +104,25 @@ public class GarmadonReader {
                 byte[] raw = record.value();
                 ByteBuffer buf = ByteBuffer.wrap(raw);
 
-                int typeMarker = buf.getInt();
-                long timestamp = buf.getLong();
-                int headerSize = buf.getInt();
-                int bodySize = buf.getInt();
+                int typeMarker;
+                long timestamp;
+                int headerSize;
+                int bodySize;
+                try {
+                    typeMarker = buf.getInt();
+                    timestamp = buf.getLong();
+                    headerSize = buf.getInt();
+                    bodySize = buf.getInt();
+                } catch (BufferUnderflowException e) {
+                    LOGGER.debug("Cannot read garmadon message head for kafka record  {}", record, e);
+                    continue;
+                }
+
+                int computed_length = FRAME_DELIMITER_SIZE + headerSize + bodySize;
+                if (raw.length != computed_length) {
+                    LOGGER.debug("Cannot deserialize msg due to bad computed length raw:{}, computed:{}", raw.length, computed_length);
+                    continue;
+                }
 
                 EventHeaderProtos.Header header = null;
                 Object body = null;
@@ -118,7 +134,8 @@ public class GarmadonReader {
                             try {
                                 header = EventHeaderProtos.Header.parseFrom(new ByteArrayInputStream(raw, FRAME_DELIMITER_SIZE, headerSize));
                             } catch (IOException e) {
-                                LOGGER.debug("Cannot deserialize header for kafka record " + record + " with type " + typeMarker);
+                                LOGGER.debug("Cannot deserialize header for kafka record {} with type {}", record, typeMarker);
+                                break;
                             }
                         }
 
@@ -129,13 +146,14 @@ public class GarmadonReader {
                                 try {
                                     body = GarmadonSerialization.parseFrom(typeMarker, new ByteArrayInputStream(raw, bodyOffset, bodySize));
                                 } catch (DeserializationException e) {
-                                    LOGGER.debug("Cannot deserialize event from kafka record " + record + " with type " + typeMarker);
+                                    LOGGER.debug("Cannot deserialize event from kafka record {} with type {}", record, typeMarker);
+                                    break;
                                 }
                             }
 
-                            CommittableOffset<String, byte[]> committableOffset = new CommittableOffset<>(consumer, record.topic(), record.partition(), record.offset());
-
                             if (header != null && body != null) {
+                                CommittableOffset<String, byte[]> committableOffset = new CommittableOffset<>(consumer, record.topic(), record.partition(), record.offset());
+
                                 GarmadonMessage msg = new GarmadonMessage(typeMarker, timestamp, header, body, committableOffset);
 
                                 beforeInterceptHandlers.forEach(c -> c.handle(msg));
