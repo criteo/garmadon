@@ -29,7 +29,9 @@ public class PrometheusHttpMetrics {
             .register();
 
     private static String RELEASE = Optional
-            .ofNullable(PrometheusHttpMetrics.class.getPackage().getImplementationVersion()).orElse("1.0-SNAPSHOT");
+            .ofNullable(PrometheusHttpMetrics.class.getPackage().getImplementationVersion())
+            .orElse("1.0-SNAPSHOT")
+            .replace(".", "_");
 
     public static Counter.Child eventsReceived = garmadonMetrics.labels("garmadon_events_received",
             Forwarder.hostname,
