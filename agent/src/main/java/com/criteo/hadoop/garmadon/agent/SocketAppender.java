@@ -94,6 +94,7 @@ public class SocketAppender {
                     connectionEstablished = true;
                     return;
                 } catch (IOException | ProtocolVersion.InvalidFrameException | ProtocolVersion.InvalidProtocolVersionException exception) {
+                    close();
                     waitBeforeRetry();
                 }
             }
