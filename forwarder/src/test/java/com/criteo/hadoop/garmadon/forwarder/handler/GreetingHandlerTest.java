@@ -12,13 +12,14 @@ import org.junit.Test;
 import java.util.Iterator;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class GreetingHandlerTest {
+
+    public static final byte[] BAD_VERSION_GREETING = {0, 0, 'V', 0};
 
     @Rule
     public WithEmbeddedChannel channel = new WithEmbeddedChannel();
@@ -52,6 +53,29 @@ public class GreetingHandlerTest {
     }
 
     @Test
+    public void GreetingHandler_should_not_close_cnx_on_bad_version() {
+        ByteBuf byteBuf = Unpooled.wrappedBuffer(BAD_VERSION_GREETING);
+        channel.get().writeInbound(byteBuf);
+
+        assertTrue(channel.get().isOpen());
+    }
+
+    @Test
+    public void GreetingHandler_should_send_back_a_greeting_with_agent_version_on_bad_version() {
+        ByteBuf byteBuf = Unpooled.wrappedBuffer(BAD_VERSION_GREETING);
+        channel.get().writeInbound(byteBuf);
+
+        ByteBuf output = channel.get().readOutbound();
+        byte[] greetings = new byte[4];
+        output.readBytes(greetings); //when reading output we must copy bytes because it is a direct bytebuf
+
+        assertEquals(0, greetings[0]);
+        assertEquals(0, greetings[1]);
+        assertEquals('V', greetings[2]);
+        assertEquals(0, greetings[3]);
+    }
+
+    @Test
     public void GreetingHandler_should_remove_itself_on_good_greetings(){
         ByteBuf byteBuf = Unpooled.wrappedBuffer(ProtocolVersion.GREETINGS);
         channel.get().writeInbound(byteBuf);
@@ -68,6 +92,16 @@ public class GreetingHandlerTest {
         assertThat(handlerIterator.next().getValue().getClass(), equalTo(CloseHandler.class));
         //mocked kafka handler is placed after
         assertThat(handlerIterator.next().getValue(), equalTo(mockedKafkaHandler));
+    }
+
+    @Test
+    public void GreetingHandler_should_install_Discarder_first_and_then_CloseHandler_after_receiving_bad_version(){
+        ByteBuf byteBuf = Unpooled.wrappedBuffer(BAD_VERSION_GREETING);
+        channel.get().writeInbound(byteBuf);
+
+        Iterator<Map.Entry<String, ChannelHandler>> handlerIterator = channel.get().pipeline().iterator();
+        assertThat(handlerIterator.next().getValue().getClass(), equalTo(Discarder.class));
+        assertThat(handlerIterator.next().getValue().getClass(), equalTo(CloseHandler.class));
     }
 
 }
