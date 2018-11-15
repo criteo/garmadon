@@ -25,7 +25,7 @@ function client {
 
 function es-reader {
     java -cp /opt/garmadon/conf-es-reader:/opt/garmadon/lib/garmadon-readers-elasticsearch.jar \
-         com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader kafka:9092 es-reader elasticsearch 9200 garmadon esuser espassword
+         com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader kafka:9092 es-reader elasticsearch 9200 garmadon esuser espassword 33001
 }
 
 function namenode {

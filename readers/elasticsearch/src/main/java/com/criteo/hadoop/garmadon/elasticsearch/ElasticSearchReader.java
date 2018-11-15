@@ -7,8 +7,10 @@ import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessageFilter;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
+import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.criteo.jvm.JVMStatisticsProtos;
+import io.prometheus.client.Counter;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -25,6 +27,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -38,6 +41,13 @@ import java.util.concurrent.TimeUnit;
 public class ElasticSearchReader implements BulkProcessor.Listener {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearchReader.class);
 
+    private static Counter.Child numberOfEventInError = PrometheusHttpConsumerMetrics.garmadonReaderMetrics.labels("number_of_event_in_error",
+            GarmadonReader.HOSTNAME,
+            PrometheusHttpConsumerMetrics.RELEASE);
+    private static Counter.Child numberOfOffsetCommitError = PrometheusHttpConsumerMetrics.garmadonReaderMetrics.labels("number_of_offset_commit_error",
+            GarmadonReader.HOSTNAME,
+            PrometheusHttpConsumerMetrics.RELEASE);
+
     private static final int CONNECTION_TIMEOUT_MS = 10000;
     private static final int NB_RETRIES = 10;
 
@@ -46,10 +56,11 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
     private final GarmadonReader reader;
     private final String esIndexPrefix;
     private final BulkProcessor bulkProcessor;
+    private PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics;
 
 
     private ElasticSearchReader(String kafkaConnectString, String kafkaGroupId, String esHost,
-                                int esPort, String esIndexPrefix, String esUser, String esPassword) {
+                                int esPort, String esIndexPrefix, String esUser, String esPassword, int prometheusPort) {
         int bulkConcurrent = Integer.getInteger("garmadon.esReader.bulkConcurrent", 10);
         int bulkActions = Integer.getInteger("garmadon.esReader.bulkActions", 500);
         int bulkSizeMB = Integer.getInteger("garmadon.esReader.bulkSizeMB", 5);
@@ -70,13 +81,15 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
                     .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
                             .setConnectTimeout(CONNECTION_TIMEOUT_MS)
                             .setConnectionRequestTimeout(CONNECTION_TIMEOUT_MS)
-                            //.setSocketTimeout(10000)
                             .setContentCompressionEnabled(true));
         }
 
         //setup es client
         this.esIndexPrefix = esIndexPrefix;
         RestHighLevelClient esClient = new RestHighLevelClient(restClientBuilder);
+
+        //setup Prometheus client
+        prometheusHttpConsumerMetrics = new PrometheusHttpConsumerMetrics(prometheusPort);
 
         //setup kafka reader
         GarmadonReader.Builder builder = GarmadonReader.Builder.stream(kafkaConnectString);
@@ -113,6 +126,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
                 .whenComplete((vd, ex) -> {
                     try {
                         bulkProcessor.awaitClose(10L, TimeUnit.SECONDS);
+                        prometheusHttpConsumerMetrics.terminate();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -184,6 +198,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
             for (BulkItemResponse item : response.getItems()) {
                 if (item.isFailed()) {
                     LOGGER.error("Failed on {} due to {}", item.getId(), item.getFailureMessage());
+                    numberOfEventInError.inc();
                 }
             }
         } else {
@@ -195,6 +210,7 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
                 .whenComplete((topicPartitionOffset, exception) -> {
                     if (exception != null) {
                         LOGGER.warn("Could not commit kafka offset {}|{}", lastOffset.getOffset(), lastOffset.getPartition());
+                        numberOfOffsetCommitError.inc();
                     } else {
                         LOGGER.info("Committed kafka offset {}|{}", topicPartitionOffset.getOffset(), topicPartitionOffset.getPartition());
                     }
@@ -204,11 +220,11 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
     @Override
     public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
         LOGGER.error("Failed to execute Bulk[{}]", executionId, failure);
+        numberOfEventInError.inc(request.requests().size());
     }
 
-    public static void main(String[] args) {
-
-        if (args.length < 7) {
+    public static void main(String[] args) throws IOException {
+        if (args.length < 8) {
             printHelp();
             return;
         }
@@ -219,10 +235,10 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
         String esIndexPrefix = args[4];
         String esUser = args[5];
         String esPassword = args[6];
-
+        int prometheusPort = Integer.parseInt(args[7]);
 
         ElasticSearchReader reader = new ElasticSearchReader(kafkaConnectString, kafkaGroupId, esHost,
-                esPort, esIndexPrefix, esUser, esPassword);
+                esPort, esIndexPrefix, esUser, esPassword, prometheusPort);
 
         reader.startReading().join();
 
@@ -232,6 +248,6 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
 
     private static void printHelp() {
         System.out.println("Usage:");
-        System.out.println("\tjava com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader <kafkaConnectionString> <kafkaGroupId> <EsHost> <EsPort> <esIndexPrefix> <EsUser> <EsPassword>");
+        System.out.println("\tjava com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader <kafkaConnectionString> <kafkaGroupId> <EsHost> <EsPort> <esIndexPrefix> <EsUser> <EsPassword> <prometheusPort>");
     }
 }

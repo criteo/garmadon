@@ -1,6 +1,7 @@
 package com.criteo.hadoop.garmadon.reader;
 
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
+import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
 import com.criteo.hadoop.garmadon.schema.exceptions.DeserializationException;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import org.apache.kafka.clients.consumer.*;
@@ -13,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -24,11 +27,25 @@ public class GarmadonReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonReader.class);
 
     protected final Reader reader;
+    public static String HOSTNAME;
+    static {
+        try {
+            HOSTNAME = InetAddress.getLocalHost().getCanonicalHostName();
+        } catch (UnknownHostException e) {
+            LOGGER.error("", e);
+            System.exit(1);
+        }
+    }
+
+    public static String CONSUMER_ID = "garmadon.reader." + HOSTNAME;
+
+
     private final CompletableFuture<Void> cf;
 
     private boolean reading = false;
 
-    private GarmadonReader(Consumer<String, byte[]> kafkaConsumer, List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners) {
+    private GarmadonReader(Consumer<String, byte[]> kafkaConsumer, List<GarmadonMessageHandler> beforeInterceptHandlers,
+                           Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners) {
         this.cf = new CompletableFuture<>();
         this.reader = new Reader(kafkaConsumer, beforeInterceptHandlers, listeners, cf);
     }
@@ -78,7 +95,7 @@ public class GarmadonReader {
         public void run() {
             try {
 
-                LOGGER.info("start reading");
+                LOGGER.info("initialize reading");
 
                 while (keepOnReading) {
                     readConsumerRecords();
@@ -114,12 +131,14 @@ public class GarmadonReader {
                     headerSize = buf.getInt();
                     bodySize = buf.getInt();
                 } catch (BufferUnderflowException e) {
+                    PrometheusHttpConsumerMetrics.issueReadingGarmadonMessageBadHead.inc();
                     LOGGER.debug("Cannot read garmadon message head for kafka record  {}", record, e);
                     continue;
                 }
 
                 int computed_length = FRAME_DELIMITER_SIZE + headerSize + bodySize;
                 if (raw.length != computed_length) {
+                    PrometheusHttpConsumerMetrics.issueReadingGarmadonMessageBadHead.inc();
                     LOGGER.debug("Cannot deserialize msg due to bad computed length raw:{}, computed:{}", raw.length, computed_length);
                     continue;
                 }
@@ -134,6 +153,7 @@ public class GarmadonReader {
                             try {
                                 header = EventHeaderProtos.Header.parseFrom(new ByteArrayInputStream(raw, FRAME_DELIMITER_SIZE, headerSize));
                             } catch (IOException e) {
+                                PrometheusHttpConsumerMetrics.issueReadingProtoHead.inc();
                                 LOGGER.debug("Cannot deserialize header for kafka record {} with type {}", record, typeMarker);
                                 break;
                             }
@@ -146,6 +166,7 @@ public class GarmadonReader {
                                 try {
                                     body = GarmadonSerialization.parseFrom(typeMarker, new ByteArrayInputStream(raw, bodyOffset, bodySize));
                                 } catch (DeserializationException e) {
+                                    PrometheusHttpConsumerMetrics.issueReadingProtoBody.inc();
                                     LOGGER.debug("Cannot deserialize event from kafka record {} with type {}", record, typeMarker);
                                     break;
                                 }
@@ -224,6 +245,7 @@ public class GarmadonReader {
             this.props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
             this.props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
             this.props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
+            this.props.put(ConsumerConfig.CLIENT_ID_CONFIG, CONSUMER_ID);
         }
 
         public static Builder stream(String kafkaConnectString) {

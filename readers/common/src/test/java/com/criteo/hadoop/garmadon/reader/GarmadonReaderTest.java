@@ -3,6 +3,7 @@ package com.criteo.hadoop.garmadon.reader;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 import com.criteo.hadoop.garmadon.protocol.ProtocolMessage;
+import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
 import com.criteo.hadoop.garmadon.schema.enums.State;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.exceptions.SerializationException;
