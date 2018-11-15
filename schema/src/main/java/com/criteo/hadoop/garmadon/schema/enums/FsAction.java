@@ -5,5 +5,8 @@ public enum FsAction {
     WRITE,
     RENAME,
     DELETE,
-    APPEND
+    APPEND,
+    ADD_BLOCK,
+    LIST_STATUS,
+    GET_CONTENT_SUMMARY
 }

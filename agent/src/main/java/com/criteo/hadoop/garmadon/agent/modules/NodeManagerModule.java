@@ -1,11 +1,8 @@
 package com.criteo.hadoop.garmadon.agent.modules;
 
 import com.criteo.hadoop.garmadon.agent.AsyncEventProcessor;
-import com.criteo.hadoop.garmadon.agent.headers.ContainerHeader;
 import com.criteo.hadoop.garmadon.agent.headers.NodemanagerHeader;
-import com.criteo.hadoop.garmadon.agent.tracers.ContainerMetricsTracer;
 import com.criteo.hadoop.garmadon.agent.tracers.ContainerResourceMonitoringTracer;
-import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 import java.lang.instrument.Instrumentation;
 
@@ -13,8 +10,6 @@ public class NodeManagerModule implements GarmadonAgentModule {
     @Override
     public void setup(Instrumentation instrumentation, AsyncEventProcessor eventProcessor) {
         ContainerResourceMonitoringTracer.setup(NodemanagerHeader.getInstance().getBaseHeader(),
-                instrumentation, eventProcessor);
-        ContainerMetricsTracer.setup(NodemanagerHeader.getInstance().getBaseHeader(),
                 instrumentation, eventProcessor);
     }
 }

@@ -2648,9 +2648,9 @@
             "fill": 1,
             "gridPos": {
               "h": 9,
-              "w": 12,
+              "w": 24,
               "x": 0,
-              "y": 11
+              "y": 12
             },
             "id": 2,
             "legend": {
@@ -2678,8 +2678,8 @@
             "scopedVars": {
               "uri": {
                 "selected": false,
-                "text": "hdfs://preprod-pa4",
-                "value": "hdfs://preprod-pa4"
+                "text": "hdfs://namenode",
+                "value": "hdfs://namenode"
               }
             },
             "seriesOverrides": [],
@@ -2695,7 +2695,7 @@
                     "id": "3",
                     "settings": {
                       "min_doc_count": 1,
-                      "order": "desc",
+                      "order": "asc",
                       "orderBy": "_term",
                       "size": "10"
                     },
@@ -2728,7 +2728,7 @@
             "thresholds": [],
             "timeFrom": null,
             "timeShift": null,
-            "title": "FS action per App/Attempt/Container on $uri",
+            "title": "FS OPS action per App/Attempt/Container on $uri",
             "tooltip": {
               "shared": true,
               "sort": 0,
@@ -2774,11 +2774,11 @@
             "fill": 1,
             "gridPos": {
               "h": 9,
-              "w": 12,
-              "x": 12,
-              "y": 11
+              "w": 24,
+              "x": 0,
+              "y": 21
             },
-            "id": 37,
+            "id": 49,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -2799,15 +2799,13 @@
             "pointradius": 5,
             "points": false,
             "renderer": "flot",
-            "repeat": null,
+            "repeat": "uri",
             "repeatDirection": "h",
-            "repeatIteration": 1531821026184,
-            "repeatPanelId": 2,
             "scopedVars": {
               "uri": {
                 "selected": false,
-                "text": "hdfs://yarn-preprod-pa4",
-                "value": "hdfs://yarn-preprod-pa4"
+                "text": "hdfs://namenode",
+                "value": "hdfs://namenode"
               }
             },
             "seriesOverrides": [],
@@ -2816,6 +2814,7 @@
             "steppedLine": false,
             "targets": [
               {
+                "alias": "{{metric}} {{action}} (ms)",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -2823,7 +2822,7 @@
                     "id": "3",
                     "settings": {
                       "min_doc_count": 1,
-                      "order": "desc",
+                      "order": "asc",
                       "orderBy": "_term",
                       "size": "10"
                     },
@@ -2842,9 +2841,15 @@
                 ],
                 "metrics": [
                   {
-                    "field": "select field",
+                    "field": "method_duration_millis",
                     "id": "1",
-                    "type": "count"
+                    "meta": {},
+                    "settings": {
+                      "percents": [
+                        "99"
+                      ]
+                    },
+                    "type": "percentiles"
                   }
                 ],
                 "query": "event_type:FS_EVENT AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND uri:$uri AND component:$component",
@@ -2856,7 +2861,7 @@
             "thresholds": [],
             "timeFrom": null,
             "timeShift": null,
-            "title": "FS action per App/Attempt/Container on $uri",
+            "title": "FS Latency action per App/Attempt/Container on $uri",
             "tooltip": {
               "shared": true,
               "sort": 0,
@@ -2969,8 +2974,9 @@
         {
           "allValue": "*",
           "current": {
-            "text": "application_1537363228510_0003",
-            "value": "application_1537363228510_0003"
+            "tags": [],
+            "text": "application_1541514518755_0003",
+            "value": "application_1541514518755_0003"
           },
           "datasource": "$datasource",
           "hide": 0,
@@ -3084,7 +3090,7 @@
       ]
     },
     "time": {
-      "from": "now-1h",
+      "from": "now-3h",
       "to": "now"
     },
     "timepicker": {

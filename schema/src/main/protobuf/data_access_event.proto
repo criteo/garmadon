@@ -15,6 +15,7 @@ message FsEvent {
     string dst_path = 2;
     string action = 3;
     string uri = 4;
+    uint64 method_duration_millis = 5;
 }
 
 message StateEvent {

@@ -397,6 +397,10 @@
           "type": "long",
           "index": false
         },
+        "method_duration_millis": {
+          "type": "long",
+          "index": false
+        },
         "network": {
           "type": "keyword",
           "norms": false,
