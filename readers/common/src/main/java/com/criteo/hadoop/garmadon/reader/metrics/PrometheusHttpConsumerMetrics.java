@@ -57,7 +57,7 @@ public class PrometheusHttpConsumerMetrics {
         }, 0, 30, TimeUnit.SECONDS);
     }
 
-    private static void exposeKafkaMetrics() throws IntrospectionException, InstanceNotFoundException, ReflectionException, AttributeNotFoundException, MBeanException {
+    protected static void exposeKafkaMetrics() throws IntrospectionException, InstanceNotFoundException, ReflectionException, AttributeNotFoundException, MBeanException {
         if (oName != null) {
             MBeanInfo info = MBS.getMBeanInfo(oName);
             MBeanAttributeInfo[] attrInfo = info.getAttributes();
