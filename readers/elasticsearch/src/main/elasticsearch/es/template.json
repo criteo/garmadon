@@ -217,7 +217,13 @@
           "norms": false,
           "index_options": "freqs",
           "analyzer": "path_analyzer",
-          "search_analyzer": "keyword"
+          "search_analyzer": "keyword",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 1024
+            }
+          }
         },
         "eden_committed": {
           "type": "long",
@@ -604,7 +610,13 @@
           "norms": false,
           "index_options": "freqs",
           "analyzer": "path_analyzer",
-          "search_analyzer": "keyword"
+          "search_analyzer": "keyword",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 1024
+            }
+          }
         },
         "stage_name": {
           "type": "text"
