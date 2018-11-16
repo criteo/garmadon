@@ -53,6 +53,27 @@ public class GreetingHandlerTest {
     }
 
     @Test
+    public void GreetingHandler_should_remove_itself_on_good_greetings(){
+        ByteBuf byteBuf = Unpooled.wrappedBuffer(ProtocolVersion.GREETINGS);
+        channel.get().writeInbound(byteBuf);
+
+        assertNull(channel.get().pipeline().toMap().get(GreetingDecoder.class.getSimpleName()));
+    }
+
+    @Test
+    public void GreetingHandler_should_install_CloseHandler_before_KafkaHandler_after_receiving_good_greetings(){
+        ByteBuf byteBuf = Unpooled.wrappedBuffer(ProtocolVersion.GREETINGS);
+        channel.get().writeInbound(byteBuf);
+
+        Iterator<Map.Entry<String, ChannelHandler>> handlerIterator = channel.get().pipeline().iterator();
+        assertThat(handlerIterator.next().getValue().getClass(), equalTo(CloseHandler.class));
+        //mocked kafka handler is placed after
+        assertThat(handlerIterator.next().getValue(), equalTo(mockedKafkaHandler));
+    }
+
+    //TODO the following tests have to be removed when no more agent suffering
+    //https://github.com/criteo/garmadon/issues/17 run on the cluster
+    @Test
     public void GreetingHandler_should_not_close_cnx_on_bad_version() {
         ByteBuf byteBuf = Unpooled.wrappedBuffer(BAD_VERSION_GREETING);
         channel.get().writeInbound(byteBuf);
@@ -73,25 +94,6 @@ public class GreetingHandlerTest {
         assertEquals(0, greetings[1]);
         assertEquals('V', greetings[2]);
         assertEquals(0, greetings[3]);
-    }
-
-    @Test
-    public void GreetingHandler_should_remove_itself_on_good_greetings(){
-        ByteBuf byteBuf = Unpooled.wrappedBuffer(ProtocolVersion.GREETINGS);
-        channel.get().writeInbound(byteBuf);
-
-        assertNull(channel.get().pipeline().toMap().get(GreetingDecoder.class.getSimpleName()));
-    }
-
-    @Test
-    public void GreetingHandler_should_install_CloseHandler_before_KafkaHandler_after_receiving_good_greetings(){
-        ByteBuf byteBuf = Unpooled.wrappedBuffer(ProtocolVersion.GREETINGS);
-        channel.get().writeInbound(byteBuf);
-
-        Iterator<Map.Entry<String, ChannelHandler>> handlerIterator = channel.get().pipeline().iterator();
-        assertThat(handlerIterator.next().getValue().getClass(), equalTo(CloseHandler.class));
-        //mocked kafka handler is placed after
-        assertThat(handlerIterator.next().getValue(), equalTo(mockedKafkaHandler));
     }
 
     @Test
