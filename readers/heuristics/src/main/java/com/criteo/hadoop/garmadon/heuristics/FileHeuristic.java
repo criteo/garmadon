@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.Properties;
 
 public class FileHeuristic implements Heuristic {
 
@@ -18,9 +19,11 @@ public class FileHeuristic implements Heuristic {
     protected final Counters append = new Counters("Files appended");
 
     private final HeuristicsResultDB db;
+    private final Properties config;
 
-    public FileHeuristic(HeuristicsResultDB db) {
+    public FileHeuristic(HeuristicsResultDB db, Properties config) {
         this.db = db;
+        this.config = config;
     }
 
     public void compute(String applicationId, String attemptId, String containerId, DataAccessEventProtos.FsEvent fsEvent) {
@@ -57,9 +60,19 @@ public class FileHeuristic implements Heuristic {
 
     @Override
     public void onAppCompleted(String applicationId, String attemptId) {
-        //TODO compute severity based on number of deleted, renamed, read, written...
-        HeuristicResult result = new HeuristicResult(applicationId, attemptId, FileHeuristic.class, HeuristicsResultDB.Severity.NONE,
-                HeuristicsResultDB.Severity.NONE);
+        int maxCreatedFiles = Integer.parseInt(config.getProperty("heuristic.file.max_created_files"));
+        int created = written.forApp(applicationId, attemptId).getCount();
+        int severity;
+        if (created > maxCreatedFiles) severity = HeuristicsResultDB.Severity.SEVERE;
+        else {
+            if (created > maxCreatedFiles / 2) severity = HeuristicsResultDB.Severity.MODERATE;
+            else {
+                if (created > maxCreatedFiles / 10) severity = HeuristicsResultDB.Severity.LOW;
+                else severity = HeuristicsResultDB.Severity.NONE;
+            }
+        }
+
+        HeuristicResult result = new HeuristicResult(applicationId, attemptId, FileHeuristic.class, severity, severity);
         addDetail(result, deleted, applicationId, attemptId);
         addDetail(result, read, applicationId, attemptId);
         addDetail(result, written, applicationId, attemptId);
