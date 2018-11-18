@@ -1,30 +1,22 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
 import com.criteo.hadoop.garmadon.schema.enums.Framework;
-import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.enums.State;
+import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
-import com.criteo.jvm.JVMStatisticsProtos;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
 
-import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasFramework;
-import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasTag;
-import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasType;
+import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.*;
 
 public class Heuristics {
     private static final Logger LOGGER = LoggerFactory.getLogger(Heuristics.class);
@@ -102,7 +94,7 @@ public class Heuristics {
         String attemptId = msg.getHeader().getAppAttemptId();
         String containerId = msg.getHeader().getContainerId();
         Long timestamp = msg.getTimestamp();
-        JVMStatisticsProtos.GCStatisticsData gcStats = (JVMStatisticsProtos.GCStatisticsData) msg.getBody();
+        JVMStatisticsEventsProtos.GCStatisticsData gcStats = (JVMStatisticsEventsProtos.GCStatisticsData) msg.getBody();
         gcStatsHeuristics.forEach(h -> h.process(timestamp, applicationId, attemptId, containerId, gcStats));
     }
 
@@ -111,7 +103,7 @@ public class Heuristics {
         String attemptId = msg.getHeader().getAppAttemptId();
         String containerId = msg.getHeader().getContainerId();
         Long timestamp = msg.getTimestamp();
-        JVMStatisticsProtos.JVMStatisticsData jvmStats = (JVMStatisticsProtos.JVMStatisticsData) msg.getBody();
+        JVMStatisticsEventsProtos.JVMStatisticsData jvmStats = (JVMStatisticsEventsProtos.JVMStatisticsData) msg.getBody();
         jvmStatsHeuristics.forEach(h -> h.process(timestamp, applicationId, attemptId, containerId, jvmStats));
     }
 

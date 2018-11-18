@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
-import com.criteo.jvm.JVMStatisticsProtos;
+import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -96,9 +96,9 @@ public class LocksTest {
         locks.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);
     }
 
-    JVMStatisticsProtos.JVMStatisticsData buildSynclocksData(int count) {
-        JVMStatisticsProtos.JVMStatisticsData.Builder builder = JVMStatisticsProtos.JVMStatisticsData.newBuilder();
-        JVMStatisticsProtos.JVMStatisticsData.Section.Builder sectionBuilder = builder.addSectionBuilder().setName("synclocks");
+    JVMStatisticsEventsProtos.JVMStatisticsData buildSynclocksData(int count) {
+        JVMStatisticsEventsProtos.JVMStatisticsData.Builder builder = JVMStatisticsEventsProtos.JVMStatisticsData.newBuilder();
+        JVMStatisticsEventsProtos.JVMStatisticsData.Section.Builder sectionBuilder = builder.addSectionBuilder().setName("synclocks");
         sectionBuilder.addPropertyBuilder().setName("contendedlockattempts").setValue(String.valueOf(count));
         return builder.build();
     }

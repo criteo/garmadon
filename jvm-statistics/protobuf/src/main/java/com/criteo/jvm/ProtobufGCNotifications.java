@@ -1,5 +1,6 @@
 package com.criteo.jvm;
 
+import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import com.sun.management.GarbageCollectionNotificationInfo;
 import com.sun.management.GcInfo;
 
@@ -10,7 +11,6 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class ProtobufGCNotifications extends GCNotifications {
 
@@ -19,7 +19,7 @@ public class ProtobufGCNotifications extends GCNotifications {
     }
 
     static void handleHSNotification(Notification notification, Object handback) {
-        BiConsumer<Long, JVMStatisticsProtos.GCStatisticsData> printer = (BiConsumer<Long, JVMStatisticsProtos.GCStatisticsData>) handback;
+        BiConsumer<Long, JVMStatisticsEventsProtos.GCStatisticsData> printer = (BiConsumer<Long, JVMStatisticsEventsProtos.GCStatisticsData>) handback;
         GarbageCollectionNotificationInfo gcNotifInfo = GarbageCollectionNotificationInfo.from((CompositeData) notification.getUserData());
         GcInfo gcInfo = gcNotifInfo.getGcInfo();
         long pauseTime = gcInfo.getEndTime() - gcInfo.getStartTime();
@@ -27,7 +27,7 @@ public class ProtobufGCNotifications extends GCNotifications {
         long serverStartTime = ManagementFactory.getRuntimeMXBean().getStartTime();
         long timestamp = gcInfo.getStartTime() + serverStartTime;
         String cause = gcNotifInfo.getGcCause();
-        JVMStatisticsProtos.GCStatisticsData.Builder builder = JVMStatisticsProtos.GCStatisticsData.newBuilder();
+        JVMStatisticsEventsProtos.GCStatisticsData.Builder builder = JVMStatisticsEventsProtos.GCStatisticsData.newBuilder();
         builder.setPauseTime(pauseTime);
         builder.setCollectorName(collectorName);
         builder.setCause(cause);

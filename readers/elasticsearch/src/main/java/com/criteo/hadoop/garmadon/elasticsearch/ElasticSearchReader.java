@@ -1,16 +1,12 @@
 package com.criteo.hadoop.garmadon.elasticsearch;
 
-import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
-import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
-import com.criteo.hadoop.garmadon.event.proto.ResourceManagerEventProtos;
-import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.*;
 import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessageFilter;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
-import com.criteo.jvm.JVMStatisticsProtos;
 import io.prometheus.client.Counter;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -177,8 +173,8 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
             EventHelper.processExecutorStateEvent(type, (SparkEventProtos.ExecutorStateEvent) o, eventMaps);
         } else if (o instanceof SparkEventProtos.TaskEvent) {
             EventHelper.processTaskEvent(type, (SparkEventProtos.TaskEvent) o, eventMaps);
-        } else if (o instanceof JVMStatisticsProtos.JVMStatisticsData) {
-            EventHelper.processJVMStatisticsData(type, (JVMStatisticsProtos.JVMStatisticsData) o, eventMaps);
+        } else if (o instanceof JVMStatisticsEventsProtos.JVMStatisticsData) {
+            EventHelper.processJVMStatisticsData(type, (JVMStatisticsEventsProtos.JVMStatisticsData) o, eventMaps);
         } else if (o instanceof ContainerEventProtos.ContainerResourceEvent) {
             EventHelper.processContainerResourceEvent(type, (ContainerEventProtos.ContainerResourceEvent) o, eventMaps);
         } else if (o instanceof ResourceManagerEventProtos.ApplicationEvent) {

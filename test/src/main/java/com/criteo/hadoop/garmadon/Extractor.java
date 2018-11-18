@@ -1,12 +1,12 @@
 package com.criteo.hadoop.garmadon;
 
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.schema.enums.State;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
-import com.criteo.jvm.JVMStatisticsProtos;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -54,7 +54,7 @@ public class Extractor {
     }
 
     private void processGcEvent(GarmadonMessage msg) {
-        JVMStatisticsProtos.GCStatisticsData gcStats = (JVMStatisticsProtos.GCStatisticsData) msg.getBody();
+        JVMStatisticsEventsProtos.GCStatisticsData gcStats = (JVMStatisticsEventsProtos.GCStatisticsData) msg.getBody();
         StringBuilder sb = new StringBuilder();
         String timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(msg.getTimestamp()));
         sb.append(timestamp).append(" ");
@@ -69,13 +69,13 @@ public class Extractor {
     }
 
     private void processJvmStatEvent(GarmadonMessage msg) {
-        JVMStatisticsProtos.JVMStatisticsData jvmStats = (JVMStatisticsProtos.JVMStatisticsData) msg.getBody();
+        JVMStatisticsEventsProtos.JVMStatisticsData jvmStats = (JVMStatisticsEventsProtos.JVMStatisticsData) msg.getBody();
         StringBuilder sb = new StringBuilder();
         String timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(msg.getTimestamp()));
         sb.append(timestamp).append(" ");
-        for (JVMStatisticsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
+        for (JVMStatisticsEventsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             sb.append(section.getName()).append("[");
-            for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
+            for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                 sb.append(property.getName()).append("=").append(property.getValue()).append(" ");
             }
             sb.append("] ");

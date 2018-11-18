@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
-import com.criteo.jvm.JVMStatisticsProtos;
+import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +51,7 @@ public class CodeCacheUsageTest {
             return null;
         }).when(mockDB).createHeuristicResult(Matchers.any());
         CodeCacheUsage codeCacheUsage = new CodeCacheUsage(mockDB);
-        JVMStatisticsProtos.JVMStatisticsData jvmStats = buildCodeCacheData(63 * 1024 * 1024, 64 * 1024 * 1024);
+        JVMStatisticsEventsProtos.JVMStatisticsData jvmStats = buildCodeCacheData(63 * 1024 * 1024, 64 * 1024 * 1024);
         for (int i = 0; i < nbContainers; i++) {
             codeCacheUsage.process(System.currentTimeMillis(), APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, jvmStats);
             codeCacheUsage.onContainerCompleted(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i);
@@ -59,9 +59,9 @@ public class CodeCacheUsageTest {
         codeCacheUsage.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);
     }
 
-    private JVMStatisticsProtos.JVMStatisticsData buildCodeCacheData(long used, long max) {
-        JVMStatisticsProtos.JVMStatisticsData.Builder builder = JVMStatisticsProtos.JVMStatisticsData.newBuilder();
-        JVMStatisticsProtos.JVMStatisticsData.Section.Builder sectionBuilder = builder.addSectionBuilder().setName("code");
+    private JVMStatisticsEventsProtos.JVMStatisticsData buildCodeCacheData(long used, long max) {
+        JVMStatisticsEventsProtos.JVMStatisticsData.Builder builder = JVMStatisticsEventsProtos.JVMStatisticsData.newBuilder();
+        JVMStatisticsEventsProtos.JVMStatisticsData.Section.Builder sectionBuilder = builder.addSectionBuilder().setName("code");
         sectionBuilder.addPropertyBuilder().setName("used").setValue(String.valueOf(used));
         sectionBuilder.addPropertyBuilder().setName("max").setValue(String.valueOf(max));
         return builder.build();

@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
-import com.criteo.jvm.JVMStatisticsProtos;
+import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,11 +76,11 @@ public class GCCauseTest {
             return null;
         }).when(mockDB).createHeuristicResult(Matchers.any());
         GCCause gcCause = new GCCause(mockDB);
-        JVMStatisticsProtos.GCStatisticsData.Builder builder = JVMStatisticsProtos.GCStatisticsData.newBuilder()
+        JVMStatisticsEventsProtos.GCStatisticsData.Builder builder = JVMStatisticsEventsProtos.GCStatisticsData.newBuilder()
                 .setCause(cause)
                 .setCollectorName("PS MarkSweep")
                 .setPauseTime(1234);
-        JVMStatisticsProtos.GCStatisticsData gcStats = builder.build();
+        JVMStatisticsEventsProtos.GCStatisticsData gcStats = builder.build();
         for (int i = 0; i < nbContainers; i++)
             gcCause.process(timestamp, APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, gcStats);
         gcCause.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);
