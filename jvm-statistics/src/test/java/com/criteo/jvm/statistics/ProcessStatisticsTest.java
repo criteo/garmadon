@@ -4,7 +4,6 @@ import com.criteo.jvm.StatisticsLog;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -16,6 +15,7 @@ public class ProcessStatisticsTest {
     }
 
     @Test
+
     public void collectIO() throws IOException {
         doCollectFromFile("/io.txt", "read=2, written=36");
     }

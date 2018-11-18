@@ -3,15 +3,14 @@ package com.criteo.jvm;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.util.JsonFormat;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.text.MatchesPattern;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.text.MatchesPattern.matchesPattern;
 
 public class ProtobufGCNotificationsTest {
 
@@ -40,7 +39,7 @@ public class ProtobufGCNotificationsTest {
                     .preservingProtoFieldNames();
             try {
                 s = printer.print((MessageOrBuilder) stats);
-                assertThat(s, matchesPattern(GC_PATTERN));
+                MatcherAssert.assertThat(s, MatchesPattern.matchesPattern(GC_PATTERN));
                 latch.countDown();
             } catch (InvalidProtocolBufferException e) {
                 e.printStackTrace();
