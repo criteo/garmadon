@@ -12,7 +12,7 @@ import java.util.Set;
 class SynchronizationStatistics extends AbstractStatistic {
     private static final String SYNCLOCKS_HEADER = "synclocks";
 
-    private final Set<String> COUNTERS = new HashSet<>(Arrays.asList(
+    private final Set<String> counters = new HashSet<>(Arrays.asList(
             "sun.rt._sync_ContendedLockAttempts", // number of time we try acquire a monitor but already acquired.
             "sun.rt._sync_FutileWakeups", // number of thread wakeups but still need to wait.
             "sun.rt._sync_Parks", // number of unparks = wakeup from wait state.
@@ -29,7 +29,7 @@ class SynchronizationStatistics extends AbstractStatistic {
         int counters = 0;
         for (Counter counter : hsRuntime.getInternalRuntimeCounters()) {
             String counterName = counter.getName();
-            if (COUNTERS.contains(counterName))
+            if (this.counters.contains(counterName))
                 counters++;
         }
         if (counters == 0)
@@ -42,7 +42,7 @@ class SynchronizationStatistics extends AbstractStatistic {
         for (Counter counter :  hsRuntime.getInternalRuntimeCounters())
         {
             String counterName = counter.getName();
-            if (COUNTERS.contains(counterName))
+            if (counters.contains(counterName))
             {
                 counterName = counterName.substring("sun.rt._sync_".length()).toLowerCase();
                 Object value = counter.getValue();

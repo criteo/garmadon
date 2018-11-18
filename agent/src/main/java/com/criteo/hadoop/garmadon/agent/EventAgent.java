@@ -28,7 +28,7 @@ public class EventAgent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventAgent.class);
 
-    private static String RELEASE = Optional
+    private static final String RELEASE = Optional
             .ofNullable(EventAgent.class.getPackage().getImplementationVersion()).orElse("1.0-SNAPSHOT");
 
     private final static int DEFAULT_FORWARDER_PORT = 33000;

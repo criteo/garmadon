@@ -23,33 +23,33 @@ public class PrometheusHttpMetrics {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrometheusHttpMetrics.class);
     private static final MBeanServer MBS = ManagementFactory.getPlatformMBeanServer();
 
-    public static final Counter garmadonMetrics = Counter.build()
+    public static final Counter GARMADON_METRICS = Counter.build()
             .name("garmadon_metrics").help("Garmadon metrics")
             .labelNames("name", "hostname", "release")
             .register();
 
-    private static String RELEASE = Optional
+    private static final String RELEASE = Optional
             .ofNullable(PrometheusHttpMetrics.class.getPackage().getImplementationVersion())
             .orElse("1.0-SNAPSHOT")
             .replace(".", "_");
 
-    public static Counter.Child eventsReceived = garmadonMetrics.labels("garmadon_events_received",
+    public static Counter.Child eventsReceived = GARMADON_METRICS.labels("garmadon_events_received",
             Forwarder.hostname,
             RELEASE);
-    public static Counter.Child eventsInError = garmadonMetrics.labels("garmadon_events_in_error",
+    public static Counter.Child eventsInError = GARMADON_METRICS.labels("garmadon_events_in_error",
             Forwarder.hostname,
             RELEASE);
-    public static Counter.Child greetingsReceived = garmadonMetrics.labels("garmadon_greetings_received",
+    public static Counter.Child greetingsReceived = GARMADON_METRICS.labels("garmadon_greetings_received",
             Forwarder.hostname,
             RELEASE);
-    public static Counter.Child greetingsInError = garmadonMetrics.labels("garmadon_greetings_in_error",
+    public static Counter.Child greetingsInError = GARMADON_METRICS.labels("garmadon_greetings_in_error",
             Forwarder.hostname,
             RELEASE);
-    public static Counter.Child forJoin = garmadonMetrics.labels("garmadon_for_join",
+    public static Counter.Child forJoin = GARMADON_METRICS.labels("garmadon_for_join",
             Forwarder.hostname,
             RELEASE);
 
-    private static final Summary baseTypeSizeSummary = Summary.build()
+    private static final Summary BASE_TYPE_SIZE_SUMMARY = Summary.build()
             .name("garmadon_event_size").help("Event sizes in bytes")
             .labelNames("eventType", "hostname", "release")
             .quantile(0.75, 0.01)
@@ -57,7 +57,7 @@ public class PrometheusHttpMetrics {
             .quantile(0.99, 0.001)
             .register();
 
-    private static final Gauge baseKafkaMetricsGauge = Gauge.build()
+    private static final Gauge BASE_KAFKA_METRICS_GAUGE = Gauge.build()
             .name("garmadon_kafka_metrics").help("Kafka producer metrics")
             .labelNames("name", "hostname", "release")
             .register();
@@ -100,7 +100,7 @@ public class PrometheusHttpMetrics {
     }
 
     public static Summary.Child eventSize(int type) {
-        return baseTypeSizeSummary.labels(GarmadonSerialization.getTypeName(type), Forwarder.hostname, RELEASE);
+        return BASE_TYPE_SIZE_SUMMARY.labels(GarmadonSerialization.getTypeName(type), Forwarder.hostname, RELEASE);
     }
 
     public static void exposeKafkaMetrics() throws IntrospectionException, InstanceNotFoundException, ReflectionException, AttributeNotFoundException, MBeanException {
@@ -109,7 +109,7 @@ public class PrometheusHttpMetrics {
             MBeanAttributeInfo[] attrInfo = info.getAttributes();
             for (MBeanAttributeInfo attr : attrInfo) {
                 if (attr.isReadable() && attr.getType().equals("double")) {
-                    baseKafkaMetricsGauge.labels(attr.getName(), Forwarder.hostname, RELEASE)
+                    BASE_KAFKA_METRICS_GAUGE.labels(attr.getName(), Forwarder.hostname, RELEASE)
                             .set((Double) MBS.getAttribute(oname, attr.getName()));
                 }
             }

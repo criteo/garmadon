@@ -21,17 +21,17 @@ public class PrometheusHttpConsumerMetrics {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrometheusHttpConsumerMetrics.class);
     private static final MBeanServer MBS = ManagementFactory.getPlatformMBeanServer();
 
-    public static String RELEASE = Optional
+    public static final String RELEASE = Optional
             .ofNullable(PrometheusHttpConsumerMetrics.class.getPackage().getImplementationVersion())
             .orElse("1.0-SNAPSHOT")
             .replace(".", "_");
 
-    public static final Counter garmadonReaderMetrics = Counter.build()
+    public static final Counter GARMADON_READER_METRICS = Counter.build()
             .name("garmadon_reader_metrics").help("Garmadon reader metrics")
             .labelNames("name", "hostname", "release")
             .register();
 
-    private static final Gauge baseKafkaMetricsGauge = Gauge.build()
+    private static final Gauge BASE_KAFKA_METRICS_GAUGE = Gauge.build()
             .name("garmadon_kafka_metrics").help("Kafka producer metrics")
             .labelNames("name", "hostname", "release")
             .register();
@@ -63,23 +63,23 @@ public class PrometheusHttpConsumerMetrics {
             MBeanAttributeInfo[] attrInfo = info.getAttributes();
             for (MBeanAttributeInfo attr : attrInfo) {
                 if (attr.isReadable() && attr.getType().equals("double")) {
-                    baseKafkaMetricsGauge.labels(attr.getName(), GarmadonReader.HOSTNAME, RELEASE)
+                    BASE_KAFKA_METRICS_GAUGE.labels(attr.getName(), GarmadonReader.hostname, RELEASE)
                             .set((Double) MBS.getAttribute(oName, attr.getName()));
                 }
             }
         }
     }
 
-    public static Counter.Child issueReadingGarmadonMessageBadHead = PrometheusHttpConsumerMetrics.garmadonReaderMetrics.labels("issue_reading_garmadon_message_bad_head",
-            GarmadonReader.HOSTNAME,
+    public static Counter.Child issueReadingGarmadonMessageBadHead = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("issue_reading_garmadon_message_bad_head",
+            GarmadonReader.hostname,
             PrometheusHttpConsumerMetrics.RELEASE);
 
-    public static Counter.Child issueReadingProtoHead = PrometheusHttpConsumerMetrics.garmadonReaderMetrics.labels("issue_reading_proto_head",
-            GarmadonReader.HOSTNAME,
+    public static Counter.Child issueReadingProtoHead = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("issue_reading_proto_head",
+            GarmadonReader.hostname,
             PrometheusHttpConsumerMetrics.RELEASE);
 
-    public static Counter.Child issueReadingProtoBody = PrometheusHttpConsumerMetrics.garmadonReaderMetrics.labels("issue_reading_proto_body",
-            GarmadonReader.HOSTNAME,
+    public static Counter.Child issueReadingProtoBody = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("issue_reading_proto_body",
+            GarmadonReader.hostname,
             PrometheusHttpConsumerMetrics.RELEASE);
 
     private HTTPServer server;

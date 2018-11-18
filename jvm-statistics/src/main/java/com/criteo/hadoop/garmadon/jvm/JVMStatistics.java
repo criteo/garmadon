@@ -22,18 +22,18 @@ public class JVMStatistics {
     public static final String DEFAULT_SINK_TYPE = "log";
     private static final Logger LOGGER = LoggerFactory.getLogger(JVMStatistics.class);
 
-    private static final Map<String, Class<?>> statisticCollectorClasses = new ConcurrentHashMap<>();
-    private static final Map<String, Class<?>> gcNotificationsClasses = new ConcurrentHashMap<>();
+    private static final Map<String, Class<?>> STATISTIC_COLLECTOR_CLASSES = new ConcurrentHashMap<>();
+    private static final Map<String, Class<?>> GC_NOTIFICATIONS_CLASSES = new ConcurrentHashMap<>();
     static {
         registerStatisticCollector(DEFAULT_SINK_TYPE, LogStatisticCollector.class);
         registerGCNotifications(DEFAULT_SINK_TYPE, LogGCNotifications.class);
     }
 
     public static void registerStatisticCollector(String name, Class<?> clazz) {
-        statisticCollectorClasses.put(name, clazz);
+        STATISTIC_COLLECTOR_CLASSES.put(name, clazz);
     }
     public static void registerGCNotifications(String name, Class<?> clazz) {
-        gcNotificationsClasses.put(name, clazz);
+        GC_NOTIFICATIONS_CLASSES.put(name, clazz);
     }
 
 
@@ -75,7 +75,7 @@ public class JVMStatistics {
     }
 
     private  static StatisticCollector<?> createStatisticCollector(Conf conf, BiConsumer<Long, ?> logStatistics) {
-        Class<?> clazz = statisticCollectorClasses.get(conf.getSinkType());
+        Class<?> clazz = STATISTIC_COLLECTOR_CLASSES.get(conf.getSinkType());
         if (clazz == null)
             throw new UnsupportedOperationException(conf.getSinkType()+ " statistics collector not supported");
         Constructor<?> constructor;
@@ -88,7 +88,7 @@ public class JVMStatistics {
     }
 
     private GCNotifications createGCNotifications(Conf<?, ?, ?> conf) {
-        Class<?> clazz = gcNotificationsClasses.get(conf.getSinkType());
+        Class<?> clazz = GC_NOTIFICATIONS_CLASSES.get(conf.getSinkType());
         if (clazz == null)
             throw new UnsupportedOperationException(conf.getSinkType()+ " gc notifications not supported");
         try {

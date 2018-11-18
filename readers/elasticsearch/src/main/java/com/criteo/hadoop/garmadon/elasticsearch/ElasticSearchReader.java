@@ -41,17 +41,17 @@ import java.util.concurrent.TimeUnit;
 public class ElasticSearchReader implements BulkProcessor.Listener {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearchReader.class);
 
-    private static Counter.Child numberOfEventInError = PrometheusHttpConsumerMetrics.garmadonReaderMetrics.labels("number_of_event_in_error",
-            GarmadonReader.HOSTNAME,
+    private static Counter.Child numberOfEventInError = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("number_of_event_in_error",
+            GarmadonReader.hostname,
             PrometheusHttpConsumerMetrics.RELEASE);
-    private static Counter.Child numberOfOffsetCommitError = PrometheusHttpConsumerMetrics.garmadonReaderMetrics.labels("number_of_offset_commit_error",
-            GarmadonReader.HOSTNAME,
+    private static Counter.Child numberOfOffsetCommitError = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("number_of_offset_commit_error",
+            GarmadonReader.hostname,
             PrometheusHttpConsumerMetrics.RELEASE);
 
     private static final int CONNECTION_TIMEOUT_MS = 10000;
     private static final int NB_RETRIES = 10;
 
-    private static final Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH");
+    private static final Format FORMATTER = new SimpleDateFormat("yyyy-MM-dd-HH");
 
     private final GarmadonReader reader;
     private final String esIndexPrefix;
@@ -157,8 +157,8 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
                 GarmadonSerialization.getTypeName(msg.getType()), msg.getBody());
         for (Map<String, Object> eventMap : eventMaps.values()) {
             eventMap.putAll(jsonMap);
-            String daily_index = esIndexPrefix + "-" + formatter.format(msg.getTimestamp());
-            IndexRequest req = new IndexRequest(daily_index, "doc")
+            String dailyIndex = esIndexPrefix + "-" + FORMATTER.format(msg.getTimestamp());
+            IndexRequest req = new IndexRequest(dailyIndex, "doc")
                     .source(eventMap);
             bulkProcessor.add(req, msg.getCommittableOffset());
         }

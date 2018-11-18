@@ -119,11 +119,11 @@ public class ContainerHeader {
     }
 
     private static class SingletonHolder {
-        private final static ContainerHeader instance = new ContainerHeader();
+        private final static ContainerHeader INSTANCE = new ContainerHeader();
     }
 
     public static ContainerHeader getInstance() {
-        return ContainerHeader.SingletonHolder.instance;
+        return ContainerHeader.SingletonHolder.INSTANCE;
     }
 
     public Header.SerializedHeader getHeader() {

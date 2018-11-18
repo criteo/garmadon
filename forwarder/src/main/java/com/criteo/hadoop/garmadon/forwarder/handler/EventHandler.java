@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
-    private static final AttributeKey<EventHeaderProtos.Header> headerAttr = AttributeKey.valueOf("header");
+    private static final AttributeKey<EventHeaderProtos.Header> HEADER_ATTR = AttributeKey.valueOf("header");
     private static final Logger LOGGER = LoggerFactory.getLogger(EventHandler.class);
 
     private boolean isFirst = true;
@@ -40,7 +40,7 @@ public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
         // Push header in context to sendAsync event end container
         if (isFirst) {
-            ctx.channel().attr(headerAttr).set(header);
+            ctx.channel().attr(HEADER_ATTR).set(header);
             isFirst = false;
         }
 

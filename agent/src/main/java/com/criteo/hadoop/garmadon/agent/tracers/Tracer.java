@@ -46,10 +46,10 @@ public abstract class Tracer {
         return matcher;
     }
 
-    private static final ElementMatcher<? super String> byteBuddyLoggingFilter;
+    private static final ElementMatcher<? super String> BYTE_BUDDY_LOGGING_FILTER;
     static{
         String filterClass = System.getProperty("bytebuddy.debug.instrumentation.for.class");
-        byteBuddyLoggingFilter = filterClass != null ? s -> s.contains(filterClass) : s -> false;
+        BYTE_BUDDY_LOGGING_FILTER = filterClass != null ? s -> s.contains(filterClass) : s -> false;
     }
 
     Tracer() {
@@ -59,7 +59,7 @@ public abstract class Tracer {
                 .ignore(any(), isExtensionClassLoader())
                 .ignore(ignoredMatcher)
                 .with(
-                        new Filtering(byteBuddyLoggingFilter, AgentBuilder.Listener.StreamWriting.toSystemOut())
+                        new Filtering(BYTE_BUDDY_LOGGING_FILTER, AgentBuilder.Listener.StreamWriting.toSystemOut())
                 );
     }
 

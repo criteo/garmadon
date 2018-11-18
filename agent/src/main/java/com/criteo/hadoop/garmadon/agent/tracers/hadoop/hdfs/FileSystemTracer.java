@@ -31,7 +31,7 @@ import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public class FileSystemTracer {
-    private static long NANOSECONDS_PER_MILLISECOND = 1000000;
+    private static final long NANOSECONDS_PER_MILLISECOND = 1000000;
     private static BiConsumer<Long, Object> eventHandler;
 
     public static void setup(Instrumentation instrumentation, BiConsumer<Long, Object> eventConsumer) {

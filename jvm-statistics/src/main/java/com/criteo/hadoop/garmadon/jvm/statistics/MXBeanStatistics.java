@@ -57,7 +57,7 @@ public class MXBeanStatistics {
     }
 
     protected void addOSStatistics(StatisticCollector collector) {
-        if (conf.isOSStatsInJVMStats()) { // under conf because can be redundant with machine stats
+        if (conf.isOsStatsInJvmStats()) { // under conf because can be redundant with machine stats
             OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
             collector.register(new OSStatistics(os, os.getAvailableProcessors()));
         }

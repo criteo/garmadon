@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 public class FileHeuristic implements Heuristic {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(FileHeuristic.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileHeuristic.class);
 
     final Counters deleted = new Counters("Files deleted");
     final Counters read = new Counters("Files read");
