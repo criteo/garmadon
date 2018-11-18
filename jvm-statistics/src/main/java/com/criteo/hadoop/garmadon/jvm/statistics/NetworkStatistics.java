@@ -14,8 +14,8 @@ class NetworkStatistics extends AbstractStatistic {
     private static final String NETWORK_SENT_SUFFIX = "_tx";
 
     private final List<NetworkIF> nics = new ArrayList<>();
-    private long[] previous_rx;
-    private long[] previous_tx;
+    private long[] previousRx;
+    private long[] previousTx;
 
     NetworkStatistics() {
         super(NETWORK_HEADER);
@@ -24,13 +24,13 @@ class NetworkStatistics extends AbstractStatistic {
                 continue;
             nics.add(nic);
         }
-        previous_rx = new long[nics.size()];
-        previous_tx = new long[nics.size()];
+        previousRx = new long[nics.size()];
+        previousTx = new long[nics.size()];
 
         int i = 0;
         for (NetworkIF nic : nics) {
-            previous_rx[i] = nic.getBytesRecv();
-            previous_tx[i] = nic.getBytesSent();
+            previousRx[i] = nic.getBytesRecv();
+            previousTx[i] = nic.getBytesSent();
             i++;
         }
     }
@@ -40,10 +40,10 @@ class NetworkStatistics extends AbstractStatistic {
         int i = 0;
         for (NetworkIF nic : nics) {
             nic.updateNetworkStats();
-            sink.add(nic.getName() + NETWORK_RECV_SUFFIX, nic.getBytesRecv() - previous_rx[i]);
-            previous_rx[i] = nic.getBytesRecv();
-            sink.add(nic.getName() + NETWORK_SENT_SUFFIX, nic.getBytesSent() - previous_tx[i]);
-            previous_tx[i] = nic.getBytesSent();
+            sink.add(nic.getName() + NETWORK_RECV_SUFFIX, nic.getBytesRecv() - previousRx[i]);
+            previousRx[i] = nic.getBytesRecv();
+            sink.add(nic.getName() + NETWORK_SENT_SUFFIX, nic.getBytesSent() - previousTx[i]);
+            previousTx[i] = nic.getBytesSent();
             i++;
         }
     }

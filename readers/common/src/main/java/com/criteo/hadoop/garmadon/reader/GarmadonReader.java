@@ -27,17 +27,17 @@ public class GarmadonReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonReader.class);
 
     protected final Reader reader;
-    public static String HOSTNAME;
+    public static String hostname;
     static {
         try {
-            HOSTNAME = InetAddress.getLocalHost().getCanonicalHostName();
+            hostname = InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException e) {
             LOGGER.error("", e);
             System.exit(1);
         }
     }
 
-    public static String CONSUMER_ID = "garmadon.reader." + HOSTNAME;
+    public static final String CONSUMER_ID = "garmadon.reader." + hostname;
 
 
     private final CompletableFuture<Void> cf;
@@ -136,10 +136,10 @@ public class GarmadonReader {
                     continue;
                 }
 
-                int computed_length = FRAME_DELIMITER_SIZE + headerSize + bodySize;
-                if (raw.length != computed_length) {
+                int computedLength = FRAME_DELIMITER_SIZE + headerSize + bodySize;
+                if (raw.length != computedLength) {
                     PrometheusHttpConsumerMetrics.issueReadingGarmadonMessageBadHead.inc();
-                    LOGGER.debug("Cannot deserialize msg due to bad computed length raw:{}, computed:{}", raw.length, computed_length);
+                    LOGGER.debug("Cannot deserialize msg due to bad computed length raw:{}, computed:{}", raw.length, computedLength);
                     continue;
                 }
 

@@ -19,11 +19,11 @@ public class RessourceManagerHeader {
     }
 
     private static class SingletonHolder {
-        private final static RessourceManagerHeader instance = new RessourceManagerHeader();
+        private final static RessourceManagerHeader INSTANCE = new RessourceManagerHeader();
     }
 
     public static RessourceManagerHeader getInstance() {
-        return RessourceManagerHeader.SingletonHolder.instance;
+        return RessourceManagerHeader.SingletonHolder.INSTANCE;
     }
 
     public Header getBaseHeader() {

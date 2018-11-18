@@ -19,11 +19,11 @@ public class NodemanagerHeader {
     }
 
     private static class SingletonHolder {
-        private final static NodemanagerHeader instance = new NodemanagerHeader();
+        private final static NodemanagerHeader INSTANCE = new NodemanagerHeader();
     }
 
     public static NodemanagerHeader getInstance() {
-        return NodemanagerHeader.SingletonHolder.instance;
+        return NodemanagerHeader.SingletonHolder.INSTANCE;
     }
 
     public Header getBaseHeader() {
