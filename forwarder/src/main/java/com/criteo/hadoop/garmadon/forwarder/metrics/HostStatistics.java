@@ -1,9 +1,9 @@
 package com.criteo.hadoop.garmadon.forwarder.metrics;
 
 import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
-import com.criteo.jvm.Conf;
-import com.criteo.jvm.JVMStatistics;
-import com.criteo.jvm.ProtobufHelper;
+import com.criteo.hadoop.garmadon.jvm.Conf;
+import com.criteo.hadoop.garmadon.jvm.JVMStatistics;
+import com.criteo.hadoop.garmadon.jvm.ProtobufHelper;
 
 import java.time.Duration;
 
