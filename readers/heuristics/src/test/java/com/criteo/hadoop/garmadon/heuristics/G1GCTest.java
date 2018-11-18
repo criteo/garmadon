@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
-import com.criteo.jvm.JVMStatisticsProtos;
+import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,10 +52,10 @@ public class G1GCTest {
         }).when(mockDB).createHeuristicResult(Matchers.any());
 
         G1GC g1GC = new G1GC(mockDB);
-        JVMStatisticsProtos.GCStatisticsData.Builder builder = JVMStatisticsProtos.GCStatisticsData.newBuilder()
+        JVMStatisticsEventsProtos.GCStatisticsData.Builder builder = JVMStatisticsEventsProtos.GCStatisticsData.newBuilder()
                 .setCollectorName("G1 Old Generation")
                 .setPauseTime(1234);
-        JVMStatisticsProtos.GCStatisticsData gcStats = builder.build();
+        JVMStatisticsEventsProtos.GCStatisticsData gcStats = builder.build();
         for (int i = 0; i < nbContainers; i++)
             g1GC.process(timestamp, APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, gcStats);
         g1GC.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);

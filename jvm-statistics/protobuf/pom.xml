@@ -13,13 +13,12 @@
     <version>1.0.0</version>
 
     <dependencies>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>${protobuf.version}</version>
-        </dependency>
-
         <!-- Garmadon dependencies -->
+        <dependency>
+            <groupId>com.criteo.java</groupId>
+            <artifactId>garmadon-schema</artifactId>
+            <version>${garmadon.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.criteo.java</groupId>
             <artifactId>garmadon-jvm-statistics-core</artifactId>
@@ -40,30 +39,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.github.os72</groupId>
-                <artifactId>protoc-jar-maven-plugin</artifactId>
-                <version>3.5.0</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <protocVersion>${protobuf.version}</protocVersion>
-                            <protocArtifact>com.google.protobuf:protoc:${protobuf.version}</protocArtifact>
-                            <includeStdTypes>true</includeStdTypes>
-                            <inputDirectories>
-                                <include>src/main/protobuf</include>
-                            </inputDirectories>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

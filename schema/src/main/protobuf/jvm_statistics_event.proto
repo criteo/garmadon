@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-package jvmstatistics;
+package com.criteo.hadoop.garmadon;
 
-option java_package = "com.criteo.jvm";
-option java_outer_classname = "JVMStatisticsProtos";
+option java_package = "com.criteo.hadoop.garmadon.event.proto";
+option java_outer_classname = "JVMStatisticsEventsProtos";
 
 message JVMStatisticsData {
     message Property {

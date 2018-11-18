@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
-import com.criteo.jvm.JVMStatisticsProtos;
+import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,12 +14,12 @@ public class CodeCacheUsage implements JVMStatsHeuristic {
     }
 
     @Override
-    public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
-        for (JVMStatisticsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
+    public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsEventsProtos.JVMStatisticsData jvmStats) {
+        for (JVMStatisticsEventsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             if ("code".equals(section.getName())) {
                 Map<String, CodeCacheCounters> containerCounters = appCounters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());
                 CodeCacheCounters codeCacheCounters = containerCounters.computeIfAbsent(containerId, s -> new CodeCacheCounters());
-                for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
+                for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     if ("max".equals(property.getName())) {
                         codeCacheCounters.max = Long.parseLong(property.getValue());
                     }

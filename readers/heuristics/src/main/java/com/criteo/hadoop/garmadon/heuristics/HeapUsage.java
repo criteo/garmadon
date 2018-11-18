@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
-import com.criteo.jvm.JVMStatisticsProtos;
+import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,13 +19,13 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
     }
 
     @Override
-    public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsProtos.JVMStatisticsData jvmStats) {
+    public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsEventsProtos.JVMStatisticsData jvmStats) {
         Map<String, HeapCounters> containerCounters = appCounters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());
         HeapCounters heapCounters = containerCounters.computeIfAbsent(containerId, s -> new HeapCounters());
-        for (JVMStatisticsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
+        for (JVMStatisticsEventsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             String sectionName = section.getName();
             if ("heap".equals(sectionName)) {
-                for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
+                for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     if ("max".equals(property.getName())) {
                         heapCounters.max = Long.parseLong(property.getValue());
                     }
@@ -37,7 +37,7 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
             if (sectionName.startsWith("gc(")) {
                 long count = section.getPropertyList().stream()
                         .filter(property -> property.getName().equals("count"))
-                        .map(JVMStatisticsProtos.JVMStatisticsData.Property::getValue)
+                        .map(JVMStatisticsEventsProtos.JVMStatisticsData.Property::getValue)
                         .mapToLong(Long::parseLong)
                         .findFirst().orElse(0);
                 Matcher matcher = GC_NAME_PATTERN.matcher(sectionName);
@@ -96,7 +96,7 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
     }
 
     @Override
-    public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsProtos.GCStatisticsData gcStats) {
+    public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsEventsProtos.GCStatisticsData gcStats) {
         // TODO process GC stats
         // TODO Handle before/after heap used at GC
         // TODO After GC heap used give a good indication of LiveSet!
