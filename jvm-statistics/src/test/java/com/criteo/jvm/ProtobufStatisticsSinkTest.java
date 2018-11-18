@@ -1,11 +1,12 @@
 package com.criteo.jvm;
 
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.text.MatchesPattern;
 import org.junit.Test;
 
 import java.util.regex.Pattern;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.text.MatchesPattern.matchesPattern;
 
 public class ProtobufStatisticsSinkTest {
 
@@ -21,7 +22,7 @@ public class ProtobufStatisticsSinkTest {
                 "  }\n" +
                 "}\n", Pattern.DOTALL);
         String actual = sink.flush().toString();
-        assertThat(actual, matchesPattern(expected));
+        MatcherAssert.assertThat(actual, MatchesPattern.matchesPattern(expected));
     }
 
     @Test
@@ -34,7 +35,7 @@ public class ProtobufStatisticsSinkTest {
                 "  name: \"foo\"\n" +
                 "}\n", Pattern.DOTALL);
         String actual = sink.flush().toString();
-        assertThat(actual, matchesPattern(expected));
+        MatcherAssert.assertThat(actual, MatchesPattern.matchesPattern(expected));
     }
 
     @Test
@@ -53,7 +54,7 @@ public class ProtobufStatisticsSinkTest {
                 "  }\n" +
                 "}\n", Pattern.DOTALL);
         String actual = sink.flush().toString();
-        assertThat(actual, matchesPattern(expected));
+        MatcherAssert.assertThat(actual, MatchesPattern.matchesPattern(expected));
     }
 
     @Test
@@ -96,8 +97,8 @@ public class ProtobufStatisticsSinkTest {
                 "  }\n" +
                 "}\n", Pattern.DOTALL);
         String actual = sink.flush().toString();
-        assertThat(actual, matchesPattern(expected));
+        MatcherAssert.assertThat(actual, MatchesPattern.matchesPattern(expected));
         // flush should have call reset
-        assertThat(sink.flush().toString(), matchesPattern(""));
+        assertThat(sink.flush().toString(), MatchesPattern.matchesPattern(""));
     }
 }

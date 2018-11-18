@@ -8,14 +8,48 @@
         <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
+
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>garmadon-jvm-statistics</artifactId>
     <version>1.0.0</version>
-    <packaging>pom</packaging>
 
-    <modules>
-        <module>core</module>
-        <module>protobuf</module>
-    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava-annotations</artifactId>
+            <version>r03</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>${oshi.version}</version>
+        </dependency>
+
+        <!-- Garmadon dependencies -->
+        <dependency>
+            <groupId>com.criteo.java</groupId>
+            <artifactId>garmadon-schema</artifactId>
+            <version>${garmadon.version}</version>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>java-hamcrest</artifactId>
+            <version>${java-hamcrest.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java-util</artifactId>
+            <version>${protobuf.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

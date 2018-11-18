@@ -90,7 +90,7 @@
         </dependency>
         <dependency>
             <groupId>com.criteo.java</groupId>
-            <artifactId>garmadon-jvm-statistics-protobuf</artifactId>
+            <artifactId>garmadon-jvm-statistics</artifactId>
             <version>${garmadon.version}</version>
         </dependency>
 
