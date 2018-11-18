@@ -18,14 +18,14 @@ import java.util.List;
  * Reset consumer offsets to the highest non-consumed offset everytime partitions get assigned
  * @param <K>           Consumer key
  * @param <V>           Consumer value
- * @param <MessageKind> Writer message type
+ * @param <MESSAGE_KIND> Writer message type
  */
-public class OffsetResetter<K, V, MessageKind> implements ConsumerRebalanceListener {
+public class OffsetResetter<K, V, MESSAGE_KIND> implements ConsumerRebalanceListener {
     private static final long UNKNOWN_OFFSET = OffsetComputer.NO_OFFSET;
     private static final Logger LOGGER = LoggerFactory.getLogger(OffsetResetter.class);
 
     private final Consumer<K, V> consumer;
-    private final Collection<PartitionedWriter<MessageKind>> writers;
+    private final Collection<PartitionedWriter<MESSAGE_KIND>> writers;
     private final java.util.function.Consumer<Integer> partitionRevokedConsumer;
 
     /**
@@ -34,7 +34,7 @@ public class OffsetResetter<K, V, MessageKind> implements ConsumerRebalanceListe
      * @param writers                       Writers to get the latest offset from
      */
     public OffsetResetter(Consumer<K, V> consumer, java.util.function.Consumer<Integer> partitionRevokedConsumer,
-                          Collection<PartitionedWriter<MessageKind>> writers) {
+                          Collection<PartitionedWriter<MESSAGE_KIND>> writers) {
         this.consumer = consumer;
         this.partitionRevokedConsumer = partitionRevokedConsumer;
         this.writers = writers;
@@ -42,7 +42,7 @@ public class OffsetResetter<K, V, MessageKind> implements ConsumerRebalanceListe
 
     @Override
     public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-        for (PartitionedWriter<MessageKind> writer : writers) {
+        for (PartitionedWriter<MESSAGE_KIND> writer : writers) {
             for (TopicPartition partition : partitions) {
                 writer.dropPartition(partition.partition());
                 partitionRevokedConsumer.accept(partition.partition());
@@ -56,7 +56,7 @@ public class OffsetResetter<K, V, MessageKind> implements ConsumerRebalanceListe
             long startingOffset = UNKNOWN_OFFSET;
             List<Long> offsets = new ArrayList<>(writers.size());
 
-            for (PartitionedWriter<MessageKind> writer : writers) {
+            for (PartitionedWriter<MESSAGE_KIND> writer : writers) {
                 try {
                     offsets.add(writer.getStartingOffset(partition.partition()));
                 } catch (IOException e) {

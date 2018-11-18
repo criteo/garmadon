@@ -19,17 +19,17 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * Route messages to dedicated writers for a given MessageKind: per day, per partition.
+ * Route messages to dedicated writers for a given MESSAGE_KIND: per day, per partition.
  *
- * @param <MessageKind>     The type of messages which will ultimately get written.
+ * @param <MESSAGE_KIND>     The type of messages which will ultimately get written.
  */
-public class PartitionedWriter<MessageKind> implements Closeable {
+public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     private static final ZoneId UTC_ZONE = ZoneId.of("UTC");
     private static final Logger LOGGER = LoggerFactory.getLogger(PartitionedWriter.class);
 
-    private final Function<LocalDateTime, ExpiringConsumer<MessageKind>> writerBuilder;
+    private final Function<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> writerBuilder;
     private final OffsetComputer offsetComputer;
-    private final Map<Integer, Map<LocalDateTime, ExpiringConsumer<MessageKind>>> perPartitionDayWriters = new HashMap<>();
+    private final Map<Integer, Map<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>>> perPartitionDayWriters = new HashMap<>();
     private final HashMap<Integer, Long> perPartitionStartOffset = new HashMap<>();
 
     /**
@@ -37,7 +37,7 @@ public class PartitionedWriter<MessageKind> implements Closeable {
      * @param offsetComputer    Computes the first offset which should not be ignored by the PartitionedWriter when
      *                          consuming message.
      */
-    public PartitionedWriter(Function<LocalDateTime, ExpiringConsumer<MessageKind>> writerBuilder,
+    public PartitionedWriter(Function<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> writerBuilder,
                              OffsetComputer offsetComputer) {
         this.writerBuilder = writerBuilder;
         this.offsetComputer = offsetComputer;
@@ -63,7 +63,7 @@ public class PartitionedWriter<MessageKind> implements Closeable {
      * @param offset        Message offset, used to route to the correct file
      * @param msg           Message to be written
      */
-    public void write(Instant when, Offset offset, MessageKind msg) throws IOException {
+    public void write(Instant when, Offset offset, MESSAGE_KIND msg) throws IOException {
         final LocalDateTime dayStartTime = LocalDateTime.ofInstant(when.truncatedTo(ChronoUnit.DAYS), UTC_ZONE);
         final int partitionId = offset.getPartition();
 
@@ -74,7 +74,7 @@ public class PartitionedWriter<MessageKind> implements Closeable {
                 return;
 
             // /!\ This line must not be switched with the offset computation as this would create empty files otherwise
-            final ExpiringConsumer<MessageKind> consumer = getWriter(dayStartTime, partitionId);
+            final ExpiringConsumer<MESSAGE_KIND> consumer = getWriter(dayStartTime, partitionId);
 
             consumer.write(msg, offset);
         }
@@ -131,7 +131,7 @@ public class PartitionedWriter<MessageKind> implements Closeable {
     public void heartbeat(int partition, Offset offset) {
         synchronized (perPartitionDayWriters) {
             if (!perPartitionDayWriters.containsKey(partition) || perPartitionDayWriters.get(partition).isEmpty()) {
-                final ExpiringConsumer<MessageKind> heartbeatWriter = writerBuilder.apply(LocalDateTime.now());
+                final ExpiringConsumer<MESSAGE_KIND> heartbeatWriter = writerBuilder.apply(LocalDateTime.now());
 
                 try {
                     heartbeatWriter.write(null, offset);
@@ -150,10 +150,10 @@ public class PartitionedWriter<MessageKind> implements Closeable {
     /**
      * Poll a list of PartitionedWriter instances to make them expire if relevant.
      *
-     * @param <MessageKind> Type of messages which will ultimately get written.
+     * @param <MESSAGE_KIND> Type of messages which will ultimately get written.
      */
-    public static class Expirer<MessageKind> {
-        private final Collection<PartitionedWriter<MessageKind>> writers;
+    public static class Expirer<MESSAGE_KIND> {
+        private final Collection<PartitionedWriter<MESSAGE_KIND>> writers;
         private final TemporalAmount period;
         private volatile Thread runningThread;
 
@@ -161,7 +161,7 @@ public class PartitionedWriter<MessageKind> implements Closeable {
          * @param writers   Writers to watch for
          * @param period    How often the Expirer should try to expire writers
          */
-        public Expirer(Collection<PartitionedWriter<MessageKind>> writers, TemporalAmount period) {
+        public Expirer(Collection<PartitionedWriter<MESSAGE_KIND>> writers, TemporalAmount period) {
             this.writers = writers;
             this.period = period;
         }
@@ -211,14 +211,14 @@ public class PartitionedWriter<MessageKind> implements Closeable {
         synchronized (perPartitionDayWriters) {
             perPartitionDayWriters.forEach((partitionId, dailyWriters) ->
                 dailyWriters.entrySet().removeIf((entry) -> {
-                    final ExpiringConsumer<MessageKind> consumer = entry.getValue();
+                    final ExpiringConsumer<MESSAGE_KIND> consumer = entry.getValue();
 
                     return shouldClose.test(consumer) && tryExpireConsumer(consumer);
                 }));
         }
     }
 
-    private boolean tryExpireConsumer(ExpiringConsumer<MessageKind> consumer) {
+    private boolean tryExpireConsumer(ExpiringConsumer<MESSAGE_KIND> consumer) {
         try {
             consumer.close();
             return true;
@@ -237,11 +237,11 @@ public class PartitionedWriter<MessageKind> implements Closeable {
      * @param partitionId       Origin partition id
      * @return                  Existing or just-created consumer
      */
-    private ExpiringConsumer<MessageKind> getWriter(LocalDateTime dayStartTime, int partitionId) {
+    private ExpiringConsumer<MESSAGE_KIND> getWriter(LocalDateTime dayStartTime, int partitionId) {
         if (!perPartitionDayWriters.containsKey(partitionId))
             perPartitionDayWriters.put(partitionId, new HashMap<>());
 
-        final Map<LocalDateTime, ExpiringConsumer<MessageKind>> partitionMap = perPartitionDayWriters.get(partitionId);
+        final Map<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> partitionMap = perPartitionDayWriters.get(partitionId);
 
         partitionMap.computeIfAbsent(dayStartTime,
                 time -> partitionMap.put(time, writerBuilder.apply(time)));

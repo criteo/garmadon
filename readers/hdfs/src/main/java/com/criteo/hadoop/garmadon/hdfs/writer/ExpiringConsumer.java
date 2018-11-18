@@ -11,10 +11,10 @@ import java.time.temporal.TemporalAmount;
  * Consumer exposing an "expired" status (but not auto-closing) after a set idle time or number of messages. When
  * closing, commit the latest processed offset
  *
- * @param <MessageType>     The actual consumed message type
+ * @param <MESSAGE_TYPE>     The actual consumed message type
  */
-public class ExpiringConsumer<MessageType> implements CloseableBiConsumer<MessageType, Offset> {
-    private final CloseableBiConsumer<MessageType, Offset> writer;
+public class ExpiringConsumer<MESSAGE_TYPE> implements CloseableBiConsumer<MESSAGE_TYPE, Offset> {
+    private final CloseableBiConsumer<MESSAGE_TYPE, Offset> writer;
     private final TemporalAmount expirationDelay;
     private long messagesReceived;
     private long messagesBeforeExpiring;
@@ -26,7 +26,7 @@ public class ExpiringConsumer<MessageType> implements CloseableBiConsumer<Messag
      * @param expirationDelay           Idle delay after which the writer should get closed
      * @param messagesBeforeExpiring    Number of messages to write before expiring
      */
-    public ExpiringConsumer(CloseableBiConsumer<MessageType, Offset> writer, TemporalAmount expirationDelay, long messagesBeforeExpiring) {
+    public ExpiringConsumer(CloseableBiConsumer<MESSAGE_TYPE, Offset> writer, TemporalAmount expirationDelay, long messagesBeforeExpiring) {
         this.writer = writer;
         this.expirationDelay = expirationDelay;
         this.messagesBeforeExpiring = messagesBeforeExpiring;
@@ -39,7 +39,7 @@ public class ExpiringConsumer<MessageType> implements CloseableBiConsumer<Messag
      * @param message   The message to be written
      */
     @Override
-    public void write(MessageType message, Offset offset) throws IOException {
+    public void write(MESSAGE_TYPE message, Offset offset) throws IOException {
         this.lastUpdate = Instant.now();
         ++this.messagesReceived;
 

@@ -16,14 +16,14 @@ import java.time.format.DateTimeFormatter;
 /**
  * Wrap an actual ProtoParquetWriter, renaming the output file properly when closing.
  *
- * @param <MessageKind>     The message to be written in Proto + Parquet
+ * @param <MESSAGE_KIND>     The message to be written in Proto + Parquet
  */
-public class ProtoParquetWriterWithOffset<MessageKind extends MessageOrBuilder>
-        implements CloseableBiConsumer<MessageKind, Offset> {
+public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
+        implements CloseableBiConsumer<MESSAGE_KIND, Offset> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtoParquetWriterWithOffset.class);
 
     private final Path temporaryHdfsPath;
-    private final ProtoParquetWriter<MessageKind> writer;
+    private final ProtoParquetWriter<MESSAGE_KIND> writer;
     private final Path finalHdfsDir;
     private final FileSystem fs;
     private final OffsetComputer fileNamer;
@@ -39,7 +39,7 @@ public class ProtoParquetWriterWithOffset<MessageKind extends MessageOrBuilder>
      * @param fileNamer         File-naming logic for the final path
      * @param dayStartTime      The day partition the final file will go to
      */
-    public ProtoParquetWriterWithOffset(ProtoParquetWriter<MessageKind> writer, Path temporaryHdfsPath,
+    public ProtoParquetWriterWithOffset(ProtoParquetWriter<MESSAGE_KIND> writer, Path temporaryHdfsPath,
                                         Path finalHdfsDir, FileSystem fs, OffsetComputer fileNamer,
                                         LocalDateTime dayStartTime) {
         this.writer = writer;
@@ -71,7 +71,7 @@ public class ProtoParquetWriterWithOffset<MessageKind extends MessageOrBuilder>
     }
 
     @Override
-    public void write(MessageKind msg, Offset offset) throws IOException {
+    public void write(MESSAGE_KIND msg, Offset offset) throws IOException {
         if (latestOffset == null || offset.getOffset() > latestOffset.getOffset())
             latestOffset = offset;
 

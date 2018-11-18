@@ -1,5 +1,8 @@
 package com.criteo.hadoop.garmadon.protocol;
 
+/**
+ *  Provide constants for garmadon protocol
+ */
 public class ProtocolConstants {
 
     public static final int GREETING_SIZE = 4;
