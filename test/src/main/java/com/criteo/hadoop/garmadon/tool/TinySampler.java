@@ -1,4 +1,4 @@
-package com.criteo.hadoop.garmadon;
+package com.criteo.hadoop.garmadon.tool;
 
 import java.io.File;
 import java.io.FileOutputStream;

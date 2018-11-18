@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.Checksum;
 
-import com.criteo.hadoop.garmadon.TinySampler;
+import com.criteo.hadoop.garmadon.tool.TinySampler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;

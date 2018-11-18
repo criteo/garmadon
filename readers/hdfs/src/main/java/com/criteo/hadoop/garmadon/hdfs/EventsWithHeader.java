@@ -1,11 +1,7 @@
 package com.criteo.hadoop.garmadon.hdfs;
 
-import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
-import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
-import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
-import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.*;
 import com.criteo.hadoop.garmadon.protobuf.ProtoConcatenator;
-import com.criteo.jvm.JVMStatisticsProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Message;
@@ -20,7 +16,7 @@ import java.util.Collection;
 final class EventsWithHeader {
     public static abstract class GCStatisticsData implements Message {
         public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
-            return descriptorForTypeWithHeader(JVMStatisticsProtos.GCStatisticsData.getDescriptor());
+            return descriptorForTypeWithHeader(JVMStatisticsEventsProtos.GCStatisticsData.getDescriptor());
         }
     }
 

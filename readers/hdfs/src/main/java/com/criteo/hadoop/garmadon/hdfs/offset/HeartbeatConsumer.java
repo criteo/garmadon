@@ -17,23 +17,23 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Send periodic heartbeats to a collection of writers, only if different from previous heartbeat
- * @param <MessageKind>
+ * @param <MESSAGE_KIND>
  */
-public class HeartbeatConsumer<MessageKind> implements GarmadonReader.GarmadonMessageHandler {
+public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonMessageHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(HeartbeatConsumer.class);
 
     private final Map<Integer, Offset> latestPartitionsOffset = new HashMap<>();
     private final Map<Integer, Offset> latestHeartbeats = new HashMap<>();
 
     private final TemporalAmount period;
-    private final Collection<PartitionedWriter<MessageKind>> writers;
+    private final Collection<PartitionedWriter<MESSAGE_KIND>> writers;
     private Thread runningThread;
 
     /**
      * @param writers   Writers to send heartbeats to
      * @param period    How frequently heartbeats should be sent
      */
-    public HeartbeatConsumer(Collection<PartitionedWriter<MessageKind>> writers, TemporalAmount period) {
+    public HeartbeatConsumer(Collection<PartitionedWriter<MESSAGE_KIND>> writers, TemporalAmount period) {
         this.writers = writers;
         this.period = period;
     }

@@ -1,4 +1,4 @@
-package com.criteo.hadoop.garmadon;
+package com.criteo.hadoop.garmadon.tool;
 
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
