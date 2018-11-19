@@ -56,7 +56,7 @@ public class JVMStatistics {
         } catch (Exception ex) {
             LOGGER.debug("Cannot register statistics", ex);
         }
-        executor.scheduleAtFixedRate(this::collect, 0, conf.getInterval().getSeconds(), TimeUnit.SECONDS);
+        executor.scheduleWithFixedDelay(this::collect, 0, conf.getInterval().getSeconds(), TimeUnit.SECONDS);
     }
 
     public void delayStart(int seconds) {
