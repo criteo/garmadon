@@ -128,7 +128,7 @@ public class SocketAppender {
             if (socket != null) {
                 try {
                     socket.close();
-                } catch (IOException ignore) {
+                } catch (IOException ignored) {
                 }
             }
             connectionEstablished = false;

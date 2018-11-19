@@ -279,7 +279,7 @@ public class FileSystemTracer {
                 try {
                     field = ClientNamenodeProtocolTranslatorPB.class.getDeclaredField("rpcProxy");
                     field.setAccessible(true);
-                } catch (Exception ignore) {
+                } catch (Exception ignored) {
                 }
             }
         }

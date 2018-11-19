@@ -24,6 +24,7 @@ public class JVMStatistics {
 
     private static final Map<String, Class<?>> STATISTIC_COLLECTOR_CLASSES = new ConcurrentHashMap<>();
     private static final Map<String, Class<?>> GC_NOTIFICATIONS_CLASSES = new ConcurrentHashMap<>();
+
     static {
         registerStatisticCollector(DEFAULT_SINK_TYPE, LogStatisticCollector.class);
         registerGCNotifications(DEFAULT_SINK_TYPE, LogGCNotifications.class);
@@ -32,6 +33,7 @@ public class JVMStatistics {
     public static void registerStatisticCollector(String name, Class<?> clazz) {
         STATISTIC_COLLECTOR_CLASSES.put(name, clazz);
     }
+
     public static void registerGCNotifications(String name, Class<?> clazz) {
         GC_NOTIFICATIONS_CLASSES.put(name, clazz);
     }
@@ -74,14 +76,15 @@ public class JVMStatistics {
         machineStatsCollector.collect();
     }
 
-    private  static StatisticCollector<?> createStatisticCollector(Conf conf, BiConsumer<Long, ?> logStatistics) {
+    private static StatisticCollector<?> createStatisticCollector(Conf conf, BiConsumer<Long, ?> logStatistics) {
         Class<?> clazz = STATISTIC_COLLECTOR_CLASSES.get(conf.getSinkType());
-        if (clazz == null)
-            throw new UnsupportedOperationException(conf.getSinkType()+ " statistics collector not supported");
+        if (clazz == null) {
+            throw new UnsupportedOperationException(conf.getSinkType() + " statistics collector not supported");
+        }
         Constructor<?> constructor;
         try {
             constructor = clazz.getConstructor(BiConsumer.class);
-            return (StatisticCollector<?>)constructor.newInstance(logStatistics);
+            return (StatisticCollector<?>) constructor.newInstance(logStatistics);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -89,8 +92,9 @@ public class JVMStatistics {
 
     private GCNotifications createGCNotifications(Conf<?, ?, ?> conf) {
         Class<?> clazz = GC_NOTIFICATIONS_CLASSES.get(conf.getSinkType());
-        if (clazz == null)
-            throw new UnsupportedOperationException(conf.getSinkType()+ " gc notifications not supported");
+        if (clazz == null) {
+            throw new UnsupportedOperationException(conf.getSinkType() + " gc notifications not supported");
+        }
         try {
             return (GCNotifications) clazz.newInstance();
         } catch (Exception e) {
@@ -130,8 +134,7 @@ public class JVMStatistics {
         Thread t = new Thread(() -> {
             int i = 0;
             String s;
-            while (true)
-            {
+            while (true) {
                 s = new Integer(i++).toString();
                 Thread.yield();
             }

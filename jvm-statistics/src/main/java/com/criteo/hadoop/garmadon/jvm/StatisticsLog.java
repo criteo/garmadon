@@ -13,15 +13,11 @@ public class StatisticsLog implements StatisticsSink<String> {
     private int sectionStart;
 
     @Override
-    public StatisticsLog beginSection(String name)
-    {
+    public StatisticsLog beginSection(String name) {
         sectionStart = logs.size();
-        if (isFirstSection)
-        {
+        if (isFirstSection) {
             isFirstSection = false;
-        }
-        else
-        {
+        } else {
             logs.add(", ");
         }
         logs.add(name);
@@ -31,33 +27,26 @@ public class StatisticsLog implements StatisticsSink<String> {
     }
 
     @Override
-    public StatisticsSink addDuration(String property, long timeInMilli)
-    {
+    public StatisticsSink addDuration(String property, long timeInMilli) {
         return add(property, timeInMilli);
     }
 
     @Override
-    public StatisticsSink addSize(String property, long sizeInBytes)
-    {
-        return add(property, sizeInBytes/1024);
+    public StatisticsSink addSize(String property, long sizeInBytes) {
+        return add(property, sizeInBytes / 1024);
     }
 
     @Override
-    public StatisticsLog addPercentage(String property, int percent)
-    {
+    public StatisticsLog addPercentage(String property, int percent) {
         add("%" + property, String.valueOf(percent));
         return this;
     }
 
     @Override
-    public StatisticsLog add(String property, String value)
-    {
-        if (isFirstProperty)
-        {
+    public StatisticsLog add(String property, String value) {
+        if (isFirstProperty) {
             isFirstProperty = false;
-        }
-        else
-        {
+        } else {
             logs.add(", ");
         }
         logs.add(property);
@@ -77,25 +66,19 @@ public class StatisticsLog implements StatisticsSink<String> {
     }
 
     @Override
-    public StatisticsLog endSection()
-    {
-        if ("[".equals(logs.get(logs.size()-1)))
-        {
+    public StatisticsLog endSection() {
+        if ("[".equals(logs.get(logs.size() - 1))) {
             // empty section, rollback
-            while (logs.size() > sectionStart)
-            {
-                logs.remove(logs.size()-1);
+            while (logs.size() > sectionStart) {
+                logs.remove(logs.size() - 1);
             }
-        }
-        else
-        {
+        } else {
             logs.add("]");
         }
         return this;
     }
 
-    public StatisticsLog reset()
-    {
+    public StatisticsLog reset() {
         logs.clear();
         isFirstSection = true;
         isFirstProperty = true;

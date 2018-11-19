@@ -137,8 +137,7 @@ public class Heuristics {
         if (State.END.toString().equals(stateEvent.getState())) {
             heuristics.forEach(h -> h.onContainerCompleted(applicationId, attemptId, containerId));
             Set<String> appContainers = containersPerApp.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashSet<>());
-            if (appContainers.size() == 0)
-                return;
+            if (appContainers.size() == 0) return;
             appContainers.remove(containerId);
             if (appContainers.size() == 0) {
                 LOGGER.info("App {} is finished. All containers have been removed", applicationId);

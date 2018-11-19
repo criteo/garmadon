@@ -25,8 +25,7 @@ public class LinuxHelper {
         try {
             raf.seek(0);
             String line = raf.readLine();
-            if (line == null)
-                return new String[0];
+            if (line == null) return new String[0];
             return SPACES_PATTERN.split(line);
         } catch (IOException ignored) {
             return new String[0];
@@ -47,8 +46,7 @@ public class LinuxHelper {
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith(key + ": ")) {
                     Matcher matcher = COUNT_PATTERN.matcher(line);
-                    if (matcher.find())
-                        return matcher.group(1);
+                    if (matcher.find()) return matcher.group(1);
                 }
             }
         } catch (IOException ignored) {

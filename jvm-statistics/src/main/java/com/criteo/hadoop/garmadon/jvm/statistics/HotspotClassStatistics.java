@@ -22,16 +22,14 @@ class HotspotClassStatistics extends ClassStatistics {
     protected void innerCollect(StatisticsSink sink) {
         super.innerCollect(sink);
         long initialized = hsClassloading.getInitializedClassCount();
-        if (initialized != -1) // Azul VM does not provide times
-            sink.add(CLASS_VAR_INITIALIZED, initialized);
+        if (initialized != -1) sink.add(CLASS_VAR_INITIALIZED, initialized); // Azul VM does not provide times
         addValidDuration(sink, CLASS_VAR_LOADTIME, hsClassloading.getClassLoadingTime());
         addValidDuration(sink, CLASS_VAR_INITTIME, hsClassloading.getClassInitializationTime());
         addValidDuration(sink, CLASS_VAR_VERIFTIME, hsClassloading.getClassVerificationTime());
     }
 
     private static void addValidDuration(StatisticsSink sink, String property, long duration) {
-        if (duration == -1) // Azul VM does not provide times
-            return;
+        if (duration == -1) return; // Azul VM does not provide times
         sink.addDuration(property, duration);
     }
 }

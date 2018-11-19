@@ -126,10 +126,8 @@ public class Extractor {
         String kafkaConnectString = args[0];
         String containerId = args[1];
         Extractor extractor;
-        if ("stats".equals(containerId))
-            extractor = new Extractor(kafkaConnectString);
-        else
-            extractor = new Extractor(kafkaConnectString, containerId);
+        if ("stats".equals(containerId)) extractor = new Extractor(kafkaConnectString);
+        else extractor = new Extractor(kafkaConnectString, containerId);
         extractor.start();
         Runtime.getRuntime().addShutdownHook(new Thread(extractor::stop));
     }

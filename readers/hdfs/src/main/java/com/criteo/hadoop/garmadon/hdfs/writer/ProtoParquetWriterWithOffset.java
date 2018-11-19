@@ -72,10 +72,8 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
 
     @Override
     public void write(MESSAGE_KIND msg, Offset offset) throws IOException {
-        if (latestOffset == null || offset.getOffset() > latestOffset.getOffset())
-            latestOffset = offset;
+        if (latestOffset == null || offset.getOffset() > latestOffset.getOffset()) latestOffset = offset;
 
-        if (msg != null)
-            writer.write(msg);
+        if (msg != null) writer.write(msg);
     }
 }

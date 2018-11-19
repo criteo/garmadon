@@ -73,10 +73,8 @@ public class OffsetResetter<K, V, MESSAGE_KIND> implements ConsumerRebalanceList
                     break;
                 }
 
-                if (startingOffset == UNKNOWN_OFFSET)
-                    startingOffset = offset;
-                else
-                    startingOffset = Math.min(startingOffset, offset);
+                if (startingOffset == UNKNOWN_OFFSET) startingOffset = offset;
+                else startingOffset = Math.min(startingOffset, offset);
             }
 
              synchronized (consumer) {

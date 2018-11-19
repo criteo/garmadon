@@ -116,7 +116,7 @@ public class RMAppTracer {
                         .build();
 
                 eventHandler.accept(submitTime, header, event);
-            } catch (Exception ignore) {
+            } catch (Exception ignored) {
             }
         }
     }

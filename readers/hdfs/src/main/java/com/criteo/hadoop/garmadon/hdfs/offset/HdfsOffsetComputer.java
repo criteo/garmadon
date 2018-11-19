@@ -45,16 +45,14 @@ public class HdfsOffsetComputer implements OffsetComputer {
             final String fileName = fileStatus.getPath().getName();
 
             final Matcher matcher = partitionBasedPattern.matcher(fileName);
-            if (!matcher.matches() || matcher.groupCount() < 1)
-                continue;
+            if (!matcher.matches() || matcher.groupCount() < 1) continue;
 
             final String offsetString = matcher.group(1);
             final long offset;
 
             try {
                  offset = Long.valueOf(offsetString);
-            }
-            catch (NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 LOGGER.info("Couldn't deviate a valid offset from '{}'", offsetString);
                 continue;
             }

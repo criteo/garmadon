@@ -46,8 +46,7 @@ public abstract class StatisticCollector<T> {
                 // swallow any issue during stats collection
             }
         }
-        if (printer != null)
-            printer.accept(System.currentTimeMillis(), sink.flush());
+        if (printer != null) printer.accept(System.currentTimeMillis(), sink.flush());
     }
 
     public void unregister() {
@@ -61,22 +60,18 @@ public abstract class StatisticCollector<T> {
     }
 
     private void processDelayedRegisterStatistics() {
-        if (delayedRegisterStatistics.isEmpty())
-            return;
+        if (delayedRegisterStatistics.isEmpty()) return;
         List<Supplier<AbstractStatistic>> list = new ArrayList<>(delayedRegisterStatistics);
         delayedRegisterStatistics.clear();
         for (Supplier<AbstractStatistic> callback : list) {
             try {
                 AbstractStatistic statistic = callback.get();
-                if (statistic != null)
-                    statistics.add(statistic);
+                if (statistic != null) statistics.add(statistic);
             } catch (Throwable ex) {
                 if (retries.decrementAndGet() > 0) {
                     LOGGER.debug("Cannot register statistic, retrying: " + ex.toString());
                     delayedRegisterStatistics.add(callback);
-                }
-                else
-                    LOGGER.debug("Cannot register statistic: ", ex);
+                } else LOGGER.debug("Cannot register statistic: ", ex);
             }
         }
     }

@@ -64,8 +64,7 @@ public class EventAgent {
     }
 
     private static void loadModules(String modules, Instrumentation instrumentation, AsyncEventProcessor eventProcessor) {
-        if (modules == null)
-            return;
+        if (modules == null) return;
         String[] classes = modules.split(",");
         for (String className : classes) {
             try {
