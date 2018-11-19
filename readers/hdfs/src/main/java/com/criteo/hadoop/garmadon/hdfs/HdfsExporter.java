@@ -141,8 +141,7 @@ public class HdfsExporter {
 
         try {
             garmadonReader.startReading().join();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error("Reader thread interrupted", e);
         }
 
@@ -160,16 +159,14 @@ public class HdfsExporter {
     private static void ensureDirectoriesExist(List<Path> dirs, FileSystem fs) {
         try {
             for (Path dir : dirs) {
-                if (!fs.exists(dir))
-                    fs.mkdirs(dir);
+                if (!fs.exists(dir)) fs.mkdirs(dir);
 
                 if (!fs.isDirectory(dir)) {
                     throw new IllegalStateException(
                             String.format("Couldn't ensure directory %s exists: not a directory", dir.getName()));
                 }
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             final String dirsString = dirs.stream().map(Path::getName).collect(Collectors.joining());
             throw new IllegalStateException(String.format("Couldn't ensure directories %s exist", dirsString), e);
         }

@@ -27,22 +27,20 @@ public class ProtobufStatisticsSink implements StatisticsSink<JVMStatisticsEvent
 
     @Override
     public StatisticsSink<JVMStatisticsEventsProtos.JVMStatisticsData> addSize(String property, long sizeInBytes) {
-        return add(property, String.valueOf(sizeInBytes/1024));
+        return add(property, String.valueOf(sizeInBytes / 1024));
     }
 
     @Override
     public StatisticsSink<JVMStatisticsEventsProtos.JVMStatisticsData> addPercentage(String property, int percent) {
-        return add( "%" + property, String.valueOf(percent));
+        return add("%" + property, String.valueOf(percent));
     }
 
     @Override
     public StatisticsSink<JVMStatisticsEventsProtos.JVMStatisticsData> add(String property, String value) {
-        if (sectionBuilder == null)
-            sectionBuilder = dataBuilder.addSectionBuilder();
+        if (sectionBuilder == null) sectionBuilder = dataBuilder.addSectionBuilder();
         JVMStatisticsEventsProtos.JVMStatisticsData.Property.Builder propertyBuilder = sectionBuilder.addPropertyBuilder();
         propertyBuilder.setName(property);
-        if (value != null)
-            propertyBuilder.setValue(value);
+        if (value != null) propertyBuilder.setValue(value);
         propertyBuilder.build();
         return this;
     }

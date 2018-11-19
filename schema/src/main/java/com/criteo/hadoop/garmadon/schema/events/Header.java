@@ -50,8 +50,7 @@ public class Header {
 
     @Override
     public boolean equals(Object other) {
-        if (!(other instanceof Header))
-            return false;
+        if (!(other instanceof Header)) return false;
 
         Header otherHeader = (Header) other;
 
@@ -108,34 +107,23 @@ public class Header {
     public byte[] serialize() {
         EventHeaderProtos.Header.Builder builder = EventHeaderProtos.Header
                 .newBuilder();
-        if (id != null)
-            builder.setId(id);
-        if (applicationID != null)
-            builder.setApplicationId(applicationID);
-        if (appAttemptID != null)
-            builder.setAppAttemptId(appAttemptID);
-        if (applicationName != null)
-            builder.setApplicationName(applicationName);
-        if (user != null)
-            builder.setUserName(user);
-        if (containerID != null)
-            builder.setContainerId(containerID);
-        if (hostname != null)
-            builder.setHostname(hostname);
-        if (tags != null && tags.size() > 0)
+        if (id != null) builder.setId(id);
+        if (applicationID != null) builder.setApplicationId(applicationID);
+        if (appAttemptID != null) builder.setAppAttemptId(appAttemptID);
+        if (applicationName != null) builder.setApplicationName(applicationName);
+        if (user != null) builder.setUserName(user);
+        if (containerID != null) builder.setContainerId(containerID);
+        if (hostname != null) builder.setHostname(hostname);
+        if (tags != null && tags.size() > 0) {
             for (String tag : tags) {
                 builder.addTags(tag);
             }
-        if (pid != null)
-            builder.setPid(pid);
-        if (framework != null)
-            builder.setFramework(framework);
-        if (component != null)
-            builder.setComponent(component);
-        if (executorId != null)
-            builder.setExecutorId(executorId);
-        if (mainClass != null)
-            builder.setMainClass(mainClass);
+        }
+        if (pid != null) builder.setPid(pid);
+        if (framework != null) builder.setFramework(framework);
+        if (component != null) builder.setComponent(component);
+        if (executorId != null) builder.setExecutorId(executorId);
+        if (mainClass != null) builder.setMainClass(mainClass);
         return builder.build().toByteArray();
     }
 

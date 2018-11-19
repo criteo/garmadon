@@ -57,5 +57,17 @@
         <module name="ParameterName"/>
         <module name="StaticVariableName"/>
         <module name="TypeName"/>
+
+        <!-- Checks for blocks.         -->
+        <module name="AvoidNestedBlocks"/>
+        <module name="EmptyBlock"/>
+        <module name="EmptyCatchBlock">
+            <property name="exceptionVariableName" value="ignored"/>
+        </module>
+        <module name="LeftCurly"/>
+        <module name="NeedBraces">
+            <property name="allowSingleLineStatement" value="true"/>
+        </module>
+        <module name="RightCurly"/>
     </module>
 </module>

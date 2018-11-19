@@ -28,6 +28,7 @@ public class GarmadonReader {
 
     protected final Reader reader;
     public static String hostname;
+
     static {
         try {
             hostname = InetAddress.getLocalHost().getCanonicalHostName();
@@ -276,8 +277,7 @@ public class GarmadonReader {
         }
 
         public GarmadonReader build(boolean autoSubscribe) {
-            if (autoSubscribe)
-                kafkaConsumer.subscribe(Collections.singletonList(GARMADON_TOPIC));
+            if (autoSubscribe) kafkaConsumer.subscribe(Collections.singletonList(GARMADON_TOPIC));
 
             return new GarmadonReader(kafkaConsumer, beforeInterceptHandlers, listeners);
         }

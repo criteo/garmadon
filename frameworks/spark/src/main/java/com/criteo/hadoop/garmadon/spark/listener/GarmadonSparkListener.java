@@ -60,8 +60,7 @@ public class GarmadonSparkListener extends SparkListener {
     private void tryToSet(Runnable c) {
         try {
             c.run();
-        } catch (Throwable t) {
-
+        } catch (Throwable ignored) {
         }
     }
 

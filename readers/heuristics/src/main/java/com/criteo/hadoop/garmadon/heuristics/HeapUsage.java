@@ -43,8 +43,7 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
                 Matcher matcher = GC_NAME_PATTERN.matcher(sectionName);
                 if (matcher.find()) {
                     String gcName = matcher.group(1);
-                    if (heapCounters.gcKind == null)
-                        heapCounters.gcKind = GCHelper.gcKind(gcName);
+                    if (heapCounters.gcKind == null) heapCounters.gcKind = GCHelper.gcKind(gcName);
                     switch (GCHelper.gcGenKind(gcName)) {
                         case MINOR:
                             heapCounters.minorGC = count;
@@ -61,11 +60,9 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
     @Override
     public void onContainerCompleted(String applicationId, String attemptId, String containerId) {
         Map<String, HeapCounters> containerCounters = appCounters.get(HeuristicHelper.getAppAttemptId(applicationId, attemptId));
-        if (containerCounters == null)
-            return;
+        if (containerCounters == null) return;
         HeapCounters heapCounters = containerCounters.get(containerId);
-        if (heapCounters == null)
-            return;
+        if (heapCounters == null) return;
         if (heapCounters.majorGC > 0 || heapCounters.max <= heapCounters.peak) {
             containerCounters.remove(containerId);
             return;
@@ -74,12 +71,9 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
         long max = heapCounters.max;
         long peak = heapCounters.peak;
         long ratio = (max - peak) * 100 / max;
-        if (ratio > 30)
-            severity = HeuristicsResultDB.Severity.LOW;
-        if (ratio > 50)
-            severity = HeuristicsResultDB.Severity.MODERATE;
-        if (ratio > 70)
-            severity = HeuristicsResultDB.Severity.SEVERE;
+        if (ratio > 30) severity = HeuristicsResultDB.Severity.LOW;
+        if (ratio > 50) severity = HeuristicsResultDB.Severity.MODERATE;
+        if (ratio > 70) severity = HeuristicsResultDB.Severity.SEVERE;
         heapCounters.severity = severity;
         heapCounters.ratio = ratio;
     }

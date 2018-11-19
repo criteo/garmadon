@@ -8,18 +8,15 @@ import java.io.Closeable;
 public abstract class AbstractStatistic implements Closeable {
     protected final String name;
 
-    public AbstractStatistic(String name)
-    {
+    public AbstractStatistic(String name) {
         this.name = name;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public void collect(StatisticsSink sink) throws Throwable
-    {
+    public void collect(StatisticsSink sink) throws Throwable {
         sink.beginSection(name);
         innerCollect(sink);
         sink.endSection();
@@ -32,8 +29,7 @@ public abstract class AbstractStatistic implements Closeable {
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return name;
     }
 }

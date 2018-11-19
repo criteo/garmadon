@@ -77,8 +77,9 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
             final CommittableOffset offset = msg.getCommittableOffset();
             final Offset currentMaxOffset = latestPartitionsOffset.get(offset.getPartition());
 
-            if (currentMaxOffset == null || offset.getOffset() > currentMaxOffset.getOffset())
+            if (currentMaxOffset == null || offset.getOffset() > currentMaxOffset.getOffset()) {
                 latestPartitionsOffset.put(offset.getPartition(), offset);
+            }
         }
     }
 

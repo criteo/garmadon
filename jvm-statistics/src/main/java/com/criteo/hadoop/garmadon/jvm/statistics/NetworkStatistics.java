@@ -20,8 +20,7 @@ class NetworkStatistics extends AbstractStatistic {
     NetworkStatistics() {
         super(NETWORK_HEADER);
         for (NetworkIF nic : new SystemInfo().getHardware().getNetworkIFs()) {
-            if (nic.getBytesSent() == 0 && nic.getBytesRecv() == 0) // nothing happens on this nic since boot
-                continue;
+            if (nic.getBytesSent() == 0 && nic.getBytesRecv() == 0) continue; // nothing happens on this nic since boot
             nics.add(nic);
         }
         previousRx = new long[nics.size()];

@@ -70,8 +70,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
         synchronized (perPartitionDayWriters) {
             final long startingOffset = getStartingOffset(partitionId);
 
-            if (offset.getOffset() <= startingOffset)
-                return;
+            if (offset.getOffset() <= startingOffset) return;
 
             // /!\ This line must not be switched with the offset computation as this would create empty files otherwise
             final ExpiringConsumer<MESSAGE_KIND> consumer = getWriter(dayStartTime, partitionId);
@@ -138,8 +137,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
 
                     final Path writtenFilePath = heartbeatWriter.close();
 
-                    if (writtenFilePath != null)
-                        LOGGER.info("Written heartbeat file {}", writtenFilePath.toUri().getPath());
+                    if (writtenFilePath != null) LOGGER.info("Written heartbeat file {}", writtenFilePath.toUri().getPath());
                 } catch (IOException e) {
                     LOGGER.warn("Could not write heartbeat", e);
                 }
@@ -238,8 +236,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      * @return                  Existing or just-created consumer
      */
     private ExpiringConsumer<MESSAGE_KIND> getWriter(LocalDateTime dayStartTime, int partitionId) {
-        if (!perPartitionDayWriters.containsKey(partitionId))
-            perPartitionDayWriters.put(partitionId, new HashMap<>());
+        if (!perPartitionDayWriters.containsKey(partitionId)) perPartitionDayWriters.put(partitionId, new HashMap<>());
 
         final Map<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> partitionMap = perPartitionDayWriters.get(partitionId);
 

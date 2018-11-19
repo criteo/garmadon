@@ -30,8 +30,9 @@ public class MXBeanStatistics {
 
     protected void addGCStatistics(StatisticCollector collector) {
         GarbageCollectorMXBean[] garbageCollectors = ManagementFactory.getGarbageCollectorMXBeans().toArray(new GarbageCollectorMXBean[0]);
-        for (GarbageCollectorMXBean garbageCollector : garbageCollectors)
+        for (GarbageCollectorMXBean garbageCollector : garbageCollectors) {
             collector.register(new GCStatistics(garbageCollector));
+        }
     }
 
     protected void addMemoryStatistics(StatisticCollector collector) {

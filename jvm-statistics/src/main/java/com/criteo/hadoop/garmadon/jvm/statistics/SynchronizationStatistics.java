@@ -29,21 +29,16 @@ class SynchronizationStatistics extends AbstractStatistic {
         int counters = 0;
         for (Counter counter : hsRuntime.getInternalRuntimeCounters()) {
             String counterName = counter.getName();
-            if (this.counters.contains(counterName))
-                counters++;
+            if (this.counters.contains(counterName)) counters++;
         }
-        if (counters == 0)
-            throw new RuntimeException("No sync locks counters found");
+        if (counters == 0) throw new RuntimeException("No sync locks counters found");
     }
 
     @Override
-    protected void innerCollect(StatisticsSink sink) throws Throwable
-    {
-        for (Counter counter :  hsRuntime.getInternalRuntimeCounters())
-        {
+    protected void innerCollect(StatisticsSink sink) {
+        for (Counter counter : hsRuntime.getInternalRuntimeCounters()) {
             String counterName = counter.getName();
-            if (counters.contains(counterName))
-            {
+            if (counters.contains(counterName)) {
                 counterName = counterName.substring("sun.rt._sync_".length()).toLowerCase();
                 Object value = counter.getValue();
                 sink.add(counterName, value.toString());

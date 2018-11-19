@@ -24,8 +24,7 @@ class DiskStatistics extends AbstractStatistic {
     DiskStatistics() {
         super(DISK_HEADER);
         for (HWDiskStore disk : new SystemInfo().getHardware().getDiskStores()) {
-            if (disk.getReads() == 0 && disk.getWrites() == 0)  // nothing happens on this disk since boot
-                continue;
+            if (disk.getReads() == 0 && disk.getWrites() == 0) continue;  // nothing happens on this disk since boot
             disks.add(disk);
         }
         previousReads = new long[disks.size()];
