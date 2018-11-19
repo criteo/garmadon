@@ -20,8 +20,6 @@ public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
 
-        int type = msg.getInt(0);
-
         int headerSize = msg.getInt(ProtocolConstants.HEADER_SIZE_INDEX);
 
         byte[] headerByte = new byte[headerSize];
@@ -45,8 +43,6 @@ public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
             ctx.channel().attr(headerAttr).set(header);
             isFirst = false;
         }
-
-        PrometheusHttpMetrics.eventSize(type).observe(raw.length);
 
         ctx.fireChannelRead(kafkaMessage);
     }
