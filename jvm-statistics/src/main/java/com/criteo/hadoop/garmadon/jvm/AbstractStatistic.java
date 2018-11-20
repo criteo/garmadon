@@ -6,7 +6,7 @@ import java.io.Closeable;
  * Base class for any specific statistic
  */
 public abstract class AbstractStatistic implements Closeable {
-    protected final String name;
+    private final String name;
 
     public AbstractStatistic(String name) {
         this.name = name;

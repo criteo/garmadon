@@ -8,19 +8,19 @@ import java.util.Objects;
 
 public class Header {
 
-    protected final String id;
-    protected final String applicationID;
-    protected final String appAttemptID;
-    protected final String applicationName;
-    protected final String user;
-    protected final String containerID;
-    protected final String hostname;
-    protected final String pid;
-    protected final String framework;
-    protected final String component;
-    protected final String executorId;
-    protected final String mainClass;
-    protected final List<String> tags;
+    private final String id;
+    private final String applicationID;
+    private final String appAttemptID;
+    private final String applicationName;
+    private final String user;
+    private final String containerID;
+    private final String hostname;
+    private final String pid;
+    private final String framework;
+    private final String component;
+    private final String executorId;
+    private final String mainClass;
+    private final List<String> tags;
 
     public enum Tag {
         YARN_APPLICATION,

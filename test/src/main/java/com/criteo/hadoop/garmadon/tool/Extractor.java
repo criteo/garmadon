@@ -19,7 +19,7 @@ import java.util.Properties;
 
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.*;
 
-public class Extractor {
+public final class Extractor {
 
     private final GarmadonReader reader;
     private Map<String, Stats> containers = new HashMap<>();
@@ -138,8 +138,8 @@ public class Extractor {
     }
 
     private static class Stats {
-        final String applicationId;
-        final String containerId;
+        private final String applicationId;
+        private final String containerId;
         private String framework;
         private long jvmStatCount;
         private long gcStatCount;

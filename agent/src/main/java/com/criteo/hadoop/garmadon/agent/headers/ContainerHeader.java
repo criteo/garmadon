@@ -12,7 +12,7 @@ import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ContainerHeader {
+public final class ContainerHeader {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerHeader.class);
     private Header.SerializedHeader header;
 

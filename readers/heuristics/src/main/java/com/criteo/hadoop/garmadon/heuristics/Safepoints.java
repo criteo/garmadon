@@ -67,8 +67,8 @@ public class Safepoints implements JVMStatsHeuristic {
     }
 
     private static class SafepointsCounters extends BaseCounter {
-        long lastCount;
-        long lastTimestamp;
-        long ratio;
+        private long lastCount;
+        private long lastTimestamp;
+        private long ratio;
     }
 }

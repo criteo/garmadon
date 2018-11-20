@@ -177,7 +177,7 @@ public class HotSpotMXBeanStatistics extends MXBeanStatistics {
     static class LinuxMemInfoWrapperOperatingSystemMXBean implements OperatingSystemMXBean {
         private static final Pattern CACHED_PATTERN = Pattern.compile("Cached:\\s*(\\d+) kB$");
 
-        protected final OperatingSystemMXBean os;
+        private final OperatingSystemMXBean os;
 
         public LinuxMemInfoWrapperOperatingSystemMXBean(OperatingSystemMXBean os) {
             this.os = os;

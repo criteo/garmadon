@@ -49,37 +49,37 @@ public class PrometheusHttpConsumerMetrics {
             LOGGER.error("", e);
         }
         scheduler.scheduleAtFixedRate(() -> {
-            try {
-                exposeKafkaMetrics();
-            } catch (IntrospectionException | InstanceNotFoundException | ReflectionException | AttributeNotFoundException | MBeanException e) {
-                LOGGER.warn("", e);
-            }
+            exposeKafkaMetrics();
         }, 0, 30, TimeUnit.SECONDS);
     }
 
-    protected static void exposeKafkaMetrics() throws IntrospectionException, InstanceNotFoundException, ReflectionException, AttributeNotFoundException, MBeanException {
-        if (oName != null) {
-            MBeanInfo info = MBS.getMBeanInfo(oName);
-            MBeanAttributeInfo[] attrInfo = info.getAttributes();
-            for (MBeanAttributeInfo attr : attrInfo) {
-                if (attr.isReadable() && attr.getType().equals("double")) {
-                    BASE_KAFKA_METRICS_GAUGE.labels(attr.getName(), GarmadonReader.hostname, RELEASE)
-                            .set((Double) MBS.getAttribute(oName, attr.getName()));
+    protected static void exposeKafkaMetrics() {
+        try {
+            if (oName != null) {
+                MBeanInfo info = MBS.getMBeanInfo(oName);
+                MBeanAttributeInfo[] attrInfo = info.getAttributes();
+                for (MBeanAttributeInfo attr : attrInfo) {
+                    if (attr.isReadable() && attr.getType().equals("double")) {
+                        BASE_KAFKA_METRICS_GAUGE.labels(attr.getName(), GarmadonReader.getHostname(), RELEASE)
+                                .set((Double) MBS.getAttribute(oName, attr.getName()));
+                    }
                 }
             }
+        } catch (InstanceNotFoundException | IntrospectionException | ReflectionException | MBeanException | AttributeNotFoundException e) {
+            LOGGER.error("", e);
         }
     }
 
-    public static Counter.Child issueReadingGarmadonMessageBadHead = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("issue_reading_garmadon_message_bad_head",
-            GarmadonReader.hostname,
+    public static final Counter.Child ISSUE_READING_GARMADON_MESSAGE_BAD_HEAD = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("issue_reading_garmadon_message_bad_head",
+            GarmadonReader.getHostname(),
             PrometheusHttpConsumerMetrics.RELEASE);
 
-    public static Counter.Child issueReadingProtoHead = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("issue_reading_proto_head",
-            GarmadonReader.hostname,
+    public static final Counter.Child ISSUE_READING_PROTO_HEAD = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("issue_reading_proto_head",
+            GarmadonReader.getHostname(),
             PrometheusHttpConsumerMetrics.RELEASE);
 
-    public static Counter.Child issueReadingProtoBody = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("issue_reading_proto_body",
-            GarmadonReader.hostname,
+    public static final Counter.Child ISSUE_READING_PROTO_BODY = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("issue_reading_proto_body",
+            GarmadonReader.getHostname(),
             PrometheusHttpConsumerMetrics.RELEASE);
 
     private HTTPServer server;

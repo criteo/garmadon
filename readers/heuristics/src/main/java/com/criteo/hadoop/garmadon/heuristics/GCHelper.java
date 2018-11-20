@@ -15,6 +15,10 @@ public class GCHelper {
         G1
     }
 
+    protected GCHelper() {
+        throw new UnsupportedOperationException();
+    }
+
     public static GCGenKind gcGenKind(String gcName) {
         switch (gcName) {
             case "Copy": return GCGenKind.MINOR;

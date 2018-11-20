@@ -4,6 +4,10 @@ import com.criteo.hadoop.garmadon.schema.events.Header;
 
 public class GarmadonMessageFilters {
 
+    protected GarmadonMessageFilters() {
+        throw new UnsupportedOperationException();
+    }
+
     public static GarmadonMessageFilter.ANY any(){
         return GarmadonMessageFilter.ANY.INSTANCE;
     }

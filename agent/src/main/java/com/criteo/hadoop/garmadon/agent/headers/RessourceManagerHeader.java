@@ -2,7 +2,7 @@ package com.criteo.hadoop.garmadon.agent.headers;
 
 import com.criteo.hadoop.garmadon.schema.events.Header;
 
-public class RessourceManagerHeader {
+public final class RessourceManagerHeader {
     private Header header;
 
     private Header createCachedHeader() {

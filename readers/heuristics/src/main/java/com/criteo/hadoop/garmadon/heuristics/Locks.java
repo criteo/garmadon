@@ -66,8 +66,8 @@ public class Locks implements JVMStatsHeuristic {
     }
 
     private static class LockCounters extends BaseCounter {
-        long lastContendedCount;
-        long lastTimestamp;
-        long ratio;
+        private long lastContendedCount;
+        private long lastTimestamp;
+        private long ratio;
     }
 }

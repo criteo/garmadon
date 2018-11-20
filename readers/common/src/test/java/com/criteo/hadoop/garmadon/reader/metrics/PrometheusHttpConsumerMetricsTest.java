@@ -50,7 +50,7 @@ public class PrometheusHttpConsumerMetricsTest {
         PrometheusHttpConsumerMetrics.exposeKafkaMetrics();
         assertNotNull(CollectorRegistry.defaultRegistry.getSampleValue("garmadon_kafka_metrics",
                 new String[]{"name", "hostname", "release"},
-                new String[]{"IoStats", GarmadonReader.hostname, PrometheusHttpConsumerMetrics.RELEASE}));
+                new String[]{"IoStats", GarmadonReader.getHostname(), PrometheusHttpConsumerMetrics.RELEASE}));
     }
 
     static class KafkaMetrics implements KafkaMetricsMBean {

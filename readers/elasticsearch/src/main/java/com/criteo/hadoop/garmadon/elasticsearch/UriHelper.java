@@ -9,14 +9,18 @@ import java.util.Properties;
 
 public class UriHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(UriHelper.class);
-    static Properties properties = new Properties();
+    private static final Properties PROPERTIES = new Properties();
 
     static {
         try (InputStream streamPropFilePath = UriHelper.class.getResourceAsStream("/hdfs-mapping.properties")) {
-            properties.load(streamPropFilePath);
+            PROPERTIES.load(streamPropFilePath);
         } catch (IOException | NullPointerException e) {
-            LOGGER.warn("No hdfs-mapping.properties file define");
+            LOGGER.warn("No hdfs-mapping.PROPERTIES file define");
         }
+    }
+
+    protected UriHelper() {
+        throw new UnsupportedOperationException();
     }
 
     private static String concatHdfsUri(String name) {
@@ -32,7 +36,7 @@ public class UriHelper {
 
         uri = uri.replace("hdfs://", "");
 
-        return concatHdfsUri(properties.getProperty(uri, uri));
+        return concatHdfsUri(PROPERTIES.getProperty(uri, uri));
     }
 
 }

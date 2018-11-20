@@ -31,6 +31,10 @@ public class ContainerResourceMonitoringTracer {
     private static TriConsumer<Long, Header, Object> eventHandler;
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerResourceMonitoringTracer.class);
 
+    protected ContainerResourceMonitoringTracer() {
+        throw new UnsupportedOperationException();
+    }
+
     public static void setup(Header baseHeader, Instrumentation instrumentation, AsyncEventProcessor eventProcessor) {
 
         initEventHandler((timestamp, headerOverride, event) -> {

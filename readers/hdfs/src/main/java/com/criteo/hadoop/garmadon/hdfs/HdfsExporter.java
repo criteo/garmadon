@@ -50,6 +50,10 @@ public class HdfsExporter {
     private static final Duration HEARTBEAT_PERIOD = Duration.ofSeconds(30);
     private static final Duration TMP_FILE_OPEN_RETRY_PERIOD = Duration.ofSeconds(30);
 
+    protected HdfsExporter() {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * args[0]: Kafka connection string
      * args[1]: Kafka group

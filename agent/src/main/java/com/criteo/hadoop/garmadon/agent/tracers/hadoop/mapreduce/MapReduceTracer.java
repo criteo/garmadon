@@ -56,6 +56,10 @@ public class MapReduceTracer {
         }
     }
 
+    protected MapReduceTracer() {
+        throw new UnsupportedOperationException();
+    }
+
     public static void setup(Instrumentation instrumentation, BiConsumer<Long, Object> eventConsumer) {
 
         initEventHandler(eventConsumer);

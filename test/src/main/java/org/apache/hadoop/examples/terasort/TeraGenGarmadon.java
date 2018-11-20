@@ -82,8 +82,8 @@ public class TeraGenGarmadon extends Configured implements Tool {
          * An input split consisting of a range on numbers.
          */
         static class RangeInputSplit extends InputSplit implements Writable {
-            long firstRow;
-            long rowCount;
+            private long firstRow;
+            private long rowCount;
 
             public RangeInputSplit() {
             }
@@ -117,10 +117,10 @@ public class TeraGenGarmadon extends Configured implements Tool {
          */
         static class RangeRecordReader
                 extends RecordReader<LongWritable, NullWritable> {
-            long startRow;
-            long finishedRows;
-            long totalRows;
-            LongWritable key = null;
+            private long startRow;
+            private long finishedRows;
+            private long totalRows;
+            private LongWritable key = null;
 
             public RangeRecordReader() {
             }

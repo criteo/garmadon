@@ -59,7 +59,7 @@ public class CodeCacheUsage implements JVMStatsHeuristic {
     }
 
     private static class CodeCacheCounters extends BaseCounter {
-        long peak;
-        long max;
+        private long peak;
+        private long max;
     }
 }

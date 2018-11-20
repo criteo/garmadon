@@ -11,11 +11,11 @@ public class FileHeuristic implements Heuristic {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHeuristic.class);
 
-    final Counters deleted = new Counters("Files deleted");
-    final Counters read = new Counters("Files read");
-    final Counters written = new Counters("Files written");
-    final Counters renamed = new Counters("Files renamed");
-    final Counters append = new Counters("Files appended");
+    protected final Counters deleted = new Counters("Files deleted");
+    protected final Counters read = new Counters("Files read");
+    protected final Counters written = new Counters("Files written");
+    protected final Counters renamed = new Counters("Files renamed");
+    protected final Counters append = new Counters("Files appended");
 
     private final HeuristicsResultDB db;
 

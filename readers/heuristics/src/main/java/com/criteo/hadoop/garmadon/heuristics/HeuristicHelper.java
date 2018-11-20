@@ -13,6 +13,10 @@ public class HeuristicHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(HeuristicHelper.class);
     public static final int MAX_CONTAINERS_PER_HEURISTIC = 10;
 
+    protected HeuristicHelper() {
+        throw new UnsupportedOperationException();
+    }
+
     public static String getAppAttemptId(String applicationId, String attemptId) {
         return applicationId + "#" + attemptId;
     }

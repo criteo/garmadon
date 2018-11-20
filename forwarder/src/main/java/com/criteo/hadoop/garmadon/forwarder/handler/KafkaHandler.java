@@ -21,7 +21,7 @@ public class KafkaHandler extends SimpleChannelInboundHandler<KafkaMessage> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, KafkaMessage msg) {
-        PrometheusHttpMetrics.eventsReceived.inc();
+        PrometheusHttpMetrics.EVENTS_RECEIVED.inc();
 
         int type = ByteBuffer.wrap(msg.getValue(), 0, 4).getInt(0);
         PrometheusHttpMetrics.eventSize(type).observe(msg.getValue().length);

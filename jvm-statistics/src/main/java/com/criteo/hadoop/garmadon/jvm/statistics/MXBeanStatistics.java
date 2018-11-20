@@ -13,7 +13,7 @@ public class MXBeanStatistics {
     protected static final String HEAP_HEADER = "heap";
     protected static final String NON_HEAP_HEADER = "nonheap";
 
-    protected final Conf conf;
+    private final Conf conf;
 
     public MXBeanStatistics(Conf conf) {
         this.conf = conf;

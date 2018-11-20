@@ -12,6 +12,10 @@ public class LinuxHelper {
     public static final Pattern COUNT_PATTERN = Pattern.compile(":\\s+(\\d+)");
     private static final Pattern SPACES_PATTERN = Pattern.compile("\\s+");
 
+    protected LinuxHelper() {
+        throw new UnsupportedOperationException();
+    }
+
     public static long getPageSize() {
         File fileSmaps = new File("/proc/self/smaps");
         if (fileSmaps.exists() && fileSmaps.canRead()) {

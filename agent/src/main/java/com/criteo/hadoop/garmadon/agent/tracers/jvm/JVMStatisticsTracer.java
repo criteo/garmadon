@@ -10,6 +10,10 @@ import java.util.function.BiConsumer;
 
 public class JVMStatisticsTracer {
 
+    protected JVMStatisticsTracer() {
+        throw new UnsupportedOperationException();
+    }
+
     public static void setup(BiConsumer<Long, Object> eventConsumer) {
         Conf<JVMStatisticsEventsProtos.JVMStatisticsData, JVMStatisticsEventsProtos.GCStatisticsData, Void> conf = new Conf<>();
         int interval = Integer.getInteger("garmadon.jvm-statistics.interval", 10);

@@ -63,6 +63,10 @@ public class GarmadonSerialization {
         register(ResourceManagerEventProtos.ApplicationEvent.class, TypeMarker.APPLICATION_EVENT, "APPLICATION_EVENT", ResourceManagerEventProtos.ApplicationEvent::toByteArray, ResourceManagerEventProtos.ApplicationEvent::parseFrom);
     }
 
+    protected GarmadonSerialization() {
+        throw new UnsupportedOperationException();
+    }
+
     public static int getMarker(Class aClass) throws TypeMarkerException {
         Integer marker = classToMarker.get(aClass);
         if (marker == null) {
