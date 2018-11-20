@@ -64,8 +64,10 @@ public class ProtoConcatenatorTest {
         Map<String, Object> expectedValues = new HashMap<>();
         expectedValues.put("id", 1);
         expectedValues.put("name", "one");
-        testAllOutTypesWith(Arrays.asList(headerMessageBuilder.build(), headerMessageBuilder.build()),
-                expectedValues);
+
+        // As of proto3, two fields cannot have the same name (even if they have a different id)
+        Assert.assertNull(ProtoConcatenator.concatToProtobuf(
+                Arrays.asList(headerMessageBuilder.build(), headerMessageBuilder.build())));
     }
 
     @Test
