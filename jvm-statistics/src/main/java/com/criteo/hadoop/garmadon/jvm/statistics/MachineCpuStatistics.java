@@ -67,6 +67,6 @@ class MachineCpuStatistics extends AbstractStatistic {
 
     private static int roundPercentage(long part, long total) {
         double d = 100d * part / total;
-        return (int)Math.round(d);
+        return (int) Math.round(d);
     }
 }

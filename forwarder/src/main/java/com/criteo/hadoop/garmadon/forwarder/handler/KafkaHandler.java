@@ -15,7 +15,7 @@ public class KafkaHandler extends SimpleChannelInboundHandler<KafkaMessage> {
 
     private KafkaService kafkaService;
 
-    public KafkaHandler(KafkaService kafkaService){
+    public KafkaHandler(KafkaService kafkaService) {
         this.kafkaService = kafkaService;
     }
 
@@ -36,7 +36,7 @@ public class KafkaHandler extends SimpleChannelInboundHandler<KafkaMessage> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        LOGGER.error("",cause);
+        LOGGER.error("", cause);
         ctx.close();
     }
 }

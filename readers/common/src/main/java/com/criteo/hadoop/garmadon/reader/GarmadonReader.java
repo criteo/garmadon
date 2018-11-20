@@ -28,6 +28,7 @@ public final class GarmadonReader {
 
     protected final Reader reader;
     private static String hostname;
+
     static {
         try {
             hostname = InetAddress.getLocalHost().getCanonicalHostName();

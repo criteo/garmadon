@@ -144,7 +144,7 @@ public class ContainerResourceMonitoringTracer {
                     String attemptId = applicationAttemptId.toString();
 
                     float cpuVcoreUsed = (float) milliVcoresUsed / 1000;
-                    int cpuVcoreLimit =  ((ContainerMetrics) containerMetrics).cpuVcoreLimit.value();
+                    int cpuVcoreLimit = ((ContainerMetrics) containerMetrics).cpuVcoreLimit.value();
 
                     Header header = Header.newBuilder()
                             .withId(applicationId)

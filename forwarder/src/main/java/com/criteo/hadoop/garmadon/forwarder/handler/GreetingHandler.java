@@ -34,11 +34,11 @@ public class GreetingHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         PrometheusHttpMetrics.GREETINGS_IN_ERROR.inc();
-        LOGGER.error("",cause);
+        LOGGER.error("", cause);
 
         //TODO the following code has to be removed when no more agent suffering
         //https://github.com/criteo/garmadon/issues/17 run on the cluster
-        if(cause instanceof ProtocolVersion.InvalidProtocolVersionException) {
+        if (cause instanceof ProtocolVersion.InvalidProtocolVersionException) {
             //We make the agent think it can talk to us. For that we need to return its protocol version
             sendValidGreetings(ctx, lastAgentGreetings);
 

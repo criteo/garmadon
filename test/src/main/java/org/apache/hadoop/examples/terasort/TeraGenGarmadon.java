@@ -68,7 +68,7 @@ import org.apache.hadoop.util.ToolRunner;
 public class TeraGenGarmadon extends Configured implements Tool {
     private static final Log LOG = LogFactory.getLog(TeraGenGarmadon.class);
 
-    public static enum Counters {CHECKSUM}
+    public static enum Counters { CHECKSUM }
 
     public static final String NUM_ROWS = "mapreduce.terasort.num-rows";
 
