@@ -27,7 +27,7 @@ public class KafkaService {
         // Check batching, time and kafka config
         producer.send(record, (metadata, exception) -> {
             if (exception != null) {
-                PrometheusHttpMetrics.eventsInError.inc();
+                PrometheusHttpMetrics.EVENTS_IN_ERROR.inc();
                 LOGGER.error("Issue sending events", exception);
             }
         });

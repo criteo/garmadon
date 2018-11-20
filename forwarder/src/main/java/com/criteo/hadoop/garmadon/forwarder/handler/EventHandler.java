@@ -49,7 +49,7 @@ public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        PrometheusHttpMetrics.eventsInError.inc();
+        PrometheusHttpMetrics.EVENTS_IN_ERROR.inc();
         LOGGER.error("", cause);
         ctx.close();
     }

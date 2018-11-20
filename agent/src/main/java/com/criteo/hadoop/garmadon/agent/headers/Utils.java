@@ -6,6 +6,11 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class Utils {
+
+    protected Utils() {
+        throw new UnsupportedOperationException();
+    }
+
     public static String getHostname() {
         String hostname = "";
         try {
@@ -28,11 +33,11 @@ public class Utils {
         return pid;
     }
 
-    public static String getStandaloneId(){
+    public static String getStandaloneId() {
         return getHostname() + ":" + getUser() + ":" + getPid();
     }
 
-    public static String[] getArrayJavaCommandLine(){
+    public static String[] getArrayJavaCommandLine() {
         return System.getProperty("sun.java.command", "empty_class").split(" ");
     }
 

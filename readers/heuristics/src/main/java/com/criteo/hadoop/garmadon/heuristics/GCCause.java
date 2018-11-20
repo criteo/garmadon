@@ -55,7 +55,7 @@ public class GCCause implements GCStatsHeuristic {
     }
 
     private static class GCCauseStats {
-        int metadataThreshold;
-        int ergonomics;
+        private int metadataThreshold;
+        private int ergonomics;
     }
 }

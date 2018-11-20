@@ -16,7 +16,7 @@ public class GreetingHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
-        PrometheusHttpMetrics.greetingsReceived.inc();
+        PrometheusHttpMetrics.GREETINGS_RECEIVED.inc();
 
         byte[] greetings = new byte[msg.readableBytes()];
         msg.readBytes(greetings);
@@ -33,7 +33,7 @@ public class GreetingHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        PrometheusHttpMetrics.greetingsInError.inc();
+        PrometheusHttpMetrics.GREETINGS_IN_ERROR.inc();
         LOGGER.error("",cause);
 
         //TODO the following code has to be removed when no more agent suffering

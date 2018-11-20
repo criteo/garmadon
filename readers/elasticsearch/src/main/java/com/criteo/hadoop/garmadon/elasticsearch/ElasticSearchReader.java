@@ -38,14 +38,14 @@ import java.util.concurrent.TimeUnit;
 /**
  * A reader that pushes events to elastic search
  */
-public class ElasticSearchReader implements BulkProcessor.Listener {
+public final class ElasticSearchReader implements BulkProcessor.Listener {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearchReader.class);
 
     private static Counter.Child numberOfEventInError = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("number_of_event_in_error",
-            GarmadonReader.hostname,
+            GarmadonReader.getHostname(),
             PrometheusHttpConsumerMetrics.RELEASE);
     private static Counter.Child numberOfOffsetCommitError = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("number_of_offset_commit_error",
-            GarmadonReader.hostname,
+            GarmadonReader.getHostname(),
             PrometheusHttpConsumerMetrics.RELEASE);
 
     private static final int CONNECTION_TIMEOUT_MS = 10000;

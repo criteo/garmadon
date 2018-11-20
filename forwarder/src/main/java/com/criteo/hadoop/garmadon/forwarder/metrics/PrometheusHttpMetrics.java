@@ -33,20 +33,20 @@ public class PrometheusHttpMetrics {
             .orElse("1.0-SNAPSHOT")
             .replace(".", "_");
 
-    public static Counter.Child eventsReceived = GARMADON_METRICS.labels("garmadon_events_received",
-            Forwarder.hostname,
+    public static final Counter.Child EVENTS_RECEIVED = GARMADON_METRICS.labels("garmadon_events_received",
+            Forwarder.getHostname(),
             RELEASE);
-    public static Counter.Child eventsInError = GARMADON_METRICS.labels("garmadon_events_in_error",
-            Forwarder.hostname,
+    public static final Counter.Child EVENTS_IN_ERROR = GARMADON_METRICS.labels("garmadon_events_in_error",
+            Forwarder.getHostname(),
             RELEASE);
-    public static Counter.Child greetingsReceived = GARMADON_METRICS.labels("garmadon_greetings_received",
-            Forwarder.hostname,
+    public static final Counter.Child GREETINGS_RECEIVED = GARMADON_METRICS.labels("garmadon_greetings_received",
+            Forwarder.getHostname(),
             RELEASE);
-    public static Counter.Child greetingsInError = GARMADON_METRICS.labels("garmadon_greetings_in_error",
-            Forwarder.hostname,
+    public static final Counter.Child GREETINGS_IN_ERROR = GARMADON_METRICS.labels("garmadon_greetings_in_error",
+            Forwarder.getHostname(),
             RELEASE);
-    public static Counter.Child forJoin = GARMADON_METRICS.labels("garmadon_for_join",
-            Forwarder.hostname,
+    public static final Counter.Child FOR_JOIN = GARMADON_METRICS.labels("garmadon_for_join",
+            Forwarder.getHostname(),
             RELEASE);
 
     private static final Summary BASE_TYPE_SIZE_SUMMARY = Summary.build()
@@ -71,19 +71,19 @@ public class PrometheusHttpMetrics {
     static {
         // Expose JMX, GCs, classloading, thread count, memory pool
         DefaultExports.initialize();
-        forJoin.inc();
+        FOR_JOIN.inc();
         try {
-            oname = new ObjectName("kafka.producer:type=producer-metrics,client-id=" + Forwarder.PRODUCER_PREFIX_NAME + "." + Forwarder.hostname);
+            oname = new ObjectName("kafka.producer:type=producer-metrics,client-id=" + Forwarder.PRODUCER_PREFIX_NAME + "." + Forwarder.getHostname());
         } catch (MalformedObjectNameException e) {
             LOGGER.error("", e);
         }
         scheduler.scheduleAtFixedRate(() -> {
-            try {
-                exposeKafkaMetrics();
-            } catch (IntrospectionException | InstanceNotFoundException | ReflectionException | AttributeNotFoundException | MBeanException e) {
-                LOGGER.error("", e);
-            }
+            exposeKafkaMetrics();
         }, 30, 60, TimeUnit.SECONDS);
+    }
+
+    protected PrometheusHttpMetrics() {
+        throw new UnsupportedOperationException();
     }
 
     public static void start(int prometheusPort) throws IOException {
@@ -100,19 +100,23 @@ public class PrometheusHttpMetrics {
     }
 
     public static Summary.Child eventSize(int type) {
-        return BASE_TYPE_SIZE_SUMMARY.labels(GarmadonSerialization.getTypeName(type), Forwarder.hostname, RELEASE);
+        return BASE_TYPE_SIZE_SUMMARY.labels(GarmadonSerialization.getTypeName(type), Forwarder.getHostname(), RELEASE);
     }
 
-    public static void exposeKafkaMetrics() throws IntrospectionException, InstanceNotFoundException, ReflectionException, AttributeNotFoundException, MBeanException {
-        if (oname != null) {
-            MBeanInfo info = MBS.getMBeanInfo(oname);
-            MBeanAttributeInfo[] attrInfo = info.getAttributes();
-            for (MBeanAttributeInfo attr : attrInfo) {
-                if (attr.isReadable() && attr.getType().equals("double")) {
-                    BASE_KAFKA_METRICS_GAUGE.labels(attr.getName(), Forwarder.hostname, RELEASE)
-                            .set((Double) MBS.getAttribute(oname, attr.getName()));
+    public static void exposeKafkaMetrics() {
+        try {
+            if (oname != null) {
+                MBeanInfo info = MBS.getMBeanInfo(oname);
+                MBeanAttributeInfo[] attrInfo = info.getAttributes();
+                for (MBeanAttributeInfo attr : attrInfo) {
+                    if (attr.isReadable() && attr.getType().equals("double")) {
+                        BASE_KAFKA_METRICS_GAUGE.labels(attr.getName(), Forwarder.getHostname(), RELEASE)
+                                .set((Double) MBS.getAttribute(oname, attr.getName()));
+                    }
                 }
             }
+        } catch (InstanceNotFoundException | IntrospectionException | ReflectionException | MBeanException | AttributeNotFoundException e) {
+            LOGGER.error("", e);
         }
     }
 }

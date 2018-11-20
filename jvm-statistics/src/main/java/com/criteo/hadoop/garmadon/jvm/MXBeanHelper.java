@@ -9,6 +9,10 @@ public class MXBeanHelper {
     public static final String MEMORY_POOL_COMPRESSEDCLASSPACE_HEADER = "compressedclassspace";
     public static final String MEMORY_POOL_PERM_HEADER = "perm";
 
+    protected MXBeanHelper() {
+        throw new UnsupportedOperationException();
+    }
+
     public static String normalizeName(String poolName) {
         if (poolName == null) return null;
         if (poolName.equals("Code Cache")) {

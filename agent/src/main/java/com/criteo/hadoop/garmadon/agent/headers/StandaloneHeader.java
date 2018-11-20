@@ -2,7 +2,7 @@ package com.criteo.hadoop.garmadon.agent.headers;
 
 import com.criteo.hadoop.garmadon.schema.events.Header;
 
-public class StandaloneHeader {
+public final class StandaloneHeader {
     private Header.SerializedHeader header;
 
     private Header.SerializedHeader createCachedHeader() {

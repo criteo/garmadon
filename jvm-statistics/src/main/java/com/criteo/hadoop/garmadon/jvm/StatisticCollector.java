@@ -16,10 +16,10 @@ import java.util.function.Supplier;
 public abstract class StatisticCollector<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(StatisticCollector.class);
 
-    protected final List<AbstractStatistic> statistics = new CopyOnWriteArrayList<>();
-    protected final List<Supplier<AbstractStatistic>> delayedRegisterStatistics = new CopyOnWriteArrayList<>();
-    protected final BiConsumer<Long, T> printer;
-    protected final StatisticsSink<T> sink;
+    private final List<AbstractStatistic> statistics = new CopyOnWriteArrayList<>();
+    private final List<Supplier<AbstractStatistic>> delayedRegisterStatistics = new CopyOnWriteArrayList<>();
+    private final BiConsumer<Long, T> printer;
+    private final StatisticsSink<T> sink;
     private final AtomicInteger retries = new AtomicInteger(0);
 
     public StatisticCollector(BiConsumer<Long, T> printer, StatisticsSink<T> sink) {

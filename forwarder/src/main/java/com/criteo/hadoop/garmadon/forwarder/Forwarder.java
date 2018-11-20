@@ -30,7 +30,7 @@ public class Forwarder {
 
     public static final String PRODUCER_PREFIX_NAME = "garmadon.forwarder";
 
-    public static String hostname;
+    private static String hostname;
 
     static {
         try {
@@ -38,6 +38,10 @@ public class Forwarder {
         } catch (UnknownHostException e) {
             LOGGER.error("", e);
         }
+    }
+
+    public static String getHostname() {
+        return hostname;
     }
 
     private final Properties properties;

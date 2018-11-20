@@ -34,6 +34,10 @@ public class FileSystemTracer {
     private static final long NANOSECONDS_PER_MILLISECOND = 1000000;
     private static BiConsumer<Long, Object> eventHandler;
 
+    protected FileSystemTracer() {
+        throw new UnsupportedOperationException();
+    }
+
     public static void setup(Instrumentation instrumentation, BiConsumer<Long, Object> eventConsumer) {
 
         initEventHandler(eventConsumer);

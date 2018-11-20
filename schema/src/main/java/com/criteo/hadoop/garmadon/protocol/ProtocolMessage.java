@@ -8,6 +8,10 @@ import java.nio.ByteBuffer;
 
 public class ProtocolMessage {
 
+    protected ProtocolMessage() {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Creates a garmadon protocol message
      * <p>

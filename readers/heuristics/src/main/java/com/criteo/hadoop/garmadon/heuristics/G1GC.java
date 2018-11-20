@@ -50,9 +50,9 @@ public class G1GC implements GCStatsHeuristic {
     }
 
     private static class FullGCCounters extends BaseCounter {
-        int count;
-        long timestamp;
-        long pauseTime;
+        private int count;
+        private long timestamp;
+        private long pauseTime;
 
         FullGCCounters(long timestamp, long pauseTime) {
             this.timestamp = timestamp;

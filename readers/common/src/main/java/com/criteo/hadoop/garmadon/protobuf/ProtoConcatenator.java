@@ -15,6 +15,10 @@ import java.util.function.Function;
 public class ProtoConcatenator {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtoConcatenator.class);
 
+    protected ProtoConcatenator() {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Concatenate Protobuf messages into a single Protobuf message.
      * /!\ Doesn't handle embedded objects /!\

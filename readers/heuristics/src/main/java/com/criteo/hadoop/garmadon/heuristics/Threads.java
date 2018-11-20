@@ -67,8 +67,8 @@ public class Threads implements JVMStatsHeuristic {
     }
 
     private static class ThreadCounters extends BaseCounter {
-        int maxCount;
-        int total;
-        int ratio;
+        private int maxCount;
+        private int total;
+        private int ratio;
     }
 }

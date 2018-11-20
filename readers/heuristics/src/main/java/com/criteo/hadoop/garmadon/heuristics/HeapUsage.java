@@ -97,11 +97,11 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
     }
 
     private static class HeapCounters extends BaseCounter {
-        long max;
-        long peak;
-        GCHelper.GCKind gcKind;
-        long minorGC;
-        long majorGC;
-        long ratio;
+        private long max;
+        private long peak;
+        private GCHelper.GCKind gcKind;
+        private long minorGC;
+        private long majorGC;
+        private long ratio;
     }
 }

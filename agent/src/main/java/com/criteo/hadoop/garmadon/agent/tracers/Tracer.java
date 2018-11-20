@@ -14,7 +14,7 @@ public abstract class Tracer {
 
     protected AgentBuilder agentBuilder;
 
-    static ElementMatcher.Junction<NamedElement> ignoredMatcher;
+    protected static ElementMatcher.Junction<NamedElement> ignoredMatcher;
     static {
         String[] predefWhitelist = {
                 "org.apache.flink.",

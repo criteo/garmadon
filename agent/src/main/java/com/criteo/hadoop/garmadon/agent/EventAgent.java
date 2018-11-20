@@ -33,6 +33,10 @@ public class EventAgent {
 
     private final static int DEFAULT_FORWARDER_PORT = 33000;
 
+    protected EventAgent() {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Premain of Garmadon agent
      * <p>

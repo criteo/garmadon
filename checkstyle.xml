@@ -37,7 +37,45 @@
 <module name="Checker">
     <module name="JavadocPackage"/>
     <module name="TreeWalker">
-        <!-- Checks for Naming Conventions.                  -->
+        <!-- Checks for Annotation. -->
+        <!--
+        <module name="AnnotationLocation"/>
+        <module name="AnnotationOnSameLine"/>
+        <module name="AnnotationUseStyle"/>
+        <module name="MissingDeprecated"/>
+        <module name="MissingOverride"/>
+        <module name="PackageAnnotation"/>
+        <module name="SuppressWarnings"/>
+        <module name="SuppressWarningsHolder"/>
+        -->
+
+        <!-- Checks for Blocks. -->
+        <module name="AvoidNestedBlocks"/>
+        <module name="EmptyBlock"/>
+        <module name="EmptyCatchBlock">
+            <property name="exceptionVariableName" value="ignored"/>
+        </module>
+        <module name="LeftCurly"/>
+        <module name="NeedBraces">
+            <property name="allowSingleLineStatement" value="true"/>
+        </module>
+        <module name="RightCurly"/>
+
+
+        <!-- Checks for Class Design. -->
+        <module name="FinalClass"/>
+        <module name="HideUtilityClassConstructor"/>
+        <!--
+        <module name="InnerTypeLast"/>
+        <module name="InterfaceIsType"/> -->
+        <module name="MutableException"/>
+        <module name="OneTopLevelClass"/>
+        <module name="ThrowsCount"/>
+        <module name="VisibilityModifier">
+            <property name="protectedAllowed" value="true"/>
+        </module>
+
+        <!-- Checks for Naming Conventions. -->
         <module name="CatchParameterName"/>
         <module name="ClassTypeParameterName">
             <property name="format" value="^[A-Z_]+$"/>
@@ -57,17 +95,5 @@
         <module name="ParameterName"/>
         <module name="StaticVariableName"/>
         <module name="TypeName"/>
-
-        <!-- Checks for blocks.         -->
-        <module name="AvoidNestedBlocks"/>
-        <module name="EmptyBlock"/>
-        <module name="EmptyCatchBlock">
-            <property name="exceptionVariableName" value="ignored"/>
-        </module>
-        <module name="LeftCurly"/>
-        <module name="NeedBraces">
-            <property name="allowSingleLineStatement" value="true"/>
-        </module>
-        <module name="RightCurly"/>
     </module>
 </module>
