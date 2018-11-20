@@ -16,7 +16,6 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import java.lang.instrument.Instrumentation;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.isSubTypeOf;

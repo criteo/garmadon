@@ -1,6 +1,5 @@
 package com.criteo.hadoop.garmadon.reader;
 
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 

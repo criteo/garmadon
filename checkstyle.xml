@@ -61,7 +61,6 @@
         </module>
         <module name="RightCurly"/>
 
-
         <!-- Checks for Class Design. -->
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
@@ -74,6 +73,18 @@
         <module name="VisibilityModifier">
             <property name="protectedAllowed" value="true"/>
         </module>
+
+        <!-- Checks for imports. -->
+        <!--
+        <module name="IllegalImport"/>
+        <module name="AvoidStarImport"/>
+        <module name="AvoidStaticImport"/>
+        <module name="CustomImportOrder"/>
+        <module name="ImportControl"/>
+        <module name="ImportOrder"/>
+         -->
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
 
         <!-- Checks for Naming Conventions. -->
         <module name="CatchParameterName"/>
