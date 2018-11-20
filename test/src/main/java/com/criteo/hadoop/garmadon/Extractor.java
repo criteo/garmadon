@@ -7,12 +7,15 @@ import com.criteo.hadoop.garmadon.schema.enums.State;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.criteo.jvm.JVMStatisticsProtos;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.*;
 
@@ -22,8 +25,13 @@ public class Extractor {
     private Map<String, Stats> containers = new HashMap<>();
 
     private Extractor(String kafkaConnectString) {
+        Properties props = new Properties();
+
+        props.putAll(GarmadonReader.Builder.DEFAULT_KAFKA_PROPS);
+        props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConnectString);
+
         reader = GarmadonReader.Builder
-                .stream(kafkaConnectString)
+                .stream(new KafkaConsumer<>(props))
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)), msg -> getStats(msg).gcStatCount++)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)), msg -> getStats(msg).jvmStatCount++)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)), msg -> System.out.println(getStats(msg)))
@@ -31,7 +39,12 @@ public class Extractor {
     }
 
     private Extractor(String kafkaConnectString, String containerId) {
-        reader = GarmadonReader.Builder.stream(kafkaConnectString)
+        Properties props = new Properties();
+
+        props.putAll(GarmadonReader.Builder.DEFAULT_KAFKA_PROPS);
+        props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConnectString);
+
+        reader = GarmadonReader.Builder.stream(new KafkaConsumer<>(props))
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)), this::processGcEvent)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)), this::processJvmStatEvent)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)), this::processStateEvent)

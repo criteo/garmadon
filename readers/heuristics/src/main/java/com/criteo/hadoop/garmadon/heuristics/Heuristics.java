@@ -10,15 +10,12 @@ import com.criteo.hadoop.garmadon.schema.enums.State;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.criteo.jvm.JVMStatisticsProtos;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -43,12 +40,16 @@ public class Heuristics {
 
         //setup Prometheus client
         prometheusHttpConsumerMetrics = new PrometheusHttpConsumerMetrics(prometheusPort);
+        Properties props = new Properties();
+        props.putAll(GarmadonReader.Builder.DEFAULT_KAFKA_PROPS);
+
+        props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConnectString);
+        props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, kafkaGroupId);
+        props.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
+        props.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
 
         this.reader = GarmadonReader.Builder
-                .stream(kafkaConnectString)
-                .withGroupId(kafkaGroupId)
-                .withKafkaProp(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true")
-                .withKafkaProp(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000")
+                .stream(new KafkaConsumer<>(props))
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)
                         .and(hasFramework(Framework.SPARK.name()).or(hasFramework(Framework.MAP_REDUCE.name())))), this::processGcEvent)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)
