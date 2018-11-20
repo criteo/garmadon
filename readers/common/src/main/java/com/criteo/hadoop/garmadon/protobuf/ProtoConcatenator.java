@@ -13,7 +13,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class ProtoConcatenator {
-    private static Logger LOGGER = LoggerFactory.getLogger(ProtoConcatenator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProtoConcatenator.class);
 
     /**
      * Concatenate Protobuf messages into a single Protobuf message.
@@ -25,7 +25,7 @@ public class ProtoConcatenator {
      */
     public static Message concatToProtobuf(Collection<Message> messages) {
         try {
-            DynamicMessage.Builder messageBuilder = concatInner(messages,
+            final DynamicMessage.Builder messageBuilder = concatInner(messages,
                     (keys) -> {
                         try {
                             return buildMessageBuilder("GeneratedObject", keys);
@@ -83,7 +83,7 @@ public class ProtoConcatenator {
      */
     public static DynamicMessage.Builder buildMessageBuilder(String msgName, Collection<Descriptors.FieldDescriptor> fields)
             throws Descriptors.DescriptorValidationException {
-        MessageDefinition.Builder msgDef = MessageDefinition.newBuilder(msgName);
+        final MessageDefinition.Builder msgDef = MessageDefinition.newBuilder(msgName);
 
         int currentIndex = 1;
 
@@ -100,10 +100,10 @@ public class ProtoConcatenator {
                     fieldDescriptor.getType().toString().toLowerCase(), fieldDescriptor.getName(), currentIndex++);
         }
 
-        DynamicSchema.Builder schemaBuilder = DynamicSchema.newBuilder();
+        final DynamicSchema.Builder schemaBuilder = DynamicSchema.newBuilder();
         schemaBuilder.addMessageDefinition(msgDef.build());
 
-        DynamicSchema schema = schemaBuilder.build();
+        final DynamicSchema schema = schemaBuilder.build();
 
         return schema.newMessageBuilder(msgName);
     }
@@ -123,13 +123,13 @@ public class ProtoConcatenator {
     private static <MessageType> MessageType concatInner(Collection<Message> messages,
                    Function<Collection<Descriptors.FieldDescriptor>, MessageType> messageBuilder,
                    BiConsumer<Map.Entry<Descriptors.FieldDescriptor, Object>, MessageType> contentsConsumer) {
-        Collection<Map.Entry<Descriptors.FieldDescriptor, Object>> allFields = new HashSet<>();
+        final Collection<Map.Entry<Descriptors.FieldDescriptor, Object>> allFields = new HashSet<>();
 
         for (Message message : messages) {
             allFields.addAll(message.getAllFields().entrySet());
         }
 
-        Collection<Descriptors.FieldDescriptor> allKeys = new LinkedList<>();
+        final Collection<Descriptors.FieldDescriptor> allKeys = new ArrayList<>();
         for (Message message : messages) {
             allKeys.addAll(message.getDescriptorForType().getFields());
         }
@@ -143,7 +143,7 @@ public class ProtoConcatenator {
     private static void setRepeatedField(DynamicMessage.Builder builder, Descriptors.FieldDescriptor dstFieldDescriptor,
                                          Map.Entry<Descriptors.FieldDescriptor, Object> entry) {
         @SuppressWarnings("unchecked")
-        Collection<Object> values = (Collection<Object>) entry.getValue();
+        final Collection<Object> values = (Collection<Object>) entry.getValue();
 
         for (Object value : values) {
             builder.addRepeatedField(dstFieldDescriptor, value);
