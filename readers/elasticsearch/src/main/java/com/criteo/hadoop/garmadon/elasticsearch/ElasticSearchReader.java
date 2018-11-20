@@ -81,7 +81,6 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
                             .setDefaultCredentialsProvider(credentialsProvider))
                     .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
                             .setConnectTimeout(CONNECTION_TIMEOUT_MS)
-                            .setConnectionRequestTimeout(CONNECTION_TIMEOUT_MS)
                             .setContentCompressionEnabled(true));
         }
 
