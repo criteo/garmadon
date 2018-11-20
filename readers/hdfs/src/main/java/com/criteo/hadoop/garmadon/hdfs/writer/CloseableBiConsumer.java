@@ -10,7 +10,9 @@ import java.io.IOException;
  * @param <U>
  */
 interface CloseableBiConsumer<T, U> {
+
     void write(T t, U u) throws IOException;
+
     Path close() throws IOException;
 }
 

@@ -27,7 +27,7 @@ public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
         EventHeaderProtos.Header header = EventHeaderProtos.Header.parseFrom(headerByte);
 
-        if(LOGGER.isDebugEnabled()) {
+        if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("received event {} size {}", msg.getInt(0), msg.readableBytes());
         }
 

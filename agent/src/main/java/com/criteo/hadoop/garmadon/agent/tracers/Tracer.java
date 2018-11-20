@@ -15,6 +15,7 @@ public abstract class Tracer {
     protected AgentBuilder agentBuilder;
 
     protected static ElementMatcher.Junction<NamedElement> ignoredMatcher;
+
     static {
         String[] predefWhitelist = {
                 "org.apache.flink.",
@@ -30,10 +31,10 @@ public abstract class Tracer {
         String runtimeBlacklist = System.getProperty("bytebuddy.blacklist.for.instrumentation");
 
         ElementMatcher.Junction<NamedElement> whitelistMatcher = newListMatcher(predefWhitelist);
-        if(runtimeWhitelist != null) whitelistMatcher = whitelistMatcher.or(newListMatcher(runtimeWhitelist.split(",")));
+        if (runtimeWhitelist != null) whitelistMatcher = whitelistMatcher.or(newListMatcher(runtimeWhitelist.split(",")));
 
-        ElementMatcher.Junction<NamedElement> blacklistMatcher =  newListMatcher(predefBlacklist);
-        if(runtimeBlacklist != null) blacklistMatcher = blacklistMatcher.or(newListMatcher(runtimeBlacklist.split(",")));
+        ElementMatcher.Junction<NamedElement> blacklistMatcher = newListMatcher(predefBlacklist);
+        if (runtimeBlacklist != null) blacklistMatcher = blacklistMatcher.or(newListMatcher(runtimeBlacklist.split(",")));
 
         ignoredMatcher = not(whitelistMatcher).or(blacklistMatcher);
     }
@@ -47,7 +48,8 @@ public abstract class Tracer {
     }
 
     private static final ElementMatcher<? super String> BYTE_BUDDY_LOGGING_FILTER;
-    static{
+
+    static {
         String filterClass = System.getProperty("bytebuddy.debug.instrumentation.for.class");
         BYTE_BUDDY_LOGGING_FILTER = filterClass != null ? s -> s.contains(filterClass) : s -> false;
     }

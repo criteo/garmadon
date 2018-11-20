@@ -27,7 +27,7 @@ public class HeuristicsResultDB {
     private static final String HEURISTIC_RESULT_TABLENAME = "garmadon_yarn_app_heuristic_result";
     private static final String HEURISTIC_RESULT_DETAILS_TABLENAME = "garmadon_yarn_app_heuristic_result_details";
     private static final String HEURISTIC_HELP_TABLENAME = "garmadon_heuristic_help";
-    private static final String CREATE_YARN_APP_HEURISTIC_RESULT_SQL = "INSERT INTO "+ HEURISTIC_RESULT_TABLENAME +
+    private static final String CREATE_YARN_APP_HEURISTIC_RESULT_SQL = "INSERT INTO " + HEURISTIC_RESULT_TABLENAME +
             " (yarn_app_result_id, heuristic_class, heuristic_name, severity, score, ready) " +
             "VALUES (?, ?, ?, ?, ?, ?)";
     private static final String CREATE_YARN_APP_HEURISTIC_RESULT_DETAILS_SQL = "INSERT INTO " + HEURISTIC_RESULT_DETAILS_TABLENAME +
@@ -70,7 +70,7 @@ public class HeuristicsResultDB {
             createYarnAppResultStat.clearParameters();
             createYarnAppResultStat.setString(1, heuristicResult.appId);
             createYarnAppResultStat.setString(2, heuristicResult.heuristicClass.getName());
-            createYarnAppResultStat.setString(3, heuristicResult.heuristicClass.getSimpleName() + "@"+ heuristicResult.attemptId);
+            createYarnAppResultStat.setString(3, heuristicResult.heuristicClass.getSimpleName() + "@" + heuristicResult.attemptId);
             createYarnAppResultStat.setInt(4, heuristicResult.severity);
             createYarnAppResultStat.setInt(5, heuristicResult.score);
             createYarnAppResultStat.setInt(6, 1);
