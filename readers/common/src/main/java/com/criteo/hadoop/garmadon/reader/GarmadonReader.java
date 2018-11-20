@@ -237,7 +237,7 @@ public class GarmadonReader {
         private Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners = new HashMap<>();
         private List<GarmadonMessageHandler> beforeInterceptHandlers = new ArrayList<>();
 
-        public static Properties DEFAULT_KAFKA_PROPS = new Properties();
+        public static final Properties DEFAULT_KAFKA_PROPS = new Properties();
 
         static {
             DEFAULT_KAFKA_PROPS.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString()); //by default groupId is random
