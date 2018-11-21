@@ -348,7 +348,9 @@ That can be useful if you want to check a threshold on a lot of containers.
 For instance, what is the max heap occupancy across all mappers of a job ?
 
 **Make you sure your grafana time range includes data of the application you want to display !**
+
 **If not, the application will not be selectable in the drop-down list and even if you paste the application id, there will be no data in this time range to be displayed.**
+
 **_If the application id is still not visible, it is probably due to the max terms being taken from ES to display the dropdown list. In this case, pasting the application id in the menu will display data._**
 
 ![](doc/images/dashboards/Garmadon_yarn_application/menu.png)
