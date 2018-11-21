@@ -351,7 +351,7 @@ For instance, what is the max heap occupancy across all mappers of a job ?
 
 **If not, the application will not be selectable in the drop-down list and even if you paste the application id, there will be no data in this time range to be displayed.**
 
-**If the application id is still not visible, it is probably due to the [max terms](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html) being taken from ES to display the dropdown list. In this case, pasting the application id in the menu will display data.**
+**If the application id is still not visible, it is probably due to the [max terms](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html) being taken from Elastic Search to display the dropdown list. In this case, pasting the application id in the menu will display data.**
 
 ![](doc/images/dashboards/Garmadon_yarn_application/menu.png)
 
