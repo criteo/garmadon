@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
-import com.criteo.jvm.JVMStatisticsProtos;
+import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,7 @@ public class G1GC implements GCStatsHeuristic {
     }
 
     @Override
-    public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsProtos.GCStatisticsData gcStats) {
+    public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsEventsProtos.GCStatisticsData gcStats) {
         if (GCHelper.gcKind(gcStats.getCollectorName()) != GCHelper.GCKind.G1)
             return;
         GCHelper.GCGenKind gcGenKind = GCHelper.gcGenKind(gcStats.getCollectorName());

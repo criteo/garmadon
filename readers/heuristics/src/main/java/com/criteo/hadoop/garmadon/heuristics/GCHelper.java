@@ -1,10 +1,6 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
-import com.criteo.jvm.JVMStatisticsProtos;
-
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 
 public class GCHelper {
     public enum GCGenKind {
@@ -49,7 +45,7 @@ public class GCHelper {
         throw new IllegalArgumentException("Unknown gc name: " + gcName);
     }
 
-    public static HeuristicResult addGCDetails(HeuristicResult result, Long timestamp, JVMStatisticsProtos.GCStatisticsData gcStats) {
+    public static HeuristicResult addGCDetails(HeuristicResult result, Long timestamp, JVMStatisticsEventsProtos.GCStatisticsData gcStats) {
         result.addDetail("Timestamp", String.valueOf(timestamp), HeuristicResult.formatTimestamp(timestamp));
         result.addDetail("Collector", gcStats.getCollectorName());
         result.addDetail("Pause", String.valueOf(gcStats.getPauseTime()));

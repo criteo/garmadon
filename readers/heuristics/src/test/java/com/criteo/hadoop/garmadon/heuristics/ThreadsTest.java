@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
-import com.criteo.jvm.JVMStatisticsProtos;
+import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,9 +75,9 @@ public class ThreadsTest {
         threads.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);
     }
 
-    private JVMStatisticsProtos.JVMStatisticsData buildThreadData(int count, int daemon, int total) {
-        JVMStatisticsProtos.JVMStatisticsData.Builder builder = JVMStatisticsProtos.JVMStatisticsData.newBuilder();
-        JVMStatisticsProtos.JVMStatisticsData.Section.Builder sectionBuilder = builder.addSectionBuilder().setName("threads");
+    private JVMStatisticsEventsProtos.JVMStatisticsData buildThreadData(int count, int daemon, int total) {
+        JVMStatisticsEventsProtos.JVMStatisticsData.Builder builder = JVMStatisticsEventsProtos.JVMStatisticsData.newBuilder();
+        JVMStatisticsEventsProtos.JVMStatisticsData.Section.Builder sectionBuilder = builder.addSectionBuilder().setName("threads");
         sectionBuilder.addPropertyBuilder().setName("count").setValue(String.valueOf(count));
         sectionBuilder.addPropertyBuilder().setName("daemon").setValue(String.valueOf(daemon));
         sectionBuilder.addPropertyBuilder().setName("total").setValue(String.valueOf(total));

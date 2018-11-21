@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
-import com.criteo.jvm.JVMStatisticsProtos;
+import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +19,7 @@ public class GCCause implements GCStatsHeuristic {
     }
 
     @Override
-    public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsProtos.GCStatisticsData gcStats) {
+    public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsEventsProtos.GCStatisticsData gcStats) {
         if (METADATA_THRESHOLD.equals(gcStats.getCause()) || ERGONOMICS.equals(gcStats.getCause())) {
             Map<String, GCCauseStats> containerStats = appStats.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());
             GCCauseStats stats = containerStats.computeIfAbsent(containerId, s -> new GCCauseStats());

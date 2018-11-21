@@ -2,14 +2,13 @@ package com.criteo.hadoop.garmadon.elasticsearch;
 
 import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
-import com.criteo.jvm.JVMStatisticsProtos;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -85,12 +84,12 @@ public class EventHelperTest {
     public void processJVMStatisticsData_should_add_3_hashmap_disk_network_and_jvm() {
         // Disk section
         String disk = "sda";
-        JVMStatisticsProtos.JVMStatisticsData.Property propertyDisk = JVMStatisticsProtos.JVMStatisticsData.Property
+        JVMStatisticsEventsProtos.JVMStatisticsData.Property propertyDisk = JVMStatisticsEventsProtos.JVMStatisticsData.Property
                 .newBuilder()
                 .setName(disk + "_write")
                 .setValue("10000")
                 .build();
-        JVMStatisticsProtos.JVMStatisticsData.Section sectionDisk = JVMStatisticsProtos.JVMStatisticsData.Section
+        JVMStatisticsEventsProtos.JVMStatisticsData.Section sectionDisk = JVMStatisticsEventsProtos.JVMStatisticsData.Section
                 .newBuilder()
                 .setName("disk")
                 .addProperty(propertyDisk)
@@ -98,12 +97,12 @@ public class EventHelperTest {
 
         // Network Section
         String network = "enp129s0";
-        JVMStatisticsProtos.JVMStatisticsData.Property propertyNetwork = JVMStatisticsProtos.JVMStatisticsData.Property
+        JVMStatisticsEventsProtos.JVMStatisticsData.Property propertyNetwork = JVMStatisticsEventsProtos.JVMStatisticsData.Property
                 .newBuilder()
                 .setName(network + "_rx")
                 .setValue("100000")
                 .build();
-        JVMStatisticsProtos.JVMStatisticsData.Section sectionNetwork = JVMStatisticsProtos.JVMStatisticsData.Section
+        JVMStatisticsEventsProtos.JVMStatisticsData.Section sectionNetwork = JVMStatisticsEventsProtos.JVMStatisticsData.Section
                 .newBuilder()
                 .setName("network")
                 .addProperty(propertyNetwork)
@@ -111,23 +110,23 @@ public class EventHelperTest {
 
 
         // Others Section
-        JVMStatisticsProtos.JVMStatisticsData.Property propertyOther = JVMStatisticsProtos.JVMStatisticsData.Property
+        JVMStatisticsEventsProtos.JVMStatisticsData.Property propertyOther = JVMStatisticsEventsProtos.JVMStatisticsData.Property
                 .newBuilder()
                 .setName("physical")
                 .setValue("499")
                 .build();
-        JVMStatisticsProtos.JVMStatisticsData.Section sectionOther1 = JVMStatisticsProtos.JVMStatisticsData.Section
+        JVMStatisticsEventsProtos.JVMStatisticsData.Section sectionOther1 = JVMStatisticsEventsProtos.JVMStatisticsData.Section
                 .newBuilder()
                 .setName("memory")
                 .addProperty(propertyOther)
                 .build();
-        JVMStatisticsProtos.JVMStatisticsData.Section sectionOther2 = JVMStatisticsProtos.JVMStatisticsData.Section
+        JVMStatisticsEventsProtos.JVMStatisticsData.Section sectionOther2 = JVMStatisticsEventsProtos.JVMStatisticsData.Section
                 .newBuilder()
                 .setName("machinecpu")
                 .addProperty(propertyOther)
                 .build();
 
-        JVMStatisticsProtos.JVMStatisticsData event = JVMStatisticsProtos.JVMStatisticsData
+        JVMStatisticsEventsProtos.JVMStatisticsData event = JVMStatisticsEventsProtos.JVMStatisticsData
                 .newBuilder()
                 .addSection(sectionDisk)
                 .addSection(sectionNetwork)
@@ -145,7 +144,7 @@ public class EventHelperTest {
     @Test
     public void processGCStatisticsData_should_add_a_hashmap_with_path() {
         String collector_name = "PS Scavenge";
-        JVMStatisticsProtos.GCStatisticsData event = JVMStatisticsProtos.GCStatisticsData
+        JVMStatisticsEventsProtos.GCStatisticsData event = JVMStatisticsEventsProtos.GCStatisticsData
                 .newBuilder()
                 .setCause("Allocation Failure")
                 .setCollectorName(collector_name)

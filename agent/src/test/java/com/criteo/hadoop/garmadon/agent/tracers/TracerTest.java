@@ -16,7 +16,7 @@ public class TracerTest {
         assertThat(matcher.matches(() -> "java."), is(true));
         assertThat(matcher.matches(() -> "org.mockito"), is(true));
         assertThat(matcher.matches(() -> "sun.net."), is(true));
-        assertThat(matcher.matches(() -> "com.criteo.garmadon."), is(true));
+        assertThat(matcher.matches(() -> "com.criteo.hadoop.garmadon."), is(true));
         assertThat(matcher.matches(() -> "com.criteo.jvm."), is(true));
     }
 

@@ -1,10 +1,6 @@
 package com.criteo.hadoop.garmadon.elasticsearch;
 
-import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
-import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
-import com.criteo.hadoop.garmadon.event.proto.ResourceManagerEventProtos;
-import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
-import com.criteo.jvm.JVMStatisticsProtos;
+import com.criteo.hadoop.garmadon.event.proto.*;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -38,10 +34,10 @@ class EventHelper {
         eventMap.put("state", event.getState());
     }
 
-    static void processJVMStatisticsData(String type, JVMStatisticsProtos.JVMStatisticsData event, HashMap<String, Map<String, Object>> eventMaps) {
-        for (JVMStatisticsProtos.JVMStatisticsData.Section section : event.getSectionList()) {
+    static void processJVMStatisticsData(String type, JVMStatisticsEventsProtos.JVMStatisticsData event, HashMap<String, Map<String, Object>> eventMaps) {
+        for (JVMStatisticsEventsProtos.JVMStatisticsData.Section section : event.getSectionList()) {
             if (section.getName().equals("disk") || section.getName().equals("network")) {
-                for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
+                for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     String[] device = property.getName().split("_");
                     if (device.length == 2) {
                         Map<String, Object> eventMap = eventMaps.computeIfAbsent(device[0], s -> EventHelper.initEvent("OS"));
@@ -51,7 +47,7 @@ class EventHelper {
                 }
             } else {
                 Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type));
-                for (JVMStatisticsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
+                for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     try {
                         eventMap.put(section.getName() + "_" + property.getName(), Double.parseDouble(property.getValue()));
                     } catch (NumberFormatException nfe) {
@@ -159,7 +155,7 @@ class EventHelper {
         eventMap.put("state", event.getState());
     }
 
-    static void processGCStatisticsData(String type, JVMStatisticsProtos.GCStatisticsData event, HashMap<String, Map<String, Object>> eventMaps) {
+    static void processGCStatisticsData(String type, JVMStatisticsEventsProtos.GCStatisticsData event, HashMap<String, Map<String, Object>> eventMaps) {
         Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type));
         eventMap.put("collector_name", event.getCollectorName());
         eventMap.put("pause_time", event.getPauseTime());

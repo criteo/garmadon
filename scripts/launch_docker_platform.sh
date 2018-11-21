@@ -2,12 +2,13 @@
 
 set -e
 
-export GARMADON_RELEASE=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
 BASEDIR=$(dirname "$0")/..
 
 pushd ${BASEDIR}
 DOCKER_COMPOSE_FOLDER=${BASEDIR}/test/src/main/docker
 ES_FOLDER=${BASEDIR}/readers/elasticsearch/src/main/elasticsearch
+
+export GARMADON_RELEASE=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
 
 function block_until_website_available() {
     until curl $1 > /dev/null 2>&1; do sleep 1; done
@@ -15,6 +16,7 @@ function block_until_website_available() {
 
 # Build artifacts
 mvn clean install -DskipTests
+popd
 
 # Destroy old containers
 pushd ${DOCKER_COMPOSE_FOLDER}
@@ -95,5 +97,4 @@ docker-compose exec client /opt/spark/bin/spark-submit \
     --conf spark.dynamicAllocation.minExecutors=1 --conf spark.dynamicAllocation.initialExecutors=4 \
     --conf spark.dynamicAllocation.maxExecutors=4 --conf spark.dynamicAllocation.executorIdleTimeout=1s \
     --class org.apache.spark.examples.sql.SparkSQLExample /opt/spark/examples/jars/spark-examples_2.11-${SPARK_VERSION}.jar
-popd
 popd

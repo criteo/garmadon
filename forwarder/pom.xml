@@ -65,7 +65,7 @@
         <!-- Other garmadon modules -->
         <dependency>
             <groupId>com.criteo.java</groupId>
-            <artifactId>garmadon-jvm-statistics-core</artifactId>
+            <artifactId>garmadon-jvm-statistics</artifactId>
             <version>${garmadon.version}</version>
         </dependency>
         <dependency>

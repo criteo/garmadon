@@ -23,7 +23,7 @@ public abstract class Tracer {
                 "com.criteo."
         };
         String[] predefBlacklist = {
-                "com.criteo.garmadon.",
+                "com.criteo.hadoop.garmadon.",
                 "com.criteo.jvm."
         };
         String runtimeWhitelist = System.getProperty("bytebuddy.whitelist.for.instrumentation");

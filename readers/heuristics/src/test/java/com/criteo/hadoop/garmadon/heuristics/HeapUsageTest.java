@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
-import com.criteo.jvm.JVMStatisticsProtos;
+import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,7 +77,7 @@ public class HeapUsageTest {
             return null;
         }).when(mockDB).createHeuristicResult(Matchers.any());
         HeapUsage heapUsage = new HeapUsage(mockDB);
-        JVMStatisticsProtos.JVMStatisticsData jvmStats = buildHeapData(used, max);
+        JVMStatisticsEventsProtos.JVMStatisticsData jvmStats = buildHeapData(used, max);
         for (int i = 0; i < nbContainers; i++) {
             heapUsage.process(System.currentTimeMillis(), APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i, jvmStats);
             heapUsage.onContainerCompleted(APPLICATION_ID, ATTEMPT_ID, CONTAINER_PREFIX_ID + i);
@@ -85,9 +85,9 @@ public class HeapUsageTest {
         heapUsage.onAppCompleted(APPLICATION_ID, ATTEMPT_ID);
     }
 
-    private JVMStatisticsProtos.JVMStatisticsData buildHeapData(long used, long max) {
-        JVMStatisticsProtos.JVMStatisticsData.Builder builder = JVMStatisticsProtos.JVMStatisticsData.newBuilder();
-        JVMStatisticsProtos.JVMStatisticsData.Section.Builder sectionBuilder = builder.addSectionBuilder().setName("heap");
+    private JVMStatisticsEventsProtos.JVMStatisticsData buildHeapData(long used, long max) {
+        JVMStatisticsEventsProtos.JVMStatisticsData.Builder builder = JVMStatisticsEventsProtos.JVMStatisticsData.newBuilder();
+        JVMStatisticsEventsProtos.JVMStatisticsData.Section.Builder sectionBuilder = builder.addSectionBuilder().setName("heap");
         sectionBuilder.addPropertyBuilder().setName("used").setValue(String.valueOf(used));
         sectionBuilder.addPropertyBuilder().setName("max").setValue(String.valueOf(max));
         sectionBuilder = builder.addSectionBuilder().setName("gc(PS Scavenge)");
