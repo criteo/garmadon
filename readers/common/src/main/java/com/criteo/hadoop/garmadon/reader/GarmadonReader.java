@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import static com.criteo.hadoop.garmadon.protocol.ProtocolConstants.FRAME_DELIMITER_SIZE;
 
 public class GarmadonReader {
-
+    public static final String GARMADON_TOPIC = "garmadon";
     private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonReader.class);
 
     protected final Reader reader;
@@ -233,33 +233,26 @@ public class GarmadonReader {
     }
 
     public static class Builder {
-
+        private final Consumer<String, byte[]> kafkaConsumer;
         private Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners = new HashMap<>();
         private List<GarmadonMessageHandler> beforeInterceptHandlers = new ArrayList<>();
-        private Properties props = new Properties();
 
-        Builder(String kafkaConnectString) {
-            this.props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConnectString);
-            this.props.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString()); //by default groupId is random
-            this.props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-            this.props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
-            this.props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-            this.props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
-            this.props.put(ConsumerConfig.CLIENT_ID_CONFIG, CONSUMER_ID);
+        public static final Properties DEFAULT_KAFKA_PROPS = new Properties();
+
+        static {
+            DEFAULT_KAFKA_PROPS.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString()); //by default groupId is random
+            DEFAULT_KAFKA_PROPS.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+            DEFAULT_KAFKA_PROPS.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
+            DEFAULT_KAFKA_PROPS.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+            DEFAULT_KAFKA_PROPS.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
         }
 
-        public static Builder stream(String kafkaConnectString) {
-            return new Builder(kafkaConnectString);
+        Builder(Consumer<String, byte[]> kafkaConsumer) {
+            this.kafkaConsumer = kafkaConsumer;
         }
 
-        public Builder withGroupId(String groupId) {
-            this.props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-            return this;
-        }
-
-        public Builder withKafkaProp(String key, Object value) {
-            this.props.put(key, value);
-            return this;
+        public static Builder stream(Consumer<String, byte[]> kafkaConsumer) {
+            return new Builder(kafkaConsumer);
         }
 
         public Builder intercept(GarmadonMessageFilter filter, GarmadonMessageHandler handler) {
@@ -273,13 +266,13 @@ public class GarmadonReader {
         }
 
         public GarmadonReader build() {
-            Consumer<String, byte[]> kafkaConsumer = new KafkaConsumer<>(props);
-            kafkaConsumer.subscribe(Collections.singletonList("garmadon"));
-
-            return new GarmadonReader(kafkaConsumer, beforeInterceptHandlers, listeners);
+            return this.build(true);
         }
 
-        public GarmadonReader build(Consumer<String, byte[]> kafkaConsumer) {
+        public GarmadonReader build(boolean autoSubscribe) {
+            if (autoSubscribe)
+                kafkaConsumer.subscribe(Collections.singletonList(GARMADON_TOPIC));
+
             return new GarmadonReader(kafkaConsumer, beforeInterceptHandlers, listeners);
         }
     }

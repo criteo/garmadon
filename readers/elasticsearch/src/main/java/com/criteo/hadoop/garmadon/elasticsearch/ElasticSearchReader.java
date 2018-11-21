@@ -13,6 +13,8 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.elasticsearch.action.bulk.*;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RestClient;
@@ -29,6 +31,7 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -88,9 +91,13 @@ public class ElasticSearchReader implements BulkProcessor.Listener {
         prometheusHttpConsumerMetrics = new PrometheusHttpConsumerMetrics(prometheusPort);
 
         //setup kafka reader
-        GarmadonReader.Builder builder = GarmadonReader.Builder.stream(kafkaConnectString);
+        Properties props = new Properties();
+
+        props.putAll(GarmadonReader.Builder.DEFAULT_KAFKA_PROPS);
+        props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, kafkaGroupId);
+        props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConnectString);
+        GarmadonReader.Builder builder = GarmadonReader.Builder.stream(new KafkaConsumer<>(props));
         reader = builder
-                .withGroupId(kafkaGroupId)
                 .intercept(GarmadonMessageFilter.ANY.INSTANCE, this::writeToES)
                 .build();
 

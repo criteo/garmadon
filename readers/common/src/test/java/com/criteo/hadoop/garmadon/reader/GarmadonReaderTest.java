@@ -3,7 +3,6 @@ package com.criteo.hadoop.garmadon.reader;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 import com.criteo.hadoop.garmadon.protocol.ProtocolMessage;
-import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
 import com.criteo.hadoop.garmadon.schema.enums.State;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.exceptions.SerializationException;
@@ -15,9 +14,8 @@ import org.apache.kafka.common.TopicPartition;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasTag;
 import static org.mockito.Matchers.any;
@@ -41,8 +39,8 @@ public class GarmadonReaderTest {
     public void setUp() {
         garmadonMessageHandler = mock(GarmadonReader.GarmadonMessageHandler.class);
 
-        kafkaConsumer = new MockConsumer(OffsetResetStrategy.EARLIEST);
-        kafkaConsumer.assign(Arrays.asList(new TopicPartition(TOPIC, 0)));
+        kafkaConsumer = new MockConsumer<>(OffsetResetStrategy.EARLIEST);
+        kafkaConsumer.assign(Collections.singletonList(new TopicPartition(TOPIC, 0)));
         HashMap<TopicPartition, Long> beginningOffsets = new HashMap<>();
         beginningOffsets.put(new TopicPartition(TOPIC, 0), 0L);
         kafkaConsumer.updateBeginningOffsets(beginningOffsets);
@@ -62,11 +60,10 @@ public class GarmadonReaderTest {
     }
 
     private void setReader(GarmadonMessageFilter filter) {
-        GarmadonReader.Builder builder = GarmadonReader.Builder.stream("kafkastring");
+        GarmadonReader.Builder builder = GarmadonReader.Builder.stream(kafkaConsumer);
         GarmadonReader garmadonReader = builder
-                .withGroupId(GROUP_ID)
                 .intercept(filter, garmadonMessageHandler)
-                .build(kafkaConsumer);
+                .build(false);
 
         reader = garmadonReader.reader;
     }
@@ -74,7 +71,7 @@ public class GarmadonReaderTest {
     @Test
     public void GarmadonReader_should_read_event() throws TypeMarkerException, SerializationException {
         setReader(GarmadonMessageFilter.ANY.INSTANCE);
-        kafkaConsumer.addRecord(new ConsumerRecord(TOPIC,
+        kafkaConsumer.addRecord(new ConsumerRecord<>(TOPIC,
                 0, 0L, KEY, ProtocolMessage.create(System.currentTimeMillis(), header.toByteArray(), statEvent)));
 
         reader.readConsumerRecords();
@@ -84,7 +81,7 @@ public class GarmadonReaderTest {
     @Test
     public void GarmadonReader_should_not_fail_on_non_parsable_header() throws TypeMarkerException, SerializationException {
         setReader(GarmadonMessageFilter.ANY.INSTANCE);
-        kafkaConsumer.addRecord(new ConsumerRecord(TOPIC,
+        kafkaConsumer.addRecord(new ConsumerRecord<>(TOPIC,
                 0, 0L, KEY, ProtocolMessage.create(System.currentTimeMillis(), "a".getBytes(), statEvent)));
 
         reader.readConsumerRecords();
@@ -94,7 +91,7 @@ public class GarmadonReaderTest {
     @Test
     public void GarmadonReader_should_read_filtered_event() throws TypeMarkerException, SerializationException {
         setReader(hasTag(Header.Tag.YARN_APPLICATION));
-        kafkaConsumer.addRecord(new ConsumerRecord(TOPIC,
+        kafkaConsumer.addRecord(new ConsumerRecord<>(TOPIC,
                 0, 0L, KEY, ProtocolMessage.create(System.currentTimeMillis(), header.toByteArray(), statEvent)));
 
         reader.readConsumerRecords();
@@ -104,7 +101,7 @@ public class GarmadonReaderTest {
     @Test
     public void GarmadonReader_should_not_fail_filtering_events_due_to_bad_header() throws TypeMarkerException, SerializationException {
         setReader(hasTag(Header.Tag.YARN_APPLICATION));
-        kafkaConsumer.addRecord(new ConsumerRecord(TOPIC,
+        kafkaConsumer.addRecord(new ConsumerRecord<>(TOPIC,
                 0, 0L, KEY, ProtocolMessage.create(System.currentTimeMillis(), "a".getBytes(), statEvent)));
 
         reader.readConsumerRecords();
@@ -114,7 +111,7 @@ public class GarmadonReaderTest {
     @Test
     public void GarmadonReader_should_not_fail_if_msg_not_a_garmadon_msg() throws TypeMarkerException, SerializationException {
         setReader(hasTag(Header.Tag.YARN_APPLICATION));
-        kafkaConsumer.addRecord(new ConsumerRecord(TOPIC,
+        kafkaConsumer.addRecord(new ConsumerRecord<>(TOPIC,
                 0, 0L, KEY, "bad msg".getBytes()));
 
         reader.readConsumerRecords();
@@ -124,9 +121,9 @@ public class GarmadonReaderTest {
     @Test
     public void GarmadonReader_should_continue_read_event_after_a_bad_event() throws TypeMarkerException, SerializationException {
         setReader(GarmadonMessageFilter.ANY.INSTANCE);
-        kafkaConsumer.addRecord(new ConsumerRecord(TOPIC,
+        kafkaConsumer.addRecord(new ConsumerRecord<>(TOPIC,
                 0, 0L, KEY, "bad msg".getBytes()));
-        kafkaConsumer.addRecord(new ConsumerRecord(TOPIC,
+        kafkaConsumer.addRecord(new ConsumerRecord<>(TOPIC,
                 0, 0L, KEY, ProtocolMessage.create(System.currentTimeMillis(), header.toByteArray(), statEvent)));
 
         reader.readConsumerRecords();
