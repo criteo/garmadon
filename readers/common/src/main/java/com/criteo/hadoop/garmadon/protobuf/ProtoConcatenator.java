@@ -17,7 +17,7 @@ public class ProtoConcatenator {
 
     /**
      * Concatenate Protobuf messages into a single Protobuf message.
-     * /!\ Doesn't handle embedded objects and repeated fields /!\
+     * /!\ Doesn't handle embedded objects /!\
      *
      * @param messages  Messages to be concatenated
      * @return          A single, one-level Protobuf objects holding fields and values from all input messages.
@@ -60,7 +60,7 @@ public class ProtoConcatenator {
 
     /**
      * Concatenate Protobuf messages into a single String -> object map.
-     * /!\ Doesn't handle embedded objects and repeated fields /!\
+     * /!\ Doesn't handle embedded objects /!\
      *
      * @param messages  Messages to be concatenated
      * @return          A single, one-level String -> object map holding fields and values from all input messages.

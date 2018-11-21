@@ -56,7 +56,7 @@
         <dependency>
             <groupId>com.github.os72</groupId>
             <artifactId>protobuf-dynamic</artifactId>
-            <version>0.9.4</version>
+            <version>${protobuf-dynamic.version}</version>
         </dependency>
     </dependencies>
 
