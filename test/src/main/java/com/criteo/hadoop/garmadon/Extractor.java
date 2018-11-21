@@ -7,7 +7,6 @@ import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.schema.enums.State;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
-import com.criteo.jvm.JVMStatisticsProtos;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 
