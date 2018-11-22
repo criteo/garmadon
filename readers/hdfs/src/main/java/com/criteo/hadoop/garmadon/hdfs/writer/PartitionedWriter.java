@@ -155,7 +155,6 @@ public class PartitionedWriter<MessageKind> implements Closeable {
     public static class Expirer<MessageKind> implements Runnable {
         private final Collection<PartitionedWriter<MessageKind>> writers;
         private final TemporalAmount period;
-        private volatile boolean shouldStop = false;
         private Thread runningThread;
 
         /**
@@ -171,7 +170,7 @@ public class PartitionedWriter<MessageKind> implements Closeable {
         public void run() {
             runningThread = Thread.currentThread();
 
-            while (!shouldStop) {
+            while (!runningThread.isInterrupted()) {
                 writers.forEach(PartitionedWriter::expireConsumers);
 
                 try {
@@ -187,11 +186,10 @@ public class PartitionedWriter<MessageKind> implements Closeable {
          * Notify the main loop to stop running (still need to wait for the run to finish) and close all writers
          */
         public void stop() {
-            shouldStop = true;
-            writers.forEach(PartitionedWriter::close);
-
             if (runningThread != null)
                 runningThread.interrupt();
+
+            writers.forEach(PartitionedWriter::close);
         }
     }
 

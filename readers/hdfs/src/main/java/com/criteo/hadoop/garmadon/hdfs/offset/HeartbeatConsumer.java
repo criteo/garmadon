@@ -23,7 +23,6 @@ public class HeartbeatConsumer<MessageKind> implements Runnable, GarmadonReader.
 
     private final Map<Integer, Offset> latestPartitionsOffset = new HashMap<>();
     private final Map<Integer, Offset> latestHeartbeats = new HashMap<>();
-    private volatile boolean shouldStop = false;
 
     private final TemporalAmount period;
     private final Collection<PartitionedWriter<MessageKind>> writers;
@@ -41,7 +40,7 @@ public class HeartbeatConsumer<MessageKind> implements Runnable, GarmadonReader.
     @Override
     public void run() {
         runningThread = Thread.currentThread();
-        while (!shouldStop) {
+        while (!runningThread.isInterrupted()) {
             synchronized (latestPartitionsOffset) {
                 for (Map.Entry<Integer, Offset> partitionOffset : latestPartitionsOffset.entrySet()) {
                     int partition = partitionOffset.getKey();
@@ -84,8 +83,6 @@ public class HeartbeatConsumer<MessageKind> implements Runnable, GarmadonReader.
      * Stop sending heartbeats ASAP
      */
     public void stop() {
-        shouldStop = true;
-
         if (runningThread != null)
             runningThread.interrupt();
     }
