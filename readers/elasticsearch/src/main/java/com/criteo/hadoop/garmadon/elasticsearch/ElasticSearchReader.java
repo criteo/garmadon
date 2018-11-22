@@ -49,6 +49,7 @@ public final class ElasticSearchReader implements BulkProcessor.Listener {
             PrometheusHttpConsumerMetrics.RELEASE);
 
     private static final int CONNECTION_TIMEOUT_MS = 10000;
+    private static final int SOCKET_TIMEOUT_MS = 60000;
     private static final int NB_RETRIES = 10;
 
     private static final Format FORMATTER = new SimpleDateFormat("yyyy-MM-dd-HH");
@@ -69,7 +70,12 @@ public final class ElasticSearchReader implements BulkProcessor.Listener {
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         RestClientBuilder restClientBuilder = RestClient.builder(
                 new HttpHost(esHost, esPort, "http")
-        );
+        )
+                .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
+                        .setConnectTimeout(CONNECTION_TIMEOUT_MS)
+                        .setSocketTimeout(SOCKET_TIMEOUT_MS)
+                        .setContentCompressionEnabled(true))
+                .setMaxRetryTimeoutMillis(2 * SOCKET_TIMEOUT_MS);
 
         if (esUser != null) {
             credentialsProvider.setCredentials(AuthScope.ANY,
@@ -77,10 +83,7 @@ public final class ElasticSearchReader implements BulkProcessor.Listener {
 
             restClientBuilder
                     .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
-                            .setDefaultCredentialsProvider(credentialsProvider))
-                    .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
-                            .setConnectTimeout(CONNECTION_TIMEOUT_MS)
-                            .setContentCompressionEnabled(true));
+                            .setDefaultCredentialsProvider(credentialsProvider));
         }
 
         //setup es client
