@@ -89,6 +89,7 @@
         <protobuf.version>3.6.1</protobuf.version>
         <kafka.version>0.10.2.1</kafka.version>
         <guava.version>20.0</guava.version>
+        <parquet-protobuf.version>1.8.1</parquet-protobuf.version>
         <protobuf-dynamic.version>0.9.4</protobuf-dynamic.version>
 
         <!-- tests -->
