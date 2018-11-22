@@ -20,6 +20,8 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.sniff.SniffOnFailureListener;
+import org.elasticsearch.client.sniff.Sniffer;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
@@ -68,9 +70,12 @@ public final class ElasticSearchReader implements BulkProcessor.Listener {
         int bulkFlushIntervalSec = Integer.getInteger("garmadon.esReader.bulkFlushIntervalSec", 10);
 
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+
+        LogMailFailureListener sniffOnFailureListener = new LogMailFailureListener();
         RestClientBuilder restClientBuilder = RestClient.builder(
                 new HttpHost(esHost, esPort, "http")
         )
+                .setFailureListener(sniffOnFailureListener)
                 .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
                         .setConnectTimeout(CONNECTION_TIMEOUT_MS)
                         .setSocketTimeout(SOCKET_TIMEOUT_MS)
@@ -89,6 +94,9 @@ public final class ElasticSearchReader implements BulkProcessor.Listener {
         //setup es client
         this.esIndexPrefix = esIndexPrefix;
         RestHighLevelClient esClient = new RestHighLevelClient(restClientBuilder);
+
+        Sniffer sniffer = Sniffer.builder(esClient.getLowLevelClient()).build();
+        sniffOnFailureListener.setSniffer(sniffer);
 
         //setup Prometheus client
         prometheusHttpConsumerMetrics = new PrometheusHttpConsumerMetrics(prometheusPort);
@@ -113,6 +121,17 @@ public final class ElasticSearchReader implements BulkProcessor.Listener {
                         BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), NB_RETRIES)
                 )
                 .build();
+    }
+
+    public class LogMailFailureListener extends SniffOnFailureListener {
+        public LogMailFailureListener () {
+            super();
+        }
+        @Override
+        public void onFailure(HttpHost host) {
+            LOGGER.warn("Node failed: "+ host.getHostName()+ "-"+ host.getPort());
+            super.onFailure(host);
+        }
     }
 
     private CompletableFuture<Void> startReading() {
