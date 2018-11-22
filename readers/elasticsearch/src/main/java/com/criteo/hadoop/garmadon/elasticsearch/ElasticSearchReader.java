@@ -8,6 +8,7 @@ import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import io.prometheus.client.Counter;
+import io.prometheus.client.Summary;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -49,6 +50,10 @@ public final class ElasticSearchReader implements BulkProcessor.Listener {
     private static Counter.Child numberOfOffsetCommitError = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("number_of_offset_commit_error",
             GarmadonReader.getHostname(),
             PrometheusHttpConsumerMetrics.RELEASE);
+    private static Summary.Child latencyIndexingEvents = PrometheusHttpConsumerMetrics.LATENCY_INDEXING_TO_ES.labels("latency_indexing_events",
+            GarmadonReader.getHostname(),
+            PrometheusHttpConsumerMetrics.RELEASE);
+
 
     private static final int CONNECTION_TIMEOUT_MS = 10000;
     private static final int SOCKET_TIMEOUT_MS = 60000;
@@ -124,12 +129,13 @@ public final class ElasticSearchReader implements BulkProcessor.Listener {
     }
 
     public class LogMailFailureListener extends SniffOnFailureListener {
-        public LogMailFailureListener () {
+        LogMailFailureListener() {
             super();
         }
+
         @Override
         public void onFailure(HttpHost host) {
-            LOGGER.warn("Node failed: "+ host.getHostName()+ "-"+ host.getPort());
+            LOGGER.warn("Node failed: " + host.getHostName() + "-" + host.getPort());
             super.onFailure(host);
         }
     }
@@ -230,6 +236,7 @@ public final class ElasticSearchReader implements BulkProcessor.Listener {
             }
         } else {
             LOGGER.info("Successfully completed Bulk[{}] in {} ms", executionId, response.getTook().getMillis());
+            latencyIndexingEvents.observe(response.getTook().getMillis());
         }
         CommittableOffset<String, byte[]> lastOffset = ((CommittableOffset<String, byte[]>) request.payloads().get(request.payloads().size() - 1));
         lastOffset
