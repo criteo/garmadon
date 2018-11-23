@@ -6,7 +6,7 @@
 
     <groupId>com.criteo.java</groupId>
     <artifactId>garmadon</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <packaging>pom</packaging>
 
     <name>garmadon</name>
@@ -74,7 +74,7 @@
     </repositories>
 
     <properties>
-        <garmadon.version>1.0.0</garmadon.version>
+        <garmadon.version>1.1.0</garmadon.version>
         <hadoop.version>2.6.0-cdh5.11.0</hadoop.version>
         <netty-all.version>4.1.30.Final</netty-all.version>
         <bytebuddy.version>1.9.2</bytebuddy.version>
