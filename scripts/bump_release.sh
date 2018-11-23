@@ -5,6 +5,13 @@ function write_at_begening() {
   mv $2{.new,}
 }
 
+function write_release_note_between(){
+  from=$1
+  to=$2
+  write_at_begening "$(git log ${from}..${to} --pretty=tformat:'- %s %h (%an)' | grep -v "Merge pull request #" | grep -v  "\[RELEASE\] ")" release-notes.md
+  write_at_begening "### ${to} - $(git log -1 --format=%ad --date=short ${to})" release-notes.md
+}
+
 if [ "$#" -ne 1 ]; then
     echo "Usage:"
     echo "  $(basename "$0") <new release>"
@@ -41,13 +48,29 @@ git tag v${NEW_GARMADON_RELEASE}
 
 #  Create release-notes
 > release-notes.md
+REMOTE_TAG_REFS=$(git ls-remote --refs --tags https://github.com/criteo/garmadon | cut -f1)
 from=$(git log --pretty=format:%H|tail -1) # First commit
-for tag in $(git tag)
+for ref in $REMOTE_TAG_REFS
 do
-  write_at_begening "$(git log ${from}..${tag} --pretty=tformat:'- %s %h (%an)' | grep -v "Merge pull request #" | grep -v  "\[RELEASE\] ")" release-notes.md
-  write_at_begening "### ${tag} - $(git log -1 --format=%ad --date=short ${tag})" release-notes.md
-  from=${tag}
+  #Tag branches
+  branches=$(git branch --contains ${ref})
+  #Consider only master branch
+  if [[ $branches =~ 'master' ]]
+  then
+    #Get the first release tag pointing at this commit
+    tag=$(git tag --points-at ${ref} | grep v | head -n 1)
+
+    #Consider only release tag
+    if [ ! -z "$tag" ]
+    then
+      write_release_note_between $from $tag 
+      from=${tag}
+    fi
+  fi  
 done
+
+#There is only the tag we created for this release left
+write_release_note_between ${from} v${NEW_GARMADON_RELEASE}
 
 write_at_begening "----------------------" release-notes.md
 write_at_begening "Garmadon release notes" release-notes.md
