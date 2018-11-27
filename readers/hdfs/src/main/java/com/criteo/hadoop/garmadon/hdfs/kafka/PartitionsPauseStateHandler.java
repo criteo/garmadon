@@ -29,14 +29,14 @@ public class PartitionsPauseStateHandler<K, V> implements ConsumerRebalanceListe
 
     @Override
     public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-        synchronized (currentlyAssignedPartitions) {
+        synchronized (consumer) {
             currentlyAssignedPartitions.removeAll(partitions);
         }
     }
 
     @Override
     public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-        synchronized (currentlyAssignedPartitions) {
+        synchronized (consumer) {
             currentlyAssignedPartitions.addAll(partitions);
 
             if (!pausedEvents.isEmpty() && !currentlyAssignedPartitions.isEmpty())
@@ -45,7 +45,7 @@ public class PartitionsPauseStateHandler<K, V> implements ConsumerRebalanceListe
     }
 
     public void pause(Class pausingEvent) {
-        synchronized (currentlyAssignedPartitions) {
+        synchronized (consumer) {
             if (pausedEvents.isEmpty() && !currentlyAssignedPartitions.isEmpty())
                 consumer.pause(currentlyAssignedPartitions);
 
@@ -54,7 +54,7 @@ public class PartitionsPauseStateHandler<K, V> implements ConsumerRebalanceListe
     }
 
     public void resume(Class resumingEvent) {
-        synchronized (currentlyAssignedPartitions) {
+        synchronized (consumer) {
             pausedEvents.remove(resumingEvent);
 
             if (pausedEvents.isEmpty() && !currentlyAssignedPartitions.isEmpty())

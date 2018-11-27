@@ -216,15 +216,21 @@ public class GarmadonReader {
         }
 
         synchronized ConsumerRecords<K, V> poll(long timeout) {
-            return consumer.poll(timeout);
+            synchronized (consumer) {
+                return consumer.poll(timeout);
+            }
         }
 
         synchronized void commitSync(Map<TopicPartition, OffsetAndMetadata> offsets) {
-            consumer.commitSync(offsets);
+            synchronized (consumer) {
+                consumer.commitSync(offsets);
+            }
         }
 
         synchronized void commitAsync(Map<TopicPartition, OffsetAndMetadata> offsets, OffsetCommitCallback callback) {
-            consumer.commitAsync(offsets, callback);
+            synchronized (consumer) {
+                consumer.commitAsync(offsets, callback);
+            }
         }
 
         static <K, V> SynchronizedConsumer<K, V> synchronize(Consumer<K, V> consumer) {

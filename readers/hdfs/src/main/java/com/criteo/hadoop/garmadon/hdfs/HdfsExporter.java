@@ -15,7 +15,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.parquet.proto.ProtoParquetWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,11 +94,7 @@ public class HdfsExporter {
         LOGGER.info("Temporary HDFS dir: {}", temporaryHdfsDir.toUri());
         LOGGER.info("Final HDFS dir: {}", finalHdfsDir.toUri());
 
-        readerBuilder.intercept(any(), heartbeat);
-
-        final PartitionsPauseStateHandler<String, byte[]> partitionsPauser;
-
-        partitionsPauser = new PartitionsPauseStateHandler<>(kafkaConsumer);
+        final PartitionsPauseStateHandler<String, byte[]> pauser = new PartitionsPauseStateHandler<>(kafkaConsumer);
 
         for (Map.Entry<Integer, Map.Entry<String, Class<? extends Message>>> out: typeToDirAndClass.entrySet()) {
             final Integer eventType = out.getKey();
@@ -107,7 +105,7 @@ public class HdfsExporter {
             final OffsetComputer offsetComputer = new HdfsOffsetComputer(fs, finalEventDir);
 
             consumerBuilder = buildMessageConsumerBuilder(fs, new Path(temporaryHdfsDir, path),
-                    finalEventDir, clazz, offsetComputer, partitionsPauser);
+                    finalEventDir, clazz, offsetComputer, pauser);
 
             final PartitionedWriter<Message> writer = new PartitionedWriter<>(
                     consumerBuilder, offsetComputer);
@@ -117,11 +115,24 @@ public class HdfsExporter {
             writers.add(writer);
         }
 
-        kafkaConsumer.subscribe(Collections.singleton(GarmadonReader.GARMADON_TOPIC),
-                new OffsetResetter<>(kafkaConsumer, heartbeat::dropPartition, writers));
+        final List<ConsumerRebalanceListener> listeners = Arrays.asList(
+                new OffsetResetter<>(kafkaConsumer, heartbeat::dropPartition, writers), pauser);
 
+        // We need to build a meta listener as only the last call to #subscribe wins
         kafkaConsumer.subscribe(Collections.singleton(GarmadonReader.GARMADON_TOPIC),
-                partitionsPauser);
+                new ConsumerRebalanceListener() {
+                    @Override
+                    public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+                        listeners.forEach(listener -> listener.onPartitionsRevoked(partitions));
+                    }
+
+                    @Override
+                    public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+                        listeners.forEach(listener -> listener.onPartitionsAssigned(partitions));
+                    }
+                });
+
+        readerBuilder.intercept(any(), heartbeat);
 
         final GarmadonReader garmadonReader = readerBuilder.build(false);
 

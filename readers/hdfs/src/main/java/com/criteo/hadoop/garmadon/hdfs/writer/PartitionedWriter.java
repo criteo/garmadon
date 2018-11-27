@@ -103,7 +103,7 @@ public class PartitionedWriter<MessageKind> implements Closeable {
                 try {
                     startingOffset = offsetComputer.computeOffset(partitionId);
                 } catch (IOException e) {
-                    perPartitionStartOffset.put(partitionId, -1L);
+                    perPartitionStartOffset.put(partitionId, OffsetComputer.NO_OFFSET);
                     throw (e);
                 }
 

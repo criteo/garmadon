@@ -9,8 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Reset consumer offsets to the highest non-consumed offset everytime partitions get assigned
@@ -50,37 +52,44 @@ public class OffsetResetter<K, V, MessageKind> implements ConsumerRebalanceListe
 
     @Override
     public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-        for (TopicPartition partition : partitions) {
+         for (TopicPartition partition : partitions) {
             long startingOffset = UNKNOWN_OFFSET;
+            List<Long> offsets = new ArrayList<>(writers.size());
 
             for (PartitionedWriter<MessageKind> writer : writers) {
                 try {
-                    final long writerOffset = writer.getStartingOffset(partition.partition());
-
-                    if (writerOffset == UNKNOWN_OFFSET)
-                        break;
-
-                    if (startingOffset == UNKNOWN_OFFSET)
-                        startingOffset = writerOffset;
-                    else
-                        startingOffset = Math.min(startingOffset, writerOffset);
+                    offsets.add(writer.getStartingOffset(partition.partition()));
                 } catch (IOException e) {
-                    LOGGER.warn("Couldn't get offset for partition {}, resuming from earliest", partition.partition());
-                    startingOffset = UNKNOWN_OFFSET;
-                    break;
+                    LOGGER.warn("Couldn't get offset for partition {}, will resume from earliest",
+                            partition.partition(), e);
+                    offsets.add(UNKNOWN_OFFSET);
+                    // Don't break here as we need all exceptional writers to cache "unknown offset" for future queries
                 }
             }
 
-            if (startingOffset == UNKNOWN_OFFSET) {
-                consumer.seekToBeginning(Collections.singleton(partition));
-                LOGGER.warn("Resuming consumption of partition {} from the beginning. " +
-                            "This should not happen unless this is the first time this app runs",
-                        partition.partition());
+            for (long offset: offsets) {
+                if (offset == UNKNOWN_OFFSET) {
+                    startingOffset = UNKNOWN_OFFSET;
+                    break;
+                }
+
+                if (startingOffset == UNKNOWN_OFFSET)
+                    startingOffset = offset;
+                else
+                    startingOffset = Math.min(startingOffset, offset);
             }
-            else {
-                consumer.seek(partition, startingOffset);
-                LOGGER.info("Resuming consumption of partition {} from offset {}",
-                        partition.partition(), startingOffset);
+
+             synchronized (consumer) {
+                if (startingOffset == UNKNOWN_OFFSET) {
+                    consumer.seekToBeginning(Collections.singleton(partition));
+                    LOGGER.warn("Resuming consumption of partition {} from the beginning. " +
+                                    "This should not happen unless this is the first time this app runs",
+                            partition.partition());
+                } else {
+                    consumer.seek(partition, startingOffset);
+                    LOGGER.info("Resuming consumption of partition {} from offset {}",
+                            partition.partition(), startingOffset);
+                }
             }
         }
     }
