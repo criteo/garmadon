@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.hdfs.offset;
 
+import com.criteo.hadoop.garmadon.reader.Offset;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
@@ -8,12 +9,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Compute starting offset based on HDFS file names.
+ * Persist and read offset based on HDFS file names, named _date_/_partition_._offset_
  */
 public class HdfsOffsetComputer implements OffsetComputer {
     private static final Logger LOGGER = LoggerFactory.getLogger(HdfsOffsetComputer.class);
@@ -23,17 +26,16 @@ public class HdfsOffsetComputer implements OffsetComputer {
 
     /**
      * @param fs                            Filesystem for said files
-     * @param basePath                      Rooth directory to look in for offsets filenames
-     * @param offsetFilePatternGenerator    First capturing group must capture offset
+     * @param basePath                      Root directory to look in for offsets filenames
      */
-    public HdfsOffsetComputer(FileSystem fs, Path basePath, Function<Integer, Pattern> offsetFilePatternGenerator) {
+    public HdfsOffsetComputer(FileSystem fs, Path basePath) {
         this.fs = fs;
         this.basePath = basePath;
-        this.offsetFilePatternGenerator = offsetFilePatternGenerator;
+        this.offsetFilePatternGenerator = partitionId -> Pattern.compile(String.format("^%d.(\\d+)$", partitionId));
     }
 
     @Override
-    public long compute(int partitionId) throws IOException {
+    public long computeOffset(int partitionId) throws IOException {
         final RemoteIterator<LocatedFileStatus> filesIterator = fs.listFiles(basePath, true);
         final Pattern partitionBasedPattern = offsetFilePatternGenerator.apply(partitionId);
         long highestOffset = NO_OFFSET;
@@ -63,5 +65,11 @@ public class HdfsOffsetComputer implements OffsetComputer {
         }
 
         return highestOffset;
+    }
+
+    @Override
+    public String computePath(LocalDateTime time, Offset offset) {
+        return String.format("%s/%d.%d", time.format(DateTimeFormatter.ISO_DATE), offset.getPartition(),
+                offset.getOffset());
     }
 }

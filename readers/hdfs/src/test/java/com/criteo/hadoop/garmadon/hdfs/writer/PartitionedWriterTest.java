@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.hdfs.writer;
 
-import com.criteo.hadoop.garmadon.hdfs.offset.FixedOffsetComputer;
+import com.criteo.hadoop.garmadon.hdfs.FixedOffsetComputer;
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.reader.Offset;
 import com.criteo.hadoop.garmadon.reader.TopicPartitionOffset;
@@ -24,7 +24,7 @@ public class PartitionedWriterTest {
     public void writeToMultipleDaysAndPartitions() throws IOException {
         final Function<LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(Function.class);
         final PartitionedWriter<String> partitionedWriter = new PartitionedWriter<>(writerBuilder,
-                new FixedOffsetComputer(0));
+                new FixedOffsetComputer("ignored", 0));
         final ExpiringConsumer<String> firstConsumerMock = mock(ExpiringConsumer.class);
         final ExpiringConsumer<String> secondConsumerMock = mock(ExpiringConsumer.class);
         final ExpiringConsumer<String> thirdConsumerMock = mock(ExpiringConsumer.class);
@@ -76,7 +76,7 @@ public class PartitionedWriterTest {
     public void writeOnExpired() throws IOException {
         final Function<LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(Function.class);
         final PartitionedWriter<String> partitionedWriter = new PartitionedWriter<>(writerBuilder,
-                new FixedOffsetComputer(0));
+                new FixedOffsetComputer("ignored", 0));
         final ExpiringConsumer<String> firstDayFirstConsumerMock = mock(ExpiringConsumer.class);
         final ExpiringConsumer<String> firstDaySecondConsumerMock = mock(ExpiringConsumer.class);
         final ExpiringConsumer<String> secondDayFirstConsumerMock = mock(ExpiringConsumer.class);
@@ -125,7 +125,8 @@ public class PartitionedWriterTest {
 
     @Test
     public void expireNoWriter() {
-        final PartitionedWriter partitionedWriter = new PartitionedWriter<String>(null, new FixedOffsetComputer(0));
+        final PartitionedWriter partitionedWriter = new PartitionedWriter<String>(null,
+                new FixedOffsetComputer("ignored", 0));
 
         // Should not crash
         partitionedWriter.expireConsumers();
@@ -135,7 +136,7 @@ public class PartitionedWriterTest {
     public void closingExceptionalConsumerDoesNotThrow() throws IOException {
         final Function<LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(Function.class);
         final PartitionedWriter<String> partitionedWriter = new PartitionedWriter<>(writerBuilder,
-                new FixedOffsetComputer(0));
+                new FixedOffsetComputer("ignored", 0));
         final ExpiringConsumer<String> nonThrowingConsumer = mock(ExpiringConsumer.class);
         final ExpiringConsumer<String> throwingConsumer = mock(ExpiringConsumer.class);
         final Offset firstOffset = buildOffset(1, 101);
@@ -160,7 +161,8 @@ public class PartitionedWriterTest {
     @Test
     public void skipMessagesBeforeLowestOffset() throws IOException {
         final Function<LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(Function.class);
-        final PartitionedWriter<String> writer = new PartitionedWriter<>(writerBuilder, new FixedOffsetComputer(12));
+        final PartitionedWriter<String> writer = new PartitionedWriter<>(writerBuilder,
+                new FixedOffsetComputer("ignored", 42));
 
         writer.write(Instant.EPOCH, buildOffset(1, 10), "Ignored");
         writer.write(Instant.EPOCH, buildOffset(1, 11), "Also ignored");
@@ -177,7 +179,7 @@ public class PartitionedWriterTest {
         final ExpiringConsumer<String> secondMockConsumer = mock(ExpiringConsumer.class);
         final Instant instant = Instant.EPOCH;
 
-        when(offsetComputer.compute(anyInt())).thenReturn(0L);
+        when(offsetComputer.computeOffset(anyInt())).thenReturn(0L);
         when(writerBuilder.apply(any(LocalDateTime.class))).thenReturn(firstMockConsumer).thenReturn(secondMockConsumer);
 
         writer.write(instant, buildOffset(1, 8), "Ignored");
@@ -189,7 +191,7 @@ public class PartitionedWriterTest {
         writer.expireConsumers();
 
         verify(secondMockConsumer, times(1)).isExpired();
-        verify(offsetComputer, times(2)).compute(anyInt());
+        verify(offsetComputer, times(2)).computeOffset(anyInt());
         verifyNoMoreInteractions(firstMockConsumer);
         verifyNoMoreInteractions(secondMockConsumer);
     }
@@ -215,13 +217,13 @@ public class PartitionedWriterTest {
         final OffsetComputer offsetComputer = mock(OffsetComputer.class);
         final PartitionedWriter<String> writer = new PartitionedWriter<>(mock(Function.class), offsetComputer);
 
-        when(offsetComputer.compute(anyInt())).thenReturn(firstOffset).thenReturn(secondOffset);
+        when(offsetComputer.computeOffset(anyInt())).thenReturn(firstOffset).thenReturn(secondOffset);
 
         Assert.assertEquals(firstOffset, writer.getStartingOffset(partition));
         Assert.assertEquals(firstOffset, writer.getStartingOffset(partition));
 
         // No unnecessary round-trip if value already filled
-        verify(offsetComputer, times(1)).compute(partition);
+        verify(offsetComputer, times(1)).computeOffset(partition);
 
         writer.dropPartition(partition);
         Assert.assertEquals(secondOffset, writer.getStartingOffset(partition));
@@ -264,20 +266,16 @@ public class PartitionedWriterTest {
         final PartitionedWriter.Expirer<String> expirer = new PartitionedWriter.Expirer<>(
                 Arrays.asList(firstConsumer, secondConsumer), Duration.ofMillis(1));
 
-        final Thread expirerThread = new Thread(expirer);
-        expirerThread.start();
+        expirer.start();
 
         Thread.sleep(500);
 
         verify(firstConsumer, atLeastOnce()).expireConsumers();
         verify(secondConsumer, atLeastOnce()).expireConsumers();
 
-        expirer.stop();
-        Thread.sleep(500);
+        expirer.stop().join();
         verify(firstConsumer, atLeastOnce()).close();
         verify(secondConsumer, atLeastOnce()).close();
-
-        expirerThread.join();
     }
 
     @Test(timeout = 3000)
@@ -285,12 +283,9 @@ public class PartitionedWriterTest {
         final PartitionedWriter.Expirer<String> expirer = new PartitionedWriter.Expirer<>(Collections.emptyList(),
                 Duration.ofMillis(10));
 
-        final Thread expirerThread = new Thread(expirer);
-        expirerThread.start();
+        expirer.start();
         Thread.sleep(500);
-        expirer.stop();
-
-        expirerThread.join();
+        expirer.stop().join();
     }
 
     @Test(timeout = 3000)
@@ -298,11 +293,9 @@ public class PartitionedWriterTest {
         final PartitionedWriter.Expirer<String> expirer = new PartitionedWriter.Expirer<>(
                 Collections.singleton(mock(PartitionedWriter.class)), Duration.ofHours(42));
 
-        final Thread expirerThread = new Thread(expirer);
-        expirerThread.start();
+        expirer.start();
         Thread.sleep(1000);
-        expirer.stop();
-        expirerThread.join();
+        expirer.stop().join();
     }
 
     private static Offset buildOffset(int partitionId, long offsetValue) {

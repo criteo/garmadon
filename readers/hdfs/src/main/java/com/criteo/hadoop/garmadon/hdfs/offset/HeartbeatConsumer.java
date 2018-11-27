@@ -13,12 +13,13 @@ import java.time.temporal.TemporalAmount;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Send periodic heartbeats to a collection of writers, only if different from previous heartbeat
  * @param <MessageKind>
  */
-public class HeartbeatConsumer<MessageKind> implements Runnable, GarmadonReader.GarmadonMessageHandler {
+public class HeartbeatConsumer<MessageKind> implements GarmadonReader.GarmadonMessageHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(HeartbeatConsumer.class);
 
     private final Map<Integer, Offset> latestPartitionsOffset = new HashMap<>();
@@ -37,30 +38,32 @@ public class HeartbeatConsumer<MessageKind> implements Runnable, GarmadonReader.
         this.period = period;
     }
 
-    @Override
-    public void run() {
-        runningThread = Thread.currentThread();
-        while (!runningThread.isInterrupted()) {
-            synchronized (latestPartitionsOffset) {
-                for (Map.Entry<Integer, Offset> partitionOffset : latestPartitionsOffset.entrySet()) {
-                    int partition = partitionOffset.getKey();
-                    Offset offset = partitionOffset.getValue();
-                    Offset latestHeartbeat = latestHeartbeats.get(partition);
+    public void start() {
+        runningThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                synchronized (latestPartitionsOffset) {
+                    for (Map.Entry<Integer, Offset> partitionOffset : latestPartitionsOffset.entrySet()) {
+                        int partition = partitionOffset.getKey();
+                        Offset offset = partitionOffset.getValue();
+                        Offset latestHeartbeat = latestHeartbeats.get(partition);
 
-                    if (!offset.equals(latestHeartbeat)) {
-                        latestHeartbeats.put(partition, offset);
-                        writers.forEach((writer) -> writer.heartbeat(partition, offset));
+                        if (!offset.equals(latestHeartbeat)) {
+                            latestHeartbeats.put(partition, offset);
+                            writers.forEach((writer) -> writer.heartbeat(partition, offset));
+                        }
                     }
                 }
-            }
 
-            try {
-                Thread.sleep(period.get(ChronoUnit.SECONDS) * 1000);
-            } catch (InterruptedException e) {
-                LOGGER.warn("Got interrupted in between heartbeats", e);
-                break;
+                try {
+                    Thread.sleep(period.get(ChronoUnit.SECONDS) * 1000);
+                } catch (InterruptedException e) {
+                    LOGGER.warn("Got interrupted in between heartbeats", e);
+                    break;
+                }
             }
-        }
+        });
+
+        runningThread.start();
     }
 
     /**
@@ -81,10 +84,24 @@ public class HeartbeatConsumer<MessageKind> implements Runnable, GarmadonReader.
 
     /**
      * Stop sending heartbeats ASAP
+     *
+     * @return  A completable future which will complete once the expirer is properly stopped
      */
-    public void stop() {
-        if (runningThread != null)
+    public CompletableFuture<Void> stop() {
+        if (runningThread != null) {
             runningThread.interrupt();
+            return CompletableFuture.supplyAsync(() -> {
+                try {
+                    runningThread.join();
+                } catch (InterruptedException e) {
+                    LOGGER.info("Exception caught while waiting for heartbeat thread to finish", e);
+                }
+
+                return null;
+            });
+        }
+
+        return CompletableFuture.completedFuture(null);
     }
 
     /**

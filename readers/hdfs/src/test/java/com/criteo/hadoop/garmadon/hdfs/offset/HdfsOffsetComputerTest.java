@@ -1,5 +1,9 @@
 package com.criteo.hadoop.garmadon.hdfs.offset;
 
+import com.criteo.hadoop.garmadon.reader.Offset;
+import com.criteo.hadoop.garmadon.reader.TopicPartitionOffset;
+import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
@@ -8,12 +12,14 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Pattern;
 
+import static com.criteo.hadoop.garmadon.hdfs.TestUtils.localDateTimeFromDate;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
@@ -21,70 +27,108 @@ import static org.mockito.Mockito.when;
 
 public class HdfsOffsetComputerTest {
     @Test
-    public void fullyMatchingPattern() throws IOException {
-        performSinglePartitionTest(Collections.singletonList("12"), "(.*)", 12);
+    public void fullyMatchingFileName() throws IOException {
+        performSinglePartitionTest(Collections.singletonList("123.12"), 123, 12);
     }
 
     @Test
-    public void patternMatchingPart() throws IOException {
-        performSinglePartitionTest(Collections.singletonList("something.12"), "^.*\\.(\\d+)$", 12);
+    public void nonMatchingPartition() throws IOException {
+        performSinglePartitionTest(Collections.singletonList("345.12"),  123, OffsetComputer.NO_OFFSET);
+    }
+
+    @Test
+    public void noPartition() throws IOException {
+        performSinglePartitionTest(Collections.singletonList("12"), 123, OffsetComputer.NO_OFFSET);
     }
 
     @Test
     public void unorderedFiles() throws IOException {
-        performSinglePartitionTest(Arrays.asList("1", "12", "10"), "(.*)", 12);
+        performSinglePartitionTest(Arrays.asList("123.1", "123.12", "123.10"), 123, 12);
     }
 
     @Test
     public void noFile() throws IOException {
-        performSinglePartitionTest(Collections.emptyList(), "(.*)", OffsetComputer.NO_OFFSET);
+        performSinglePartitionTest(Collections.emptyList(), 123, OffsetComputer.NO_OFFSET);
     }
 
     @Test
     public void nonNumericOffset() throws IOException {
-        performSinglePartitionTest(Collections.singletonList("abc"), "(.*)", OffsetComputer.NO_OFFSET);
+        performSinglePartitionTest(Collections.singletonList("abc"), 123, OffsetComputer.NO_OFFSET);
    }
 
     @Test
     public void matchingAndNotMaching() throws IOException {
-        performSinglePartitionTest(Arrays.asList("abc", "12", "12e"), "(\\d+)", 12);
-    }
-
-    @Test
-    public void nonMatchingPattern() throws IOException {
-        performSinglePartitionTest(Collections.singletonList("12"), "(13)", OffsetComputer.NO_OFFSET);
-    }
-
-    @Test
-    public void noGroupPattern() throws IOException {
-        performSinglePartitionTest(Collections.singletonList("12"), "12", OffsetComputer.NO_OFFSET);
+        performSinglePartitionTest(Arrays.asList("abc", "123.12", "12e"), 123, 12);
     }
 
     @Test
     public void matchingPatternAmongMultiplePartitions() throws IOException {
         final HdfsOffsetComputer offsetComputer = new HdfsOffsetComputer(buildFileSystem(
                 Arrays.asList("456.12", "123.12", "456.24")),
-                new Path("Fake path"),
-                partitionId -> Pattern.compile(String.format("^%d\\.(\\d+)$", partitionId)));
+                new Path("Fake path"));
 
-        Assert.assertEquals(12, offsetComputer.compute(123));
+        Assert.assertEquals(12, offsetComputer.computeOffset(123));
     }
 
     @Test
     public void noMatchForPartition() throws IOException {
         final HdfsOffsetComputer offsetComputer = new HdfsOffsetComputer(buildFileSystem(
                 Arrays.asList("456.12", "123.abc", "456.24")),
-                new Path("Fake path"),
-                partitionId -> Pattern.compile(String.format("^%d\\.(\\d+)$", partitionId)));
+                new Path("Fake path"));
 
-        Assert.assertEquals(OffsetComputer.NO_OFFSET, offsetComputer.compute(123));
+        Assert.assertEquals(OffsetComputer.NO_OFFSET, offsetComputer.computeOffset(123));
     }
 
-    private void performSinglePartitionTest(List<String> fileNames, String pattern, long expectedOffset) throws IOException {
-        final HdfsOffsetComputer offsetComputer = new HdfsOffsetComputer(buildFileSystem(fileNames),
-                new Path("Fake path"), partitionId -> Pattern.compile(pattern));
+    @Test
+    public void actualFileSystem() throws IOException {
+        final java.nio.file.Path tmpDir = Files.createTempDirectory("hdfs-reader-test-");
 
-        Assert.assertEquals(expectedOffset, offsetComputer.compute(123));
+        try {
+            final Path rootPath = new Path(tmpDir.toString());
+            // Make sure we can read from subdirectories
+            final Path basePath = new Path(rootPath, "embedded");
+            final FileSystem localFs = FileSystem.getLocal(new Configuration());
+
+            final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, basePath);
+
+            final LocalDateTime day1 = localDateTimeFromDate("1987-08-13 00:00:00");
+            final LocalDateTime day2 = localDateTimeFromDate("1987-08-14 00:00:00");
+
+            /*
+                /tmp/hdfs-reader-test-1234
+                └── embedded
+                    ├── 1987-08-13
+                    │   ├── 1.2
+                    │   ├── 1.3
+                    │   └── 2.12
+                    └── 1987-08-14
+                        └── 1.1
+             */
+            localFs.mkdirs(rootPath);
+            localFs.mkdirs(basePath);
+            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(day1, buildOffset(1, 2))));
+            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(day1, buildOffset(1, 3))));
+            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(day1, buildOffset(2, 12))));
+            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(day2, buildOffset(1, 1))));
+
+            Assert.assertEquals(3, hdfsOffsetComputer.computeOffset(1));
+            Assert.assertEquals(12, hdfsOffsetComputer.computeOffset(2));
+            Assert.assertEquals(-1, hdfsOffsetComputer.computeOffset(3));
+        }
+        finally {
+            FileUtils.deleteDirectory(tmpDir.toFile());
+        }
+    }
+
+    private void performSinglePartitionTest(List<String> fileNames, int partitionId, long expectedOffset) throws IOException {
+        final HdfsOffsetComputer offsetComputer = new HdfsOffsetComputer(buildFileSystem(fileNames),
+                new Path("Fake path"));
+
+        Assert.assertEquals(expectedOffset, offsetComputer.computeOffset(partitionId));
+    }
+
+    private Offset buildOffset(int partition, long offset) {
+        return new TopicPartitionOffset("Dummy topic", partition, offset);
     }
 
     private FileSystem buildFileSystem(List<String> fileNames) throws IOException {

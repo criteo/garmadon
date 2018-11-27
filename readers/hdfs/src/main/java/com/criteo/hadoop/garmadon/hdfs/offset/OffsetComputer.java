@@ -1,6 +1,9 @@
 package com.criteo.hadoop.garmadon.hdfs.offset;
 
+import com.criteo.hadoop.garmadon.reader.Offset;
+
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 public interface OffsetComputer {
     long NO_OFFSET = -1;
@@ -8,9 +11,16 @@ public interface OffsetComputer {
     /**
      * Compute the max offset for a given partition.
      *
-     * @param partitionId   The partition to compute the offset for
+     * @param partitionId   The partition to computeOffset the offset for
      * @return              NO_OFFSET if no offset could be fetched but there was no error
      * @throws IOException  If there was an issue while fetching the offset
      */
-    long compute(int partitionId) throws IOException;
+    long computeOffset(int partitionId) throws IOException;
+
+    /**
+     * @param time
+     * @param offset
+     * @return          Path based on a time and offset
+     */
+    String computePath(LocalDateTime time, Offset offset);
 }

@@ -1,5 +1,7 @@
 package com.criteo.hadoop.garmadon.hdfs;
 
+import com.criteo.hadoop.garmadon.hdfs.kafka.OffsetResetter;
+import com.criteo.hadoop.garmadon.hdfs.kafka.PartitionsPauseStateHandler;
 import com.criteo.hadoop.garmadon.hdfs.offset.*;
 import com.criteo.hadoop.garmadon.hdfs.writer.ExpiringConsumer;
 import com.criteo.hadoop.garmadon.hdfs.writer.ProtoParquetWriterWithOffset;
@@ -19,13 +21,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.NetworkInterface;
-import java.net.SocketException;
+import java.nio.file.FileSystemNotFoundException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -39,7 +40,13 @@ import static java.lang.System.exit;
 public class HdfsExporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(HdfsExporter.class);
     private static final Configuration HDFS_CONF = new Configuration();
-    private static final int MAX_TMP_FILE_OPEN_RETRIES = 5;
+
+    private static final int MAX_TMP_FILE_OPEN_RETRIES = 20;
+    private static final int MESSAGES_BEFORE_EXPIRING_WRITERS = 50 * 1000;
+    private static final Duration WRITERS_EXPIRATION_DELAY = Duration.ofMinutes(30);
+    private static final Duration EXPIRER_PERIOD = Duration.ofSeconds(30);
+    private static final Duration HEARTBEAT_PERIOD = Duration.ofSeconds(30);
+    private static final Duration TMP_FILE_OPEN_RETRY_PERIOD = Duration.ofSeconds(30);
 
     /**
      * args[0]: Kafka connection string
@@ -75,13 +82,10 @@ public class HdfsExporter {
         final KafkaConsumer<String, byte[]> kafkaConsumer = new KafkaConsumer<>(props);
         final GarmadonReader.Builder readerBuilder = GarmadonReader.Builder.stream(kafkaConsumer);
         final Collection<PartitionedWriter<Message>> writers = new ArrayList<>();
-        final PartitionedWriter.Expirer expirer = new PartitionedWriter.Expirer<>(writers, Duration.ofSeconds(10));
-        final Thread expirerThread = new Thread(expirer);
-        final HeartbeatConsumer heartbeat = new HeartbeatConsumer<>(writers, Duration.ofSeconds(5));
-        final Thread heartbeatThread = new Thread(heartbeat);
+        final PartitionedWriter.Expirer expirer = new PartitionedWriter.Expirer<>(writers, EXPIRER_PERIOD);
+        final HeartbeatConsumer heartbeat = new HeartbeatConsumer<>(writers, HEARTBEAT_PERIOD);
         final Map<Integer, Map.Entry<String, Class<? extends Message>>> typeToDirAndClass = getTypeToDirAndClass();
-        final Random random = buildMachineUniqueRandom();
-        final Path temporaryHdfsDir = new Path(baseTemporaryHdfsDir, String.valueOf(random.nextInt(Integer.MAX_VALUE)));
+        final Path temporaryHdfsDir = new Path(baseTemporaryHdfsDir, UUID.randomUUID().toString());
 
         ensureDirectoriesExist(Arrays.asList(temporaryHdfsDir, finalHdfsDir), fs);
 
@@ -90,18 +94,23 @@ public class HdfsExporter {
 
         readerBuilder.intercept(any(), heartbeat);
 
+        final PartitionsPauseStateHandler<String, byte[]> partitionsPauser;
+
+        partitionsPauser = new PartitionsPauseStateHandler<>(kafkaConsumer);
+
         for (Map.Entry<Integer, Map.Entry<String, Class<? extends Message>>> out: typeToDirAndClass.entrySet()) {
             final Integer eventType = out.getKey();
             final String path = out.getValue().getKey();
             final Class<? extends Message> clazz = out.getValue().getValue();
             final Function<LocalDateTime, ExpiringConsumer<Message>> consumerBuilder;
             final Path finalEventDir = new Path(finalHdfsDir, path);
+            final OffsetComputer offsetComputer = new HdfsOffsetComputer(fs, finalEventDir);
 
             consumerBuilder = buildMessageConsumerBuilder(fs, new Path(temporaryHdfsDir, path),
-                    finalEventDir, clazz, random);
+                    finalEventDir, clazz, offsetComputer, partitionsPauser);
 
             final PartitionedWriter<Message> writer = new PartitionedWriter<>(
-                    consumerBuilder, new HdfsOffsetComputer(fs, finalEventDir, new TrailingPartitionOffsetPattern()));
+                    consumerBuilder, offsetComputer);
 
             readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(writer));
 
@@ -111,10 +120,13 @@ public class HdfsExporter {
         kafkaConsumer.subscribe(Collections.singleton(GarmadonReader.GARMADON_TOPIC),
                 new OffsetResetter<>(kafkaConsumer, heartbeat::dropPartition, writers));
 
+        kafkaConsumer.subscribe(Collections.singleton(GarmadonReader.GARMADON_TOPIC),
+                partitionsPauser);
+
         final GarmadonReader garmadonReader = readerBuilder.build(false);
 
-        expirerThread.start();
-        heartbeatThread.start();
+        expirer.start();
+        heartbeat.start();
 
         try {
             garmadonReader.startReading().join();
@@ -123,19 +135,8 @@ public class HdfsExporter {
             LOGGER.error("Reader thread interrupted", e);
         }
 
-        expirer.stop();
-        try {
-            expirerThread.join();
-        } catch (InterruptedException e) {
-            LOGGER.error("Expirer thread interrupted", e);
-        }
-
-        heartbeat.stop();
-        try {
-            heartbeatThread.join();
-        } catch (InterruptedException e) {
-            LOGGER.error("Expirer thread interrupted", e);
-        }
+        expirer.stop().join();
+        heartbeat.stop().join();
     }
 
     /**
@@ -163,67 +164,44 @@ public class HdfsExporter {
         }
     }
 
-    /**
-     * Create a unique name based on the current machine and time
-     *
-     * @return                          An unique name
-     * @throws IllegalStateException    When the method cannot fetch required info from the machine
-     */
-    private static Random buildMachineUniqueRandom() {
-        final String errorMsg = "Could not get network interface to compute random seed from";
-
-        try {
-            final Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-            final long currentTime = Instant.now().getEpochSecond();
-            final String seed;
-            String address = null;
-
-            while (networkInterfaces.hasMoreElements()) {
-                NetworkInterface networkInterface = networkInterfaces.nextElement();
-
-                if (networkInterface.getHardwareAddress() != null) {
-                    address = Arrays.toString(networkInterface.getHardwareAddress());
-                    break;
-                }
-            }
-
-            if (address == null)
-                throw new IllegalStateException(errorMsg);
-
-            seed = String.format("%s-%d", address, currentTime);
-
-            return new Random(seed.hashCode());
-        } catch (SocketException e) {
-            throw new IllegalStateException(errorMsg, e);
-        }
-    }
-
     private static Function<LocalDateTime, ExpiringConsumer<Message>> buildMessageConsumerBuilder(
-            FileSystem fs, Path temporaryHdfsDir, Path finalHdfsDir, Class<? extends Message> clazz, Random random) {
+            FileSystem fs, Path temporaryHdfsDir, Path finalHdfsDir, Class<? extends Message> clazz,
+            OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser) {
         return (dayStartTime) -> {
-            final long uniqueFileName = random.nextLong();
+            final String uniqueFileName = UUID.randomUUID().toString();
+            final String additionalInfo = String.format("Date = %s, Event type = %s", dayStartTime,
+                    clazz.getSimpleName());
 
             for (int i = 0; i < MAX_TMP_FILE_OPEN_RETRIES; ++i) {
-                final Path tmpFilePath = new Path(temporaryHdfsDir, String.valueOf(uniqueFileName));
+                final Path tmpFilePath = new Path(temporaryHdfsDir, uniqueFileName);
                 final ProtoParquetWriter<Message> protoWriter;
 
                 try {
                     protoWriter = new ProtoParquetWriter<>(tmpFilePath, clazz);
                 } catch (IOException e) {
-                    final String additionalInfo = String.format("Date = %s, Event type = %s", dayStartTime,
-                            clazz.getSimpleName());
                     LOGGER.warn("Could not initialize writer ({})", additionalInfo, e);
+
+                    try {
+                        partitionsPauser.pause(clazz);
+                        Thread.sleep(TMP_FILE_OPEN_RETRY_PERIOD.get(ChronoUnit.SECONDS));
+                    } catch (InterruptedException interrupt) {
+                        LOGGER.info("Interrupted between temp file opening retries", interrupt);
+                    }
 
                     continue;
                 }
 
-                return new ExpiringConsumer<>(new ProtoParquetWriterWithOffset<>(protoWriter, tmpFilePath, finalHdfsDir, fs,
-                        new TrailingPartitionOffsetFileNamer(), dayStartTime),
-                        Duration.ofSeconds(30), 10);
+                partitionsPauser.resume(clazz);
+
+                return new ExpiringConsumer<>(new ProtoParquetWriterWithOffset<>(
+                        protoWriter, tmpFilePath, finalHdfsDir, fs, offsetComputer, dayStartTime),
+                        WRITERS_EXPIRATION_DELAY, MESSAGES_BEFORE_EXPIRING_WRITERS);
             }
 
-            // FIXME: What to do?
-            return null;
+            // There's definitely something wrong, potentially the whole instance, so stop trying
+            throw new FileSystemNotFoundException(String.format(
+                    "Failed opening a temporary file after %d retries: %s",
+                    MAX_TMP_FILE_OPEN_RETRIES, additionalInfo));
         };
     }
 

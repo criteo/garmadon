@@ -1,7 +1,7 @@
 package com.criteo.hadoop.garmadon.hdfs.writer;
 
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
-import com.criteo.hadoop.garmadon.hdfs.FixedFileNamer;
+import com.criteo.hadoop.garmadon.hdfs.FixedOffsetComputer;
 import com.criteo.hadoop.garmadon.reader.TopicPartitionOffset;
 import com.google.protobuf.Message;
 import org.apache.commons.io.FileUtils;
@@ -43,7 +43,7 @@ public class ProtoParquetWriterWithOffsetTest {
         final Message firstMessageMock = mock(Message.class);
         final Message secondMessageMock = mock(Message.class);
         final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writerMock, tmpPath,
-                finalPath, fsMock, new FixedFileNamer(FINAL_FILE_NAME), LocalDateTime.MIN);
+                finalPath, fsMock, new FixedOffsetComputer(FINAL_FILE_NAME, 123), LocalDateTime.MIN);
 
         consumer.write(firstMessageMock, new TopicPartitionOffset(TOPIC, 1, 2));
         consumer.write(secondMessageMock, new TopicPartitionOffset(TOPIC, 1, 3));
@@ -103,7 +103,7 @@ public class ProtoParquetWriterWithOffsetTest {
             long offset = 1;
 
             final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writer, tmpPath, baseDir,
-                    localFs, new FixedFileNamer(FINAL_FILE_NAME), UTC_EPOCH);
+                    localFs, new FixedOffsetComputer(FINAL_FILE_NAME, 123), UTC_EPOCH);
 
             for (EventHeaderProtos.Header header : inputHeaders) {
                 consumer.write(header, new TopicPartitionOffset(TOPIC, 1, offset++));

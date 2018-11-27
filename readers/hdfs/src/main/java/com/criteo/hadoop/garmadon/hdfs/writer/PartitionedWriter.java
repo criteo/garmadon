@@ -14,6 +14,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -32,7 +33,6 @@ public class PartitionedWriter<MessageKind> implements Closeable {
     private final HashMap<Integer, Long> perPartitionStartOffset = new HashMap<>();
 
     /**
-     *
      * @param writerBuilder     Builds an expiring writer based on a path.
      * @param offsetComputer    Computes the first offset which should not be ignored by the PartitionedWriter when
      *                          consuming message.
@@ -50,8 +50,8 @@ public class PartitionedWriter<MessageKind> implements Closeable {
      */
     public void dropPartition(int partitionId) {
         synchronized (perPartitionDayWriters) {
-            perPartitionDayWriters.keySet().remove(partitionId);
-            perPartitionStartOffset.keySet().remove(partitionId);
+            perPartitionDayWriters.remove(partitionId);
+            perPartitionStartOffset.remove(partitionId);
         }
     }
 
@@ -101,7 +101,7 @@ public class PartitionedWriter<MessageKind> implements Closeable {
                 final long startingOffset;
 
                 try {
-                    startingOffset = offsetComputer.compute(partitionId);
+                    startingOffset = offsetComputer.computeOffset(partitionId);
                 } catch (IOException e) {
                     perPartitionStartOffset.put(partitionId, -1L);
                     throw (e);
@@ -148,14 +148,14 @@ public class PartitionedWriter<MessageKind> implements Closeable {
     }
 
     /**
-     * Poll a list of PartitionedWriter instances to make them expire if relevant. To be executed in a separate thread.
+     * Poll a list of PartitionedWriter instances to make them expire if relevant.
      *
      * @param <MessageKind> Type of messages which will ultimately get written.
      */
-    public static class Expirer<MessageKind> implements Runnable {
+    public static class Expirer<MessageKind> {
         private final Collection<PartitionedWriter<MessageKind>> writers;
         private final TemporalAmount period;
-        private Thread runningThread;
+        private volatile Thread runningThread;
 
         /**
          * @param writers   Writers to watch for
@@ -166,30 +166,44 @@ public class PartitionedWriter<MessageKind> implements Closeable {
             this.period = period;
         }
 
-        @Override
-        public void run() {
-            runningThread = Thread.currentThread();
+        public void start() {
+            runningThread = new Thread(() -> {
+                while (!Thread.currentThread().isInterrupted()) {
+                    writers.forEach(PartitionedWriter::expireConsumers);
 
-            while (!runningThread.isInterrupted()) {
-                writers.forEach(PartitionedWriter::expireConsumers);
-
-                try {
-                    Thread.sleep(period.get(ChronoUnit.SECONDS) * 1000);
-                } catch (InterruptedException e) {
-                    LOGGER.warn("Got interrupted while waiting to expire writers", e);
-                    break;
+                    try {
+                        Thread.sleep(period.get(ChronoUnit.SECONDS) * 1000);
+                    } catch (InterruptedException e) {
+                        LOGGER.warn("Got interrupted while waiting to expire writers", e);
+                        break;
+                    }
                 }
-            }
+            });
+
+            runningThread.start();
         }
 
         /**
          * Notify the main loop to stop running (still need to wait for the run to finish) and close all writers
+         *
+         * @return  A completable future which will complete once the expirer is properly stopped
          */
-        public void stop() {
-            if (runningThread != null)
+        public CompletableFuture<Void> stop() {
+            if (runningThread != null) {
                 runningThread.interrupt();
 
-            writers.forEach(PartitionedWriter::close);
+                return CompletableFuture.supplyAsync(() -> {
+                    try {
+                        runningThread.join();
+                    } catch (InterruptedException e) {
+                        LOGGER.info("Exception caught while waiting for expirer thread to finish", e);
+                    }
+
+                    return null;
+                }).thenRun(() -> writers.forEach(PartitionedWriter::close));
+            }
+
+            return CompletableFuture.completedFuture(null);
         }
     }
 
@@ -229,8 +243,8 @@ public class PartitionedWriter<MessageKind> implements Closeable {
 
         final Map<LocalDateTime, ExpiringConsumer<MessageKind>> partitionMap = perPartitionDayWriters.get(partitionId);
 
-        if (!partitionMap.containsKey(dayStartTime))
-            partitionMap.put(dayStartTime, writerBuilder.apply(dayStartTime));
+        partitionMap.computeIfAbsent(dayStartTime,
+                time -> partitionMap.put(time, writerBuilder.apply(time)));
 
         return partitionMap.get(dayStartTime);
     }

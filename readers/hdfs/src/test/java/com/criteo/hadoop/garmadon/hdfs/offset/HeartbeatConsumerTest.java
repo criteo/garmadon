@@ -25,14 +25,10 @@ public class HeartbeatConsumerTest {
         final HeartbeatConsumer hb = new HeartbeatConsumer<>(writers, Duration.ofMillis(10));
 
         hb.handle(buildGarmadonMessage(new TopicPartitionOffset(TOPIC, BASE_PARTITION, BASE_OFFSET)));
-
-        final Thread hbThread = new Thread(hb);
-        hbThread.start();
+        hb.start();
         Thread.sleep(500);
-        hb.stop();
 
-        // Make sure the thread stops
-        hbThread.join();
+        hb.stop().join();
     }
 
     @Test(timeout = 3000)
@@ -55,9 +51,7 @@ public class HeartbeatConsumerTest {
         hb.handle(buildGarmadonMessage(secondPartitionSecondOffset));
         hb.handle(buildGarmadonMessage(secondPartitionFirstOffset));
 
-        Thread hbThread = new Thread(hb);
-        hbThread.start();
-
+        hb.start();
         Thread.sleep(1000);
 
         for (PartitionedWriter<String> writer: writers) {
@@ -70,10 +64,7 @@ public class HeartbeatConsumerTest {
                     argThat(new OffsetArgumentMatcher(secondPartitionSecondOffset)));
         }
 
-        hb.stop();
-
-        // Make sure the thread stops
-        hbThread.join();
+        hb.stop().join();
     }
 
     @Test
@@ -84,7 +75,7 @@ public class HeartbeatConsumerTest {
         final Offset secondOffset = new TopicPartitionOffset(TOPIC, BASE_PARTITION + 1, BASE_OFFSET + 11);
 
         hb.handle(buildGarmadonMessage(firstOffset));
-        new Thread(hb).start();
+        hb.start();
         Thread.sleep(1000);
         verify(writer, times(1)).heartbeat(eq(BASE_PARTITION),
                 argThat(new OffsetArgumentMatcher(firstOffset)));
@@ -93,6 +84,8 @@ public class HeartbeatConsumerTest {
         Thread.sleep(1000);
         verify(writer, times(1)).heartbeat(eq(BASE_PARTITION + 1),
                 argThat(new OffsetArgumentMatcher(secondOffset)));
+
+        hb.stop().join();
     }
 
     @Test
@@ -106,7 +99,7 @@ public class HeartbeatConsumerTest {
         hb.handle(buildGarmadonMessage(secondPartitionOffset));
         hb.dropPartition(BASE_PARTITION);
 
-        new Thread(hb).start();
+        hb.start();
 
         Thread.sleep(1000);
 
@@ -114,6 +107,8 @@ public class HeartbeatConsumerTest {
                 argThat(new OffsetArgumentMatcher(secondPartitionOffset)));
 
         verify(writer, never()).heartbeat(eq(BASE_PARTITION), any(Offset.class));
+
+        hb.stop().join();
     }
 
     @Test(timeout = 3000)
@@ -126,12 +121,12 @@ public class HeartbeatConsumerTest {
         final HeartbeatConsumer hb = new HeartbeatConsumer<>(writers, Duration.ofMillis(10));
         hb.handle(buildGarmadonMessage(offset));
 
-        new Thread(hb).start();
+        hb.start();
 
         verify(writers.get(0), after(100).atLeast(1)).heartbeat(eq(PARTITION),
                 argThat(new OffsetArgumentMatcher(offset)));
 
-        hb.stop();
+        hb.stop().join();
     }
 
     @Test(timeout = 3000)
@@ -139,11 +134,9 @@ public class HeartbeatConsumerTest {
         final HeartbeatConsumer hb = new HeartbeatConsumer<String>(Collections.singleton(mock(PartitionedWriter.class)),
                 Duration.ofMillis(10));
 
-        final Thread hbThread = new Thread(hb);
-        hbThread.start();
+        hb.start();
         Thread.sleep(1000);
-        hb.stop();
-        hbThread.join();
+        hb.stop().join();
     }
 
     private GarmadonMessage buildGarmadonMessage(Offset offset) {

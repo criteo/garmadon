@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.hdfs.writer;
 
-import com.criteo.hadoop.garmadon.hdfs.FileNamer;
+import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.reader.Offset;
 import com.google.protobuf.MessageOrBuilder;
 import org.apache.hadoop.fs.FileSystem;
@@ -26,7 +26,7 @@ public class ProtoParquetWriterWithOffset<MessageKind extends MessageOrBuilder>
     private final ProtoParquetWriter<MessageKind> writer;
     private final Path finalHdfsDir;
     private final FileSystem fs;
-    private final FileNamer fileNamer;
+    private final OffsetComputer fileNamer;
     private final LocalDateTime dayStartTime;
 
     private Offset latestOffset;
@@ -40,7 +40,7 @@ public class ProtoParquetWriterWithOffset<MessageKind extends MessageOrBuilder>
      * @param dayStartTime      The day partition the final file will go to
      */
     public ProtoParquetWriterWithOffset(ProtoParquetWriter<MessageKind> writer, Path temporaryHdfsPath,
-                                        Path finalHdfsDir, FileSystem fs, FileNamer fileNamer,
+                                        Path finalHdfsDir, FileSystem fs, OffsetComputer fileNamer,
                                         LocalDateTime dayStartTime) {
         this.writer = writer;
         this.temporaryHdfsPath = temporaryHdfsPath;
@@ -62,7 +62,7 @@ public class ProtoParquetWriterWithOffset<MessageKind extends MessageOrBuilder>
 
         writer.close();
 
-        final Path finalPath = new Path(finalHdfsDir, fileNamer.buildPath(dayStartTime, latestOffset));
+        final Path finalPath = new Path(finalHdfsDir, fileNamer.computePath(dayStartTime, latestOffset));
         fs.rename(temporaryHdfsPath, finalPath);
 
         LOGGER.info("Committed " + finalPath.toUri());

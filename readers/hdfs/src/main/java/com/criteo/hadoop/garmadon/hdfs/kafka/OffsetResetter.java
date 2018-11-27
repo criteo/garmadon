@@ -1,5 +1,6 @@
-package com.criteo.hadoop.garmadon.hdfs.offset;
+package com.criteo.hadoop.garmadon.hdfs.kafka;
 
+import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.hdfs.writer.PartitionedWriter;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
