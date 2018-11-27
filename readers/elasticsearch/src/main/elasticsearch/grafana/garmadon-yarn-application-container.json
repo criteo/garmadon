@@ -10,20 +10,6 @@
           "iconColor": "rgba(0, 211, 255, 1)",
           "name": "Annotations & Alerts",
           "type": "dashboard"
-        },
-        {
-          "datasource": "$datasource",
-          "enable": false,
-          "hide": false,
-          "iconColor": "rgba(255, 96, 96, 1)",
-          "limit": 100,
-          "name": "Container end events",
-          "query": "event_type:STATE_EVENT AND state:END AND application_id:$application_id AND framework:$framework AND component:$component",
-          "showIn": 0,
-          "tags": [],
-          "tagsField": "container_id",
-          "timeField": "timestamp",
-          "type": "tags"
         }
       ]
     },
@@ -48,122 +34,19 @@
         "type": "row"
       },
       {
-        "columns": [
-          {
-            "text": "tracking_url",
-            "value": "tracking_url"
-          },
-          {
-            "text": "original_tracking_url",
-            "value": "original_tracking_url"
-          },
-          {
-            "text": "state",
-            "value": "state"
-          }
-        ],
-        "datasource": "garmadon",
-        "fontSize": "100%",
+        "content": "Information of container $container_id on server $hostname",
         "gridPos": {
-          "h": 3,
+          "h": 2,
           "w": 24,
           "x": 0,
           "y": 1
         },
-        "id": 50,
+        "id": 51,
         "links": [],
-        "pageSize": null,
-        "scroll": true,
-        "showHeader": true,
-        "sort": {
-          "col": 0,
-          "desc": true
-        },
-        "styles": [
-          {
-            "alias": "Time",
-            "dateFormat": "YYYY-MM-DD HH:mm:ss",
-            "pattern": "Time",
-            "type": "date"
-          },
-          {
-            "alias": "",
-            "colorMode": null,
-            "colors": [
-              "rgba(245, 54, 54, 0.9)",
-              "rgba(237, 129, 40, 0.89)",
-              "rgba(50, 172, 45, 0.97)"
-            ],
-            "dateFormat": "YYYY-MM-DD HH:mm:ss",
-            "decimals": 2,
-            "link": true,
-            "linkTargetBlank": true,
-            "linkTooltip": "${__cell:raw}",
-            "linkUrl": "${__cell:raw}",
-            "mappingType": 1,
-            "pattern": "tracking_url",
-            "thresholds": [],
-            "type": "number",
-            "unit": "short"
-          },
-          {
-            "alias": "",
-            "colorMode": null,
-            "colors": [
-              "rgba(245, 54, 54, 0.9)",
-              "rgba(237, 129, 40, 0.89)",
-              "rgba(50, 172, 45, 0.97)"
-            ],
-            "dateFormat": "YYYY-MM-DD HH:mm:ss",
-            "decimals": 2,
-            "link": true,
-            "linkTargetBlank": true,
-            "linkTooltip": "${__cell:raw}",
-            "linkUrl": "${__cell:raw}",
-            "mappingType": 1,
-            "pattern": "original_tracking_url",
-            "thresholds": [],
-            "type": "number",
-            "unit": "short"
-          },
-          {
-            "alias": "",
-            "colorMode": null,
-            "colors": [
-              "rgba(245, 54, 54, 0.9)",
-              "rgba(237, 129, 40, 0.89)",
-              "rgba(50, 172, 45, 0.97)"
-            ],
-            "decimals": 2,
-            "pattern": "/.*/",
-            "thresholds": [],
-            "type": "number",
-            "unit": "short"
-          }
-        ],
-        "targets": [
-          {
-            "bucketAggs": [],
-            "metrics": [
-              {
-                "field": "select field",
-                "id": "1",
-                "meta": {},
-                "settings": {
-                  "size": 1
-                },
-                "type": "raw_document"
-              }
-            ],
-            "query": "event_type:APPLICATION_EVENT AND application_id:$application_id",
-            "refId": "A",
-            "timeField": "timestamp"
-          }
-        ],
-        "title": "Tracking URLs",
-        "transform": "json",
+        "mode": "markdown",
+        "title": "",
         "transparent": true,
-        "type": "table"
+        "type": "text"
       },
       {
         "aliasColors": {},
@@ -176,7 +59,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 4
+          "y": 3
         },
         "id": 25,
         "legend": {
@@ -204,7 +87,7 @@
         "steppedLine": false,
         "targets": [
           {
-            "alias": "max used",
+            "alias": "used",
             "bucketAggs": [
               {
                 "field": "timestamp",
@@ -226,36 +109,8 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND container_id:$container_id",
             "refId": "C",
-            "target": "",
-            "timeField": "timestamp"
-          },
-          {
-            "alias": "avg used",
-            "bucketAggs": [
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "10s",
-                  "min_doc_count": 0,
-                  "trimEdges": 0
-                },
-                "type": "date_histogram"
-              }
-            ],
-            "metrics": [
-              {
-                "field": "value",
-                "id": "1",
-                "meta": {},
-                "settings": {},
-                "type": "avg"
-              }
-            ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id",
-            "refId": "A",
             "target": "",
             "timeField": "timestamp"
           },
@@ -282,7 +137,7 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND container_id:$container_id",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -339,7 +194,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 4
+          "y": 3
         },
         "id": 47,
         "legend": {
@@ -367,35 +222,7 @@
         "steppedLine": false,
         "targets": [
           {
-            "alias": "max used",
-            "bucketAggs": [
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "10s",
-                  "min_doc_count": 0,
-                  "trimEdges": 0
-                },
-                "type": "date_histogram"
-              }
-            ],
-            "metrics": [
-              {
-                "field": "value",
-                "id": "1",
-                "meta": {},
-                "settings": {},
-                "type": "max"
-              }
-            ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id",
-            "refId": "C",
-            "target": "",
-            "timeField": "timestamp"
-          },
-          {
-            "alias": "avg used",
+            "alias": "used",
             "bucketAggs": [
               {
                 "field": "timestamp",
@@ -417,7 +244,7 @@
                 "type": "avg"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND container_id:$container_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -445,7 +272,7 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND container_id:$container_id",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -497,19 +324,19 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 12
+          "y": 11
         },
         "id": 12,
         "panels": [
           {
-            "content": "Provide an overview of JVM usage for the application\n\nIt is based on average/max and top 1 (for derivative) metrics from  $component containers of the application\n\nFor more detail view of container usage please use  [Yarn Application Container Dashboard for $application_id](dashboard/db/garmadon-yarn-application-container?orgId=1&var-username=All&var-framework=All&var-application_id=$application_id&var-component=All&var-container_id=All&var-hostname=All&var-uri=All)",
+            "content": "Below graphs are displayed per pid as some jobs are running multiple JVM inside the same container\n\nYou can use the pid variable to display metrics for only one JVM",
             "gridPos": {
-              "h": 4,
+              "h": 3,
               "w": 24,
               "x": 0,
-              "y": 13
+              "y": 12
             },
-            "id": 52,
+            "id": 36,
             "links": [],
             "mode": "markdown",
             "title": "",
@@ -527,7 +354,7 @@
               "h": 7,
               "w": 24,
               "x": 0,
-              "y": 17
+              "y": 15
             },
             "id": 48,
             "legend": {
@@ -556,36 +383,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "max",
+                "alias": "{{pid}}.%used",
                 "bucketAggs": [
                   {
-                    "field": "timestamp",
-                    "id": "2",
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
                     "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
                     },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "cpu_%load",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "avg",
-                "bucketAggs": [
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -606,7 +417,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -663,7 +474,7 @@
               "h": 8,
               "w": 8,
               "x": 0,
-              "y": 24
+              "y": 22
             },
             "id": 15,
             "legend": {
@@ -692,6 +503,46 @@
             "steppedLine": false,
             "targets": [
               {
+                "alias": "{{pid}}.used",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "10s",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "heap_used",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {},
+                    "type": "avg"
+                  }
+                ],
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              },
+              {
                 "alias": "max",
                 "bucketAggs": [
                   {
@@ -714,36 +565,8 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "avg",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "heap_used",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               }
@@ -799,7 +622,7 @@
               "h": 8,
               "w": 8,
               "x": 8,
-              "y": 24
+              "y": 22
             },
             "id": 24,
             "legend": {
@@ -828,36 +651,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "max",
+                "alias": "{{pid}}",
                 "bucketAggs": [
                   {
-                    "field": "timestamp",
-                    "id": "2",
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
                     "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
                     },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "nonheap_used",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "avg",
-                "bucketAggs": [
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -878,8 +685,8 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "B",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
+                "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               }
@@ -935,7 +742,7 @@
               "h": 8,
               "w": 8,
               "x": 16,
-              "y": 24
+              "y": 22
             },
             "id": 40,
             "legend": {
@@ -964,36 +771,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "max",
+                "alias": "{{pid}}",
                 "bucketAggs": [
                   {
-                    "field": "timestamp",
-                    "id": "2",
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
                     "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
                     },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "metaspace_used",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "avg",
-                "bucketAggs": [
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1014,8 +805,8 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "B",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
+                "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               }
@@ -1072,7 +863,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 32
+              "y": 30
             },
             "id": 27,
             "legend": {
@@ -1101,7 +892,7 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "max.ParNew",
+                "alias": "{{pid}}.ParNew",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -1110,7 +901,7 @@
                     "settings": {
                       "min_doc_count": 1,
                       "order": "desc",
-                      "orderBy": "1",
+                      "orderBy": "_count",
                       "size": "1"
                     },
                     "type": "terms"
@@ -1144,13 +935,13 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "max.G1 Young Generation",
+                "alias": "{{pid}}.G1 Young Generation",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -1159,7 +950,7 @@
                     "settings": {
                       "min_doc_count": 1,
                       "order": "desc",
-                      "orderBy": "1",
+                      "orderBy": "_count",
                       "size": "1"
                     },
                     "type": "terms"
@@ -1193,13 +984,13 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "max.ConcurrentMarkSweep",
+                "alias": "{{pid}}.ConcurrentMarkSweep",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -1208,7 +999,7 @@
                     "settings": {
                       "min_doc_count": 1,
                       "order": "desc",
-                      "orderBy": "1",
+                      "orderBy": "_count",
                       "size": "1"
                     },
                     "type": "terms"
@@ -1242,13 +1033,13 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "C",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "max.G1 Old Generation",
+                "alias": "{{pid}}.G1 Old Generation",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -1257,7 +1048,7 @@
                     "settings": {
                       "min_doc_count": 1,
                       "order": "desc",
-                      "orderBy": "1",
+                      "orderBy": "_count",
                       "size": "1"
                     },
                     "type": "terms"
@@ -1291,13 +1082,13 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "D",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "max.PS MarkSweep",
+                "alias": "{{pid}}.PS MarkSweep",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -1306,7 +1097,7 @@
                     "settings": {
                       "min_doc_count": 1,
                       "order": "desc",
-                      "orderBy": "1",
+                      "orderBy": "_count",
                       "size": "1"
                     },
                     "type": "terms"
@@ -1340,13 +1131,13 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "E",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "max.PS Scavenge",
+                "alias": "{{pid}}.PS Scavenge",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -1355,7 +1146,7 @@
                     "settings": {
                       "min_doc_count": 1,
                       "order": "desc",
-                      "orderBy": "1",
+                      "orderBy": "_count",
                       "size": "1"
                     },
                     "type": "terms"
@@ -1389,7 +1180,7 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "F",
                 "target": "",
                 "timeField": "timestamp"
@@ -1446,7 +1237,7 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 32
+              "y": 30
             },
             "id": 32,
             "legend": {
@@ -1475,8 +1266,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "max.ConcurrentMarkSweep",
+                "alias": "{{pid}}.ConcurrentMarkSweep",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "1"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1497,14 +1300,26 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "C",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "max.G1 Old Generation",
+                "alias": "{{pid}}.G1 Old Generation",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "1"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1525,14 +1340,26 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "D",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "max.G1 Young Generation",
+                "alias": "{{pid}}.G1 Young Generation",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "1"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1553,14 +1380,26 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "max.PS MarkSweep",
+                "alias": "{{pid}}.PS MarkSweep",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "1"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1581,14 +1420,26 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "max.PS Scavenge",
+                "alias": "{{pid}}.PS Scavenge",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "1"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1609,14 +1460,26 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "E",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "max.ParNew",
+                "alias": "{{pid}}.ParNew",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "1"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1637,7 +1500,7 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "F",
                 "target": "",
                 "timeField": "timestamp"
@@ -1694,7 +1557,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 40
+              "y": 38
             },
             "id": 26,
             "legend": {
@@ -1723,36 +1586,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "max",
+                "alias": "{{pid}}",
                 "bucketAggs": [
                   {
-                    "field": "timestamp",
-                    "id": "2",
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
                     "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
                     },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "threads_count",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "avg",
-                "bucketAggs": [
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -1773,8 +1620,8 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "B",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
+                "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               }
@@ -1830,7 +1677,7 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 40
+              "y": 38
             },
             "id": 29,
             "legend": {
@@ -1859,7 +1706,7 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "max",
+                "alias": "{{pid}}",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -1869,7 +1716,7 @@
                       "min_doc_count": 1,
                       "order": "desc",
                       "orderBy": "1",
-                      "size": "1"
+                      "size": "10"
                     },
                     "type": "terms"
                   },
@@ -1891,7 +1738,7 @@
                     "id": "1",
                     "meta": {},
                     "settings": {},
-                    "type": "max"
+                    "type": "avg"
                   },
                   {
                     "field": "1",
@@ -1902,7 +1749,7 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -1959,7 +1806,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 48
+              "y": 46
             },
             "id": 31,
             "legend": {
@@ -1988,36 +1835,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "max",
+                "alias": "{{pid}}",
                 "bucketAggs": [
                   {
-                    "field": "timestamp",
-                    "id": "2",
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
                     "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
                     },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "descriptors_open",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "avg",
-                "bucketAggs": [
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -2038,8 +1869,8 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "B",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
+                "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               }
@@ -2094,7 +1925,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 13
+          "y": 12
         },
         "id": 42,
         "panels": [
@@ -2109,7 +1940,7 @@
               "h": 8,
               "w": 9,
               "x": 0,
-              "y": 53
+              "y": 13
             },
             "id": 44,
             "legend": {
@@ -2138,36 +1969,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "max",
+                "alias": "{{pid}}",
                 "bucketAggs": [
                   {
-                    "field": "timestamp",
-                    "id": "2",
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
                     "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
                     },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "compile_count",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "avg",
-                "bucketAggs": [
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -2188,8 +2003,8 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "A",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
+                "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
               }
@@ -2245,7 +2060,7 @@
               "h": 8,
               "w": 8,
               "x": 9,
-              "y": 53
+              "y": 13
             },
             "id": 39,
             "legend": {
@@ -2274,36 +2089,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "max",
+                "alias": "{{pid}}",
                 "bucketAggs": [
                   {
-                    "field": "timestamp",
-                    "id": "2",
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
                     "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
                     },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "compile_time",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "avg",
-                "bucketAggs": [
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -2324,8 +2123,8 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "B",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
+                "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               }
@@ -2381,7 +2180,7 @@
               "h": 8,
               "w": 7,
               "x": 17,
-              "y": 53
+              "y": 13
             },
             "id": 46,
             "legend": {
@@ -2410,36 +2209,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "max",
+                "alias": "{{pid}}",
                 "bucketAggs": [
                   {
-                    "field": "timestamp",
-                    "id": "2",
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
                     "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
                     },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "compile_threads",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "avg",
-                "bucketAggs": [
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -2460,8 +2243,8 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "B",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
+                "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               }
@@ -2517,7 +2300,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 61
+              "y": 21
             },
             "id": 43,
             "legend": {
@@ -2546,36 +2329,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "max",
+                "alias": "{{pid}}",
                 "bucketAggs": [
                   {
-                    "field": "timestamp",
-                    "id": "2",
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
                     "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
                     },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "safepoints_count",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "avg",
-                "bucketAggs": [
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -2596,8 +2363,8 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "B",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
+                "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               }
@@ -2654,7 +2421,7 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 61
+              "y": 21
             },
             "id": 45,
             "legend": {
@@ -2683,8 +2450,20 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "max.totaltime",
+                "alias": "{{pid}}.synctime",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -2698,21 +2477,33 @@
                 ],
                 "metrics": [
                   {
-                    "field": "safepoints_totaltime",
+                    "field": "safepoints_synctime",
                     "id": "1",
                     "meta": {},
                     "settings": {},
-                    "type": "max"
+                    "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
               },
               {
-                "alias": "avg.totaltime",
+                "alias": "{{pid}}.totaltime",
                 "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
                   {
                     "field": "timestamp",
                     "id": "2",
@@ -2733,64 +2524,8 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND component:$component",
                 "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "max.synctime",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "safepoints_synctime",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "C",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "avg.synctime",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "safepoints_synctime",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND component:$component",
-                "refId": "D",
                 "target": "",
                 "timeField": "timestamp"
               }
@@ -2845,7 +2580,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 14
+          "y": 13
         },
         "id": 9,
         "panels": [
@@ -2860,7 +2595,7 @@
               "h": 9,
               "w": 24,
               "x": 0,
-              "y": 43
+              "y": 73
             },
             "id": 2,
             "legend": {
@@ -2929,7 +2664,7 @@
                     "type": "count"
                   }
                 ],
-                "query": "event_type:FS_EVENT AND application_id:$application_id AND uri:$uri AND component:$component",
+                "query": "event_type:FS_EVENT AND application_id:$application_id AND container_id:$container_id AND uri:$uri AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2986,7 +2721,7 @@
               "h": 9,
               "w": 24,
               "x": 0,
-              "y": 52
+              "y": 82
             },
             "id": 49,
             "legend": {
@@ -3024,7 +2759,7 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "{{metric}} {{action}}",
+                "alias": "{{metric}} {{action}} (ms)",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -3062,7 +2797,7 @@
                     "type": "percentiles"
                   }
                 ],
-                "query": "event_type:FS_EVENT AND application_id:$application_id AND uri:$uri AND component:$component",
+                "query": "event_type:FS_EVENT AND application_id:$application_id AND container_id:$container_id AND uri:$uri AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -3087,7 +2822,7 @@
             },
             "yaxes": [
               {
-                "format": "ms",
+                "format": "short",
                 "label": null,
                 "logBase": 1,
                 "max": null,
@@ -3123,7 +2858,6 @@
       "list": [
         {
           "current": {
-            "selected": true,
             "text": "garmadon",
             "value": "garmadon"
           },
@@ -3211,10 +2945,9 @@
         {
           "allValue": "*",
           "current": {
-            "selected": false,
-            "tags": [],
-            "text": "application_1543314290847_0002",
-            "value": "application_1543314290847_0002"
+            "selected": true,
+            "text": "application_1543314290847_0007",
+            "value": "application_1543314290847_0007"
           },
           "datasource": "$datasource",
           "hide": 0,
@@ -3236,7 +2969,7 @@
         {
           "allValue": "*",
           "current": {
-            "tags": [],
+            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -3258,8 +2991,56 @@
           "useTags": false
         },
         {
+          "allValue": "*",
+          "current": {
+            "selected": true,
+            "text": "container_1543314290847_0007_01_000001",
+            "value": "container_1543314290847_0007_01_000001"
+          },
+          "datasource": "$datasource",
+          "hide": 0,
+          "includeAll": false,
+          "label": null,
+          "multi": false,
+          "name": "container_id",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"container_id\", \"query\": \"tags:YARN_APPLICATION AND application_id:$application_id AND component:$component\", \"size\": 5000}",
+          "refresh": 1,
+          "regex": "",
+          "sort": 1,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": "*",
+          "current": {
+            "text": "nodemanager",
+            "value": "nodemanager"
+          },
+          "datasource": "$datasource",
+          "hide": 2,
+          "includeAll": false,
+          "label": null,
+          "multi": false,
+          "name": "hostname",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\": \"application_id:$application_id AND component:$component AND container_id:$container_id\", \"size\": 5000}",
+          "refresh": 1,
+          "regex": "",
+          "sort": 1,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
           "allValue": null,
           "current": {
+            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -3270,7 +3051,7 @@
           "multi": false,
           "name": "uri",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"application_id:$application_id AND component:$component\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"application_id:$application_id AND component:$component AND container_id:$container_id\"}",
           "refresh": 1,
           "regex": "",
           "sort": 1,
@@ -3309,7 +3090,7 @@
       ]
     },
     "timezone": "",
-    "title": "Garmadon - Yarn Application",
+    "title": "Garmadon - Yarn Application Container",
     "uid": null,
     "version": null
   }

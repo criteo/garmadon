@@ -96,7 +96,7 @@
     "links": [],
     "panels": [
       {
-        "content": "Select executor_id for which you want to see Container/JVM detailed merics and then click here: [Yarn Application Dashboard for $application_id - $container_id](dashboard/db/garmadon-yarn-application?orgId=1&var-username=All&var-framework=All&var-application_name=All&var-application_id=$application_id&var-component=All&var-container_id=$container_id&var-hostname=All&var-uri=All)",
+        "content": "Select executor_id for which you want to see Container/JVM detailed merics and then click here: [Yarn Application Dashboard for $application_id - $container_id](dashboard/db/garmadon-yarn-application-container?orgId=1&var-username=All&var-framework=All&var-application_name=All&var-application_id=$application_id&var-component=All&var-container_id=$container_id&var-uri=All)",
         "gridPos": {
           "h": 2,
           "w": 24,
@@ -2872,8 +2872,8 @@
         {
           "allValue": "*",
           "current": {
-            "text": "application_1537173778920_0007",
-            "value": "application_1537173778920_0007"
+            "text": "application_1543314290847_0007",
+            "value": "application_1543314290847_0007"
           },
           "datasource": "$datasource",
           "hide": 0,
@@ -2964,9 +2964,8 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
-            "text": "container_1537173778920_0007_01_000002",
-            "value": "container_1537173778920_0007_01_000002"
+            "text": "container_1543314290847_0007_01_000001",
+            "value": "container_1543314290847_0007_01_000001"
           },
           "datasource": "$datasource",
           "hide": 2,

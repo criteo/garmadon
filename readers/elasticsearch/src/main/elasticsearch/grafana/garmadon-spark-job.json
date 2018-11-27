@@ -96,7 +96,7 @@
     "links": [],
     "panels": [
       {
-        "content": "Container metrics/JVM detailed metrics for this app available here: [Yarn Application Dashboard for $application_id](dashboard/db/garmadon-yarn-application?orgId=1&var-username=All&var-framework=All&var-application_id=$application_id&var-component=All&var-container_id=All&var-hostname=All&var-uri=All)",
+        "content": "Container metrics/JVM detailed metrics for this app available here: [Yarn Application Dashboard for $application_id](dashboard/db/garmadon-yarn-application?orgId=1&var-username=All&var-framework=All&var-application_id=$application_id&var-component=All&var-uri=All)",
         "gridPos": {
           "h": 2,
           "w": 24,
@@ -2504,8 +2504,8 @@
         {
           "allValue": "*",
           "current": {
-            "text": "application_1541514518755_0004",
-            "value": "application_1541514518755_0004"
+            "text": "application_1543314290847_0007",
+            "value": "application_1543314290847_0007"
           },
           "datasource": "$datasource",
           "hide": 0,
