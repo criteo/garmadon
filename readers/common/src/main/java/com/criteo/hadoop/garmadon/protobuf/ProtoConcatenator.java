@@ -124,7 +124,6 @@ public class ProtoConcatenator {
                    Function<Collection<Descriptors.FieldDescriptor>, MessageType> messageBuilder,
                    BiConsumer<Map.Entry<Descriptors.FieldDescriptor, Object>, MessageType> contentsConsumer) {
         final Collection<Map.Entry<Descriptors.FieldDescriptor, Object>> allFields = new HashSet<>();
-
         for (Message message : messages) {
             allFields.addAll(message.getAllFields().entrySet());
         }
@@ -134,7 +133,7 @@ public class ProtoConcatenator {
             allKeys.addAll(message.getDescriptorForType().getFields());
         }
 
-        MessageType msg = messageBuilder.apply(allKeys);
+        final MessageType msg = messageBuilder.apply(allKeys);
         allFields.forEach(field -> contentsConsumer.accept(field, msg));
 
         return msg;
