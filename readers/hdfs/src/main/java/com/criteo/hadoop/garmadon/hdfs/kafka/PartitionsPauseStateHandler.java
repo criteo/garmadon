@@ -14,16 +14,16 @@ import java.util.*;
  * This allows applying back-pressure on the Kafka consumer without risking to get partitions unassigned due to not
  * calling Consumer#poll frequently enough.
  */
-public class PartitionsPauseStateHandler<K, V> implements ConsumerRebalanceListener {
+public class PartitionsPauseStateHandler implements ConsumerRebalanceListener {
     // Paused partition -> Event class asking to pause
     private final Set<Class> pausedEvents = new HashSet<>();
     private final List<TopicPartition> currentlyAssignedPartitions = new ArrayList<>();
-    private final Consumer<K, V> consumer;
+    private final Consumer consumer;
 
     /**
      * @param consumer  The consumer on which pauses & resumes will be applied
      */
-    public PartitionsPauseStateHandler(Consumer<K, V> consumer) {
+    public PartitionsPauseStateHandler(Consumer consumer) {
         this.consumer = consumer;
     }
 

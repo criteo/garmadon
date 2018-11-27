@@ -17,7 +17,7 @@ public class PartitionsPauseStateHandlerTest {
     public void pauseAndResumeSingleClass() {
         Consumer<String, String> consumer = mock(Consumer.class);
         Class clazz = String.class;
-        PartitionsPauseStateHandler<String, String> handler = new PartitionsPauseStateHandler<>(consumer);
+        PartitionsPauseStateHandler handler = new PartitionsPauseStateHandler(consumer);
         Collection<TopicPartition> partitions = Arrays.asList(new TopicPartition("topic", 1),
                 new TopicPartition("topic", 2));
 
@@ -35,7 +35,7 @@ public class PartitionsPauseStateHandlerTest {
         Consumer<String, String> consumer = mock(Consumer.class);
         Class firstClazz = String.class;
         Class secondClazz = Integer.class;
-        PartitionsPauseStateHandler<String, String> handler = new PartitionsPauseStateHandler<>(consumer);
+        PartitionsPauseStateHandler handler = new PartitionsPauseStateHandler(consumer);
         Collection<TopicPartition> partitions = Arrays.asList(new TopicPartition("topic", 1),
                 new TopicPartition("topic", 2));
 
@@ -60,7 +60,7 @@ public class PartitionsPauseStateHandlerTest {
     public void assignPartitionWhenPaused() {
         Consumer<String, String> consumer = mock(Consumer.class);
         Class clazz = String.class;
-        PartitionsPauseStateHandler<String, String> handler = new PartitionsPauseStateHandler<>(consumer);
+        PartitionsPauseStateHandler handler = new PartitionsPauseStateHandler(consumer);
         Collection<TopicPartition> initialPartitions = Arrays.asList(new TopicPartition("topic", 1),
                 new TopicPartition("topic", 2));
 
@@ -82,7 +82,7 @@ public class PartitionsPauseStateHandlerTest {
     public void pauseAndResumeOnlyAssignedPartitions() {
         Consumer<String, String> consumer = mock(Consumer.class);
         Class clazz = String.class;
-        PartitionsPauseStateHandler<String, String> handler = new PartitionsPauseStateHandler<>(consumer);
+        PartitionsPauseStateHandler handler = new PartitionsPauseStateHandler(consumer);
         TopicPartition firstPartition = new TopicPartition("topic", 1);
         TopicPartition secondPartition = new TopicPartition("topic", 2);
         Collection<TopicPartition> initialPartitions = Arrays.asList(firstPartition, secondPartition);
@@ -99,7 +99,7 @@ public class PartitionsPauseStateHandlerTest {
     public void pauseAndResumeWithNoAssignedPartition() {
         Consumer<String, String> consumer = mock(Consumer.class);
         Class clazz = String.class;
-        PartitionsPauseStateHandler<String, String> handler = new PartitionsPauseStateHandler<>(consumer);
+        PartitionsPauseStateHandler handler = new PartitionsPauseStateHandler(consumer);
 
         handler.pause(clazz);
         handler.resume(clazz);

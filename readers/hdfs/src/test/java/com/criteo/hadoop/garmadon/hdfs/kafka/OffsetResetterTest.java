@@ -1,6 +1,5 @@
 package com.criteo.hadoop.garmadon.hdfs.kafka;
 
-import com.criteo.hadoop.garmadon.hdfs.kafka.OffsetResetter;
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.hdfs.writer.PartitionedWriter;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -37,7 +36,7 @@ public class OffsetResetterTest {
 
         offsetResetter.onPartitionsAssigned(partitions);
         verify(consumer, times(1)).seek(eq(firstPartition), eq(10L));
-        verify(consumer, times(1)).seek(eq(secondPartition), eq(20L));
+        verify(consumer, times(1)).seekToBeginning(Collections.singleton(secondPartition));
         verifyNoMoreInteractions(consumer);
     }
 

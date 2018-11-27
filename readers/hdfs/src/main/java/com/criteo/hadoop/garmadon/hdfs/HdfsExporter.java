@@ -94,7 +94,7 @@ public class HdfsExporter {
         LOGGER.info("Temporary HDFS dir: {}", temporaryHdfsDir.toUri());
         LOGGER.info("Final HDFS dir: {}", finalHdfsDir.toUri());
 
-        final PartitionsPauseStateHandler<String, byte[]> pauser = new PartitionsPauseStateHandler<>(kafkaConsumer);
+        final PartitionsPauseStateHandler pauser = new PartitionsPauseStateHandler(kafkaConsumer);
 
         for (Map.Entry<Integer, Map.Entry<String, Class<? extends Message>>> out: typeToDirAndClass.entrySet()) {
             final Integer eventType = out.getKey();
