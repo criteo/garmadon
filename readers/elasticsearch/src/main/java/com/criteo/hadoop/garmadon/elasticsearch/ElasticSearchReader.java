@@ -76,7 +76,7 @@ public final class ElasticSearchReader implements BulkProcessor.Listener {
 
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 
-        LogMailFailureListener sniffOnFailureListener = new LogMailFailureListener();
+        LogFailureListener sniffOnFailureListener = new LogFailureListener();
         RestClientBuilder restClientBuilder = RestClient.builder(
                 new HttpHost(esHost, esPort, "http")
         )
@@ -128,8 +128,8 @@ public final class ElasticSearchReader implements BulkProcessor.Listener {
                 .build();
     }
 
-    public class LogMailFailureListener extends SniffOnFailureListener {
-        LogMailFailureListener() {
+    private class LogFailureListener extends SniffOnFailureListener {
+        LogFailureListener() {
             super();
         }
 
