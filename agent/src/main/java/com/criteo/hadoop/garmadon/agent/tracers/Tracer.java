@@ -12,20 +12,33 @@ import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public abstract class Tracer {
 
+    protected static ElementMatcher.Junction<NamedElement> ignoredMatcher;
+
+    private static final ElementMatcher<? super String> BYTE_BUDDY_LOGGING_FILTER;
+
     protected AgentBuilder agentBuilder;
 
-    protected static ElementMatcher.Junction<NamedElement> ignoredMatcher;
+    Tracer() {
+        this.agentBuilder = new AgentBuilder.Default()
+                .ignore(any(), isBootstrapClassLoader())
+                .ignore(any(), isSystemClassLoader())
+                .ignore(any(), isExtensionClassLoader())
+                .ignore(ignoredMatcher)
+                .with(
+                        new Filtering(BYTE_BUDDY_LOGGING_FILTER, AgentBuilder.Listener.StreamWriting.toSystemOut())
+                );
+    }
 
     static {
         String[] predefWhitelist = {
                 "org.apache.flink.",
                 "org.apache.hadoop.",
                 "org.apache.spark.",
-                "com.criteo."
+                "com.criteo.",
         };
         String[] predefBlacklist = {
                 "com.criteo.hadoop.garmadon.",
-                "com.criteo.jvm."
+                "com.criteo.jvm.",
         };
         String runtimeWhitelist = System.getProperty("bytebuddy.whitelist.for.instrumentation");
         String runtimeBlacklist = System.getProperty("bytebuddy.blacklist.for.instrumentation");
@@ -47,22 +60,9 @@ public abstract class Tracer {
         return matcher;
     }
 
-    private static final ElementMatcher<? super String> BYTE_BUDDY_LOGGING_FILTER;
-
     static {
         String filterClass = System.getProperty("bytebuddy.debug.instrumentation.for.class");
         BYTE_BUDDY_LOGGING_FILTER = filterClass != null ? s -> s.contains(filterClass) : s -> false;
-    }
-
-    Tracer() {
-        this.agentBuilder = new AgentBuilder.Default()
-                .ignore(any(), isBootstrapClassLoader())
-                .ignore(any(), isSystemClassLoader())
-                .ignore(any(), isExtensionClassLoader())
-                .ignore(ignoredMatcher)
-                .with(
-                        new Filtering(BYTE_BUDDY_LOGGING_FILTER, AgentBuilder.Listener.StreamWriting.toSystemOut())
-                );
     }
 
     public void installOn(Instrumentation instrumentation) {

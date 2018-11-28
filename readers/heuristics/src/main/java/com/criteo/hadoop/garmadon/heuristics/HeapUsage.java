@@ -52,10 +52,19 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
                         case MAJOR:
                             heapCounters.majorGC = count;
                             break;
+                        default:
+                            break;
                     }
                 }
             }
         }
+    }
+
+    @Override
+    public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsEventsProtos.GCStatisticsData gcStats) {
+        // TODO process GC stats
+        // TODO Handle before/after heap used at GC
+        // TODO After GC heap used give a good indication of LiveSet!
     }
 
     @Override
@@ -88,13 +97,6 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
     @Override
     public String getHelp() {
         return HeuristicHelper.loadHelpFile("HeapUsage");
-    }
-
-    @Override
-    public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsEventsProtos.GCStatisticsData gcStats) {
-        // TODO process GC stats
-        // TODO Handle before/after heap used at GC
-        // TODO After GC heap used give a good indication of LiveSet!
     }
 
     private static class HeapCounters extends BaseCounter {

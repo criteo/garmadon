@@ -18,12 +18,13 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
+ *
  */
 public class PrometheusHttpMetrics {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrometheusHttpMetrics.class);
     private static final MBeanServer MBS = ManagementFactory.getPlatformMBeanServer();
 
-    public static final Counter GARMADON_METRICS = Counter.build()
+    private static final Counter GARMADON_METRICS = Counter.build()
             .name("garmadon_metrics").help("Garmadon metrics")
             .labelNames("name", "hostname", "release")
             .register();
@@ -32,6 +33,10 @@ public class PrometheusHttpMetrics {
             .ofNullable(PrometheusHttpMetrics.class.getPackage().getImplementationVersion())
             .orElse("1.0-SNAPSHOT")
             .replace(".", "_");
+
+    private static final Counter.Child FOR_JOIN = GARMADON_METRICS.labels("garmadon_for_join",
+            Forwarder.getHostname(),
+            RELEASE);
 
     public static final Counter.Child EVENTS_RECEIVED = GARMADON_METRICS.labels("garmadon_events_received",
             Forwarder.getHostname(),
@@ -43,9 +48,6 @@ public class PrometheusHttpMetrics {
             Forwarder.getHostname(),
             RELEASE);
     public static final Counter.Child GREETINGS_IN_ERROR = GARMADON_METRICS.labels("garmadon_greetings_in_error",
-            Forwarder.getHostname(),
-            RELEASE);
-    public static final Counter.Child FOR_JOIN = GARMADON_METRICS.labels("garmadon_for_join",
             Forwarder.getHostname(),
             RELEASE);
 

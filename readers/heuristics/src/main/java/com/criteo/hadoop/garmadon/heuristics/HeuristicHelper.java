@@ -10,8 +10,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class HeuristicHelper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HeuristicHelper.class);
     public static final int MAX_CONTAINERS_PER_HEURISTIC = 10;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HeuristicHelper.class);
 
     protected HeuristicHelper() {
         throw new UnsupportedOperationException();

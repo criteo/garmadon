@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 public class GreetingHandler extends SimpleChannelInboundHandler<ByteBuf> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GreetingHandler.class);
 
-    private byte[] lastAgentGreetings = null;
+    private byte[] lastAgentGreetings;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {

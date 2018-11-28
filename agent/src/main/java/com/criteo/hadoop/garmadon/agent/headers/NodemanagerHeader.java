@@ -5,6 +5,10 @@ import com.criteo.hadoop.garmadon.schema.events.Header;
 public final class NodemanagerHeader {
     private Header header;
 
+    private NodemanagerHeader() {
+        this.header = createCachedHeader();
+    }
+
     private Header createCachedHeader() {
         return Header.newBuilder()
                 .withHostname(Utils.getHostname())
@@ -12,10 +16,6 @@ public final class NodemanagerHeader {
                 .withPid(Utils.getPid())
                 .addTag(Header.Tag.NODEMANAGER.name())
                 .build();
-    }
-
-    private NodemanagerHeader() {
-        this.header = createCachedHeader();
     }
 
     private static class SingletonHolder {

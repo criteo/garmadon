@@ -49,7 +49,7 @@ public final class ElasticSearchListener implements BulkProcessor.Listener {
             LOGGER.info("Successfully completed Bulk[{}] in {} ms", executionId, response.getTook().getMillis());
             latencyIndexingEvents.observe(response.getTook().getMillis());
         }
-        CommittableOffset<String, byte[]> lastOffset = ((CommittableOffset<String, byte[]>) request.payloads().get(request.payloads().size() - 1));
+        CommittableOffset<String, byte[]> lastOffset = (CommittableOffset<String, byte[]>) request.payloads().get(request.payloads().size() - 1);
         lastOffset
                 .commitAsync()
                 .whenComplete((topicPartitionOffset, exception) -> {

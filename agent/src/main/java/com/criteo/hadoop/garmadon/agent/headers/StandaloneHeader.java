@@ -5,6 +5,10 @@ import com.criteo.hadoop.garmadon.schema.events.Header;
 public final class StandaloneHeader {
     private Header.SerializedHeader header;
 
+    private StandaloneHeader() {
+        this.header = createCachedHeader();
+    }
+
     private Header.SerializedHeader createCachedHeader() {
         //build the header for the whole application once
         return Header.newBuilder()
@@ -15,10 +19,6 @@ public final class StandaloneHeader {
                 .withPid(Utils.getPid())
                 .withMainClass(Utils.getArrayJavaCommandLine()[0])
                 .buildSerializedHeader();
-    }
-
-    private StandaloneHeader() {
-        this.header = createCachedHeader();
     }
 
     private static class SingletonHolder {

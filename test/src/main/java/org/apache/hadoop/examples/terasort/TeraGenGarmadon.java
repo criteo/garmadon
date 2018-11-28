@@ -66,11 +66,11 @@ import org.apache.hadoop.util.ToolRunner;
  * <b>bin/hadoop jar hadoop-*-examples.jar teragen 10000000000 in-dir</b>
  */
 public class TeraGenGarmadon extends Configured implements Tool {
+    static final String NUM_ROWS = "mapreduce.terasort.num-rows";
+
     private static final Log LOG = LogFactory.getLog(TeraGenGarmadon.class);
 
     public enum Counters { CHECKSUM }
-
-    static final String NUM_ROWS = "mapreduce.terasort.num-rows";
 
     /**
      * An input format that assigns ranges of longs to each mapper.
@@ -120,7 +120,7 @@ public class TeraGenGarmadon extends Configured implements Tool {
             private long startRow;
             private long finishedRows;
             private long totalRows;
-            private LongWritable key = null;
+            private LongWritable key;
 
             RangeRecordReader() {
             }
@@ -205,14 +205,15 @@ public class TeraGenGarmadon extends Configured implements Tool {
     public static class SortGenMapper
             extends Mapper<LongWritable, NullWritable, Text, Text> {
 
+        private static final Unsigned16 ONE = new Unsigned16(1);
+
         private Text key = new Text();
         private Text value = new Text();
-        private Unsigned16 rand = null;
-        private Unsigned16 rowId = null;
+        private Unsigned16 rand;
+        private Unsigned16 rowId;
         private Unsigned16 checksum = new Unsigned16();
         private Checksum crc32 = new PureJavaCrc32();
         private Unsigned16 total = new Unsigned16();
-        private static final Unsigned16 ONE = new Unsigned16(1);
         private byte[] buffer = new byte[TeraInputFormat.KEY_LENGTH +
                 TeraInputFormat.VALUE_LENGTH];
         private Counter checksumCounter;
