@@ -68,9 +68,9 @@ import org.apache.hadoop.util.ToolRunner;
 public class TeraGenGarmadon extends Configured implements Tool {
     private static final Log LOG = LogFactory.getLog(TeraGenGarmadon.class);
 
-    public static enum Counters { CHECKSUM }
+    public enum Counters { CHECKSUM }
 
-    public static final String NUM_ROWS = "mapreduce.terasort.num-rows";
+    static final String NUM_ROWS = "mapreduce.terasort.num-rows";
 
     /**
      * An input format that assigns ranges of longs to each mapper.
@@ -85,10 +85,10 @@ public class TeraGenGarmadon extends Configured implements Tool {
             private long firstRow;
             private long rowCount;
 
-            public RangeInputSplit() {
+            RangeInputSplit() {
             }
 
-            public RangeInputSplit(long offset, long length) {
+            RangeInputSplit(long offset, long length) {
                 firstRow = offset;
                 rowCount = length;
             }
@@ -122,7 +122,7 @@ public class TeraGenGarmadon extends Configured implements Tool {
             private long totalRows;
             private LongWritable key = null;
 
-            public RangeRecordReader() {
+            RangeRecordReader() {
             }
 
             public void initialize(InputSplit split, TaskAttemptContext context)

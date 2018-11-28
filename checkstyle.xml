@@ -84,6 +84,13 @@
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
 
+        <!-- Modifier Checks. -->
+        <!--
+        <module name="InterfaceMemberImpliedModifier"/>
+        <module name="ModifierOrder"/>
+        -->
+        <module name="RedundantModifier"/>
+
         <!-- Checks for Naming Conventions. -->
         <module name="CatchParameterName"/>
         <module name="ClassTypeParameterName">

@@ -52,7 +52,7 @@ class NetworkStatistics extends AbstractStatistic {
         private long previousErrIn;
         private long previousErrOut;
 
-        public NicInfo(NetworkIF nic) {
+        NicInfo(NetworkIF nic) {
             this.nic = nic;
             this.recvProp = nic.getName() + NETWORK_RECV_SUFFIX;
             this.sentProp = nic.getName() + NETWORK_SENT_SUFFIX;
@@ -68,7 +68,7 @@ class NetworkStatistics extends AbstractStatistic {
             this.previousErrOut = nic.getOutErrors();
         }
 
-        public void dumpStats(StatisticsSink sink) {
+        void dumpStats(StatisticsSink sink) {
             nic.updateNetworkStats();
             sink.add(recvProp, nic.getBytesRecv() - previousRx);
             previousRx = nic.getBytesRecv();
