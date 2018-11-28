@@ -33,10 +33,10 @@ git checkout release_$NEW_GARMADON_RELEASE || git checkout -b release_$NEW_GARMA
 # Bump release
 mvn versions:set -DnewVersion=${NEW_GARMADON_RELEASE}
 find . -name pom.xml.versionsBackup -delete
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  sed -i '' "s#<garmadon.version>.*</garmadon.version>#<garmadon.version>${NEW_GARMADON_RELEASE}</garmadon.version>#g" pom.xml
-else
+if sed --version &> /dev/null; then
   sed -i "s#<garmadon.version>.*</garmadon.version>#<garmadon.version>${NEW_GARMADON_RELEASE}</garmadon.version>#g" pom.xml
+else
+  sed -i '' "s#<garmadon.version>.*</garmadon.version>#<garmadon.version>${NEW_GARMADON_RELEASE}</garmadon.version>#g" pom.xml
 fi
 
 # Commit release
