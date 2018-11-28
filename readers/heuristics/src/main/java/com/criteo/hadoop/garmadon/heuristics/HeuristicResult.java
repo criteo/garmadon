@@ -9,9 +9,9 @@ import java.util.Objects;
 
 public class HeuristicResult {
     public static class HeuristicResultDetail {
-        public final String name;
-        public final String value;
-        public final String details;
+        protected final String name;
+        protected final String value;
+        protected final String details;
 
         public HeuristicResultDetail(String name, String value, String details) {
             this.name = name;
@@ -33,11 +33,11 @@ public class HeuristicResult {
         }
     }
 
-    public final String appId;
-    public final String attemptId;
-    public final Class<?> heuristicClass;
-    public final int severity;
-    public final int score;
+    protected final String appId;
+    protected final String attemptId;
+    protected final Class<?> heuristicClass;
+    protected final int severity;
+    protected final int score;
     private final List<HeuristicResultDetail> details = new ArrayList<>();
 
     public HeuristicResult(String appId, String attemptId, Class<?> heuristicClass, int severity, int score) {

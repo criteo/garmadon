@@ -12,6 +12,10 @@ public class LinuxHelper {
     public static final Pattern COUNT_PATTERN = Pattern.compile(":\\s+(\\d+)");
     private static final Pattern SPACES_PATTERN = Pattern.compile("\\s+");
 
+    protected LinuxHelper() {
+        throw new UnsupportedOperationException();
+    }
+
     public static long getPageSize() {
         File fileSmaps = new File("/proc/self/smaps");
         if (fileSmaps.exists() && fileSmaps.canRead()) {
@@ -25,8 +29,7 @@ public class LinuxHelper {
         try {
             raf.seek(0);
             String line = raf.readLine();
-            if (line == null)
-                return new String[0];
+            if (line == null) return new String[0];
             return SPACES_PATTERN.split(line);
         } catch (IOException ignored) {
             return new String[0];
@@ -47,8 +50,7 @@ public class LinuxHelper {
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith(key + ": ")) {
                     Matcher matcher = COUNT_PATTERN.matcher(line);
-                    if (matcher.find())
-                        return matcher.group(1);
+                    if (matcher.find()) return matcher.group(1);
                 }
             }
         } catch (IOException ignored) {

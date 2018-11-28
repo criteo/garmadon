@@ -2,7 +2,7 @@ package com.criteo.hadoop.garmadon.agent.headers;
 
 import com.criteo.hadoop.garmadon.schema.events.Header;
 
-public class RessourceManagerHeader {
+public final class RessourceManagerHeader {
     private Header header;
 
     private Header createCachedHeader() {
@@ -19,11 +19,11 @@ public class RessourceManagerHeader {
     }
 
     private static class SingletonHolder {
-        private final static RessourceManagerHeader instance = new RessourceManagerHeader();
+        private final static RessourceManagerHeader INSTANCE = new RessourceManagerHeader();
     }
 
     public static RessourceManagerHeader getInstance() {
-        return RessourceManagerHeader.SingletonHolder.instance;
+        return RessourceManagerHeader.SingletonHolder.INSTANCE;
     }
 
     public Header getBaseHeader() {

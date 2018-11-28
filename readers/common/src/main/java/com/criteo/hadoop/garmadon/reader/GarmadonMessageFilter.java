@@ -12,19 +12,20 @@ public interface GarmadonMessageFilter {
     interface Junction extends GarmadonMessageFilter {
 
         Junction and(GarmadonMessageFilter other);
+
         Junction or(GarmadonMessageFilter other);
 
         abstract class AbstractBase implements Junction {
 
             @Override
             public Junction and(GarmadonMessageFilter other) {
-                if(other == null) throw new NullPointerException("Null filter is forbidden");
+                if (other == null) throw new NullPointerException("Null filter is forbidden");
                 return new Conjunction(this, other);
             }
 
             @Override
             public Junction or(GarmadonMessageFilter other) {
-                if(other == null) throw new NullPointerException("Null filter is forbidden");
+                if (other == null) throw new NullPointerException("Null filter is forbidden");
                 return new Disjunction(this, other);
             }
 
@@ -111,7 +112,7 @@ public interface GarmadonMessageFilter {
         private final GarmadonMessageFilter other;
 
         NotFilter(GarmadonMessageFilter other) {
-            if(other == null) throw new NullPointerException("Null filter is forbidden");
+            if (other == null) throw new NullPointerException("Null filter is forbidden");
             this.other = other;
         }
 
@@ -152,8 +153,8 @@ public interface GarmadonMessageFilter {
 
             private final String tag;
 
-            TagFilter(Header.Tag tag){
-                if(tag == null) throw new NullPointerException("Null tag is forbidden");
+            TagFilter(Header.Tag tag) {
+                if (tag == null) throw new NullPointerException("Null tag is forbidden");
                 this.tag = tag.toString();
             }
 
@@ -168,8 +169,8 @@ public interface GarmadonMessageFilter {
 
             private final String id;
 
-            ContainerFilter(String id){
-                if(id == null) throw new NullPointerException("Null id is forbidden");
+            ContainerFilter(String id) {
+                if (id == null) throw new NullPointerException("Null id is forbidden");
                 this.id = id;
             }
 
@@ -183,8 +184,8 @@ public interface GarmadonMessageFilter {
 
             private final String framework;
 
-            FrameworkFilter(String framework){
-                if(framework == null) throw new NullPointerException("Null framework is forbidden");
+            FrameworkFilter(String framework) {
+                if (framework == null) throw new NullPointerException("Null framework is forbidden");
                 this.framework = framework;
             }
 

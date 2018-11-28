@@ -7,6 +7,11 @@ import com.criteo.hadoop.garmadon.spark.listener.SparkListernerConf;
 import java.util.Properties;
 
 public class SparkListenerTracer {
+
+    protected SparkListenerTracer() {
+        throw new UnsupportedOperationException();
+    }
+
     public static void setup(Header.SerializedHeader header, TriConsumer<Long, Header, Object> eventConsumer) {
         SparkListernerConf sparkListernerConf = SparkListernerConf.getInstance();
         sparkListernerConf.setConsumer(eventConsumer);

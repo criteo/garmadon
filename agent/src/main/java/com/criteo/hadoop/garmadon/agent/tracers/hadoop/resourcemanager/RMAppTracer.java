@@ -27,7 +27,11 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 
 public class RMAppTracer {
-    public static TriConsumer<Long, Header, Object> eventHandler;
+    private static TriConsumer<Long, Header, Object> eventHandler;
+
+    protected RMAppTracer() {
+        throw new UnsupportedOperationException();
+    }
 
     public static void setup(Header baseHeader, Instrumentation instrumentation, AsyncEventProcessor eventProcessor) {
         initEventHandler((timestamp, headerOverride, event) -> {
@@ -116,7 +120,7 @@ public class RMAppTracer {
                         .build();
 
                 eventHandler.accept(submitTime, header, event);
-            } catch (Exception ignore) {
+            } catch (Exception ignored) {
             }
         }
     }

@@ -16,29 +16,28 @@ class DiskStatistics extends AbstractStatistic {
     private static final String DISK_WRITEBYTES_SUFFIX = "_writebytes";
 
     private final List<HWDiskStore> disks = new ArrayList<>();
-    private long[] previous_reads;
-    private long[] previous_readbytes;
-    private long[] previous_writes;
-    private long[] previous_writebytes;
+    private long[] previousReads;
+    private long[] previousReadBytes;
+    private long[] previousWrites;
+    private long[] previousWriteBytes;
 
     DiskStatistics() {
         super(DISK_HEADER);
         for (HWDiskStore disk : new SystemInfo().getHardware().getDiskStores()) {
-            if (disk.getReads() == 0 && disk.getWrites() == 0)  // nothing happens on this disk since boot
-                continue;
+            if (disk.getReads() == 0 && disk.getWrites() == 0) continue;  // nothing happens on this disk since boot
             disks.add(disk);
         }
-        previous_reads = new long[disks.size()];
-        previous_readbytes = new long[disks.size()];
-        previous_writes = new long[disks.size()];
-        previous_writebytes = new long[disks.size()];
+        previousReads = new long[disks.size()];
+        previousReadBytes = new long[disks.size()];
+        previousWrites = new long[disks.size()];
+        previousWriteBytes = new long[disks.size()];
 
         int i = 0;
         for (HWDiskStore disk : disks) {
-            previous_reads[i] = disk.getReads();
-            previous_readbytes[i] = disk.getReadBytes();
-            previous_writes[i] = disk.getWrites();
-            previous_writebytes[i] = disk.getWriteBytes();
+            previousReads[i] = disk.getReads();
+            previousReadBytes[i] = disk.getReadBytes();
+            previousWrites[i] = disk.getWrites();
+            previousWriteBytes[i] = disk.getWriteBytes();
             i++;
         }
 
@@ -50,14 +49,14 @@ class DiskStatistics extends AbstractStatistic {
         for (HWDiskStore disk : disks) {
             String name = disk.getName().replace("/dev/", "");
             disk.updateDiskStats();
-            sink.add(name + DISK_READS_SUFFIX, disk.getReads() - previous_reads[i]);
-            previous_reads[i] = disk.getReads();
-            sink.add(name + DISK_READBYTES_SUFFIX, disk.getReadBytes() - previous_readbytes[i]);
-            previous_readbytes[i] = disk.getReadBytes();
-            sink.add(name + DISK_WRITES_SUFFIX, disk.getWrites() - previous_writes[i]);
-            previous_writes[i] = disk.getWrites();
-            sink.add(name + DISK_WRITEBYTES_SUFFIX, disk.getWriteBytes() - previous_writebytes[i]);
-            previous_writebytes[i] = disk.getWriteBytes();
+            sink.add(name + DISK_READS_SUFFIX, disk.getReads() - previousReads[i]);
+            previousReads[i] = disk.getReads();
+            sink.add(name + DISK_READBYTES_SUFFIX, disk.getReadBytes() - previousReadBytes[i]);
+            previousReadBytes[i] = disk.getReadBytes();
+            sink.add(name + DISK_WRITES_SUFFIX, disk.getWrites() - previousWrites[i]);
+            previousWrites[i] = disk.getWrites();
+            sink.add(name + DISK_WRITEBYTES_SUFFIX, disk.getWriteBytes() - previousWriteBytes[i]);
+            previousWriteBytes[i] = disk.getWriteBytes();
             i++;
         }
     }

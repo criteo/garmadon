@@ -13,7 +13,7 @@ public class MXBeanStatistics {
     protected static final String HEAP_HEADER = "heap";
     protected static final String NON_HEAP_HEADER = "nonheap";
 
-    protected final Conf conf;
+    private final Conf conf;
 
     public MXBeanStatistics(Conf conf) {
         this.conf = conf;
@@ -30,8 +30,9 @@ public class MXBeanStatistics {
 
     protected void addGCStatistics(StatisticCollector collector) {
         GarbageCollectorMXBean[] garbageCollectors = ManagementFactory.getGarbageCollectorMXBeans().toArray(new GarbageCollectorMXBean[0]);
-        for (GarbageCollectorMXBean garbageCollector : garbageCollectors)
+        for (GarbageCollectorMXBean garbageCollector : garbageCollectors) {
             collector.register(new GCStatistics(garbageCollector));
+        }
     }
 
     protected void addMemoryStatistics(StatisticCollector collector) {
@@ -57,7 +58,7 @@ public class MXBeanStatistics {
     }
 
     protected void addOSStatistics(StatisticCollector collector) {
-        if (conf.isOSStatsInJVMStats()) { // under conf because can be redundant with machine stats
+        if (conf.isOsStatsInJvmStats()) { // under conf because can be redundant with machine stats
             OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
             collector.register(new OSStatistics(os, os.getAvailableProcessors()));
         }

@@ -14,14 +14,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 public class LogGCNotifications extends GCNotifications {
-    private static final ThreadLocal<SimpleDateFormat> GC_TIME_FORMAT = new ThreadLocal<SimpleDateFormat>()
-    {
-        @Override
-        protected SimpleDateFormat initialValue()
-        {
-            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        }
-    };
+    private static final ThreadLocal<SimpleDateFormat> GC_TIME_FORMAT = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS"));
 
     public LogGCNotifications() {
         super(getNotificationListener());

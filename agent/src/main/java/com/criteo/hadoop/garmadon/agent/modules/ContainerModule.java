@@ -22,7 +22,7 @@ public class ContainerModule implements GarmadonAgentModule {
 
         // Byte code instrumentation
         executorService.submit(() -> FileSystemTracer.setup(instrumentation,
-                (timestamp, event)  -> eventProcessor.offer(timestamp, ContainerHeader.getInstance().getHeader(), event)));
+                (timestamp, event) -> eventProcessor.offer(timestamp, ContainerHeader.getInstance().getHeader(), event)));
 
         // Set SPARK Listener
         executorService.submit(() -> {

@@ -2,7 +2,6 @@ package com.criteo.hadoop.garmadon.jvm;
 
 import java.time.Duration;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class Conf<JVMSTATS, GCSTATS, MACHINESTATS> {
     public static final String DEFAULT_SINK_TYPE = "log";
@@ -12,7 +11,7 @@ public class Conf<JVMSTATS, GCSTATS, MACHINESTATS> {
     private BiConsumer<Long, JVMSTATS> logJVMStats;
     private BiConsumer<Long, GCSTATS> logGcStats;
     private BiConsumer<Long, MACHINESTATS> logMachineStats;
-    private boolean OSStatsInJVMStats;
+    private boolean osStatsInJvmStats;
 
     public Duration getInterval() {
         return interval;
@@ -66,11 +65,11 @@ public class Conf<JVMSTATS, GCSTATS, MACHINESTATS> {
         this.logMachineStats = logMachineStats;
     }
 
-    public boolean isOSStatsInJVMStats() {
-        return OSStatsInJVMStats;
+    public boolean isOsStatsInJvmStats() {
+        return osStatsInJvmStats;
     }
 
-    public void setOSStatsInJVMStats(boolean OSStatsInJVMStats) {
-        this.OSStatsInJVMStats = OSStatsInJVMStats;
+    public void setOsStatsInJvmStats(boolean osStatsInJvmStats) {
+        this.osStatsInJvmStats = osStatsInJvmStats;
     }
 }

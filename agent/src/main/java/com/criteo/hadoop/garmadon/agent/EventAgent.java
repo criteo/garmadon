@@ -28,10 +28,14 @@ public class EventAgent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventAgent.class);
 
-    private static String RELEASE = Optional
+    private static final String RELEASE = Optional
             .ofNullable(EventAgent.class.getPackage().getImplementationVersion()).orElse("1.0-SNAPSHOT");
 
     private final static int DEFAULT_FORWARDER_PORT = 33000;
+
+    protected EventAgent() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Premain of Garmadon agent
@@ -64,8 +68,7 @@ public class EventAgent {
     }
 
     private static void loadModules(String modules, Instrumentation instrumentation, AsyncEventProcessor eventProcessor) {
-        if (modules == null)
-            return;
+        if (modules == null) return;
         String[] classes = modules.split(",");
         for (String className : classes) {
             try {

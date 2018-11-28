@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.Checksum;
 
-import com.criteo.hadoop.garmadon.TinySampler;
+import com.criteo.hadoop.garmadon.tool.TinySampler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -68,7 +68,7 @@ import org.apache.hadoop.util.ToolRunner;
 public class TeraGenGarmadon extends Configured implements Tool {
     private static final Log LOG = LogFactory.getLog(TeraGenGarmadon.class);
 
-    public static enum Counters {CHECKSUM}
+    public static enum Counters { CHECKSUM }
 
     public static final String NUM_ROWS = "mapreduce.terasort.num-rows";
 
@@ -82,8 +82,8 @@ public class TeraGenGarmadon extends Configured implements Tool {
          * An input split consisting of a range on numbers.
          */
         static class RangeInputSplit extends InputSplit implements Writable {
-            long firstRow;
-            long rowCount;
+            private long firstRow;
+            private long rowCount;
 
             public RangeInputSplit() {
             }
@@ -117,10 +117,10 @@ public class TeraGenGarmadon extends Configured implements Tool {
          */
         static class RangeRecordReader
                 extends RecordReader<LongWritable, NullWritable> {
-            long startRow;
-            long finishedRows;
-            long totalRows;
-            LongWritable key = null;
+            private long startRow;
+            private long finishedRows;
+            private long totalRows;
+            private LongWritable key = null;
 
             public RangeRecordReader() {
             }

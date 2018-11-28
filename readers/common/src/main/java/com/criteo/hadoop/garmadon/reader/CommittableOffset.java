@@ -1,6 +1,5 @@
 package com.criteo.hadoop.garmadon.reader;
 
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 
@@ -17,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
  * @param <K>
  * @param <V>
  */
-public class CommittableOffset<K, V> {
+public class CommittableOffset<K, V> implements Offset {
 
     private final GarmadonReader.SynchronizedConsumer<K, V> consumer;
     private final String topic;
@@ -77,30 +76,5 @@ public class CommittableOffset<K, V> {
 
     private Map<TopicPartition, OffsetAndMetadata> offsetMap() {
         return Collections.singletonMap(new TopicPartition(topic, partition), new OffsetAndMetadata(lastProcessedOffset + 1));
-    }
-
-    public static class TopicPartitionOffset {
-
-        private final String topic;
-        private final int partition;
-        private final long offset;
-
-        public TopicPartitionOffset(String topic, int partition, long offset) {
-            this.topic = topic;
-            this.partition = partition;
-            this.offset = offset;
-        }
-
-        public String getTopic() {
-            return topic;
-        }
-
-        public int getPartition() {
-            return partition;
-        }
-
-        public long getOffset() {
-            return offset;
-        }
     }
 }

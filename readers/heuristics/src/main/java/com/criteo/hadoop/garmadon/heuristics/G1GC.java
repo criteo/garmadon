@@ -17,15 +17,13 @@ public class G1GC implements GCStatsHeuristic {
 
     @Override
     public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsEventsProtos.GCStatisticsData gcStats) {
-        if (GCHelper.gcKind(gcStats.getCollectorName()) != GCHelper.GCKind.G1)
-            return;
+        if (GCHelper.gcKind(gcStats.getCollectorName()) != GCHelper.GCKind.G1) return;
         GCHelper.GCGenKind gcGenKind = GCHelper.gcGenKind(gcStats.getCollectorName());
         if (gcGenKind == GCHelper.GCGenKind.MAJOR) {
             Map<String, FullGCCounters> containerFullGC = appFullGC.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());
             FullGCCounters details = containerFullGC.computeIfAbsent(containerId, s -> new FullGCCounters(timestamp, gcStats.getPauseTime()));
             details.count++;
-            if (details.count > 1)
-                details.pauseTime += gcStats.getPauseTime();
+            if (details.count > 1) details.pauseTime += gcStats.getPauseTime();
             details.severity = HeuristicsResultDB.Severity.SEVERE;
         }
     }
@@ -38,10 +36,11 @@ public class G1GC implements GCStatsHeuristic {
     @Override
     public void onAppCompleted(String applicationId, String attemptId) {
         createCounterHeuristic(applicationId, attemptId, appFullGC, heuristicsResultDB, G1GC.class, counter -> {
-            if (counter.count == 1)
+            if (counter.count == 1) {
                 return "Timestamp: " + HeuristicResult.formatTimestamp(counter.timestamp) + ", pauseTime: " + counter.pauseTime + "ms";
-            else
+            } else {
                 return "Count: " + counter.count + ", Cumulative PauseTime: " + counter.pauseTime + "ms";
+            }
         });
     }
 
@@ -51,9 +50,9 @@ public class G1GC implements GCStatsHeuristic {
     }
 
     private static class FullGCCounters extends BaseCounter {
-        int count;
-        long timestamp;
-        long pauseTime;
+        private int count;
+        private long timestamp;
+        private long pauseTime;
 
         FullGCCounters(long timestamp, long pauseTime) {
             this.timestamp = timestamp;

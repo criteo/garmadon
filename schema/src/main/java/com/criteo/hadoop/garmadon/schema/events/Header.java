@@ -8,19 +8,19 @@ import java.util.Objects;
 
 public class Header {
 
-    protected final String id;
-    protected final String applicationID;
-    protected final String appAttemptID;
-    protected final String applicationName;
-    protected final String user;
-    protected final String containerID;
-    protected final String hostname;
-    protected final String pid;
-    protected final String framework;
-    protected final String component;
-    protected final String executorId;
-    protected final String mainClass;
-    protected final List<String> tags;
+    private final String id;
+    private final String applicationID;
+    private final String appAttemptID;
+    private final String applicationName;
+    private final String user;
+    private final String containerID;
+    private final String hostname;
+    private final String pid;
+    private final String framework;
+    private final String component;
+    private final String executorId;
+    private final String mainClass;
+    private final List<String> tags;
 
     public enum Tag {
         YARN_APPLICATION,
@@ -50,8 +50,7 @@ public class Header {
 
     @Override
     public boolean equals(Object other) {
-        if (!(other instanceof Header))
-            return false;
+        if (!(other instanceof Header)) return false;
 
         Header otherHeader = (Header) other;
 
@@ -108,34 +107,23 @@ public class Header {
     public byte[] serialize() {
         EventHeaderProtos.Header.Builder builder = EventHeaderProtos.Header
                 .newBuilder();
-        if (id != null)
-            builder.setId(id);
-        if (applicationID != null)
-            builder.setApplicationId(applicationID);
-        if (appAttemptID != null)
-            builder.setAppAttemptId(appAttemptID);
-        if (applicationName != null)
-            builder.setApplicationName(applicationName);
-        if (user != null)
-            builder.setUserName(user);
-        if (containerID != null)
-            builder.setContainerId(containerID);
-        if (hostname != null)
-            builder.setHostname(hostname);
-        if (tags != null && tags.size() > 0)
+        if (id != null) builder.setId(id);
+        if (applicationID != null) builder.setApplicationId(applicationID);
+        if (appAttemptID != null) builder.setAppAttemptId(appAttemptID);
+        if (applicationName != null) builder.setApplicationName(applicationName);
+        if (user != null) builder.setUserName(user);
+        if (containerID != null) builder.setContainerId(containerID);
+        if (hostname != null) builder.setHostname(hostname);
+        if (tags != null && tags.size() > 0) {
             for (String tag : tags) {
                 builder.addTags(tag);
             }
-        if (pid != null)
-            builder.setPid(pid);
-        if (framework != null)
-            builder.setFramework(framework);
-        if (component != null)
-            builder.setComponent(component);
-        if (executorId != null)
-            builder.setExecutorId(executorId);
-        if (mainClass != null)
-            builder.setMainClass(mainClass);
+        }
+        if (pid != null) builder.setPid(pid);
+        if (framework != null) builder.setFramework(framework);
+        if (component != null) builder.setComponent(component);
+        if (executorId != null) builder.setExecutorId(executorId);
+        if (mainClass != null) builder.setMainClass(mainClass);
         return builder.build().toByteArray();
     }
 

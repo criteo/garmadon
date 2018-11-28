@@ -92,7 +92,7 @@ public class AsyncEventProcessor implements Runnable {
             if (thread.isAlive()) {
                 LOGGER.error("Cannot stop properly AsyncEventProcessor thread");
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignored) {
         }
     }
 

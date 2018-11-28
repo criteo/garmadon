@@ -5,6 +5,8 @@ import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.exceptions.SerializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.TypeMarkerException;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
+import com.google.protobuf.GeneratedMessage;
+import com.google.protobuf.Message;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,14 +23,37 @@ public class AsyncEventProcessorTest {
 
     long timestamp = System.currentTimeMillis();
 
-    private static class TestEvent {
-
+    private static class TestEvent extends GeneratedMessage {
         private final byte[] buffer;
 
         public TestEvent(byte[] buffer) {
             this.buffer = buffer;
         }
 
+        @Override
+        protected FieldAccessorTable internalGetFieldAccessorTable() {
+            return null;
+        }
+
+        @Override
+        protected Message.Builder newBuilderForType(BuilderParent builderParent) {
+            return null;
+        }
+
+        @Override
+        public Message.Builder newBuilderForType() {
+            return null;
+        }
+
+        @Override
+        public Message.Builder toBuilder() {
+            return null;
+        }
+
+        @Override
+        public Message getDefaultInstanceForType() {
+            return null;
+        }
     }
 
     @Before

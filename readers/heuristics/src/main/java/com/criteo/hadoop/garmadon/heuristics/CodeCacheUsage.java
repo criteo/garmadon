@@ -35,11 +35,9 @@ public class CodeCacheUsage implements JVMStatsHeuristic {
     @Override
     public void onContainerCompleted(String applicationId, String attemptId, String containerId) {
         Map<String, CodeCacheCounters> containerCounters = appCounters.get(HeuristicHelper.getAppAttemptId(applicationId, attemptId));
-        if (containerCounters == null)
-            return;
+        if (containerCounters == null) return;
         CodeCacheCounters counters = containerCounters.get(containerId);
-        if (counters == null)
-            return;
+        if (counters == null) return;
         long max = counters.max;
         long peak = counters.peak;
         counters.severity = HeuristicsResultDB.Severity.MODERATE;
@@ -61,7 +59,7 @@ public class CodeCacheUsage implements JVMStatsHeuristic {
     }
 
     private static class CodeCacheCounters extends BaseCounter {
-        long peak;
-        long max;
+        private long peak;
+        private long max;
     }
 }

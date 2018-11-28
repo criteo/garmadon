@@ -8,7 +8,9 @@ import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.exceptions.SerializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.TypeMarkerException;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
+import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Assert;
@@ -25,20 +27,6 @@ public class CloseHandlerTest {
 
     @Rule
     public WithEmbeddedChannel channel = new WithEmbeddedChannel();
-
-    static class TestEvent {
-
-        byte[] bytes;
-
-        TestEvent(int size) {
-            bytes = new byte[size];
-            new Random().nextBytes(bytes);
-        }
-
-        TestEvent(InputStream is) throws IOException {
-            bytes = IOUtils.readFully(is, 0, false);
-        }
-    }
 
     @Before
     public void executedBeforeEach() {

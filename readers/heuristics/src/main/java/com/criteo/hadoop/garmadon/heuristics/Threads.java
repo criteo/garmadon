@@ -36,17 +36,17 @@ public class Threads implements JVMStatsHeuristic {
     @Override
     public void onContainerCompleted(String applicationId, String attemptId, String containerId) {
         Map<String, ThreadCounters> containerCounters = appCounters.get(HeuristicHelper.getAppAttemptId(applicationId, attemptId));
-        if (containerCounters == null)
-            return;
+        if (containerCounters == null) return;
         ThreadCounters threadCounters = containerCounters.get(containerId);
-        if (threadCounters == null)
-            return;
+        if (threadCounters == null) return;
         int severity = HeuristicsResultDB.Severity.NONE;
         int ratio = threadCounters.maxCount * 100 / threadCounters.total;
-        if (ratio <= 10) // maxcount=10 total>100 (+90 thread created/destroyed)
+        if (ratio <= 10) { // maxcount=10 total>100 (+90 thread created/destroyed)
             severity = HeuristicsResultDB.Severity.LOW;
-        if (ratio <= 0) // maxcount=10 total>1000 (+900 thread created/destroyed)
+        }
+        if (ratio <= 0) { // maxcount=10 total>1000 (+900 thread created/destroyed)
             severity = HeuristicsResultDB.Severity.MODERATE;
+        }
         if (severity == HeuristicsResultDB.Severity.NONE) {
             containerCounters.remove(containerId);
             return;
@@ -67,8 +67,8 @@ public class Threads implements JVMStatsHeuristic {
     }
 
     private static class ThreadCounters extends BaseCounter {
-        int maxCount;
-        int total;
-        int ratio;
+        private int maxCount;
+        private int total;
+        private int ratio;
     }
 }

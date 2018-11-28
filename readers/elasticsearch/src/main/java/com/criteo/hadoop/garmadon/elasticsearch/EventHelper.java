@@ -7,6 +7,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 class EventHelper {
+
+    protected EventHelper() {
+        throw new UnsupportedOperationException();
+    }
+
     static Map<String, Object> initEvent(String type) {
         HashMap<String, Object> json = new HashMap<>();
         json.put("event_type", type);

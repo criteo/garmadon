@@ -31,6 +31,10 @@ public class ContainerResourceMonitoringTracer {
     private static TriConsumer<Long, Header, Object> eventHandler;
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerResourceMonitoringTracer.class);
 
+    protected ContainerResourceMonitoringTracer() {
+        throw new UnsupportedOperationException();
+    }
+
     public static void setup(Header baseHeader, Instrumentation instrumentation, AsyncEventProcessor eventProcessor) {
 
         initEventHandler((timestamp, headerOverride, event) -> {
@@ -85,7 +89,7 @@ public class ContainerResourceMonitoringTracer {
                         .setLimit(limit)
                         .build();
                 eventHandler.accept(System.currentTimeMillis(), header, event);
-            } catch (Exception ignore) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -105,7 +109,7 @@ public class ContainerResourceMonitoringTracer {
                 try {
                     field = ContainerMetrics.class.getDeclaredField("containerId");
                     field.setAccessible(true);
-                } catch (Exception ignore) {
+                } catch (Exception ignored) {
                 }
             }
         }
@@ -140,7 +144,7 @@ public class ContainerResourceMonitoringTracer {
                     String attemptId = applicationAttemptId.toString();
 
                     float cpuVcoreUsed = (float) milliVcoresUsed / 1000;
-                    int cpuVcoreLimit =  ((ContainerMetrics) containerMetrics).cpuVcoreLimit.value();
+                    int cpuVcoreLimit = ((ContainerMetrics) containerMetrics).cpuVcoreLimit.value();
 
                     Header header = Header.newBuilder()
                             .withId(applicationId)
@@ -158,7 +162,7 @@ public class ContainerResourceMonitoringTracer {
                 } else {
                     LOGGER.warn("ContainerMetrics class does not have containerId field");
                 }
-            } catch (Exception ignore) {
+            } catch (Exception ignored) {
             }
         }
     }

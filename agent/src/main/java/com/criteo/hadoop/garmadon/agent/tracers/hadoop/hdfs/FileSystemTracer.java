@@ -31,8 +31,12 @@ import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public class FileSystemTracer {
-    private static long NANOSECONDS_PER_MILLISECOND = 1000000;
+    private static final long NANOSECONDS_PER_MILLISECOND = 1000000;
     private static BiConsumer<Long, Object> eventHandler;
+
+    protected FileSystemTracer() {
+        throw new UnsupportedOperationException();
+    }
 
     public static void setup(Instrumentation instrumentation, BiConsumer<Long, Object> eventConsumer) {
 
@@ -279,7 +283,7 @@ public class FileSystemTracer {
                 try {
                     field = ClientNamenodeProtocolTranslatorPB.class.getDeclaredField("rpcProxy");
                     field.setAccessible(true);
-                } catch (Exception ignore) {
+                } catch (Exception ignored) {
                 }
             }
         }
