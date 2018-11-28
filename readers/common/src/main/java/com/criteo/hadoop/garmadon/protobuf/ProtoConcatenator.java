@@ -152,7 +152,8 @@ public class ProtoConcatenator {
 
     private static void setRepeatedField(DynamicMessage.Builder builder, Descriptors.FieldDescriptor dstFieldDescriptor,
                                          Map.Entry<Descriptors.FieldDescriptor, Object> entry) {
-        @SuppressWarnings("unchecked") final Collection<Object> values = (Collection<Object>) entry.getValue();
+        @SuppressWarnings("unchecked")
+        final Collection<Object> values = (Collection<Object>) entry.getValue();
 
         for (Object value : values) {
             builder.addRepeatedField(dstFieldDescriptor, value);

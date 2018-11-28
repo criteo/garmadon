@@ -38,16 +38,14 @@
     <module name="JavadocPackage"/>
     <module name="TreeWalker">
         <!-- Checks for Annotation. -->
-        <!--
+        <!-- <module name="AnnotationOnSameLine"/> -->
         <module name="AnnotationLocation"/>
-        <module name="AnnotationOnSameLine"/>
         <module name="AnnotationUseStyle"/>
         <module name="MissingDeprecated"/>
         <module name="MissingOverride"/>
         <module name="PackageAnnotation"/>
         <module name="SuppressWarnings"/>
         <module name="SuppressWarningsHolder"/>
-        -->
 
         <!-- Checks for Blocks. -->
         <module name="AvoidNestedBlocks"/>
