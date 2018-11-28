@@ -24,6 +24,11 @@ public final class ContainerHeader {
     private String executorId;
     private String mainClass;
 
+    private ContainerHeader() {
+        setFrameworkComponent();
+        this.header = createCachedHeader();
+    }
+
     private void setFrameworkComponent() {
         String[] commands = Utils.getArrayJavaCommandLine();
         mainClass = commands[0];
@@ -111,11 +116,6 @@ public final class ContainerHeader {
                 .withExecutorId(executorId)
                 .withMainClass(mainClass)
                 .buildSerializedHeader();
-    }
-
-    private ContainerHeader() {
-        setFrameworkComponent();
-        this.header = createCachedHeader();
     }
 
     private static class SingletonHolder {

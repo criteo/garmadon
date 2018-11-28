@@ -5,6 +5,10 @@ import com.criteo.hadoop.garmadon.schema.events.Header;
 public final class RessourceManagerHeader {
     private Header header;
 
+    private RessourceManagerHeader() {
+        this.header = createCachedHeader();
+    }
+
     private Header createCachedHeader() {
         return Header.newBuilder()
                 .withHostname(Utils.getHostname())
@@ -12,10 +16,6 @@ public final class RessourceManagerHeader {
                 .withPid(Utils.getPid())
                 .addTag(Header.Tag.RESOURCEMANAGER.name())
                 .build();
-    }
-
-    private RessourceManagerHeader() {
-        this.header = createCachedHeader();
     }
 
     private static class SingletonHolder {

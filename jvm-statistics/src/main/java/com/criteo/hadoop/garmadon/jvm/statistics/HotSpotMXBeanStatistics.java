@@ -102,7 +102,7 @@ public class HotSpotMXBeanStatistics extends MXBeanStatistics {
         OperatingSystemMXBean hsOs = null;
         if (os instanceof OperatingSystemMXBean) {
             hsOs = (OperatingSystemMXBean) os;
-            if (OS_NAME.equals("Linux")) hsOs = new LinuxMemInfoWrapperOperatingSystemMXBean(hsOs);
+            if ("Linux".equals(OS_NAME)) hsOs = new LinuxMemInfoWrapperOperatingSystemMXBean(hsOs);
         }
         if (hsOs == null) return null;
         return new HotspotOSStatistics(os, hsOs, processors);
@@ -114,7 +114,7 @@ public class HotSpotMXBeanStatistics extends MXBeanStatistics {
         OperatingSystemMXBean hsOs = null;
         if (os instanceof OperatingSystemMXBean) {
             hsOs = (OperatingSystemMXBean) os;
-            if (OS_NAME.equals("Linux")) hsOs = new LinuxMemInfoWrapperOperatingSystemMXBean(hsOs);
+            if ("Linux".equals(OS_NAME)) hsOs = new LinuxMemInfoWrapperOperatingSystemMXBean(hsOs);
         }
         if (hsOs == null) return null;
         if (hsOs.getProcessCpuTime() > 0) return new CpuStatistics(hsOs, processors);

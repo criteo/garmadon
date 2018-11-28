@@ -28,7 +28,6 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -99,7 +98,7 @@ public final class ElasticSearchReader {
 
     void writeToES(GarmadonMessage msg) {
         String msgType = GarmadonSerialization.getTypeName(msg.getType());
-        if (msgType.equals("JVMSTATS_EVENT")) {
+        if ("JVMSTATS_EVENT".equals(msgType)) {
             Map<String, Object> jsonMap = ProtoConcatenator.concatToMap(Arrays.asList(msg.getHeader()), true);
 
             HashMap<String, Map<String, Object>> eventMaps = new HashMap<>();
@@ -191,10 +190,9 @@ public final class ElasticSearchReader {
                         BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), NB_RETRIES)
                 )
                 .build();
-
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         if (args.length < 8) {
             printHelp();
             return;

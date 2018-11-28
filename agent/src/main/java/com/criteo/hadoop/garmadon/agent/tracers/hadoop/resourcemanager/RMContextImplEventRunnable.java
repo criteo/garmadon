@@ -50,7 +50,7 @@ public class RMContextImplEventRunnable implements Runnable {
                                 .setQueue(rmApp.getQueue())
                                 .setTrackingUrl(normalizeTrackingUrl(rmApp.getTrackingUrl()));
 
-                        if (rmApp.getOriginalTrackingUrl() != "N/A") {
+                        if (!"N/A".equals(rmApp.getOriginalTrackingUrl())) {
                             eventBuilder.setOriginalTrackingUrl(normalizeTrackingUrl(rmApp.getOriginalTrackingUrl()));
                         }
 

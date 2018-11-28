@@ -41,6 +41,9 @@ public class FileHeuristic implements Heuristic {
                     break;
                 case APPEND:
                     append.forApp(applicationId, attemptId).increment();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Received a non managed FsEvent.Action " + action.name());
             }
         } catch (IllegalArgumentException ex) {
             LOGGER.warn("received an unexpected FsEvent.Action {}", ex.getMessage());
@@ -89,7 +92,7 @@ public class FileHeuristic implements Heuristic {
 
         static class Counter {
 
-            private int count = 0;
+            private int count;
 
             int getCount() {
                 return count;

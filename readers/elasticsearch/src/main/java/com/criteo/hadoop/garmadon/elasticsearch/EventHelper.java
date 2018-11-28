@@ -17,7 +17,7 @@ class EventHelper {
         return json;
     }
 
-    static void processJVMStatisticsData(String type, JVMStatisticsEventsProtos.JVMStatisticsData event, HashMap<String, Map<String, Object>> eventMaps) {
+    static void processJVMStatisticsData(String type, JVMStatisticsEventsProtos.JVMStatisticsData event, Map<String, Map<String, Object>> eventMaps) {
         for (JVMStatisticsEventsProtos.JVMStatisticsData.Section section : event.getSectionList()) {
             if (section.getName().equals("disk") || section.getName().equals("network")) {
                 for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
