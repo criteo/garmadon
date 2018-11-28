@@ -8,6 +8,7 @@ import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import io.prometheus.client.Counter;
+import io.prometheus.client.Summary;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -20,6 +21,8 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.sniff.SniffOnFailureListener;
+import org.elasticsearch.client.sniff.Sniffer;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
@@ -47,8 +50,13 @@ public final class ElasticSearchReader implements BulkProcessor.Listener {
     private static Counter.Child numberOfOffsetCommitError = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("number_of_offset_commit_error",
             GarmadonReader.getHostname(),
             PrometheusHttpConsumerMetrics.RELEASE);
+    private static Summary.Child latencyIndexingEvents = PrometheusHttpConsumerMetrics.LATENCY_INDEXING_TO_ES.labels("latency_indexing_events",
+            GarmadonReader.getHostname(),
+            PrometheusHttpConsumerMetrics.RELEASE);
+
 
     private static final int CONNECTION_TIMEOUT_MS = 10000;
+    private static final int SOCKET_TIMEOUT_MS = 60000;
     private static final int NB_RETRIES = 10;
 
     private static final Format FORMATTER = new SimpleDateFormat("yyyy-MM-dd-HH");
@@ -67,9 +75,17 @@ public final class ElasticSearchReader implements BulkProcessor.Listener {
         int bulkFlushIntervalSec = Integer.getInteger("garmadon.esReader.bulkFlushIntervalSec", 10);
 
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+
+        LogFailureListener sniffOnFailureListener = new LogFailureListener();
         RestClientBuilder restClientBuilder = RestClient.builder(
                 new HttpHost(esHost, esPort, "http")
-        );
+        )
+                .setFailureListener(sniffOnFailureListener)
+                .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
+                        .setConnectTimeout(CONNECTION_TIMEOUT_MS)
+                        .setSocketTimeout(SOCKET_TIMEOUT_MS)
+                        .setContentCompressionEnabled(true))
+                .setMaxRetryTimeoutMillis(2 * SOCKET_TIMEOUT_MS);
 
         if (esUser != null) {
             credentialsProvider.setCredentials(AuthScope.ANY,
@@ -77,15 +93,15 @@ public final class ElasticSearchReader implements BulkProcessor.Listener {
 
             restClientBuilder
                     .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
-                            .setDefaultCredentialsProvider(credentialsProvider))
-                    .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
-                            .setConnectTimeout(CONNECTION_TIMEOUT_MS)
-                            .setContentCompressionEnabled(true));
+                            .setDefaultCredentialsProvider(credentialsProvider));
         }
 
         //setup es client
         this.esIndexPrefix = esIndexPrefix;
         RestHighLevelClient esClient = new RestHighLevelClient(restClientBuilder);
+
+        Sniffer sniffer = Sniffer.builder(esClient.getLowLevelClient()).build();
+        sniffOnFailureListener.setSniffer(sniffer);
 
         //setup Prometheus client
         prometheusHttpConsumerMetrics = new PrometheusHttpConsumerMetrics(prometheusPort);
@@ -110,6 +126,18 @@ public final class ElasticSearchReader implements BulkProcessor.Listener {
                         BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), NB_RETRIES)
                 )
                 .build();
+    }
+
+    private class LogFailureListener extends SniffOnFailureListener {
+        LogFailureListener() {
+            super();
+        }
+
+        @Override
+        public void onFailure(HttpHost host) {
+            LOGGER.warn("Node failed: " + host.getHostName() + "-" + host.getPort());
+            super.onFailure(host);
+        }
     }
 
     private CompletableFuture<Void> startReading() {
@@ -208,6 +236,7 @@ public final class ElasticSearchReader implements BulkProcessor.Listener {
             }
         } else {
             LOGGER.info("Successfully completed Bulk[{}] in {} ms", executionId, response.getTook().getMillis());
+            latencyIndexingEvents.observe(response.getTook().getMillis());
         }
         CommittableOffset<String, byte[]> lastOffset = ((CommittableOffset<String, byte[]>) request.payloads().get(request.payloads().size() - 1));
         lastOffset

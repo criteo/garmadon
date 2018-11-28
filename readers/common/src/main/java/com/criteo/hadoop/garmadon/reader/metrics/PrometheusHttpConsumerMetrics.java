@@ -3,6 +3,7 @@ package com.criteo.hadoop.garmadon.reader.metrics;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
+import io.prometheus.client.Summary;
 import io.prometheus.client.exporter.HTTPServer;
 import io.prometheus.client.hotspot.DefaultExports;
 import org.slf4j.Logger;
@@ -34,6 +35,14 @@ public class PrometheusHttpConsumerMetrics {
     private static final Gauge BASE_KAFKA_METRICS_GAUGE = Gauge.build()
             .name("garmadon_kafka_metrics").help("Kafka producer metrics")
             .labelNames("name", "hostname", "release")
+            .register();
+
+    public static final Summary LATENCY_INDEXING_TO_ES = Summary.build()
+            .name("garmadon_reader_duration").help("Duration in ms")
+            .labelNames("name", "hostname", "release")
+            .quantile(0.75, 0.01)
+            .quantile(0.9, 0.01)
+            .quantile(0.99, 0.001)
             .register();
 
     private static ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(1);
