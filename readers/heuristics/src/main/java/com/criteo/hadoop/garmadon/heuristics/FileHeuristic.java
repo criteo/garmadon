@@ -55,7 +55,8 @@ public class FileHeuristic implements Heuristic {
     @Override
     public void onAppCompleted(String applicationId, String attemptId) {
         //TODO compute severity based on number of deleted, renamed, read, written...
-        HeuristicResult result = new HeuristicResult(applicationId, attemptId, FileHeuristic.class, HeuristicsResultDB.Severity.NONE, HeuristicsResultDB.Severity.NONE);
+        HeuristicResult result = new HeuristicResult(applicationId, attemptId, FileHeuristic.class, HeuristicsResultDB.Severity.NONE,
+                HeuristicsResultDB.Severity.NONE);
         addDetail(result, deleted, applicationId, attemptId);
         addDetail(result, read, applicationId, attemptId);
         addDetail(result, written, applicationId, attemptId);

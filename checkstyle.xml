@@ -105,6 +105,19 @@
         <module name="StaticVariableName"/>
         <module name="TypeName"/>
 
+        <!-- Checks for Size Violations. -->
+        <!--
+        <module name="AnonInnerLength"/>
+        <module name="ExecutableStatementCount"/>
+        <module name="FileLength"/>
+        <module name="OuterTypeNumber"/>
+        <module name="ParameterNumber"/>
+        -->
+        <module name="LineLength">
+            <property name="max" value="160"/>
+        </module>
+        <module name="MethodLength"/>
+
         <!-- Checks for whitespace. -->
         <module name="EmptyForInitializerPad"/>
         <module name="EmptyForIteratorPad">
