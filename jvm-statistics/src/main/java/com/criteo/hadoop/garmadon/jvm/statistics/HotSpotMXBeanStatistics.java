@@ -179,7 +179,7 @@ public class HotSpotMXBeanStatistics extends MXBeanStatistics {
 
         private final OperatingSystemMXBean os;
 
-        public LinuxMemInfoWrapperOperatingSystemMXBean(OperatingSystemMXBean os) {
+        LinuxMemInfoWrapperOperatingSystemMXBean(OperatingSystemMXBean os) {
             this.os = os;
         }
 
