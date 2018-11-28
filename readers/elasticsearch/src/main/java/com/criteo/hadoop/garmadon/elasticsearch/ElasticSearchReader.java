@@ -59,7 +59,10 @@ public final class ElasticSearchReader {
     private PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics;
 
 
-    ElasticSearchReader(GarmadonReader.Builder builderReader, BulkProcessor bulkProcessorMain, String esIndexPrefix, PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics) {
+    ElasticSearchReader(GarmadonReader.Builder builderReader,
+                        BulkProcessor bulkProcessorMain,
+                        String esIndexPrefix,
+                        PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics) {
         this.reader = builderReader
                 .intercept(not(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)), this::writeToES)
                 .build();
@@ -208,7 +211,8 @@ public final class ElasticSearchReader {
         GarmadonReader.Builder builderReader = setUpKafkaReader(kafkaConnectString, kafkaGroupId);
         BulkProcessor bulkProcessorMain = setUpBulkProcessor(esHost, esPort, esUser, esPassword);
 
-        ElasticSearchReader reader = new ElasticSearchReader(builderReader, bulkProcessorMain, esIndexPrefix, new PrometheusHttpConsumerMetrics(prometheusPort));
+        ElasticSearchReader reader = new ElasticSearchReader(builderReader, bulkProcessorMain,
+                esIndexPrefix, new PrometheusHttpConsumerMetrics(prometheusPort));
 
         reader.startReading().join();
 
@@ -218,6 +222,7 @@ public final class ElasticSearchReader {
 
     private static void printHelp() {
         System.out.println("Usage:");
-        System.out.println("\tjava com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader <kafkaConnectionString> <kafkaGroupId> <EsHost> <EsPort> <esIndexPrefix> <EsUser> <EsPassword> <prometheusPort>");
+        System.out.println("\tjava com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader <kafkaConnectionString> " +
+                "<kafkaGroupId> <EsHost> <EsPort> <esIndexPrefix> <EsUser> <EsPassword> <prometheusPort>");
     }
 }

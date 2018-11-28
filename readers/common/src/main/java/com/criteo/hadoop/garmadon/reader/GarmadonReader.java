@@ -91,7 +91,8 @@ public final class GarmadonReader {
 
         private volatile boolean keepOnReading = true;
 
-        Reader(Consumer<String, byte[]> consumer, List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, CompletableFuture<Void> cf) {
+        Reader(Consumer<String, byte[]> consumer, List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter,
+                GarmadonMessageHandler> listeners, CompletableFuture<Void> cf) {
             this.consumer = SynchronizedConsumer.synchronize(consumer);
             this.beforeInterceptHandlers = beforeInterceptHandlers;
             this.listeners = listeners;
@@ -181,7 +182,8 @@ public final class GarmadonReader {
                             }
 
                             if (header != null && body != null) {
-                                CommittableOffset<String, byte[]> committableOffset = new CommittableOffset<>(consumer, record.topic(), record.partition(), record.offset());
+                                CommittableOffset<String, byte[]> committableOffset = new CommittableOffset<>(consumer, record.topic(),
+                                        record.partition(), record.offset());
 
                                 GarmadonMessage msg = new GarmadonMessage(typeMarker, timestamp, header, body, committableOffset);
 

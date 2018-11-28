@@ -17,6 +17,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
+ *
  */
 public class PrometheusHttpConsumerMetrics {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrometheusHttpConsumerMetrics.class);
@@ -79,9 +80,10 @@ public class PrometheusHttpConsumerMetrics {
         }
     }
 
-    public static final Counter.Child ISSUE_READING_GARMADON_MESSAGE_BAD_HEAD = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("issue_reading_garmadon_message_bad_head",
-            GarmadonReader.getHostname(),
-            PrometheusHttpConsumerMetrics.RELEASE);
+    public static final Counter.Child ISSUE_READING_GARMADON_MESSAGE_BAD_HEAD = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS
+            .labels("issue_reading_garmadon_message_bad_head",
+                    GarmadonReader.getHostname(),
+                    PrometheusHttpConsumerMetrics.RELEASE);
 
     public static final Counter.Child ISSUE_READING_PROTO_HEAD = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("issue_reading_proto_head",
             GarmadonReader.getHostname(),

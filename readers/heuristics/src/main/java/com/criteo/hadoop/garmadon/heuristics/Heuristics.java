@@ -166,7 +166,8 @@ public class Heuristics {
 
     private static void printHelp() {
         System.out.println("Usage:");
-        System.out.println("\tjava com.criteo.hadoop.garmadon.heuristics.Heuristics <kafkaConnectionString> <kafkaGroupId> <prometheusPort> <DrElephantDBConnectionString> <DrElephantDBUser> <DrElephantDBPassword>");
+        System.out.println("\tjava com.criteo.hadoop.garmadon.heuristics.Heuristics <kafkaConnectionString> <kafkaGroupId> " +
+                "<prometheusPort> <DrElephantDBConnectionString> <DrElephantDBUser> <DrElephantDBPassword>");
     }
 
 }

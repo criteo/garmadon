@@ -32,9 +32,12 @@ public final class Extractor {
 
         reader = GarmadonReader.Builder
                 .stream(new KafkaConsumer<>(props))
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)), msg -> getStats(msg).gcStatCount++)
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)), msg -> getStats(msg).jvmStatCount++)
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)), msg -> System.out.println(getStats(msg)))
+                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)),
+                        msg -> getStats(msg).gcStatCount++)
+                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)),
+                        msg -> getStats(msg).jvmStatCount++)
+                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)),
+                        msg -> System.out.println(getStats(msg)))
                 .build();
     }
 
@@ -45,9 +48,12 @@ public final class Extractor {
         props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConnectString);
 
         reader = GarmadonReader.Builder.stream(new KafkaConsumer<>(props))
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)), this::processGcEvent)
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)), this::processJvmStatEvent)
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)), this::processStateEvent)
+                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)),
+                        this::processGcEvent)
+                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)),
+                        this::processJvmStatEvent)
+                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)),
+                        this::processStateEvent)
                 .build();
     }
 
@@ -152,7 +158,8 @@ public final class Extractor {
 
         @Override
         public String toString() {
-            return " Framework: " + framework + "ApplicationId: " + applicationId + " ContainerId: " + containerId + " JVMStats: " + jvmStatCount + " GCStats: " + gcStatCount;
+            return " Framework: " + framework + "ApplicationId: " + applicationId + " ContainerId: " + containerId
+                    + " JVMStats: " + jvmStatCount + " GCStats: " + gcStatCount;
         }
     }
 }

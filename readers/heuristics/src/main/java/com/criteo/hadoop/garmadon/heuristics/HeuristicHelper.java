@@ -21,7 +21,9 @@ public class HeuristicHelper {
         return applicationId + "#" + attemptId;
     }
 
-    public static <T extends BaseCounter> void createCounterHeuristic(String applicationId, String attemptId, Map<String, Map<String, T>> appCounters, HeuristicsResultDB heuristicsResultDB, Class<?> heuristicClass, Function<T, String> getDetailValue) {
+    public static <T extends BaseCounter> void createCounterHeuristic(String applicationId, String attemptId, Map<String, Map<String, T>> appCounters,
+                                                                      HeuristicsResultDB heuristicsResultDB, Class<?> heuristicClass, Function<T,
+            String> getDetailValue) {
         Map<String, T> containerCounters = appCounters.remove(HeuristicHelper.getAppAttemptId(applicationId, attemptId));
         if (containerCounters == null) return;
         int severityMax = containerCounters.values().stream().mapToInt(counters -> counters.severity).max().orElse(HeuristicsResultDB.Severity.NONE);
