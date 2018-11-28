@@ -11,6 +11,10 @@ public class HostStatistics {
 
     private static JVMStatistics jvmStatistics;
 
+    protected HostStatistics() {
+        throw new UnsupportedOperationException();
+    }
+
     public static void startReport(ForwarderEventSender forwarderEventSender) {
         Conf<JVMStatisticsEventsProtos.JVMStatisticsData, Void, JVMStatisticsEventsProtos.JVMStatisticsData> conf = new Conf<>();
         int interval = Integer.getInteger("garmadon.machine-statistics.interval", 30);

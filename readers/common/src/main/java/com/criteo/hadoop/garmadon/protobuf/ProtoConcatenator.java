@@ -15,13 +15,17 @@ import java.util.function.Function;
 public class ProtoConcatenator {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtoConcatenator.class);
 
+    protected ProtoConcatenator() {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Concatenate Protobuf messages into a single Protobuf message.
      * /!\ Doesn't handle embedded objects /!\
      *
-     * @param messages  Messages to be concatenated
-     * @return          A single, one-level Protobuf objects holding fields and values from all input messages.
-     *                  Null if an error occurred (shouldn't happen).
+     * @param messages Messages to be concatenated
+     * @return A single, one-level Protobuf objects holding fields and values from all input messages.
+     * Null if an error occurred (shouldn't happen).
      */
     public static Message concatToProtobuf(Collection<Message> messages) {
         try {
@@ -51,8 +55,7 @@ public class ProtoConcatenator {
                     });
 
             return messageBuilder.build();
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             LOGGER.error("Could not flatten Protobuf event", e);
             return null;
         }
@@ -62,9 +65,9 @@ public class ProtoConcatenator {
      * Concatenate Protobuf messages into a single String -> object map.
      * /!\ Doesn't handle embedded objects /!\
      *
-     * @param messages  Messages to be concatenated
-     * @return          A single, one-level String -> object map holding fields and values from all input messages.
-     *                  Null if an error occurred (shouldn't happen).
+     * @param messages Messages to be concatenated
+     * @return A single, one-level String -> object map holding fields and values from all input messages.
+     * Null if an error occurred (shouldn't happen).
      */
     public static Map<String, Object> concatToMap(Collection<Message> messages) {
         return concatInner(messages, (ignored) -> new HashMap<>(), (entry, eventMap) -> {
@@ -76,10 +79,10 @@ public class ProtoConcatenator {
      * Build a dynamic message builder based on a list of fields. Fields will be numbered in the order they were
      * provided, starting from 1
      *
-     * @param msgName   Name of the output message
-     * @param fields    Fields to be added to the output message definition
-     * @return          A builder able to fill a message made of all input fields
-     * @throws Descriptors.DescriptorValidationException    In case of a bug (shouldn't happen)
+     * @param msgName Name of the output message
+     * @param fields  Fields to be added to the output message definition
+     * @return A builder able to fill a message made of all input fields
+     * @throws Descriptors.DescriptorValidationException In case of a bug (shouldn't happen)
      */
     public static DynamicMessage.Builder buildMessageBuilder(String msgName, Collection<Descriptors.FieldDescriptor> fields)
             throws Descriptors.DescriptorValidationException {
@@ -87,14 +90,12 @@ public class ProtoConcatenator {
 
         int currentIndex = 1;
 
-        for (Descriptors.FieldDescriptor fieldDescriptor: fields) {
+        for (Descriptors.FieldDescriptor fieldDescriptor : fields) {
             String label;
 
             if (fieldDescriptor.isRepeated()) {
                 label = "repeated";
-            }
-            else
-                label = (fieldDescriptor.isRequired()) ? "required" : "optional";
+            } else label = (fieldDescriptor.isRequired()) ? "required" : "optional";
 
             msgDef.addField(label,
                     fieldDescriptor.getType().toString().toLowerCase(), fieldDescriptor.getName(), currentIndex++);
@@ -112,19 +113,17 @@ public class ProtoConcatenator {
      * Concatenate Protobuf messages and feeds them to parameterizable consumers
      * /!\ Doesn't handle embedded objects and repeated fields /!\
      *
-     * @param messages              Messages to be concatenated
-     * @param messageBuilder        Callback invoked with all input fields. Returns the object to be filled by
-     *                              contentsConsumer.
-     * @param contentsConsumer      Callback invoked for every output field + contents, along with the messageBuilder.
-     *                              Returns false if something wrong happened.
-     *
-     * @return                      Whether all operations completed successfully
+     * @param messages         Messages to be concatenated
+     * @param messageBuilder   Callback invoked with all input fields. Returns the object to be filled by
+     *                         contentsConsumer.
+     * @param contentsConsumer Callback invoked for every output field + contents, along with the messageBuilder.
+     *                         Returns false if something wrong happened.
+     * @return Whether all operations completed successfully
      */
-    private static <MessageType> MessageType concatInner(Collection<Message> messages,
-                   Function<Collection<Descriptors.FieldDescriptor>, MessageType> messageBuilder,
-                   BiConsumer<Map.Entry<Descriptors.FieldDescriptor, Object>, MessageType> contentsConsumer) {
+    private static <MESSAGE_TYPE> MESSAGE_TYPE concatInner(Collection<Message> messages,
+                                                           Function<Collection<Descriptors.FieldDescriptor>, MESSAGE_TYPE> messageBuilder,
+                                                           BiConsumer<Map.Entry<Descriptors.FieldDescriptor, Object>, MESSAGE_TYPE> contentsConsumer) {
         final Collection<Map.Entry<Descriptors.FieldDescriptor, Object>> allFields = new HashSet<>();
-
         for (Message message : messages) {
             allFields.addAll(message.getAllFields().entrySet());
         }
@@ -134,7 +133,7 @@ public class ProtoConcatenator {
             allKeys.addAll(message.getDescriptorForType().getFields());
         }
 
-        MessageType msg = messageBuilder.apply(allKeys);
+        final MESSAGE_TYPE msg = messageBuilder.apply(allKeys);
         allFields.forEach(field -> contentsConsumer.accept(field, msg));
 
         return msg;
@@ -142,8 +141,7 @@ public class ProtoConcatenator {
 
     private static void setRepeatedField(DynamicMessage.Builder builder, Descriptors.FieldDescriptor dstFieldDescriptor,
                                          Map.Entry<Descriptors.FieldDescriptor, Object> entry) {
-        @SuppressWarnings("unchecked")
-        final Collection<Object> values = (Collection<Object>) entry.getValue();
+        @SuppressWarnings("unchecked") final Collection<Object> values = (Collection<Object>) entry.getValue();
 
         for (Object value : values) {
             builder.addRepeatedField(dstFieldDescriptor, value);

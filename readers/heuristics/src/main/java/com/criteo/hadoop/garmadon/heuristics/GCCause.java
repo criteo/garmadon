@@ -12,7 +12,7 @@ public class GCCause implements GCStatsHeuristic {
     static final String ERGONOMICS = "Ergonomics";
 
     private final HeuristicsResultDB heuristicsResultDB;
-    private final Map<String, Map<String, GCCauseStats>> appStats  = new HashMap<>();
+    private final Map<String, Map<String, GCCauseStats>> appStats = new HashMap<>();
 
     public GCCause(HeuristicsResultDB heuristicsResultDB) {
         this.heuristicsResultDB = heuristicsResultDB;
@@ -23,10 +23,8 @@ public class GCCause implements GCStatsHeuristic {
         if (METADATA_THRESHOLD.equals(gcStats.getCause()) || ERGONOMICS.equals(gcStats.getCause())) {
             Map<String, GCCauseStats> containerStats = appStats.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());
             GCCauseStats stats = containerStats.computeIfAbsent(containerId, s -> new GCCauseStats());
-            if (METADATA_THRESHOLD.equals(gcStats.getCause()))
-                stats.metadataThreshold++;
-            if (ERGONOMICS.equals(gcStats.getCause()))
-                stats.ergonomics++;
+            if (METADATA_THRESHOLD.equals(gcStats.getCause())) stats.metadataThreshold++;
+            if (ERGONOMICS.equals(gcStats.getCause())) stats.ergonomics++;
         }
     }
 
@@ -38,8 +36,7 @@ public class GCCause implements GCStatsHeuristic {
     @Override
     public void onAppCompleted(String applicationId, String attemptId) {
         Map<String, GCCauseStats> containerStats = appStats.remove(HeuristicHelper.getAppAttemptId(applicationId, attemptId));
-        if (containerStats == null)
-            return;
+        if (containerStats == null) return;
         HeuristicResult result = new HeuristicResult(applicationId, attemptId, GCCause.class, HeuristicsResultDB.Severity.MODERATE, HeuristicsResultDB.Severity.MODERATE);
         if (containerStats.size() <= MAX_CONTAINERS_PER_HEURISTIC) {
             containerStats.forEach((key, value) -> result.addDetail(key, METADATA_THRESHOLD + ": " + value.metadataThreshold + ", " + ERGONOMICS + ": " + value.ergonomics));
@@ -58,7 +55,7 @@ public class GCCause implements GCStatsHeuristic {
     }
 
     private static class GCCauseStats {
-        int metadataThreshold;
-        int ergonomics;
+        private int metadataThreshold;
+        private int ergonomics;
     }
 }

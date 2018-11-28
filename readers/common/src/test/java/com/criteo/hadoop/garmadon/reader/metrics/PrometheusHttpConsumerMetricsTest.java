@@ -1,7 +1,6 @@
 package com.criteo.hadoop.garmadon.reader.metrics;
 
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
-import io.prometheus.client.Collector;
 import io.prometheus.client.CollectorRegistry;
 import org.junit.After;
 import org.junit.Before;
@@ -10,7 +9,6 @@ import org.junit.Test;
 import javax.management.*;
 
 import java.lang.management.ManagementFactory;
-import java.util.Enumeration;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -52,7 +50,7 @@ public class PrometheusHttpConsumerMetricsTest {
         PrometheusHttpConsumerMetrics.exposeKafkaMetrics();
         assertNotNull(CollectorRegistry.defaultRegistry.getSampleValue("garmadon_kafka_metrics",
                 new String[]{"name", "hostname", "release"},
-                new String[]{"IoStats", GarmadonReader.HOSTNAME, PrometheusHttpConsumerMetrics.RELEASE}));
+                new String[]{"IoStats", GarmadonReader.getHostname(), PrometheusHttpConsumerMetrics.RELEASE}));
     }
 
     static class KafkaMetrics implements KafkaMetricsMBean {

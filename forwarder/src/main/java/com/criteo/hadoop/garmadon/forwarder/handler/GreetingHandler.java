@@ -16,7 +16,7 @@ public class GreetingHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
-        PrometheusHttpMetrics.greetingsReceived.inc();
+        PrometheusHttpMetrics.GREETINGS_RECEIVED.inc();
 
         byte[] greetings = new byte[msg.readableBytes()];
         msg.readBytes(greetings);
@@ -33,12 +33,12 @@ public class GreetingHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        PrometheusHttpMetrics.greetingsInError.inc();
-        LOGGER.error("",cause);
+        PrometheusHttpMetrics.GREETINGS_IN_ERROR.inc();
+        LOGGER.error("", cause);
 
         //TODO the following code has to be removed when no more agent suffering
         //https://github.com/criteo/garmadon/issues/17 run on the cluster
-        if(cause instanceof ProtocolVersion.InvalidProtocolVersionException) {
+        if (cause instanceof ProtocolVersion.InvalidProtocolVersionException) {
             //We make the agent think it can talk to us. For that we need to return its protocol version
             sendValidGreetings(ctx, lastAgentGreetings);
 

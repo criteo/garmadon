@@ -1,6 +1,10 @@
 package com.criteo.hadoop.garmadon.schema.serialization;
 
 import com.criteo.hadoop.garmadon.event.proto.*;
+import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.ResourceManagerEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.exceptions.DeserializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.SerializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.TypeMarkerException;
@@ -57,6 +61,10 @@ public class GarmadonSerialization {
 
         // resourcemanager events
         register(ResourceManagerEventProtos.ApplicationEvent.class, TypeMarker.APPLICATION_EVENT, "APPLICATION_EVENT", ResourceManagerEventProtos.ApplicationEvent::toByteArray, ResourceManagerEventProtos.ApplicationEvent::parseFrom);
+    }
+
+    protected GarmadonSerialization() {
+        throw new UnsupportedOperationException();
     }
 
     public static int getMarker(Class aClass) throws TypeMarkerException {

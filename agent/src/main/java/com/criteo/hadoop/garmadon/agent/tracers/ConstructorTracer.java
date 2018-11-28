@@ -5,10 +5,6 @@ import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.matcher.ElementMatcher;
 
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-
-import static net.bytebuddy.matcher.ElementMatchers.any;
-
 public abstract class ConstructorTracer extends Tracer {
 
     protected ConstructorTracer() {

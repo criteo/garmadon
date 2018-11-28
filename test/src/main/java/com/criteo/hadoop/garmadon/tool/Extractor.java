@@ -1,4 +1,4 @@
-package com.criteo.hadoop.garmadon;
+package com.criteo.hadoop.garmadon.tool;
 
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
@@ -19,7 +19,7 @@ import java.util.Properties;
 
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.*;
 
-public class Extractor {
+public final class Extractor {
 
     private final GarmadonReader reader;
     private Map<String, Stats> containers = new HashMap<>();
@@ -126,10 +126,8 @@ public class Extractor {
         String kafkaConnectString = args[0];
         String containerId = args[1];
         Extractor extractor;
-        if ("stats".equals(containerId))
-            extractor = new Extractor(kafkaConnectString);
-        else
-            extractor = new Extractor(kafkaConnectString, containerId);
+        if ("stats".equals(containerId)) extractor = new Extractor(kafkaConnectString);
+        else extractor = new Extractor(kafkaConnectString, containerId);
         extractor.start();
         Runtime.getRuntime().addShutdownHook(new Thread(extractor::stop));
     }
@@ -140,8 +138,8 @@ public class Extractor {
     }
 
     private static class Stats {
-        final String applicationId;
-        final String containerId;
+        private final String applicationId;
+        private final String containerId;
         private String framework;
         private long jvmStatCount;
         private long gcStatCount;

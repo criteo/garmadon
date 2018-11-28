@@ -8,6 +8,10 @@ public class ProtocolVersion {
     public static final byte[] GREETINGS = new byte[]{0, 0, 'V', VERSION};
     private static final List<Byte> AUTHORIZED_RELEASE = Arrays.asList(VERSION);
 
+    protected ProtocolVersion() {
+        throw new UnsupportedOperationException();
+    }
+
     public static void checkVersion(byte[] greetings) throws InvalidFrameException, InvalidProtocolVersionException {
         if (greetings[0] != 0) throw new InvalidFrameException("cannot extract version from server greetings");
         if (greetings[1] != 0) throw new InvalidFrameException("cannot extract version from server greetings");

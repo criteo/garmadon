@@ -14,6 +14,11 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -132,8 +137,7 @@ public class Heuristics {
         if (State.END.toString().equals(stateEvent.getState())) {
             heuristics.forEach(h -> h.onContainerCompleted(applicationId, attemptId, containerId));
             Set<String> appContainers = containersPerApp.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashSet<>());
-            if (appContainers.size() == 0)
-                return;
+            if (appContainers.size() == 0) return;
             appContainers.remove(containerId);
             if (appContainers.size() == 0) {
                 LOGGER.info("App {} is finished. All containers have been removed", applicationId);

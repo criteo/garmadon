@@ -27,23 +27,16 @@ public class Safepoints implements JVMStatsHeuristic {
                         long currentTimestamp = timestamp;
                         safepointsCounters.lastCount = currentCount;
                         safepointsCounters.lastTimestamp = currentTimestamp;
-                        if (currentTimestamp == lastTimestamp) // avoid case of / 0
-                            return;
-                        if (lastTimestamp == 0)
-                            return;
-                        if (lastCount == 0)
-                            return;
+                        if (currentTimestamp == lastTimestamp) return; // avoid case of / 0
+                        if (lastTimestamp == 0) return;
+                        if (lastCount == 0) return;
                         // ratio is number of safepoints/s
                         long ratio = (currentCount - lastCount) * 1000 / (currentTimestamp - lastTimestamp);
                         int severity = HeuristicsResultDB.Severity.NONE;
-                        if (ratio > 3)
-                            severity = HeuristicsResultDB.Severity.LOW;
-                        if (ratio > 5)
-                            severity = HeuristicsResultDB.Severity.MODERATE;
-                        if (ratio > 7)
-                            severity = HeuristicsResultDB.Severity.SEVERE;
-                        if (ratio > 10)
-                            severity = HeuristicsResultDB.Severity.CRITICAL;
+                        if (ratio > 3) severity = HeuristicsResultDB.Severity.LOW;
+                        if (ratio > 5) severity = HeuristicsResultDB.Severity.MODERATE;
+                        if (ratio > 7) severity = HeuristicsResultDB.Severity.SEVERE;
+                        if (ratio > 10) severity = HeuristicsResultDB.Severity.CRITICAL;
                         safepointsCounters.ratio = Math.max(ratio, safepointsCounters.ratio);
                         safepointsCounters.severity = Math.max(severity, safepointsCounters.severity);
                         return;
@@ -56,13 +49,10 @@ public class Safepoints implements JVMStatsHeuristic {
     @Override
     public void onContainerCompleted(String applicationId, String attemptId, String containerId) {
         Map<String, SafepointsCounters> containerCounters = appCounters.get(HeuristicHelper.getAppAttemptId(applicationId, attemptId));
-        if (containerCounters == null)
-            return;
+        if (containerCounters == null) return;
         SafepointsCounters safepointsCounters = containerCounters.get(containerId);
-        if (safepointsCounters == null)
-            return;
-        if (safepointsCounters.severity == HeuristicsResultDB.Severity.NONE)
-            containerCounters.remove(containerId);
+        if (safepointsCounters == null) return;
+        if (safepointsCounters.severity == HeuristicsResultDB.Severity.NONE) containerCounters.remove(containerId);
     }
 
     @Override
@@ -77,8 +67,8 @@ public class Safepoints implements JVMStatsHeuristic {
     }
 
     private static class SafepointsCounters extends BaseCounter {
-        long lastCount;
-        long lastTimestamp;
-        long ratio;
+        private long lastCount;
+        private long lastTimestamp;
+        private long ratio;
     }
 }

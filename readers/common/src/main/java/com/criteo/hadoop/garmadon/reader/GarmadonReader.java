@@ -22,22 +22,27 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.criteo.hadoop.garmadon.protocol.ProtocolConstants.FRAME_DELIMITER_SIZE;
 
-public class GarmadonReader {
+public final class GarmadonReader {
     public static final String GARMADON_TOPIC = "garmadon";
     private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonReader.class);
 
     protected final Reader reader;
-    public static String HOSTNAME;
+    private static String hostname;
+
     static {
         try {
-            HOSTNAME = InetAddress.getLocalHost().getCanonicalHostName();
+            hostname = InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException e) {
             LOGGER.error("", e);
             System.exit(1);
         }
     }
 
-    public static String CONSUMER_ID = "garmadon.reader." + HOSTNAME;
+    public static String getHostname() {
+        return hostname;
+    }
+
+    public static final String CONSUMER_ID = "garmadon.reader." + hostname;
 
 
     private final CompletableFuture<Void> cf;
@@ -131,15 +136,15 @@ public class GarmadonReader {
                     headerSize = buf.getInt();
                     bodySize = buf.getInt();
                 } catch (BufferUnderflowException e) {
-                    PrometheusHttpConsumerMetrics.issueReadingGarmadonMessageBadHead.inc();
+                    PrometheusHttpConsumerMetrics.ISSUE_READING_GARMADON_MESSAGE_BAD_HEAD.inc();
                     LOGGER.debug("Cannot read garmadon message head for kafka record  {}", record, e);
                     continue;
                 }
 
-                int computed_length = FRAME_DELIMITER_SIZE + headerSize + bodySize;
-                if (raw.length != computed_length) {
-                    PrometheusHttpConsumerMetrics.issueReadingGarmadonMessageBadHead.inc();
-                    LOGGER.debug("Cannot deserialize msg due to bad computed length raw:{}, computed:{}", raw.length, computed_length);
+                int computedLength = FRAME_DELIMITER_SIZE + headerSize + bodySize;
+                if (raw.length != computedLength) {
+                    PrometheusHttpConsumerMetrics.ISSUE_READING_GARMADON_MESSAGE_BAD_HEAD.inc();
+                    LOGGER.debug("Cannot deserialize msg due to bad computed length raw:{}, computed:{}", raw.length, computedLength);
                     continue;
                 }
 
@@ -153,7 +158,7 @@ public class GarmadonReader {
                             try {
                                 header = EventHeaderProtos.Header.parseFrom(new ByteArrayInputStream(raw, FRAME_DELIMITER_SIZE, headerSize));
                             } catch (IOException e) {
-                                PrometheusHttpConsumerMetrics.issueReadingProtoHead.inc();
+                                PrometheusHttpConsumerMetrics.ISSUE_READING_PROTO_HEAD.inc();
                                 LOGGER.debug("Cannot deserialize header for kafka record {} with type {}", record, typeMarker);
                                 break;
                             }
@@ -166,7 +171,7 @@ public class GarmadonReader {
                                 try {
                                     body = GarmadonSerialization.parseFrom(typeMarker, new ByteArrayInputStream(raw, bodyOffset, bodySize));
                                 } catch (DeserializationException e) {
-                                    PrometheusHttpConsumerMetrics.issueReadingProtoBody.inc();
+                                    PrometheusHttpConsumerMetrics.ISSUE_READING_PROTO_BODY.inc();
                                     LOGGER.debug("Cannot deserialize event from kafka record {} with type {}", record, typeMarker);
                                     break;
                                 }
@@ -192,7 +197,7 @@ public class GarmadonReader {
 
         private static class Counter {
 
-            int count = 0;
+            private int count = 0;
 
             void increment() {
                 count++;
@@ -207,7 +212,7 @@ public class GarmadonReader {
         }
     }
 
-    static class SynchronizedConsumer<K, V> {
+    static final class SynchronizedConsumer<K, V> {
 
         private final Consumer<K, V> consumer;
 
@@ -216,15 +221,21 @@ public class GarmadonReader {
         }
 
         synchronized ConsumerRecords<K, V> poll(long timeout) {
-            return consumer.poll(timeout);
+            synchronized (consumer) {
+                return consumer.poll(timeout);
+            }
         }
 
         synchronized void commitSync(Map<TopicPartition, OffsetAndMetadata> offsets) {
-            consumer.commitSync(offsets);
+            synchronized (consumer) {
+                consumer.commitSync(offsets);
+            }
         }
 
         synchronized void commitAsync(Map<TopicPartition, OffsetAndMetadata> offsets, OffsetCommitCallback callback) {
-            consumer.commitAsync(offsets, callback);
+            synchronized (consumer) {
+                consumer.commitAsync(offsets, callback);
+            }
         }
 
         static <K, V> SynchronizedConsumer<K, V> synchronize(Consumer<K, V> consumer) {
@@ -270,8 +281,7 @@ public class GarmadonReader {
         }
 
         public GarmadonReader build(boolean autoSubscribe) {
-            if (autoSubscribe)
-                kafkaConsumer.subscribe(Collections.singletonList(GARMADON_TOPIC));
+            if (autoSubscribe) kafkaConsumer.subscribe(Collections.singletonList(GARMADON_TOPIC));
 
             return new GarmadonReader(kafkaConsumer, beforeInterceptHandlers, listeners);
         }

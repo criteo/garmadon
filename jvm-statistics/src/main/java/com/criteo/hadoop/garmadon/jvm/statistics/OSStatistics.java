@@ -20,8 +20,9 @@ class OSStatistics extends AbstractStatistic {
 
     @Override
     protected void innerCollect(StatisticsSink sink) {
-        if (isLoadAverageAvailable())
+        if (isLoadAverageAvailable()) {
             sink.addPercentage(OS_VAR_LOADAVG, (int) (100 * os.getSystemLoadAverage() / processors));
+        }
     }
 
     private boolean isLoadAverageAvailable() {

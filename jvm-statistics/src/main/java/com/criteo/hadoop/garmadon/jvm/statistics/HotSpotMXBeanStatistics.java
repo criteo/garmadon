@@ -74,8 +74,7 @@ public class HotSpotMXBeanStatistics extends MXBeanStatistics {
     }
 
     @Override
-    protected void addOSStatistics(StatisticCollector collector)
-    {
+    protected void addOSStatistics(StatisticCollector collector) {
         try {
             AbstractStatistic osStatistics = createOSStatistics();
             if (osStatistics != null) {
@@ -102,12 +101,10 @@ public class HotSpotMXBeanStatistics extends MXBeanStatistics {
         int processors = os.getAvailableProcessors();
         OperatingSystemMXBean hsOs = null;
         if (os instanceof OperatingSystemMXBean) {
-            hsOs = (OperatingSystemMXBean)os;
-            if (OS_NAME.equals("Linux"))
-                hsOs = new LinuxMemInfoWrapperOperatingSystemMXBean(hsOs);
+            hsOs = (OperatingSystemMXBean) os;
+            if (OS_NAME.equals("Linux")) hsOs = new LinuxMemInfoWrapperOperatingSystemMXBean(hsOs);
         }
-        if (hsOs == null)
-            return null;
+        if (hsOs == null) return null;
         return new HotspotOSStatistics(os, hsOs, processors);
     }
 
@@ -116,14 +113,11 @@ public class HotSpotMXBeanStatistics extends MXBeanStatistics {
         int processors = Math.max(1, os.getAvailableProcessors());
         OperatingSystemMXBean hsOs = null;
         if (os instanceof OperatingSystemMXBean) {
-            hsOs = (OperatingSystemMXBean)os;
-            if (OS_NAME.equals("Linux"))
-                hsOs = new LinuxMemInfoWrapperOperatingSystemMXBean(hsOs);
+            hsOs = (OperatingSystemMXBean) os;
+            if (OS_NAME.equals("Linux")) hsOs = new LinuxMemInfoWrapperOperatingSystemMXBean(hsOs);
         }
-        if (hsOs == null)
-            return null;
-        if (hsOs.getProcessCpuTime() > 0)
-            return new CpuStatistics(hsOs, processors);
+        if (hsOs == null) return null;
+        if (hsOs.getProcessCpuTime() > 0) return new CpuStatistics(hsOs, processors);
         return null;
     }
 
@@ -162,8 +156,7 @@ public class HotSpotMXBeanStatistics extends MXBeanStatistics {
     protected void addFileDescriptorStatistics(StatisticCollector collector) {
         try {
             AbstractStatistic fileDescriptorStatistics = createFileDescriptorStatistics();
-            if (fileDescriptorStatistics != null)
-                collector.register(fileDescriptorStatistics);
+            if (fileDescriptorStatistics != null) collector.register(fileDescriptorStatistics);
         } catch (Throwable ex) {
             collector.delayRegister(this::createFileDescriptorStatistics);
         }
@@ -181,98 +174,82 @@ public class HotSpotMXBeanStatistics extends MXBeanStatistics {
     /**
      * Wraps original OperatingSystemMXBean to correct Linux getFreePhysicalMemorySize. It does not take into account cache buffers (files cache).
      */
-    static class LinuxMemInfoWrapperOperatingSystemMXBean implements OperatingSystemMXBean
-    {
+    static class LinuxMemInfoWrapperOperatingSystemMXBean implements OperatingSystemMXBean {
         private static final Pattern CACHED_PATTERN = Pattern.compile("Cached:\\s*(\\d+) kB$");
 
-        protected final OperatingSystemMXBean os;
+        private final OperatingSystemMXBean os;
 
-        public LinuxMemInfoWrapperOperatingSystemMXBean(OperatingSystemMXBean os)
-        {
+        public LinuxMemInfoWrapperOperatingSystemMXBean(OperatingSystemMXBean os) {
             this.os = os;
         }
 
         @Override
-        public String getName()
-        {
+        public String getName() {
             return os.getName();
         }
 
         @Override
-        public String getArch()
-        {
+        public String getArch() {
             return os.getArch();
         }
 
         @Override
-        public String getVersion()
-        {
+        public String getVersion() {
             return os.getVersion();
         }
 
         @Override
-        public int getAvailableProcessors()
-        {
+        public int getAvailableProcessors() {
             return os.getAvailableProcessors();
         }
 
         @Override
-        public double getSystemLoadAverage()
-        {
+        public double getSystemLoadAverage() {
             return os.getSystemLoadAverage();
         }
 
         @Override
-        public long getCommittedVirtualMemorySize()
-        {
+        public long getCommittedVirtualMemorySize() {
             return os.getCommittedVirtualMemorySize();
         }
 
         @Override
-        public long getFreePhysicalMemorySize()
-        {
+        public long getFreePhysicalMemorySize() {
             return os.getFreePhysicalMemorySize() + getLinuxFSCacheSize();
         }
 
         @Override
-        public long getFreeSwapSpaceSize()
-        {
+        public long getFreeSwapSpaceSize() {
             return os.getFreeSwapSpaceSize();
         }
 
         @Override
-        public long getProcessCpuTime()
-        {
+        public long getProcessCpuTime() {
             return os.getProcessCpuTime();
         }
 
         @Override
-        public long getTotalPhysicalMemorySize()
-        {
+        public long getTotalPhysicalMemorySize() {
             return os.getTotalPhysicalMemorySize();
         }
 
         @Override
-        public long getTotalSwapSpaceSize()
-        {
+        public long getTotalSwapSpaceSize() {
             return os.getTotalSwapSpaceSize();
         }
 
         @Override
-        public ObjectName getObjectName()
-        {
+        public ObjectName getObjectName() {
             return null;
         }
 
         @Override
-        public double getProcessCpuLoad()
-        {
+        public double getProcessCpuLoad() {
             return 0;
         }
 
         @Override
-        public double getSystemCpuLoad()
-        {
+        public double getSystemCpuLoad() {
             return 0;
         }
 
@@ -281,8 +258,7 @@ public class HotSpotMXBeanStatistics extends MXBeanStatistics {
          */
         static long getLinuxFSCacheSize() {
             File meminfo = new File("/proc/meminfo");
-            if (!meminfo.exists() || !meminfo.canRead())
-                return 0;
+            if (!meminfo.exists() || !meminfo.canRead()) return 0;
             try {
                 try (BufferedReader reader = new BufferedReader(new FileReader(meminfo))) {
                     return parseLinuxFSCacheSize(reader);
@@ -296,8 +272,7 @@ public class HotSpotMXBeanStatistics extends MXBeanStatistics {
             String line;
             while ((line = reader.readLine()) != null) {
                 Matcher matcher = CACHED_PATTERN.matcher(line);
-                if (matcher.matches())
-                    return Long.parseLong(matcher.group(1)) * 1024;
+                if (matcher.matches()) return Long.parseLong(matcher.group(1)) * 1024;
             }
             return 0;
         }

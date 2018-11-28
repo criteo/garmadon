@@ -14,7 +14,8 @@ public abstract class Tracer {
 
     protected AgentBuilder agentBuilder;
 
-    static ElementMatcher.Junction<NamedElement> ignoredMatcher;
+    protected static ElementMatcher.Junction<NamedElement> ignoredMatcher;
+
     static {
         String[] predefWhitelist = {
                 "org.apache.flink.",
@@ -30,10 +31,10 @@ public abstract class Tracer {
         String runtimeBlacklist = System.getProperty("bytebuddy.blacklist.for.instrumentation");
 
         ElementMatcher.Junction<NamedElement> whitelistMatcher = newListMatcher(predefWhitelist);
-        if(runtimeWhitelist != null) whitelistMatcher = whitelistMatcher.or(newListMatcher(runtimeWhitelist.split(",")));
+        if (runtimeWhitelist != null) whitelistMatcher = whitelistMatcher.or(newListMatcher(runtimeWhitelist.split(",")));
 
-        ElementMatcher.Junction<NamedElement> blacklistMatcher =  newListMatcher(predefBlacklist);
-        if(runtimeBlacklist != null) blacklistMatcher = blacklistMatcher.or(newListMatcher(runtimeBlacklist.split(",")));
+        ElementMatcher.Junction<NamedElement> blacklistMatcher = newListMatcher(predefBlacklist);
+        if (runtimeBlacklist != null) blacklistMatcher = blacklistMatcher.or(newListMatcher(runtimeBlacklist.split(",")));
 
         ignoredMatcher = not(whitelistMatcher).or(blacklistMatcher);
     }
@@ -46,10 +47,11 @@ public abstract class Tracer {
         return matcher;
     }
 
-    private static final ElementMatcher<? super String> byteBuddyLoggingFilter;
-    static{
+    private static final ElementMatcher<? super String> BYTE_BUDDY_LOGGING_FILTER;
+
+    static {
         String filterClass = System.getProperty("bytebuddy.debug.instrumentation.for.class");
-        byteBuddyLoggingFilter = filterClass != null ? s -> s.contains(filterClass) : s -> false;
+        BYTE_BUDDY_LOGGING_FILTER = filterClass != null ? s -> s.contains(filterClass) : s -> false;
     }
 
     Tracer() {
@@ -59,7 +61,7 @@ public abstract class Tracer {
                 .ignore(any(), isExtensionClassLoader())
                 .ignore(ignoredMatcher)
                 .with(
-                        new Filtering(byteBuddyLoggingFilter, AgentBuilder.Listener.StreamWriting.toSystemOut())
+                        new Filtering(BYTE_BUDDY_LOGGING_FILTER, AgentBuilder.Listener.StreamWriting.toSystemOut())
                 );
     }
 

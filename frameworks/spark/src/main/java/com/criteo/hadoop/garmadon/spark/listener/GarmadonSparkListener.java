@@ -60,8 +60,7 @@ public class GarmadonSparkListener extends SparkListener {
     private void tryToSet(Runnable c) {
         try {
             c.run();
-        } catch (Throwable t) {
-
+        } catch (Throwable ignored) {
         }
     }
 
@@ -78,8 +77,8 @@ public class GarmadonSparkListener extends SparkListener {
         this.eventHandler.accept(stateTime, header, stageStateEventBuilder.build());
     }
 
-    private void sendExecutorStateEvent(long time, State state, String executorId, String executorHost
-            , String reason, int taskFailures) {
+    private void sendExecutorStateEvent(long time, State state, String executorId, String executorHost,
+                                        String reason, int taskFailures) {
         SparkEventProtos.ExecutorStateEvent.Builder executorStateEvent = SparkEventProtos.ExecutorStateEvent
                 .newBuilder()
                 .setState(state.name())

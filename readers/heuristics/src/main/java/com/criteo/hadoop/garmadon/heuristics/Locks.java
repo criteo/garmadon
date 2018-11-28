@@ -27,21 +27,15 @@ public class Locks implements JVMStatsHeuristic {
                         long currentTimestamp = timestamp;
                         lockCounters.lastContendedCount = currentContendedCount;
                         lockCounters.lastTimestamp = currentTimestamp;
-                        if (lastTimestamp == currentTimestamp)
-                            return;
-                        if (lastTimestamp == 0)
-                            return;
+                        if (lastTimestamp == currentTimestamp) return;
+                        if (lastTimestamp == 0) return;
                         // ratio is number of contention/s
                         long ratio = (currentContendedCount - lastContendedCount) * 1000 / (currentTimestamp - lastTimestamp);
                         int severity = HeuristicsResultDB.Severity.NONE;
-                        if (ratio > 10)
-                            severity = HeuristicsResultDB.Severity.LOW;
-                        if (ratio > 50)
-                            severity = HeuristicsResultDB.Severity.MODERATE;
-                        if (ratio > 100)
-                            severity = HeuristicsResultDB.Severity.SEVERE;
-                        if (ratio > 500)
-                            severity = HeuristicsResultDB.Severity.CRITICAL;
+                        if (ratio > 10) severity = HeuristicsResultDB.Severity.LOW;
+                        if (ratio > 50) severity = HeuristicsResultDB.Severity.MODERATE;
+                        if (ratio > 100) severity = HeuristicsResultDB.Severity.SEVERE;
+                        if (ratio > 500) severity = HeuristicsResultDB.Severity.CRITICAL;
                         lockCounters.ratio = Math.max(ratio, lockCounters.ratio);
                         lockCounters.severity = Math.max(severity, lockCounters.severity);
                         return;
@@ -54,13 +48,10 @@ public class Locks implements JVMStatsHeuristic {
     @Override
     public void onContainerCompleted(String applicationId, String attemptId, String containerId) {
         Map<String, LockCounters> containerCounters = appCounters.get(HeuristicHelper.getAppAttemptId(applicationId, attemptId));
-        if (containerCounters == null)
-            return;
+        if (containerCounters == null) return;
         LockCounters lockCounters = containerCounters.get(containerId);
-        if (lockCounters == null)
-            return;
-        if (lockCounters.severity == HeuristicsResultDB.Severity.NONE)
-            containerCounters.remove(containerId);
+        if (lockCounters == null) return;
+        if (lockCounters.severity == HeuristicsResultDB.Severity.NONE) containerCounters.remove(containerId);
     }
 
     @Override
@@ -75,8 +66,8 @@ public class Locks implements JVMStatsHeuristic {
     }
 
     private static class LockCounters extends BaseCounter {
-        long lastContendedCount;
-        long lastTimestamp;
-        long ratio;
+        private long lastContendedCount;
+        private long lastTimestamp;
+        private long ratio;
     }
 }
