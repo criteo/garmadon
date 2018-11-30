@@ -14,7 +14,7 @@ public class Utils {
     public static String getHostname() {
         String hostname = "";
         try {
-            hostname = InetAddress.getLocalHost().getHostName();
+            hostname = InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException ignored) {
         }
         return hostname;
