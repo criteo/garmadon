@@ -63,16 +63,6 @@
         <!-- Garmadon -->
         <dependency>
             <groupId>com.criteo.java</groupId>
-            <artifactId>garmadon-jvm-statistics-protobuf</artifactId>
-            <version>${garmadon.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.criteo.java</groupId>
-            <artifactId>garmadon-schema</artifactId>
-            <version>${garmadon.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.criteo.java</groupId>
             <artifactId>garmadon-readers-common</artifactId>
             <version>${garmadon.version}</version>
         </dependency>
