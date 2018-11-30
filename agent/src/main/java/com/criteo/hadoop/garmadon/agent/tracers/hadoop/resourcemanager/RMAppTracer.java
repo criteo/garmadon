@@ -27,7 +27,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 
 public class RMAppTracer {
-    private static TriConsumer<Long, Header, Object> eventHandler;
+    // This field must be public to be accessible by ResourceManager running RMContextImplEventRunnable threads
+    public static TriConsumer<Long, Header, Object> publicFieldEventHandler;
 
     protected RMAppTracer() {
         throw new UnsupportedOperationException();
@@ -45,7 +46,7 @@ public class RMAppTracer {
     }
 
     public static void initEventHandler(TriConsumer<Long, Header, Object> eventHandler) {
-        RMAppTracer.eventHandler = eventHandler;
+        RMAppTracer.publicFieldEventHandler = eventHandler;
     }
 
     public static class RMContextImplThread extends ConstructorTracer {
@@ -69,7 +70,7 @@ public class RMAppTracer {
         public static void runEventScheduler(@Advice.This Object o) {
             new ScheduledThreadPoolExecutor(1, new GarmadonWorkerThreadFactory())
                     .scheduleAtFixedRate(
-                            new RMContextImplEventRunnable((RMContextImpl) o, eventHandler),
+                            new RMContextImplEventRunnable((RMContextImpl) o, publicFieldEventHandler),
                             0,
                             10,
                             TimeUnit.SECONDS);
@@ -119,7 +120,7 @@ public class RMAppTracer {
                         .setQueue(queue)
                         .build();
 
-                eventHandler.accept(submitTime, header, event);
+                publicFieldEventHandler.accept(submitTime, header, event);
             } catch (Exception ignored) {
             }
         }
