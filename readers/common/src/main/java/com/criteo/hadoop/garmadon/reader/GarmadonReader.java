@@ -4,6 +4,7 @@ import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
 import com.criteo.hadoop.garmadon.schema.exceptions.DeserializationException;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
+import com.google.protobuf.Message;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
@@ -149,7 +150,7 @@ public final class GarmadonReader {
                 }
 
                 EventHeaderProtos.Header header = null;
-                Object body = null;
+                Message body = null;
 
                 for (GarmadonMessageFilter filter : filters) {
                     if (filter.accepts(typeMarker)) {

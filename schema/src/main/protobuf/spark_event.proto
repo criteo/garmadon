@@ -9,7 +9,7 @@ message StageEvent {
     int64 start_time = 1;
     string stage_name = 2;
     string stage_id = 3;
-    string attempt_id = 4;
+    string stage_attempt_id = 4;
     int32 num_tasks = 5;
 
     string status = 6;
@@ -52,7 +52,7 @@ message StageStateEvent {
     string state = 1;
     string stage_name = 2;
     string stage_id = 3;
-    string attempt_id = 4;
+    string stage_attempt_id = 4;
     int32 num_tasks = 5;
 }
 
@@ -67,7 +67,7 @@ message TaskEvent {
     int64 start_time = 1;
     string task_id = 2;
     string stage_id = 3;
-    string attempt_id = 4;
+    string stage_attempt_id = 4;
 
     string executor_hostname = 5;
 

@@ -66,13 +66,24 @@ public class ProtoConcatenator {
      * /!\ Doesn't handle embedded objects /!\
      *
      * @param messages Messages to be concatenated
+     * @param includeDefaultValueFields Boolean indicating if empty fields must be added with their default
      * @return A single, one-level String -> object map holding fields and values from all input messages.
      * Null if an error occurred (shouldn't happen).
      */
-    public static Map<String, Object> concatToMap(Collection<Message> messages) {
-        return concatInner(messages, (ignored) -> new HashMap<>(), (entry, eventMap) -> {
-            eventMap.put(entry.getKey().getName(), entry.getValue());
-        });
+    public static Map<String, Object> concatToMap(Collection<Message> messages, boolean includeDefaultValueFields) {
+        return concatInner(messages,
+                (keys) -> {
+                    Map<String, Object> concatMap = new HashMap<>(keys.size());
+                    if (includeDefaultValueFields) {
+                        for (Descriptors.FieldDescriptor fieldDescriptor : keys) {
+                            concatMap.put(fieldDescriptor.getName(), fieldDescriptor.getDefaultValue());
+                        }
+                    }
+                    return concatMap;
+                },
+                (entry, eventMap) -> {
+                    eventMap.put(entry.getKey().getName(), entry.getValue());
+                });
     }
 
     /**
