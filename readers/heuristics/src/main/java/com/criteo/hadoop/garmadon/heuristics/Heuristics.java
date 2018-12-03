@@ -60,7 +60,7 @@ public class Heuristics {
                 .intercept(
                         hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.FS_EVENT)
                                 .and(hasFramework(Framework.SPARK.name()).or(hasFramework(Framework.MAP_REDUCE.name())))),
-                        msg -> fileHeuristic.compute(msg.getHeader().getApplicationId(), msg.getHeader().getAppAttemptId(),
+                        msg -> fileHeuristic.compute(msg.getHeader().getApplicationId(), msg.getHeader().getAttemptId(),
                                 msg.getHeader().getContainerId(), (DataAccessEventProtos.FsEvent) msg.getBody())
                 )
                 .beforeIntercept(this::registerAppContainer)
@@ -101,7 +101,7 @@ public class Heuristics {
 
     private void processGcEvent(GarmadonMessage msg) {
         String applicationId = msg.getHeader().getApplicationId();
-        String attemptId = msg.getHeader().getAppAttemptId();
+        String attemptId = msg.getHeader().getAttemptId();
         String containerId = msg.getHeader().getContainerId();
         Long timestamp = msg.getTimestamp();
         JVMStatisticsEventsProtos.GCStatisticsData gcStats = (JVMStatisticsEventsProtos.GCStatisticsData) msg.getBody();
@@ -110,7 +110,7 @@ public class Heuristics {
 
     private void processJvmStatEvent(GarmadonMessage msg) {
         String applicationId = msg.getHeader().getApplicationId();
-        String attemptId = msg.getHeader().getAppAttemptId();
+        String attemptId = msg.getHeader().getAttemptId();
         String containerId = msg.getHeader().getContainerId();
         Long timestamp = msg.getTimestamp();
         JVMStatisticsEventsProtos.JVMStatisticsData jvmStats = (JVMStatisticsEventsProtos.JVMStatisticsData) msg.getBody();
@@ -120,7 +120,7 @@ public class Heuristics {
     private void registerAppContainer(GarmadonMessage msg) {
         if (msg.getType() != GarmadonSerialization.TypeMarker.STATE_EVENT) {
             String applicationId = msg.getHeader().getApplicationId();
-            String attemptId = msg.getHeader().getAppAttemptId();
+            String attemptId = msg.getHeader().getAttemptId();
             String containerId = msg.getHeader().getContainerId();
             Set<String> containers = containersPerApp.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashSet<>());
             containers.add(containerId);
@@ -131,7 +131,7 @@ public class Heuristics {
     // TODO => if no msg for an appId after 2/3*interval (still based on timestamp) => trigger APP_END
     private void processStateEvent(GarmadonMessage msg) {
         String applicationId = msg.getHeader().getApplicationId();
-        String attemptId = msg.getHeader().getAppAttemptId();
+        String attemptId = msg.getHeader().getAttemptId();
         String containerId = msg.getHeader().getContainerId();
         DataAccessEventProtos.StateEvent stateEvent = (DataAccessEventProtos.StateEvent) msg.getBody();
         if (State.END.toString().equals(stateEvent.getState())) {

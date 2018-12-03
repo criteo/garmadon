@@ -41,7 +41,7 @@ public class RMContextImplEventRunnable implements Runnable {
                                 .withApplicationID(applicationId.toString())
                                 .withUser(rmApp.getUser())
                                 .withApplicationName(rmApp.getName())
-                                .withAppAttemptID(rmApp.getCurrentAppAttempt().getAppAttemptId().toString())
+                                .withAttemptID(rmApp.getCurrentAppAttempt().getAppAttemptId().toString())
                                 .withFramework(rmApp.getApplicationType().toUpperCase())
                                 .build();
 

@@ -43,7 +43,7 @@ public class CloseHandlerTest {
                 .withHostname("hostname")
                 .withId("app_id")
                 .withApplicationID("app_id")
-                .withAppAttemptID("app_attempt_id")
+                .withAttemptID("app_attempt_id")
                 .withApplicationName("app_name")
                 .withContainerID("container_id")
                 .withUser("user")

@@ -79,14 +79,14 @@ public class ProtoParquetWriterWithOffsetTest {
     public void closeAfterSomeEventWithLocalFilesystem() throws IOException {
         final List<EventHeaderProtos.Header> inputHeaders = new LinkedList<>();
 
-        inputHeaders.add(EventHeaderProtos.Header.newBuilder().setAppAttemptId("1").build());
-        inputHeaders.add(EventHeaderProtos.Header.newBuilder().setAppAttemptId("2").build());
+        inputHeaders.add(EventHeaderProtos.Header.newBuilder().setAttemptId("1").build());
+        inputHeaders.add(EventHeaderProtos.Header.newBuilder().setAttemptId("2").build());
 
         final List<EventHeaderProtos.Header> headers = checkSingleFileWithFileSystem(inputHeaders);
 
         Assert.assertEquals(2, headers.size());
-        Assert.assertEquals("1", headers.get(0).getAppAttemptId());
-        Assert.assertEquals("2", headers.get(1).getAppAttemptId());
+        Assert.assertEquals("1", headers.get(0).getAttemptId());
+        Assert.assertEquals("2", headers.get(1).getAttemptId());
     }
 
     private List<EventHeaderProtos.Header> checkSingleFileWithFileSystem(
