@@ -68,7 +68,7 @@ public class HdfsExporter {
 
         final String kafkaConnectionString = args[0];
         final String kafkaGroupId = args[1];
-        final String baseTemporaryHdfsDir = args[2];
+        final String baseHdfsDir = args[2];
         final Path finalHdfsDir = new Path(args[3]);
 
         FileSystem fs = null;
@@ -91,7 +91,7 @@ public class HdfsExporter {
         final PartitionedWriter.Expirer expirer = new PartitionedWriter.Expirer<>(writers, EXPIRER_PERIOD);
         final HeartbeatConsumer heartbeat = new HeartbeatConsumer<>(writers, HEARTBEAT_PERIOD);
         final Map<Integer, Map.Entry<String, Class<? extends Message>>> typeToDirAndClass = getTypeToDirAndClass();
-        final Path temporaryHdfsDir = new Path(baseTemporaryHdfsDir, UUID.randomUUID().toString());
+        final Path temporaryHdfsDir = new Path(baseHdfsDir, UUID.randomUUID().toString());
 
         ensureDirectoriesExist(Arrays.asList(temporaryHdfsDir, finalHdfsDir), fs);
 
@@ -163,7 +163,7 @@ public class HdfsExporter {
     private static void ensureDirectoriesExist(List<Path> dirs, FileSystem fs) {
         try {
             for (Path dir : dirs) {
-                if (!fs.exists(dir)) fs.mkdirs(dir);
+                createDirectoryHierarchy(dir, fs);
 
                 if (!fs.isDirectory(dir)) {
                     throw new IllegalStateException(
@@ -173,6 +173,16 @@ public class HdfsExporter {
         } catch (IOException e) {
             final String dirsString = dirs.stream().map(Path::getName).collect(Collectors.joining());
             throw new IllegalStateException(String.format("Couldn't ensure directories %s exist", dirsString), e);
+        }
+    }
+
+    private static void createDirectoryHierarchy(Path dir, FileSystem fs) throws IOException {
+        if (!fs.exists(dir)) {
+            if (dir.depth() > 0) {
+                createDirectoryHierarchy(dir.getParent(), fs);
+            }
+
+            fs.mkdirs(dir);
         }
     }
 
