@@ -236,13 +236,12 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      * @return                  Existing or just-created consumer
      */
     private ExpiringConsumer<MESSAGE_KIND> getWriter(LocalDateTime dayStartTime, int partitionId) {
-        if (!perPartitionDayWriters.containsKey(partitionId)) perPartitionDayWriters.put(partitionId, new HashMap<>());
+        if (!perPartitionDayWriters.containsKey(partitionId)) {
+            perPartitionDayWriters.put(partitionId, new HashMap<>());
+        }
 
         final Map<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> partitionMap = perPartitionDayWriters.get(partitionId);
 
-        partitionMap.computeIfAbsent(dayStartTime,
-                time -> partitionMap.put(time, writerBuilder.apply(time)));
-
-        return partitionMap.get(dayStartTime);
+        return partitionMap.computeIfAbsent(dayStartTime, writerBuilder);
     }
 }
