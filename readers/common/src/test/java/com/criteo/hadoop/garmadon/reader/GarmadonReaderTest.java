@@ -46,8 +46,8 @@ public class GarmadonReaderTest {
         header = EventHeaderProtos.Header.newBuilder()
                 .setApplicationName("appName")
                 .setApplicationId("appid")
-                .setUserName("user")
-                .setAppAttemptId("attempt_id")
+                .setUsername("user")
+                .setAttemptId("attempt_id")
                 .setHostname("host")
                 .addTags(Header.Tag.YARN_APPLICATION.name())
                 .build();
