@@ -176,6 +176,14 @@ public class HdfsExporter {
         }
     }
 
+    /**
+     * Make the given file and all non-existent parents into directories.
+     * Has the semantics of Unix 'mkdir -p'. Existence of the directory hierarchy is not an error.
+     *
+     * @param dir           The directory whose structure to create
+     * @param fs            The filesystem on which this directory resides
+     * @throws IOException  In case an issue occurs when creating one of the directories
+     */
     private static void createDirectoryHierarchy(Path dir, FileSystem fs) throws IOException {
         if (!fs.exists(dir)) {
             if (dir.depth() > 0) {
