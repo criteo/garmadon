@@ -62,6 +62,12 @@ final class EventsWithHeader {
         }
     }
 
+    public static abstract class ApplicationEvent implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(ResourceManagerEventProtos.ApplicationEvent.getDescriptor());
+        }
+    }
+
     private static Descriptors.Descriptor descriptorForTypeWithHeader(Descriptors.Descriptor classDescriptor)
                 throws Descriptors.DescriptorValidationException {
         final Collection<Descriptors.FieldDescriptor> allFields = new ArrayList<>();
