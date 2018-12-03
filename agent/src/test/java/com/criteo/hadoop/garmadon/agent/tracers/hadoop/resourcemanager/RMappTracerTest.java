@@ -79,7 +79,7 @@ public class RMappTracerTest {
             header[0] = h;
             event[0] = o;
         };
-        ReflectionHelper.setField(null, classLoader.loadClass(RMAppTracer.class.getName()), "publicFieldEventHandler", cons);
+        ReflectionHelper.setField(null, classLoader.loadClass(RMAppTracer.class.getName()), "eventHandler", cons);
 
         ClassFileTransformer classFileTransformer = new RMAppTracer.RMContextImplThread().installOnByteBuddyAgent();
 

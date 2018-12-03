@@ -72,7 +72,6 @@
         <module name="ThrowsCount"/>
         <module name="VisibilityModifier">
             <property name="protectedAllowed" value="true"/>
-            <property name="publicMemberPattern" value="^publicField.*$"/>
         </module>
 
         <!-- Checks for imports. -->
