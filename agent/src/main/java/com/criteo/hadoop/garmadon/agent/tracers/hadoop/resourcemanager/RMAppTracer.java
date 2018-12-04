@@ -44,6 +44,10 @@ public class RMAppTracer {
         new RMContextImplThread().installOn(instrumentation);
     }
 
+    public static TriConsumer<Long, Header, Object> getEventHandler() {
+        return eventHandler;
+    }
+
     public static void initEventHandler(TriConsumer<Long, Header, Object> eventHandler) {
         RMAppTracer.eventHandler = eventHandler;
     }
@@ -69,7 +73,7 @@ public class RMAppTracer {
         public static void runEventScheduler(@Advice.This Object o) {
             new ScheduledThreadPoolExecutor(1, new GarmadonWorkerThreadFactory())
                     .scheduleAtFixedRate(
-                            new RMContextImplEventRunnable((RMContextImpl) o, eventHandler),
+                            new RMContextImplEventRunnable((RMContextImpl) o, getEventHandler()),
                             0,
                             10,
                             TimeUnit.SECONDS);
