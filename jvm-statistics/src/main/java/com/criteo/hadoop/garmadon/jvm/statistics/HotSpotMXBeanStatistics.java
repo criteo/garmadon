@@ -29,6 +29,7 @@ public class HotSpotMXBeanStatistics extends MXBeanStatistics {
     public void register(StatisticCollector collector) {
         super.register(collector);
         addProcessStatistics(collector);
+        addNetworkStatistics(collector);
         addSafepointStatistics(collector);
         addSynchronizationStatistics(collector);
         addFileDescriptorStatistics(collector);
@@ -126,6 +127,14 @@ public class HotSpotMXBeanStatistics extends MXBeanStatistics {
             collector.register(new ProcessStatistics());
         } catch (Throwable ex) {
             collector.delayRegister(ProcessStatistics::new);
+        }
+    }
+
+    protected void addNetworkStatistics(StatisticCollector collector) {
+        try {
+            collector.register(new NetworkStatistics());
+        } catch (Throwable ex) {
+            collector.delayRegister(NetworkStatistics::new);
         }
     }
 

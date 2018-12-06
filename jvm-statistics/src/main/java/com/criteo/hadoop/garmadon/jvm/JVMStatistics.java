@@ -129,6 +129,7 @@ public class JVMStatistics {
         conf.setInterval(Duration.ofSeconds(1));
         conf.setLogJVMStats(JVMStatistics::log);
         conf.setLogGcStats(JVMStatistics::log);
+        conf.setLogMachineStats(JVMStatistics::log);
         JVMStatistics stats = new JVMStatistics(conf);
         stats.start();
         Thread t = new Thread(() -> {

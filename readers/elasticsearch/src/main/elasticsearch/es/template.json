@@ -557,6 +557,10 @@
           "type": "long",
           "index": false
         },
+        "processrx": {
+          "type": "long",
+          "index": false
+        },
         "safepoints_count": {
           "type": "integer",
           "index": false
@@ -753,6 +757,10 @@
           "index": false
         },
         "errout": {
+          "type": "long",
+          "index": false
+        },
+        "processtx": {
           "type": "long",
           "index": false
         },
