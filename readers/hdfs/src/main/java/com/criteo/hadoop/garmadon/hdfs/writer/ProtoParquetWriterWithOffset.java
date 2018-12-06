@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 
 /**
  * Wrap an actual ProtoParquetWriter, renaming the output file properly when closing.
@@ -63,9 +64,18 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         writer.close();
 
         final Path finalPath = new Path(finalHdfsDir, fileNamer.computePath(dayStartTime, latestOffset));
-        fs.rename(temporaryHdfsPath, finalPath);
 
-        LOGGER.info("Committed " + finalPath.toUri());
+        if (!FileSystemUtils.ensureDirectoriesExist(Collections.singleton(finalPath.getParent()), fs)) {
+            LOGGER.warn("Couldn't ensure {} exists", finalPath.getParent());
+            return null;
+        }
+
+        if (!fs.rename(temporaryHdfsPath, finalPath)) {
+            LOGGER.warn("Failed to commit {} (from {})", finalPath.toUri(), temporaryHdfsPath);
+            return null;
+        }
+
+        LOGGER.info("Committed {} (from {})", finalPath.toUri(), temporaryHdfsPath);
 
         return finalPath;
     }

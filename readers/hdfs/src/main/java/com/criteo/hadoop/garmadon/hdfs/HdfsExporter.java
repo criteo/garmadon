@@ -4,6 +4,7 @@ import com.criteo.hadoop.garmadon.hdfs.kafka.OffsetResetter;
 import com.criteo.hadoop.garmadon.hdfs.kafka.PartitionsPauseStateHandler;
 import com.criteo.hadoop.garmadon.hdfs.offset.*;
 import com.criteo.hadoop.garmadon.hdfs.writer.ExpiringConsumer;
+import com.criteo.hadoop.garmadon.hdfs.writer.FileSystemUtils;
 import com.criteo.hadoop.garmadon.hdfs.writer.ProtoParquetWriterWithOffset;
 import com.criteo.hadoop.garmadon.hdfs.writer.PartitionedWriter;
 import com.criteo.hadoop.garmadon.protobuf.ProtoConcatenator;
@@ -93,7 +94,12 @@ public class HdfsExporter {
         final Map<Integer, Map.Entry<String, Class<? extends Message>>> typeToDirAndClass = getTypeToDirAndClass();
         final Path temporaryHdfsDir = new Path(baseTemporaryHdfsDir, UUID.randomUUID().toString());
 
-        ensureDirectoriesExist(Arrays.asList(temporaryHdfsDir, finalHdfsDir), fs);
+        try {
+            FileSystemUtils.ensureDirectoriesExist(Arrays.asList(temporaryHdfsDir, finalHdfsDir), fs);
+        } catch (IOException e) {
+            LOGGER.error("Couldn't ensure base directories exist, exiting", e);
+            return;
+        }
 
         LOGGER.info("Temporary HDFS dir: {}", temporaryHdfsDir.toUri());
         LOGGER.info("Final HDFS dir: {}", finalHdfsDir.toUri());
@@ -151,29 +157,6 @@ public class HdfsExporter {
 
         expirer.stop().join();
         heartbeat.stop().join();
-    }
-
-    /**
-     * Ensure paths exist and are directories. Otherwise create them.
-     *
-     * @param dirs                      Directories that need to exist
-     * @param fs                        Filesystem to which these directories should belong
-     * @throws IllegalStateException    When failing to ensure directories existence
-     */
-    private static void ensureDirectoriesExist(List<Path> dirs, FileSystem fs) {
-        try {
-            for (Path dir : dirs) {
-                if (!fs.exists(dir)) fs.mkdirs(dir);
-
-                if (!fs.isDirectory(dir)) {
-                    throw new IllegalStateException(
-                            String.format("Couldn't ensure directory %s exists: not a directory", dir.getName()));
-                }
-            }
-        } catch (IOException e) {
-            final String dirsString = dirs.stream().map(Path::getName).collect(Collectors.joining());
-            throw new IllegalStateException(String.format("Couldn't ensure directories %s exist", dirsString), e);
-        }
     }
 
     private static Function<LocalDateTime, ExpiringConsumer<Message>> buildMessageConsumerBuilder(
