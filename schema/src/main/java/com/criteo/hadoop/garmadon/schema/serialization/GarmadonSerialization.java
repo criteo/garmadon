@@ -8,6 +8,7 @@ import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.exceptions.DeserializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.SerializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.TypeMarkerException;
+import com.google.protobuf.Message;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,13 +81,13 @@ public class GarmadonSerialization {
         return typeMarkerToName.getOrDefault(typeMarker, "UNKNOWN");
     }
 
-    public static Object parseFrom(int typeMarker, InputStream is) throws DeserializationException {
+    public static Message parseFrom(int typeMarker, InputStream is) throws DeserializationException {
         Deserializer deserializer = typeMarkerToDeserializer.get(typeMarker);
         if (deserializer == null) {
             throw new DeserializationException("there is no deserializer registered for type marker " + typeMarker);
         }
         try {
-            return deserializer.deserialize(is);
+            return (Message) deserializer.deserialize(is);
         } catch (IOException e) {
             throw new DeserializationException(e);
         }

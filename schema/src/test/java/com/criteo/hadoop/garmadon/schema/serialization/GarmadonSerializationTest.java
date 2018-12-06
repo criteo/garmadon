@@ -3,7 +3,6 @@ package com.criteo.hadoop.garmadon.schema.serialization;
 import com.criteo.hadoop.garmadon.schema.exceptions.DeserializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.SerializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.TypeMarkerException;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -11,7 +10,7 @@ import java.io.ByteArrayInputStream;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
-public class GarmadonSerializationTest {
+public class GarmadonSerializationTest   {
     private int typeMarker = -1;
 
 

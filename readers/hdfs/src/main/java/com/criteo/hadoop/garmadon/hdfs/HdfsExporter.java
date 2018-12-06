@@ -253,6 +253,8 @@ public class HdfsExporter {
                 EventsWithHeader.SparkExecutorStateEvent.class);
         addTypeMapping(out, GarmadonSerialization.TypeMarker.SPARK_TASK_EVENT, "spark_task",
                 EventsWithHeader.SparkTaskEvent.class);
+        addTypeMapping(out, GarmadonSerialization.TypeMarker.APPLICATION_EVENT, "application_event",
+                EventsWithHeader.ApplicationEvent.class);
 
         // TODO: handle JVM events
 

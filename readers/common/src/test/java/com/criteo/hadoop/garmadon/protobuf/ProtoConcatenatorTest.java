@@ -32,6 +32,24 @@ public class ProtoConcatenatorTest {
     }
 
     @Test
+    public void concatenateMessageWithEmptyValue() throws Descriptors.DescriptorValidationException {
+        DynamicSchema.Builder schemaBuilder = DynamicSchema.newBuilder();
+        MessageDefinition msgDef = MessageDefinition.newBuilder("Body")
+                .addField("optional", "int32", "emptyint32", 1)
+                .addField("optional", "string", "emptystring", 2)
+                .build();
+
+        schemaBuilder.addMessageDefinition(msgDef);
+        DynamicSchema schema = schemaBuilder.build();
+
+        Map<String, Object> expectedValues = new HashMap<>();
+        expectedValues.put("emptyint32", 0);
+        expectedValues.put("emptystring", "");
+
+        testToMapOutTypesWith(Collections.singletonList(schema.newMessageBuilder("Body").build()), expectedValues);
+    }
+
+    @Test
     public void concatenateDifferentMessages() throws Descriptors.DescriptorValidationException {
         DynamicMessage.Builder headerMessageBuilder = createHeaderMessageBuilder();
         Descriptors.Descriptor headerMsgDesc = headerMessageBuilder.getDescriptorForType();
@@ -79,7 +97,7 @@ public class ProtoConcatenatorTest {
                 .setField(headerMsgDesc.findFieldByName("name"), "one");
 
         Map<String, Object> expectedValues = new HashMap<>();
-        expectedValues.put( "id", 1);
+        expectedValues.put("id", 1);
         expectedValues.put("name", "one");
         testAllOutTypesWith(Arrays.asList(headerMessageBuilder.build(), createEmptyMessage()), expectedValues);
     }
@@ -142,23 +160,33 @@ public class ProtoConcatenatorTest {
     /**
      * Test input with all ProtoConcatenator methods/flavors
      *
-     * @param inputMessages     Input Protobuf messages
-     * @param expectedValues    Strictly-expected values (must be equal in size and values to the output)
+     * @param inputMessages  Input Protobuf messages
+     * @param expectedValues Strictly-expected values (must be equal in size and values to the output)
      */
     private void testAllOutTypesWith(Collection<Message> inputMessages, Map<String, Object> expectedValues) {
         Message outProtoMessage = ProtoConcatenator.concatToProtobuf(inputMessages);
 
         Assert.assertNotNull(outProtoMessage);
         Assert.assertEquals(expectedValues.size(), outProtoMessage.getAllFields().size());
-        for (Map.Entry<String, Object> v: expectedValues.entrySet()) {
+        for (Map.Entry<String, Object> v : expectedValues.entrySet()) {
             Assert.assertEquals(v.getValue(), getProtoFieldValueByName(outProtoMessage, v.getKey()));
         }
 
-        Map<String, Object> outMap = ProtoConcatenator.concatToMap(inputMessages);
+        testToMapOutTypesWith(inputMessages, expectedValues);
+    }
+
+    /**
+     * Test input with all ProtoConcatenator methods/flavors
+     *
+     * @param inputMessages  Input Protobuf messages
+     * @param expectedValues Strictly-expected values (must be equal in size and values to the output)
+     */
+    private void testToMapOutTypesWith(Collection<Message> inputMessages, Map<String, Object> expectedValues) {
+        Map<String, Object> outMap = ProtoConcatenator.concatToMap(inputMessages, true);
 
         Assert.assertNotNull(outMap);
         Assert.assertEquals(expectedValues.size(), outMap.size());
-        for (Map.Entry<String, Object> v: expectedValues.entrySet()) {
+        for (Map.Entry<String, Object> v : expectedValues.entrySet()) {
             Assert.assertEquals(v.getValue(), outMap.get(v.getKey()));
         }
     }
@@ -204,7 +232,7 @@ public class ProtoConcatenatorTest {
         MessageDefinition.Builder msgBuilder = MessageDefinition.newBuilder(messageName);
 
         int currentIndex = 1;
-        for (String typeName: ALL_PROTOBUF_TYPES) {
+        for (String typeName : ALL_PROTOBUF_TYPES) {
             msgBuilder.addField("required", typeName, typeName, currentIndex++);
         }
 

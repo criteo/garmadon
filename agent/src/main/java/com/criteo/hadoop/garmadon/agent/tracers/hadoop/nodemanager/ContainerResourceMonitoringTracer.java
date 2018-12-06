@@ -79,7 +79,7 @@ public class ContainerResourceMonitoringTracer {
                 Header header = Header.newBuilder()
                         .withId(applicationId)
                         .withApplicationID(applicationId)
-                        .withAppAttemptID(attemptId)
+                        .withAttemptID(attemptId)
                         .withContainerID(containerID)
                         .build();
 
@@ -149,7 +149,7 @@ public class ContainerResourceMonitoringTracer {
                     Header header = Header.newBuilder()
                             .withId(applicationId)
                             .withApplicationID(applicationId)
-                            .withAppAttemptID(attemptId)
+                            .withAttemptID(attemptId)
                             .withContainerID(cID.toString())
                             .build();
 
