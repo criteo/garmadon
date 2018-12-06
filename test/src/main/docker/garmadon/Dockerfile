@@ -16,7 +16,7 @@ ENV PATH=${JAVA_HOME}/bin:/opt/hadoop/bin:/opt/spark/bin:/opt/flink/bin:$PATH
 # Environment Version
 ENV HADOOP_VERSION=2.6.0-cdh5.15.0
 ENV SPARK_VERSION=2.3.2
-ENV FLINK_VERSION=1.6.3
+ENV FLINK_VERSION=1.6.4
 
 # Environment Config
 ENV HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop

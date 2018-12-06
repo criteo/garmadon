@@ -5,6 +5,7 @@ import com.criteo.hadoop.garmadon.elasticsearch.configurations.EsReaderConfigura
 import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
+import com.criteo.hadoop.garmadon.reader.GarmadonMessageFilter;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.reader.configurations.KafkaConfiguration;
 import com.criteo.hadoop.garmadon.reader.configurations.ReaderConfiguration;
@@ -43,9 +44,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
-import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasType;
-import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.not;
-
 /**
  * A reader that pushes events to elastic search
  */
@@ -71,7 +69,7 @@ public final class ElasticSearchReader {
                         String esIndexPrefix,
                         PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics) {
         this.reader = builderReader
-                .intercept(not(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)), this::writeToES)
+                .intercept(GarmadonMessageFilter.ANY.INSTANCE, this::writeToES)
                 .build();
 
         this.bulkProcessor = bulkProcessorMain;
