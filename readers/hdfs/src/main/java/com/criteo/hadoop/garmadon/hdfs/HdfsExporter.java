@@ -31,7 +31,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.any;
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasType;
