@@ -100,7 +100,7 @@
         <protobuf-dynamic.version>1.0.0</protobuf-dynamic.version>
         <jackson.version>2.9.8</jackson.version>
         <commons-io.version>2.6</commons-io.version>
-        <flink.version>1.6.3</flink.version>
+        <flink.version>1.6.4</flink.version>
         <presto.version>0.215</presto.version>
         <assertj.version>3.11.1</assertj.version>
         <consul.version>1.4.2</consul.version>

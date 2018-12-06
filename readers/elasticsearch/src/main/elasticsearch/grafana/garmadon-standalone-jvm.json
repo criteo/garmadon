@@ -1062,6 +1062,180 @@
         }
       },
       {
+        "columns": [
+          {
+            "text": "timestamp",
+            "value": "timestamp"
+          },
+          {
+            "text": "container_id",
+            "value": "container_id"
+          },
+          {
+            "text": "collector_name",
+            "value": "collector_name"
+          },
+          {
+            "text": "cause",
+            "value": "cause"
+          },
+          {
+            "text": "pause_time",
+            "value": "pause_time"
+          },
+          {
+            "text": "eden_before",
+            "value": "eden_before"
+          },
+          {
+            "text": "eden_after",
+            "value": "eden_after"
+          },
+          {
+            "text": "survivor_before",
+            "value": "survivor_before"
+          },
+          {
+            "text": "survivor_after",
+            "value": "survivor_after"
+          },
+          {
+            "text": "old_before",
+            "value": "old_before"
+          },
+          {
+            "text": "old_after",
+            "value": "old_after"
+          },
+          {
+            "text": "metaspace_before",
+            "value": "metaspace_before"
+          },
+          {
+            "text": "metaspace_after",
+            "value": "metaspace_after"
+          },
+          {
+            "text": "code_before",
+            "value": "code_before"
+          },
+          {
+            "text": "code_after",
+            "value": "code_after"
+          }
+        ],
+        "datasource": "garmadon",
+        "fontSize": "100%",
+        "gridPos": {
+          "h": 10,
+          "w": 24,
+          "x": 0,
+          "y": 25
+        },
+        "id": 49,
+        "links": [],
+        "pageSize": null,
+        "scroll": true,
+        "showHeader": true,
+        "sort": {
+          "col": 0,
+          "desc": true
+        },
+        "styles": [
+          {
+            "alias": "Time",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss.SSS",
+            "pattern": "timestamp",
+            "type": "date"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 0,
+            "mappingType": 1,
+            "pattern": "pause_time",
+            "thresholds": [],
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 2,
+            "mappingType": 1,
+            "pattern": "/.*after/",
+            "thresholds": [],
+            "type": "number",
+            "unit": "bytes"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 2,
+            "mappingType": 1,
+            "pattern": "/.*before/",
+            "thresholds": [],
+            "type": "number",
+            "unit": "bytes"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "decimals": 2,
+            "pattern": "/.*/",
+            "thresholds": [],
+            "type": "number",
+            "unit": "short"
+          }
+        ],
+        "targets": [
+          {
+            "bucketAggs": [],
+            "metrics": [
+              {
+                "field": "select field",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "size": 500
+                },
+                "type": "raw_document"
+              }
+            ],
+            "query": "event_type:GC_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "refId": "A",
+            "timeField": "timestamp"
+          }
+        ],
+        "title": "GC Events",
+        "transform": "json",
+        "transparent": true,
+        "type": "table"
+      },
+      {
         "aliasColors": {},
         "bars": false,
         "dashLength": 10,
@@ -1072,7 +1246,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 25
+          "y": 35
         },
         "id": 26,
         "legend": {
@@ -1181,7 +1355,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 25
+          "y": 35
         },
         "id": 29,
         "legend": {
@@ -1299,7 +1473,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 33
+          "y": 43
         },
         "id": 31,
         "legend": {
@@ -1403,7 +1577,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 41
+          "y": 51
         },
         "id": 42,
         "panels": [
@@ -1991,7 +2165,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 42
+          "y": 52
         },
         "id": 9,
         "panels": [

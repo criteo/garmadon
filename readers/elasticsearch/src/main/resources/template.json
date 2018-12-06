@@ -75,6 +75,11 @@
       "type": "integer",
       "index": false
     },
+    "cause": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs"
+    },
     "class_initialized": {
       "type": "long",
       "index": false
@@ -99,6 +104,14 @@
       "type": "long",
       "index": false
     },
+    "code_after": {
+      "type": "long",
+      "index": false
+    },
+    "code_before": {
+      "type": "long",
+      "index": false
+    },
     "code_committed": {
       "type": "long",
       "index": false
@@ -114,6 +127,11 @@
     "code_used": {
       "type": "long",
       "index": false
+    },
+    "collector_name": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs"
     },
     "compile_count": {
       "type": "long",
@@ -196,6 +214,14 @@
           "ignore_above": 1024
         }
       }
+    },
+    "eden_after": {
+      "type": "long",
+      "index": false
+    },
+    "eden_before": {
+      "type": "long",
+      "index": false
     },
     "eden_committed": {
       "type": "long",
@@ -365,6 +391,14 @@
       "type": "integer",
       "index": false
     },
+    "metaspace_after": {
+      "type": "long",
+      "index": false
+    },
+    "metaspace_before": {
+      "type": "long",
+      "index": false
+    },
     "metaspace_committed": {
       "type": "long",
       "index": false
@@ -407,6 +441,14 @@
       "index": false
     },
     "num_tasks": {
+      "type": "long",
+      "index": false
+    },
+    "old_after": {
+      "type": "long",
+      "index": false
+    },
+    "old_before": {
       "type": "long",
       "index": false
     },
@@ -455,6 +497,10 @@
       "index": false
     },
     "output_bytes": {
+      "type": "long",
+      "index": false
+    },
+    "pause_time": {
       "type": "long",
       "index": false
     },
@@ -632,6 +678,14 @@
       "type": "keyword",
       "norms": false,
       "index_options": "freqs"
+    },
+    "survivor_after": {
+      "type": "long",
+      "index": false
+    },
+    "survivor_before": {
+      "type": "long",
+      "index": false
     },
     "survivor_committed": {
       "type": "long",
