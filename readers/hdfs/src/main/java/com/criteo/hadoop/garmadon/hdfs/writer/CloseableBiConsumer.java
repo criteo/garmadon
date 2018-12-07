@@ -10,9 +10,14 @@ import java.io.IOException;
  * @param <U>
  */
 interface CloseableBiConsumer<T, U> {
-
     void write(T t, U u) throws IOException;
 
+    /**
+     * Close the underlying medium.
+     *
+     * @return              Closed file path
+     * @throws IOException  If failing to close
+     */
     Path close() throws IOException;
 }
 

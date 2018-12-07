@@ -4,6 +4,7 @@ import com.criteo.hadoop.garmadon.hdfs.kafka.OffsetResetter;
 import com.criteo.hadoop.garmadon.hdfs.kafka.PartitionsPauseStateHandler;
 import com.criteo.hadoop.garmadon.hdfs.offset.*;
 import com.criteo.hadoop.garmadon.hdfs.writer.ExpiringConsumer;
+import com.criteo.hadoop.garmadon.hdfs.writer.FileSystemUtils;
 import com.criteo.hadoop.garmadon.hdfs.writer.ProtoParquetWriterWithOffset;
 import com.criteo.hadoop.garmadon.hdfs.writer.PartitionedWriter;
 import com.criteo.hadoop.garmadon.protobuf.ProtoConcatenator;
@@ -30,7 +31,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.any;
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasType;
@@ -132,7 +132,12 @@ public class HdfsExporter {
         final Map<Integer, Map.Entry<String, Class<? extends Message>>> typeToDirAndClass = getTypeToDirAndClass();
         final Path temporaryHdfsDir = new Path(baseTemporaryHdfsDir, UUID.randomUUID().toString());
 
-        ensureDirectoriesExist(Arrays.asList(temporaryHdfsDir, finalHdfsDir), fs);
+        try {
+            FileSystemUtils.ensureDirectoriesExist(Arrays.asList(temporaryHdfsDir, finalHdfsDir), fs);
+        } catch (IOException e) {
+            LOGGER.error("Couldn't ensure base directories exist, exiting", e);
+            return;
+        }
 
         LOGGER.info("Temporary HDFS dir: {}", temporaryHdfsDir.toUri());
         LOGGER.info("Final HDFS dir: {}", finalHdfsDir.toUri());
