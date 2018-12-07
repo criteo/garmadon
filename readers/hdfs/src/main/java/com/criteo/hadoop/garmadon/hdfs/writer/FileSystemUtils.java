@@ -17,13 +17,11 @@ public final class FileSystemUtils {
      * @param fs            Filesystem to which these directories should belong
      * @throws IOException  When failing to create any of the directories
      */
-    public static boolean ensureDirectoriesExist(Collection<Path> dirs, FileSystem fs) throws IOException {
+    public static void ensureDirectoriesExist(Collection<Path> dirs, FileSystem fs) throws IOException {
         for (Path dir : dirs) {
             if (!fs.exists(dir) && !fs.mkdirs(dir)) {
-                return false;
+                throw new IOException(String.format("Couldn't create %s (no specific reason)", dir.toUri()));
             }
         }
-
-        return true;
     }
 }

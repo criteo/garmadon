@@ -55,6 +55,8 @@ public class ProtoParquetWriterWithOffsetTest {
         when(fsMock.exists(any(Path.class))).thenReturn(false);
         when(fsMock.mkdirs(any(Path.class))).thenReturn(true);
 
+        when(fsMock.rename(any(Path.class), any(Path.class))).thenReturn(true);
+
         consumer.close();
 
         verify(fsMock, times(1)).rename(tmpPath, new Path(finalPath, FINAL_FILE_NAME));
@@ -63,17 +65,16 @@ public class ProtoParquetWriterWithOffsetTest {
         verifyNoMoreInteractions(fsMock);
     }
 
-    @Test
+    @Test(expected = IOException.class)
     public void closeWithNoEvent() throws IOException {
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
         final ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
                 new Path("tmp"), new Path("final"), null, null, LocalDateTime.MIN);
 
         parquetWriter.close();
-        verifyZeroInteractions(writerMock);
     }
 
-    @Test
+    @Test(expected = IOException.class)
     public void closeRenameFails() throws IOException {
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
         final FileSystem fsMock = mock(FileSystem.class);
@@ -81,7 +82,7 @@ public class ProtoParquetWriterWithOffsetTest {
                 new Path("tmp"), new Path("final"), fsMock, null, LocalDateTime.MIN);
 
         when(fsMock.rename(any(Path.class), any(Path.class))).thenReturn(false);
-        Assert.assertNull(parquetWriter.close());
+        parquetWriter.close();
     }
 
     // We want to check that an empty file gets created and therefore need an actual FS

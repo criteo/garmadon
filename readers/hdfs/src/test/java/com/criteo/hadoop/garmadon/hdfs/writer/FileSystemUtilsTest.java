@@ -2,7 +2,6 @@ package com.criteo.hadoop.garmadon.hdfs.writer;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -20,7 +19,7 @@ public class FileSystemUtilsTest {
 
         when(fsMock.exists(any(Path.class))).thenReturn(true);
 
-        Assert.assertTrue(FileSystemUtils.ensureDirectoriesExist(Collections.singleton(path), fsMock));
+        FileSystemUtils.ensureDirectoriesExist(Collections.singleton(path), fsMock);
         verify(fsMock, times(1)).exists(path);
         verify(fsMock, times(0)).mkdirs(any(Path.class));
     }
@@ -33,23 +32,22 @@ public class FileSystemUtilsTest {
         when(fsMock.exists(any(Path.class))).thenReturn(false);
         when(fsMock.mkdirs(any(Path.class))).thenReturn(true);
 
-        Assert.assertTrue(FileSystemUtils.ensureDirectoriesExist(Collections.singleton(new Path("existing")), fsMock));
+        FileSystemUtils.ensureDirectoriesExist(Collections.singleton(new Path("existing")), fsMock);
         verify(fsMock, times(1)).exists(path);
         verify(fsMock, times(1)).mkdirs(path);
     }
 
-    @Test
+    @Test(expected = IOException.class)
     public void ensureNonExistingDirectoriesDontExist() throws IOException {
         FileSystem fsMock = mock(FileSystem.class);
 
         when(fsMock.exists(any(Path.class))).thenReturn(false);
         when(fsMock.mkdirs(any(Path.class))).thenReturn(false);
 
-        Assert.assertFalse(FileSystemUtils.ensureDirectoriesExist(
-                Arrays.asList(new Path("one"), new Path("two")), fsMock));
+        FileSystemUtils.ensureDirectoriesExist(Arrays.asList(new Path("one"), new Path("two")), fsMock);
     }
 
-    @Test
+    @Test(expected = IOException.class)
     public void ensureSomeExistingDirectoriesDontExist() throws IOException {
         FileSystem fsMock = mock(FileSystem.class);
         Path existingPath = new Path("existing");
@@ -59,7 +57,7 @@ public class FileSystemUtilsTest {
         when(fsMock.exists(eq(nonExistingPath))).thenReturn(false);
         when(fsMock.mkdirs(eq(nonExistingPath))).thenReturn(false);
 
-        Assert.assertFalse(FileSystemUtils.ensureDirectoriesExist(Arrays.asList(existingPath, nonExistingPath), fsMock));
+        FileSystemUtils.ensureDirectoriesExist(Arrays.asList(existingPath, nonExistingPath), fsMock);
     }
 
     @Test(expected = IOException.class)

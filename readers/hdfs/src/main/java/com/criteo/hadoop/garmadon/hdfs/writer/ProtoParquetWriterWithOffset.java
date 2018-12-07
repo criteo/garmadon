@@ -57,22 +57,18 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         if (latestOffset == null) {
             final String additionalInfo = String.format(" Date = %s, Temp file = %s",
                     dayStartTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), temporaryHdfsPath.toUri());
-            LOGGER.error("Trying to write a zero-sized file, please fix ({})", additionalInfo);
-            return null;
+            throw new IOException(String.format("Trying to write a zero-sized file, please fix (%s)", additionalInfo));
         }
 
         writer.close();
 
         final Path finalPath = new Path(finalHdfsDir, fileNamer.computePath(dayStartTime, latestOffset));
 
-        if (!FileSystemUtils.ensureDirectoriesExist(Collections.singleton(finalPath.getParent()), fs)) {
-            LOGGER.warn("Couldn't ensure {} exists", finalPath.getParent());
-            return null;
-        }
+        FileSystemUtils.ensureDirectoriesExist(Collections.singleton(finalPath.getParent()), fs);
 
         if (!fs.rename(temporaryHdfsPath, finalPath)) {
-            LOGGER.warn("Failed to commit {} (from {})", finalPath.toUri(), temporaryHdfsPath);
-            return null;
+            throw new IOException(String.format("Failed to commit %s (from %s)",
+                    finalPath.toUri(), temporaryHdfsPath));
         }
 
         LOGGER.info("Committed {} (from {})", finalPath.toUri(), temporaryHdfsPath);
