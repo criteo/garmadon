@@ -50,33 +50,33 @@ public class HdfsExporter {
     private static final String MAX_TMP_FILE_OPEN_RETRIES = "maxTmpFileOpenRetries";
     private static final String TMP_FILE_OPEN_RETRY_PERIOD = "tmpFileOpenRetryPeriod";
 
-    private static final Map<String, String> defaultPropertiesValue = new HashMap<>();
-    private static final Map<String, String> defaultPropertiesDescription = new HashMap<>();
+    private static final Map<String, String> DEFAULT_PROPERTIES_VALUE = new HashMap<>();
+    private static final Map<String, String> DEFAULT_PROPERTIES_DESCRIPTION = new HashMap<>();
 
     static {
-        defaultPropertiesValue.put(MESSAGES_BEFORE_EXPIRING_WRITERS, "500000");
-        defaultPropertiesValue.put(WRITERS_EXPIRATION_DELAY, "30");
-        defaultPropertiesValue.put(EXPIRER_PERIOD, "30");
-        defaultPropertiesValue.put(HEARTBEAT_PERIOD, "30");
-        defaultPropertiesValue.put(MAX_TMP_FILE_OPEN_RETRIES, "10");
-        defaultPropertiesValue.put(TMP_FILE_OPEN_RETRY_PERIOD, "30");
+        DEFAULT_PROPERTIES_VALUE.put(MESSAGES_BEFORE_EXPIRING_WRITERS, "500000");
+        DEFAULT_PROPERTIES_VALUE.put(WRITERS_EXPIRATION_DELAY, "30");
+        DEFAULT_PROPERTIES_VALUE.put(EXPIRER_PERIOD, "30");
+        DEFAULT_PROPERTIES_VALUE.put(HEARTBEAT_PERIOD, "30");
+        DEFAULT_PROPERTIES_VALUE.put(MAX_TMP_FILE_OPEN_RETRIES, "10");
+        DEFAULT_PROPERTIES_VALUE.put(TMP_FILE_OPEN_RETRY_PERIOD, "30");
     }
 
     static {
-        defaultPropertiesDescription.put(MESSAGES_BEFORE_EXPIRING_WRITERS,
+        DEFAULT_PROPERTIES_DESCRIPTION.put(MESSAGES_BEFORE_EXPIRING_WRITERS,
                 String.format("Soft limit (see '%s') for number of messages before writing final files", EXPIRER_PERIOD));
-        defaultPropertiesDescription.put(WRITERS_EXPIRATION_DELAY,
+        DEFAULT_PROPERTIES_DESCRIPTION.put(WRITERS_EXPIRATION_DELAY,
                 String.format("Soft limit (see '%s') for time since opening before writing final files (in minutes)",
                         EXPIRER_PERIOD));
-        defaultPropertiesDescription.put(EXPIRER_PERIOD,
+        DEFAULT_PROPERTIES_DESCRIPTION.put(EXPIRER_PERIOD,
                 String.format("How often the exporter should try to commit files to their final destination, based " +
                 "on '%s' and '%s' (in seconds)", MESSAGES_BEFORE_EXPIRING_WRITERS, WRITERS_EXPIRATION_DELAY));
-        defaultPropertiesDescription.put(HEARTBEAT_PERIOD,
+        DEFAULT_PROPERTIES_DESCRIPTION.put(HEARTBEAT_PERIOD,
                 "How often a placeholder file should be committed to keep track of maximum offset with no message for" +
                         " a given event type (in seconds)");
-        defaultPropertiesDescription.put(MAX_TMP_FILE_OPEN_RETRIES,
+        DEFAULT_PROPERTIES_DESCRIPTION.put(MAX_TMP_FILE_OPEN_RETRIES,
                 "The maximum number of times failing to open a temporary file (in a row) before aborting the program");
-        defaultPropertiesDescription.put(TMP_FILE_OPEN_RETRY_PERIOD,
+        DEFAULT_PROPERTIES_DESCRIPTION.put(TMP_FILE_OPEN_RETRY_PERIOD,
                 "How long to wait between failures to open a temporary file for writing (in seconds)");
     }
 
@@ -295,8 +295,8 @@ public class HdfsExporter {
         for (String parameter: Arrays.asList(MESSAGES_BEFORE_EXPIRING_WRITERS, WRITERS_EXPIRATION_DELAY, EXPIRER_PERIOD,
                 HEARTBEAT_PERIOD, MAX_TMP_FILE_OPEN_RETRIES, TMP_FILE_OPEN_RETRY_PERIOD)) {
             System.out.println(String.format(
-                    " * %s: %s (default value = %s)", parameter, defaultPropertiesDescription.get(parameter),
-                    defaultPropertiesValue.get(parameter)));
+                    " * %s: %s (default value = %s)", parameter, DEFAULT_PROPERTIES_DESCRIPTION.get(parameter),
+                    DEFAULT_PROPERTIES_VALUE.get(parameter)));
         }
 
         for (Object parameter: Arrays.asList(messagesBeforeExpiringWriters, writersExpirationDelay, expirerPeriod,
