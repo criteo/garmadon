@@ -43,12 +43,52 @@ public class HdfsExporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(HdfsExporter.class);
     private static final Configuration HDFS_CONF = new Configuration();
 
-    private static final int MAX_TMP_FILE_OPEN_RETRIES = 20;
-    private static final int MESSAGES_BEFORE_EXPIRING_WRITERS = 50 * 1000;
-    private static final Duration WRITERS_EXPIRATION_DELAY = Duration.ofMinutes(30);
-    private static final Duration EXPIRER_PERIOD = Duration.ofSeconds(30);
-    private static final Duration HEARTBEAT_PERIOD = Duration.ofSeconds(30);
-    private static final Duration TMP_FILE_OPEN_RETRY_PERIOD = Duration.ofSeconds(30);
+    private static final String MESSAGES_BEFORE_EXPIRING_WRITERS = "messagesBeforeExpiringWriters";
+    private static final String WRITERS_EXPIRATION_DELAY = "writersExpirationDelay";
+    private static final String EXPIRER_PERIOD = "expirerPeriod";
+    private static final String HEARTBEAT_PERIOD = "heartbeatPeriod";
+    private static final String MAX_TMP_FILE_OPEN_RETRIES = "maxTmpFileOpenRetries";
+    private static final String TMP_FILE_OPEN_RETRY_PERIOD = "tmpFileOpenRetryPeriod";
+
+    private static final Map<String, Integer> DEFAULT_PROPERTIES_VALUE = new HashMap<>();
+    private static final Map<String, String> DEFAULT_PROPERTIES_DESCRIPTION = new HashMap<>();
+    private static final List<String> PARAMETERS_NAMES = Arrays.asList(MESSAGES_BEFORE_EXPIRING_WRITERS,
+            WRITERS_EXPIRATION_DELAY, EXPIRER_PERIOD, HEARTBEAT_PERIOD, MAX_TMP_FILE_OPEN_RETRIES,
+            TMP_FILE_OPEN_RETRY_PERIOD);
+
+    static {
+        DEFAULT_PROPERTIES_VALUE.put(MESSAGES_BEFORE_EXPIRING_WRITERS, 500000);
+        DEFAULT_PROPERTIES_VALUE.put(WRITERS_EXPIRATION_DELAY, 30);
+        DEFAULT_PROPERTIES_VALUE.put(EXPIRER_PERIOD, 30);
+        DEFAULT_PROPERTIES_VALUE.put(HEARTBEAT_PERIOD, 30);
+        DEFAULT_PROPERTIES_VALUE.put(MAX_TMP_FILE_OPEN_RETRIES, 10);
+        DEFAULT_PROPERTIES_VALUE.put(TMP_FILE_OPEN_RETRY_PERIOD, 30);
+    }
+
+    static {
+        DEFAULT_PROPERTIES_DESCRIPTION.put(MESSAGES_BEFORE_EXPIRING_WRITERS,
+                String.format("Soft limit (see '%s') for number of messages before writing final files", EXPIRER_PERIOD));
+        DEFAULT_PROPERTIES_DESCRIPTION.put(WRITERS_EXPIRATION_DELAY,
+                String.format("Soft limit (see '%s') for time since opening before writing final files (in minutes)",
+                        EXPIRER_PERIOD));
+        DEFAULT_PROPERTIES_DESCRIPTION.put(EXPIRER_PERIOD,
+                String.format("How often the exporter should try to commit files to their final destination, based " +
+                "on '%s' and '%s' (in seconds)", MESSAGES_BEFORE_EXPIRING_WRITERS, WRITERS_EXPIRATION_DELAY));
+        DEFAULT_PROPERTIES_DESCRIPTION.put(HEARTBEAT_PERIOD,
+                "How often a placeholder file should be committed to keep track of maximum offset with no message for" +
+                        " a given event type (in seconds)");
+        DEFAULT_PROPERTIES_DESCRIPTION.put(MAX_TMP_FILE_OPEN_RETRIES,
+                "The maximum number of times failing to open a temporary file (in a row) before aborting the program");
+        DEFAULT_PROPERTIES_DESCRIPTION.put(TMP_FILE_OPEN_RETRY_PERIOD,
+                "How long to wait between failures to open a temporary file for writing (in seconds)");
+    }
+
+    private static int maxTmpFileOpenRetries;
+    private static int messagesBeforeExpiringWriters;
+    private static Duration writersExpirationDelay;
+    private static Duration expirerPeriod;
+    private static Duration heartbeatPeriod;
+    private static Duration tmpFileOpenRetryPeriod;
 
     protected HdfsExporter() {
         throw new UnsupportedOperationException();
@@ -61,6 +101,8 @@ public class HdfsExporter {
      * args[3]: Final HDFS directory
      */
     public static void main(String[] args) {
+        setupProperties();
+
         if (args.length < 4) {
             printHelp();
             return;
@@ -88,8 +130,8 @@ public class HdfsExporter {
         final KafkaConsumer<String, byte[]> kafkaConsumer = new KafkaConsumer<>(props);
         final GarmadonReader.Builder readerBuilder = GarmadonReader.Builder.stream(kafkaConsumer);
         final Collection<PartitionedWriter<Message>> writers = new ArrayList<>();
-        final PartitionedWriter.Expirer expirer = new PartitionedWriter.Expirer<>(writers, EXPIRER_PERIOD);
-        final HeartbeatConsumer heartbeat = new HeartbeatConsumer<>(writers, HEARTBEAT_PERIOD);
+        final PartitionedWriter.Expirer expirer = new PartitionedWriter.Expirer<>(writers, expirerPeriod);
+        final HeartbeatConsumer heartbeat = new HeartbeatConsumer<>(writers, heartbeatPeriod);
         final Map<Integer, Map.Entry<String, Class<? extends Message>>> typeToDirAndClass = getTypeToDirAndClass();
         final Path temporaryHdfsDir = new Path(baseTemporaryHdfsDir, UUID.randomUUID().toString());
 
@@ -158,6 +200,21 @@ public class HdfsExporter {
         heartbeat.stop().join();
     }
 
+    private static void setupProperties() {
+        maxTmpFileOpenRetries = Integer.getInteger(MAX_TMP_FILE_OPEN_RETRIES,
+                DEFAULT_PROPERTIES_VALUE.get(MAX_TMP_FILE_OPEN_RETRIES));
+        messagesBeforeExpiringWriters = Integer.getInteger(MESSAGES_BEFORE_EXPIRING_WRITERS,
+                DEFAULT_PROPERTIES_VALUE.get(MESSAGES_BEFORE_EXPIRING_WRITERS));
+        writersExpirationDelay = Duration.ofMinutes(Integer.getInteger(WRITERS_EXPIRATION_DELAY,
+                DEFAULT_PROPERTIES_VALUE.get(WRITERS_EXPIRATION_DELAY)));
+        expirerPeriod = Duration.ofSeconds(Integer.getInteger(EXPIRER_PERIOD,
+                DEFAULT_PROPERTIES_VALUE.get(EXPIRER_PERIOD)));
+        heartbeatPeriod = Duration.ofSeconds(Integer.getInteger(HEARTBEAT_PERIOD,
+                DEFAULT_PROPERTIES_VALUE.get(HEARTBEAT_PERIOD)));
+        tmpFileOpenRetryPeriod = Duration.ofSeconds(Integer.getInteger(TMP_FILE_OPEN_RETRY_PERIOD,
+                DEFAULT_PROPERTIES_VALUE.get(TMP_FILE_OPEN_RETRY_PERIOD)));
+    }
+
     private static Function<LocalDateTime, ExpiringConsumer<Message>> buildMessageConsumerBuilder(
             FileSystem fs, Path temporaryHdfsDir, Path finalHdfsDir, Class<? extends Message> clazz,
             OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser) {
@@ -166,7 +223,7 @@ public class HdfsExporter {
             final String additionalInfo = String.format("Date = %s, Event type = %s", dayStartTime,
                     clazz.getSimpleName());
 
-            for (int i = 0; i < MAX_TMP_FILE_OPEN_RETRIES; ++i) {
+            for (int i = 0; i < maxTmpFileOpenRetries; ++i) {
                 final Path tmpFilePath = new Path(temporaryHdfsDir, uniqueFileName);
                 final ProtoParquetWriter<Message> protoWriter;
 
@@ -177,7 +234,7 @@ public class HdfsExporter {
 
                     try {
                         partitionsPauser.pause(clazz);
-                        Thread.sleep(TMP_FILE_OPEN_RETRY_PERIOD.get(ChronoUnit.SECONDS));
+                        Thread.sleep(tmpFileOpenRetryPeriod.get(ChronoUnit.SECONDS));
                     } catch (InterruptedException interrupt) {
                         LOGGER.info("Interrupted between temp file opening retries", interrupt);
                     }
@@ -189,13 +246,13 @@ public class HdfsExporter {
 
                 return new ExpiringConsumer<>(new ProtoParquetWriterWithOffset<>(
                         protoWriter, tmpFilePath, finalHdfsDir, fs, offsetComputer, dayStartTime),
-                        WRITERS_EXPIRATION_DELAY, MESSAGES_BEFORE_EXPIRING_WRITERS);
+                        writersExpirationDelay, messagesBeforeExpiringWriters);
             }
 
             // There's definitely something wrong, potentially the whole instance, so stop trying
             throw new FileSystemNotFoundException(String.format(
                     "Failed opening a temporary file after %d retries: %s",
-                    MAX_TMP_FILE_OPEN_RETRIES, additionalInfo));
+                    maxTmpFileOpenRetries, additionalInfo));
         };
     }
 
@@ -217,6 +274,15 @@ public class HdfsExporter {
         System.out.println("Usage:");
         System.out.println("\tjava com.criteo.hadoop.garmadon.parquet.HdfsExporter " +
                 "kafka_connection_string kafka_group temp_dir final_dir");
+
+        System.out.println();
+        System.out.println("Properties settable via -D:");
+
+        for (String parameter : PARAMETERS_NAMES) {
+            System.out.println(String.format(
+                    " * %s: %s (default value = %d)", parameter, DEFAULT_PROPERTIES_DESCRIPTION.get(parameter),
+                    DEFAULT_PROPERTIES_VALUE.get(parameter)));
+        }
     }
 
     private static Map<Integer, Map.Entry<String, Class<? extends Message>>> getTypeToDirAndClass() {
