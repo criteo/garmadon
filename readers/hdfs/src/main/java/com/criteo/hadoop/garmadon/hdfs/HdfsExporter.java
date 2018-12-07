@@ -50,16 +50,19 @@ public class HdfsExporter {
     private static final String MAX_TMP_FILE_OPEN_RETRIES = "maxTmpFileOpenRetries";
     private static final String TMP_FILE_OPEN_RETRY_PERIOD = "tmpFileOpenRetryPeriod";
 
-    private static final Map<String, String> DEFAULT_PROPERTIES_VALUE = new HashMap<>();
+    private static final Map<String, Integer> DEFAULT_PROPERTIES_VALUE = new HashMap<>();
     private static final Map<String, String> DEFAULT_PROPERTIES_DESCRIPTION = new HashMap<>();
+    private static final List<String> PARAMETERS_NAMES = Arrays.asList(MESSAGES_BEFORE_EXPIRING_WRITERS,
+            WRITERS_EXPIRATION_DELAY, EXPIRER_PERIOD, HEARTBEAT_PERIOD, MAX_TMP_FILE_OPEN_RETRIES,
+            TMP_FILE_OPEN_RETRY_PERIOD);
 
     static {
-        DEFAULT_PROPERTIES_VALUE.put(MESSAGES_BEFORE_EXPIRING_WRITERS, "500000");
-        DEFAULT_PROPERTIES_VALUE.put(WRITERS_EXPIRATION_DELAY, "30");
-        DEFAULT_PROPERTIES_VALUE.put(EXPIRER_PERIOD, "30");
-        DEFAULT_PROPERTIES_VALUE.put(HEARTBEAT_PERIOD, "30");
-        DEFAULT_PROPERTIES_VALUE.put(MAX_TMP_FILE_OPEN_RETRIES, "10");
-        DEFAULT_PROPERTIES_VALUE.put(TMP_FILE_OPEN_RETRY_PERIOD, "30");
+        DEFAULT_PROPERTIES_VALUE.put(MESSAGES_BEFORE_EXPIRING_WRITERS, 500000);
+        DEFAULT_PROPERTIES_VALUE.put(WRITERS_EXPIRATION_DELAY, 30);
+        DEFAULT_PROPERTIES_VALUE.put(EXPIRER_PERIOD, 30);
+        DEFAULT_PROPERTIES_VALUE.put(HEARTBEAT_PERIOD, 30);
+        DEFAULT_PROPERTIES_VALUE.put(MAX_TMP_FILE_OPEN_RETRIES, 10);
+        DEFAULT_PROPERTIES_VALUE.put(TMP_FILE_OPEN_RETRY_PERIOD, 30);
     }
 
     static {
@@ -198,40 +201,18 @@ public class HdfsExporter {
     }
 
     private static void setupProperties() {
-        maxTmpFileOpenRetries = Integer.valueOf(System.getProperty("maxTmpFileOpenRetries", "20"));
-        messagesBeforeExpiringWriters = Integer.valueOf(
-                System.getProperty("messagesBeforeExpiringWriters", "50000"));
-        writersExpirationDelay = Duration.ofMinutes(Integer.valueOf(
-                System.getProperty("writersExpirationDelay", "20")));
-        expirerPeriod = Duration.ofSeconds(Integer.valueOf(
-                System.getProperty("expirerPeriod", "30")));
-        heartbeatPeriod = Duration.ofSeconds(Integer.valueOf(
-                System.getProperty("heartbeatPeriod", "30")));
-        tmpFileOpenRetryPeriod = Duration.ofSeconds(Integer.valueOf(
-                System.getProperty("tmpFileOpenRetryPeriod", "30")));
-    }
-
-    /**
-     * Ensure paths exist and are directories. Otherwise create them.
-     *
-     * @param dirs                      Directories that need to exist
-     * @param fs                        Filesystem to which these directories should belong
-     * @throws IllegalStateException    When failing to ensure directories existence
-     */
-    private static void ensureDirectoriesExist(List<Path> dirs, FileSystem fs) {
-        try {
-            for (Path dir : dirs) {
-                if (!fs.exists(dir)) fs.mkdirs(dir);
-
-                if (!fs.isDirectory(dir)) {
-                    throw new IllegalStateException(
-                            String.format("Couldn't ensure directory %s exists: not a directory", dir.getName()));
-                }
-            }
-        } catch (IOException e) {
-            final String dirsString = dirs.stream().map(Path::getName).collect(Collectors.joining());
-            throw new IllegalStateException(String.format("Couldn't ensure directories %s exist", dirsString), e);
-        }
+        maxTmpFileOpenRetries = Integer.getInteger(MAX_TMP_FILE_OPEN_RETRIES,
+                DEFAULT_PROPERTIES_VALUE.get(MAX_TMP_FILE_OPEN_RETRIES));
+        messagesBeforeExpiringWriters = Integer.getInteger(MESSAGES_BEFORE_EXPIRING_WRITERS,
+                DEFAULT_PROPERTIES_VALUE.get(MESSAGES_BEFORE_EXPIRING_WRITERS));
+        writersExpirationDelay = Duration.ofMinutes(Integer.getInteger(WRITERS_EXPIRATION_DELAY,
+                DEFAULT_PROPERTIES_VALUE.get(WRITERS_EXPIRATION_DELAY)));
+        expirerPeriod = Duration.ofSeconds(Integer.getInteger(EXPIRER_PERIOD,
+                DEFAULT_PROPERTIES_VALUE.get(EXPIRER_PERIOD)));
+        heartbeatPeriod = Duration.ofSeconds(Integer.getInteger(HEARTBEAT_PERIOD,
+                DEFAULT_PROPERTIES_VALUE.get(HEARTBEAT_PERIOD)));
+        tmpFileOpenRetryPeriod = Duration.ofSeconds(Integer.getInteger(TMP_FILE_OPEN_RETRY_PERIOD,
+                DEFAULT_PROPERTIES_VALUE.get(TMP_FILE_OPEN_RETRY_PERIOD)));
     }
 
     private static Function<LocalDateTime, ExpiringConsumer<Message>> buildMessageConsumerBuilder(
@@ -297,16 +278,10 @@ public class HdfsExporter {
         System.out.println();
         System.out.println("Properties settable via -D:");
 
-        for (String parameter: Arrays.asList(MESSAGES_BEFORE_EXPIRING_WRITERS, WRITERS_EXPIRATION_DELAY, EXPIRER_PERIOD,
-                HEARTBEAT_PERIOD, MAX_TMP_FILE_OPEN_RETRIES, TMP_FILE_OPEN_RETRY_PERIOD)) {
+        for (String parameter : PARAMETERS_NAMES) {
             System.out.println(String.format(
-                    " * %s: %s (default value = %s)", parameter, DEFAULT_PROPERTIES_DESCRIPTION.get(parameter),
+                    " * %s: %s (default value = %d)", parameter, DEFAULT_PROPERTIES_DESCRIPTION.get(parameter),
                     DEFAULT_PROPERTIES_VALUE.get(parameter)));
-        }
-
-        for (Object parameter: Arrays.asList(messagesBeforeExpiringWriters, writersExpirationDelay, expirerPeriod,
-                heartbeatPeriod, maxTmpFileOpenRetries, tmpFileOpenRetryPeriod)) {
-            System.out.println(parameter.toString());
         }
     }
 
