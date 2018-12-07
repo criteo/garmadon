@@ -549,6 +549,14 @@
           "type": "long",
           "index": false
         },
+        "pktrx": {
+          "type": "long",
+          "index": false
+        },
+        "errin": {
+          "type": "long",
+          "index": false
+        },
         "safepoints_count": {
           "type": "integer",
           "index": false
@@ -737,6 +745,14 @@
           "index_options": "freqs"
         },
         "tx": {
+          "type": "long",
+          "index": false
+        },
+        "pkttx": {
+          "type": "long",
+          "index": false
+        },
+        "errout": {
           "type": "long",
           "index": false
         },

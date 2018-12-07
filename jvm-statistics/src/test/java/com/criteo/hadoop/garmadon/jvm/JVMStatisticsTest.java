@@ -28,7 +28,7 @@ public class JVMStatisticsTest {
             "safepoints\\[count=\\d+, synctime=\\d+, totaltime=\\d+\\], " +
             "synclocks\\[contendedlockattempts=\\d+, deflations=\\d+, futilewakeups=\\d+, inflations=\\d+, monextant=\\d+, notifications=\\d+, parks=\\d+\\].*");
     private static final Pattern GCSTATS_PATTERN = Pattern.compile(".* occurred at \\d+-\\d+-\\d+ \\d+:\\d+:\\d+.\\d+, took \\d+ms \\(System\\.gc\\(\\)\\)  (eden|survivor|old)\\[[-+]\\d+\\]\\(\\d+->\\d+\\) (eden|survivor|old)\\[[-+]\\d+\\]\\(\\d+->\\d+\\).*");
-    private static final Pattern MACHINESTATS_PATTERN = Pattern.compile("machinecpu\\[%user=\\d+, %nice=\\d+, %sys=\\d+, %idle=\\d+, %iowait=\\d+, %irq=\\d+, %softirq=\\d+, %core0=\\d+.*\\], memory\\[swap=\\d+, physical=\\d+\\], network\\[.*_rx=\\d+, .*_tx=\\d+.*\\], disk\\[.*_reads=\\d+, .*_readbytes=\\d+, .*_writes=\\d+, .*_writebytes=\\d+.*\\]");
+    private static final Pattern MACHINESTATS_PATTERN = Pattern.compile("machinecpu\\[%user=\\d+, %nice=\\d+, %sys=\\d+, %idle=\\d+, %iowait=\\d+, %irq=\\d+, %softirq=\\d+, %core0=\\d+.*\\], memory\\[swap=\\d+, physical=\\d+\\], network\\[.*_rx=\\d+, .*_tx=\\d+, .*_pktrx=\\d+, .*_pkttx=\\d+, .*_errin=\\d+, .*_errout=\\d+.*\\], disk\\[.*_reads=\\d+, .*_readbytes=\\d+, .*_writes=\\d+, .*_writebytes=\\d+.*\\]");
 
     private CountDownLatch latch = new CountDownLatch(1);
     private AtomicBoolean isMatches = new AtomicBoolean();
