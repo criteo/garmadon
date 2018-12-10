@@ -20,12 +20,6 @@ final class EventsWithHeader {
         }
     }
 
-    public static abstract class PathEvent implements Message {
-        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
-            return descriptorForTypeWithHeader(DataAccessEventProtos.PathEvent.getDescriptor());
-        }
-    }
-
     public static abstract class FsEvent implements Message {
         public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
             return descriptorForTypeWithHeader(DataAccessEventProtos.FsEvent.getDescriptor());
