@@ -57,7 +57,7 @@ public class HdfsExporter {
             TMP_FILE_OPEN_RETRY_PERIOD);
 
     static {
-        DEFAULT_PROPERTIES_VALUE.put(MESSAGES_BEFORE_EXPIRING_WRITERS, 3000000);
+        DEFAULT_PROPERTIES_VALUE.put(MESSAGES_BEFORE_EXPIRING_WRITERS, 3_000_000);
         DEFAULT_PROPERTIES_VALUE.put(WRITERS_EXPIRATION_DELAY, 30);
         DEFAULT_PROPERTIES_VALUE.put(EXPIRER_PERIOD, 30);
         // This is not a multiple of 30s on purpose, to avoid closing files at the same time as running heartbeats
