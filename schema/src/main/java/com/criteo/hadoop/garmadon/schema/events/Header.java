@@ -10,7 +10,7 @@ public class Header {
 
     private final String id;
     private final String applicationID;
-    private final String appAttemptID;
+    private final String attemptID;
     private final String applicationName;
     private final String user;
     private final String containerID;
@@ -30,12 +30,12 @@ public class Header {
         STANDALONE
     }
 
-    public Header(String id, String applicationID, String appAttemptID, String applicationName,
+    public Header(String id, String applicationID, String attemptID, String applicationName,
                   String user, String containerID, String hostname, List<String> tags, String pid,
                   String framework, String component, String executorId, String mainClass) {
         this.id = id;
         this.applicationID = applicationID;
-        this.appAttemptID = appAttemptID;
+        this.attemptID = attemptID;
         this.applicationName = applicationName;
         this.user = user;
         this.containerID = containerID;
@@ -54,14 +54,16 @@ public class Header {
 
         Header otherHeader = (Header) other;
 
-        return Objects.equals(this.id, otherHeader.id) && Objects.equals(otherHeader.appAttemptID, this.appAttemptID) &&
+        return Objects.equals(this.id, otherHeader.id) &&
+                Objects.equals(otherHeader.attemptID, this.attemptID) &&
                 Objects.equals(this.applicationID, otherHeader.applicationID) &&
-                Objects.equals(this.appAttemptID, otherHeader.appAttemptID) &&
+                Objects.equals(this.attemptID, otherHeader.attemptID) &&
                 Objects.equals(this.applicationName, otherHeader.applicationName) &&
                 Objects.equals(this.user, otherHeader.user) &&
                 Objects.equals(this.containerID, otherHeader.containerID) &&
                 Objects.equals(this.hostname, otherHeader.hostname) &&
-                Objects.equals(this.tags, otherHeader.tags) && Objects.equals(this.pid, otherHeader.pid) &&
+                Objects.equals(this.tags, otherHeader.tags) &&
+                Objects.equals(this.pid, otherHeader.pid) &&
                 Objects.equals(this.framework, otherHeader.framework) &&
                 Objects.equals(this.component, otherHeader.component) &&
                 Objects.equals(this.executorId, otherHeader.executorId) &&
@@ -71,7 +73,7 @@ public class Header {
     public Header cloneAndOverride(Header override) {
         String id = override.id != null ? override.id : this.id;
         String applicationID = override.applicationID != null ? override.applicationID : this.applicationID;
-        String appAttemptID = override.appAttemptID != null ? override.appAttemptID : this.appAttemptID;
+        String appAttemptID = override.attemptID != null ? override.attemptID : this.attemptID;
         String applicationName = override.applicationName != null ? override.applicationName : this.applicationName;
         String user = override.user != null ? override.user : this.user;
         String containerID = override.containerID != null ? override.containerID : this.containerID;
@@ -100,7 +102,7 @@ public class Header {
     }
 
     public SerializedHeader toSerializeHeader() {
-        return new SerializedHeader(id, applicationID, appAttemptID, applicationName, user, containerID, hostname, tags, pid, framework,
+        return new SerializedHeader(id, applicationID, attemptID, applicationName, user, containerID, hostname, tags, pid, framework,
                 component, executorId, mainClass);
     }
 
@@ -109,9 +111,9 @@ public class Header {
                 .newBuilder();
         if (id != null) builder.setId(id);
         if (applicationID != null) builder.setApplicationId(applicationID);
-        if (appAttemptID != null) builder.setAppAttemptId(appAttemptID);
+        if (attemptID != null) builder.setAttemptId(attemptID);
         if (applicationName != null) builder.setApplicationName(applicationName);
-        if (user != null) builder.setUserName(user);
+        if (user != null) builder.setUsername(user);
         if (containerID != null) builder.setContainerId(containerID);
         if (hostname != null) builder.setHostname(hostname);
         if (tags != null && tags.size() > 0) {
@@ -132,7 +134,7 @@ public class Header {
         return "Header{" +
                 "id='" + id + '\'' +
                 ", applicationID='" + applicationID + '\'' +
-                ", appAttemptID='" + appAttemptID + '\'' +
+                ", attemptID='" + attemptID + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", user='" + user + '\'' +
                 ", containerID='" + containerID + '\'' +
@@ -171,7 +173,7 @@ public class Header {
 
         private String id;
         private String applicationID;
-        private String appAttemptID;
+        private String attemptID;
         private String applicationName;
         private String user;
         private String containerID;
@@ -206,8 +208,8 @@ public class Header {
             return this;
         }
 
-        public Builder withAppAttemptID(String appAttemptID) {
-            this.appAttemptID = appAttemptID;
+        public Builder withAttemptID(String attemptID) {
+            this.attemptID = attemptID;
             return this;
         }
 
@@ -253,12 +255,12 @@ public class Header {
         }
 
         public Header build() {
-            return new Header(id, applicationID, appAttemptID, applicationName, user, containerID, hostname, tags,
+            return new Header(id, applicationID, attemptID, applicationName, user, containerID, hostname, tags,
                     pid, framework, component, executorId, mainClass);
         }
 
         public SerializedHeader buildSerializedHeader() {
-            return new SerializedHeader(id, applicationID, appAttemptID, applicationName, user, containerID, hostname,
+            return new SerializedHeader(id, applicationID, attemptID, applicationName, user, containerID, hostname,
                     tags, pid, framework, component, executorId, mainClass);
         }
     }

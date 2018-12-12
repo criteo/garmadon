@@ -7,9 +7,9 @@ option java_outer_classname = "EventHeaderProtos";
 
 message Header {
     string application_id = 1;
-    string app_attempt_id = 2;
+    string attempt_id = 2;
     string application_name = 3;
-    string user_name = 4;
+    string username = 4;
     string container_id = 5;
     string hostname = 6;
     string pid = 8;

@@ -102,7 +102,7 @@ public final class ContainerHeader {
                 .addTag(Header.Tag.YARN_APPLICATION.name())
                 .withHostname(host)
                 .withApplicationID(appId.toString())
-                .withAppAttemptID(appAttemptID.toString())
+                .withAttemptID(appAttemptID.toString())
                 .withUser(user)
                 .withContainerID(containerIdString)
                 .withPid(Utils.getPid())

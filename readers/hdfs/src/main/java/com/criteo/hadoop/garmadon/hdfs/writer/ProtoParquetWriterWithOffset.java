@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 
 /**
  * Wrap an actual ProtoParquetWriter, renaming the output file properly when closing.
@@ -56,16 +57,21 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         if (latestOffset == null) {
             final String additionalInfo = String.format(" Date = %s, Temp file = %s",
                     dayStartTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), temporaryHdfsPath.toUri());
-            LOGGER.error("Trying to write a zero-sized file, please fix ({})", additionalInfo);
-            return null;
+            throw new IOException(String.format("Trying to write a zero-sized file, please fix (%s)", additionalInfo));
         }
 
         writer.close();
 
         final Path finalPath = new Path(finalHdfsDir, fileNamer.computePath(dayStartTime, latestOffset));
-        fs.rename(temporaryHdfsPath, finalPath);
 
-        LOGGER.info("Committed " + finalPath.toUri());
+        FileSystemUtils.ensureDirectoriesExist(Collections.singleton(finalPath.getParent()), fs);
+
+        if (!fs.rename(temporaryHdfsPath, finalPath)) {
+            throw new IOException(String.format("Failed to commit %s (from %s)",
+                    finalPath.toUri(), temporaryHdfsPath));
+        }
+
+        LOGGER.info("Committed {} (from {})", finalPath.toUri(), temporaryHdfsPath);
 
         return finalPath;
     }

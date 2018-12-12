@@ -51,20 +51,38 @@ public class ProtoParquetWriterWithOffsetTest {
         verify(writerMock, times(1)).write(secondMessageMock);
         verifyNoMoreInteractions(writerMock);
 
+        // Directory doesn't exist and creation succeeds
+        when(fsMock.exists(any(Path.class))).thenReturn(false);
+        when(fsMock.mkdirs(any(Path.class))).thenReturn(true);
+
+        when(fsMock.rename(any(Path.class), any(Path.class))).thenReturn(true);
+
         consumer.close();
 
         verify(fsMock, times(1)).rename(tmpPath, new Path(finalPath, FINAL_FILE_NAME));
+        verify(fsMock, times(1)).exists(eq(finalPath));
+        verify(fsMock, times(1)).mkdirs(eq(finalPath));
         verifyNoMoreInteractions(fsMock);
     }
 
-    @Test
+    @Test(expected = IOException.class)
     public void closeWithNoEvent() throws IOException {
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
         final ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
                 new Path("tmp"), new Path("final"), null, null, LocalDateTime.MIN);
 
         parquetWriter.close();
-        verifyZeroInteractions(writerMock);
+    }
+
+    @Test(expected = IOException.class)
+    public void closeRenameFails() throws IOException {
+        final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
+        final FileSystem fsMock = mock(FileSystem.class);
+        final ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
+                new Path("tmp"), new Path("final"), fsMock, null, LocalDateTime.MIN);
+
+        when(fsMock.rename(any(Path.class), any(Path.class))).thenReturn(false);
+        parquetWriter.close();
     }
 
     // We want to check that an empty file gets created and therefore need an actual FS
@@ -79,14 +97,14 @@ public class ProtoParquetWriterWithOffsetTest {
     public void closeAfterSomeEventWithLocalFilesystem() throws IOException {
         final List<EventHeaderProtos.Header> inputHeaders = new LinkedList<>();
 
-        inputHeaders.add(EventHeaderProtos.Header.newBuilder().setAppAttemptId("1").build());
-        inputHeaders.add(EventHeaderProtos.Header.newBuilder().setAppAttemptId("2").build());
+        inputHeaders.add(EventHeaderProtos.Header.newBuilder().setAttemptId("1").build());
+        inputHeaders.add(EventHeaderProtos.Header.newBuilder().setAttemptId("2").build());
 
         final List<EventHeaderProtos.Header> headers = checkSingleFileWithFileSystem(inputHeaders);
 
         Assert.assertEquals(2, headers.size());
-        Assert.assertEquals("1", headers.get(0).getAppAttemptId());
-        Assert.assertEquals("2", headers.get(1).getAppAttemptId());
+        Assert.assertEquals("1", headers.get(0).getAttemptId());
+        Assert.assertEquals("2", headers.get(1).getAttemptId());
     }
 
     private List<EventHeaderProtos.Header> checkSingleFileWithFileSystem(

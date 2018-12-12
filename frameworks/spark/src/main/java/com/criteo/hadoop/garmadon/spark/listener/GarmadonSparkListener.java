@@ -71,7 +71,7 @@ public class GarmadonSparkListener extends SparkListener {
                 .setState(state.name())
                 .setStageName(name)
                 .setStageId(stageId)
-                .setAttemptId(attemptId);
+                .setStageAttemptId(attemptId);
 
         tryToSet(() -> stageStateEventBuilder.setNumTasks(numTasks));
         this.eventHandler.accept(stateTime, header, stageStateEventBuilder.build());
@@ -100,7 +100,7 @@ public class GarmadonSparkListener extends SparkListener {
         try {
             header = header.cloneAndOverride(Header.newBuilder()
                     .withApplicationID(applicationStart.appId().getOrElse(emptyStringScala))
-                    .withAppAttemptID(applicationStart.appAttemptId().getOrElse(emptyStringScala))
+                    .withAttemptID(applicationStart.appAttemptId().getOrElse(emptyStringScala))
                     .withApplicationName(applicationStart.appName())
                     .build())
                     .toSerializeHeader();
@@ -144,7 +144,7 @@ public class GarmadonSparkListener extends SparkListener {
                     .setStartTime(submissionTime)
                     .setStageName(name)
                     .setStageId(stageId)
-                    .setAttemptId(attemptId);
+                    .setStageAttemptId(attemptId);
 
             tryToSet(() -> stageEventBuilder.setNumTasks(numTasks));
             tryToSet(() -> stageEventBuilder.setStatus(status));
@@ -194,7 +194,7 @@ public class GarmadonSparkListener extends SparkListener {
                     .setStartTime(taskEnd.taskInfo().launchTime())
                     .setTaskId(String.valueOf(taskEnd.taskInfo().taskId()))
                     .setStageId(String.valueOf(taskEnd.stageId()))
-                    .setAttemptId(String.valueOf(taskEnd.stageAttemptId()))
+                    .setStageAttemptId(String.valueOf(taskEnd.stageAttemptId()))
                     .setExecutorHostname(String.valueOf(taskEnd.taskInfo().host()));
 
             tryToSet(() -> taskEventBuilder.setStatus(status));
