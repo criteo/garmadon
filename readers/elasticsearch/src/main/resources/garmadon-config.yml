@@ -1,0 +1,8 @@
+elasticsearch:
+  settings:
+    index.number_of_shards: 10
+    index.number_of_replicas: 2
+    merge.scheduler.max_thread_count: 1
+    translog.flush_threshold_size: 1gb
+    refresh_interval: 30s
+    unassigned.node_left.delayed_timeout: 15m
