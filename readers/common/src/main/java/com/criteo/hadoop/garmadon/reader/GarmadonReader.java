@@ -57,7 +57,8 @@ public final class GarmadonReader {
     }
 
     /**
-     * returns a future that completes when consuming is done
+     *
+     * @return  A future that completes when consuming is done
      */
     public synchronized CompletableFuture<Void> startReading() {
         if (!reading) {
@@ -68,7 +69,8 @@ public final class GarmadonReader {
     }
 
     /**
-     * returns a future that completes when consuming is done
+     *
+     * @return  A future that completes when consuming is done
      */
     public synchronized CompletableFuture<Void> stopReading() {
         if (reading) {

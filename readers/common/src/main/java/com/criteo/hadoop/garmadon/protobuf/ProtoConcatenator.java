@@ -62,12 +62,12 @@ public class ProtoConcatenator {
     }
 
     /**
-     * Concatenate Protobuf messages into a single String -> object map.
+     * Concatenate Protobuf messages into a single (String, Object) map.
      * /!\ Doesn't handle embedded objects /!\
      *
      * @param messages Messages to be concatenated
      * @param includeDefaultValueFields Boolean indicating if empty fields must be added with their default
-     * @return A single, one-level String -> object map holding fields and values from all input messages.
+     * @return A single, one-level (String, Object) map holding fields and values from all input messages.
      * Null if an error occurred (shouldn't happen).
      */
     public static Map<String, Object> concatToMap(Collection<Message> messages, boolean includeDefaultValueFields) {

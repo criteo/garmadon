@@ -8,13 +8,13 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * An object that carries information about the kafka offset
+ * An object that carries information about the Kafka offset
  * that has just been consumed to produce the associated GarmadonMessage
  * <p>
  * It allows offset committing either synchronously or asynchronously
  *
- * @param <K>
- * @param <V>
+ * @param <K>   Kafka consumer key type
+ * @param <V>   Kafka consumer value type
  */
 public class CommittableOffset<K, V> implements Offset {
 
