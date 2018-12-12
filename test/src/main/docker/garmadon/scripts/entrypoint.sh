@@ -8,6 +8,10 @@ function check_resourcemanager_up {
     until curl http://resourcemanager:8088/; do sleep 1; done
 }
 
+function check_es_up {
+    until curl http://elasticsearch:9200/; do sleep 1; done
+}
+
 function create_hdfs_folder {
     hdfs dfs -mkdir -p /var/log/hadoop-yarn/apps /var/log/hadoop-yarn/staging/history/done_intermediate /var/log/hadoop-yarn/staging/history/done \
                        /tmp /var/log/spark /user/root/examples/src/main/resources
@@ -24,6 +28,7 @@ function client {
 }
 
 function es-reader {
+    check_es_up
     java -cp /opt/garmadon/conf-es-reader:/opt/garmadon/lib/garmadon-readers-elasticsearch.jar \
          com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader kafka:9092 es-reader elasticsearch 9200 garmadon esuser espassword 31001
 }

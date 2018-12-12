@@ -1,0 +1,759 @@
+{
+  "dynamic_templates": [
+    {
+      "strings": {
+        "match_mapping_type": "string",
+        "mapping": {
+          "type": "text",
+          "norms": false,
+          "index_options": "freqs"
+        }
+      }
+    },
+    {
+      "percent": {
+        "match": "*_%*",
+        "mapping": {
+          "type": "short",
+          "index": false
+        }
+      }
+    },
+    {
+      "unindexed_longs": {
+        "match_mapping_type": "long",
+        "mapping": {
+          "type": "long",
+          "index": false
+        }
+      }
+    },
+    {
+      "unindexed_doubles": {
+        "match_mapping_type": "double",
+        "mapping": {
+          "type": "float",
+          "index": false
+        }
+      }
+    }
+  ],
+  "_source": {
+    "enabled": true
+  },
+  "properties": {
+    "action": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "application_id": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "application_name": {
+      "type": "text",
+      "norms": false,
+      "index_options": "positions",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 1024
+        }
+      }
+    },
+    "attempt_id": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "attempt_number": {
+      "type": "integer",
+      "index": false
+    },
+    "class_initialized": {
+      "type": "long",
+      "index": false
+    },
+    "class_inittime": {
+      "type": "long",
+      "index": false
+    },
+    "class_loaded": {
+      "type": "integer",
+      "index": false
+    },
+    "class_loadtime": {
+      "type": "long",
+      "index": false
+    },
+    "class_unloaded": {
+      "type": "long",
+      "index": false
+    },
+    "class_veriftime": {
+      "type": "long",
+      "index": false
+    },
+    "code_committed": {
+      "type": "long",
+      "index": false
+    },
+    "code_init": {
+      "type": "long",
+      "index": false
+    },
+    "code_max": {
+      "type": "long",
+      "index": false
+    },
+    "code_used": {
+      "type": "long",
+      "index": false
+    },
+    "compile_count": {
+      "type": "long",
+      "index": false
+    },
+    "compile_failed": {
+      "type": "long",
+      "index": false
+    },
+    "compile_invalidated": {
+      "type": "long",
+      "index": false
+    },
+    "compile_threads": {
+      "type": "integer",
+      "index": false
+    },
+    "compile_time": {
+      "type": "long",
+      "index": false
+    },
+    "component": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "compressedclassspace_committed": {
+      "type": "long",
+      "index": false
+    },
+    "compressedclassspace_init": {
+      "type": "long",
+      "index": false
+    },
+    "compressedclassspace_max": {
+      "type": "long",
+      "index": false
+    },
+    "compressedclassspace_used": {
+      "type": "long",
+      "index": false
+    },
+    "container_id": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "cpu_cores": {
+      "type": "integer",
+      "index": false
+    },
+    "descriptors_max": {
+      "type": "integer",
+      "index": false
+    },
+    "descriptors_open": {
+      "type": "integer",
+      "index": false
+    },
+    "disk": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs"
+    },
+    "disk_bytes_spilled": {
+      "type": "long",
+      "index": false
+    },
+    "dst_path": {
+      "type": "text",
+      "norms": false,
+      "index_options": "freqs",
+      "analyzer": "path_analyzer",
+      "search_analyzer": "keyword",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 1024
+        }
+      }
+    },
+    "eden_committed": {
+      "type": "long",
+      "index": false
+    },
+    "eden_init": {
+      "type": "long",
+      "index": false
+    },
+    "eden_max": {
+      "type": "long",
+      "index": false
+    },
+    "eden_used": {
+      "type": "long",
+      "index": false
+    },
+    "event_type": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs"
+    },
+    "executor_cpu_time": {
+      "type": "long",
+      "index": false
+    },
+    "executor_deserialize_cpu_time": {
+      "type": "long",
+      "index": false
+    },
+    "executor_deserialize_time": {
+      "type": "long",
+      "index": false
+    },
+    "executor_hostname": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "executor_id": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "executor_run_time": {
+      "type": "long",
+      "index": false
+    },
+    "failure_reason": {
+      "type": "text",
+      "norms": false,
+      "index_options": "freqs"
+    },
+    "framework": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "gc(G1 Old Generation)_count": {
+      "type": "long",
+      "index": false
+    },
+    "gc(G1 Old Generation)_time": {
+      "type": "long",
+      "index": false
+    },
+    "gc(G1 Young Generation)_count": {
+      "type": "long",
+      "index": false
+    },
+    "gc(G1 Young Generation)_time": {
+      "type": "long",
+      "index": false
+    },
+    "gc(PS MarkSweep)_count": {
+      "type": "long",
+      "index": false
+    },
+    "gc(PS MarkSweep)_time": {
+      "type": "long",
+      "index": false
+    },
+    "gc(PS Scavenge)_count": {
+      "type": "long",
+      "index": false
+    },
+    "gc(PS Scavenge)_time": {
+      "type": "long",
+      "index": false
+    },
+    "heap_committed": {
+      "type": "long",
+      "index": false
+    },
+    "heap_init": {
+      "type": "long",
+      "index": false
+    },
+    "heap_max": {
+      "type": "long",
+      "index": false
+    },
+    "heap_used": {
+      "type": "long",
+      "index": false
+    },
+    "hostname": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "input_records": {
+      "type": "long",
+      "index": false
+    },
+    "input_bytes": {
+      "type": "long",
+      "index": false
+    },
+    "jvm_gc_time": {
+      "type": "long",
+      "index": false
+    },
+    "limit": {
+      "type": "long",
+      "index": false
+    },
+    "locality": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "machinecpu_ctxtswitches": {
+      "type": "long",
+      "index": false
+    },
+    "machinecpu_interrupts": {
+      "type": "long",
+      "index": false
+    },
+    "main_class": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "memory_bytes_spilled": {
+      "type": "long",
+      "index": false
+    },
+    "memory_physical": {
+      "type": "integer",
+      "index": false
+    },
+    "memory_swap": {
+      "type": "integer",
+      "index": false
+    },
+    "metaspace_committed": {
+      "type": "long",
+      "index": false
+    },
+    "metaspace_init": {
+      "type": "long",
+      "index": false
+    },
+    "metaspace_max": {
+      "type": "long",
+      "index": false
+    },
+    "metaspace_used": {
+      "type": "long",
+      "index": false
+    },
+    "method_duration_millis": {
+      "type": "long",
+      "index": false
+    },
+    "network": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs"
+    },
+    "nonheap_committed": {
+      "type": "long",
+      "index": false
+    },
+    "nonheap_init": {
+      "type": "long",
+      "index": false
+    },
+    "nonheap_max": {
+      "type": "long",
+      "index": false
+    },
+    "nonheap_used": {
+      "type": "long",
+      "index": false
+    },
+    "num_tasks": {
+      "type": "long",
+      "index": false
+    },
+    "old_committed": {
+      "type": "long",
+      "index": false
+    },
+    "old_init": {
+      "type": "long",
+      "index": false
+    },
+    "old_max": {
+      "type": "long",
+      "index": false
+    },
+    "old_used": {
+      "type": "long",
+      "index": false
+    },
+    "original_tracking_url": {
+      "type": "text",
+      "norms": false
+    },
+    "os_physicalfree": {
+      "type": "integer",
+      "index": false
+    },
+    "os_physicaltotal": {
+      "type": "integer",
+      "index": false
+    },
+    "os_swapfree": {
+      "type": "integer",
+      "index": false
+    },
+    "os_swaptotal": {
+      "type": "integer",
+      "index": false
+    },
+    "os_virtual": {
+      "type": "integer",
+      "index": false
+    },
+    "output_records": {
+      "type": "long",
+      "index": false
+    },
+    "output_bytes": {
+      "type": "long",
+      "index": false
+    },
+    "peak_execution_memory": {
+      "type": "long",
+      "index": false
+    },
+    "pid": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "process_ctxtswitches": {
+      "type": "integer",
+      "index": false
+    },
+    "process_interrupts": {
+      "type": "integer",
+      "index": false
+    },
+    "process_read": {
+      "type": "long",
+      "index": false
+    },
+    "process_rss": {
+      "type": "integer",
+      "index": false
+    },
+    "process_threads": {
+      "type": "integer",
+      "index": false
+    },
+    "process_vsz": {
+      "type": "integer",
+      "index": false
+    },
+    "process_written": {
+      "type": "long",
+      "index": false
+    },
+    "queue": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "reads": {
+      "type": "long",
+      "index": false
+    },
+    "readsbytes": {
+      "type": "long",
+      "index": false
+    },
+    "reason": {
+      "type": "text",
+      "norms": false,
+      "index_options": "freqs"
+    },
+    "result_serialization_time": {
+      "type": "long",
+      "index": false
+    },
+    "result_size": {
+      "type": "long",
+      "index": false
+    },
+    "rx": {
+      "type": "long",
+      "index": false
+    },
+    "pktrx": {
+      "type": "long",
+      "index": false
+    },
+    "errin": {
+      "type": "long",
+      "index": false
+    },
+    "safepoints_count": {
+      "type": "integer",
+      "index": false
+    },
+    "safepoints_synctime": {
+      "type": "integer",
+      "index": false
+    },
+    "safepoints_totaltime": {
+      "type": "integer",
+      "index": false
+    },
+    "shuffle_read_records": {
+      "type": "long",
+      "index": false
+    },
+    "shuffle_read_fetch_wait_time": {
+      "type": "long",
+      "index": false
+    },
+    "shuffle_read_local_bytes": {
+      "type": "long",
+      "index": false
+    },
+    "shuffle_read_remote_bytes": {
+      "type": "long",
+      "index": false
+    },
+    "shuffle_read_total_bytes": {
+      "type": "long",
+      "index": false
+    },
+    "shuffle_read_local_blocks_fetched": {
+      "type": "long",
+      "index": false
+    },
+    "shuffle_read_remote_blocks_fetched": {
+      "type": "long",
+      "index": false
+    },
+    "shuffle_read_total_blocks_fetched": {
+      "type": "long",
+      "index": false
+    },
+    "shuffle_write_shuffle_records": {
+      "type": "long",
+      "index": false
+    },
+    "shuffle_write_shuffle_time": {
+      "type": "long",
+      "index": false
+    },
+    "shuffle_write_shuffle_bytes": {
+      "type": "long",
+      "index": false
+    },
+    "src_path": {
+      "type": "text",
+      "norms": false,
+      "index_options": "freqs",
+      "analyzer": "path_analyzer",
+      "search_analyzer": "keyword",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 1024
+        }
+      }
+    },
+    "stage_name": {
+      "type": "text"
+    },
+    "stage_id": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "stage_attempt_id": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "start_time": {
+      "type": "date"
+    },
+    "state": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "status": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs"
+    },
+    "survivor_committed": {
+      "type": "long",
+      "index": false
+    },
+    "survivor_init": {
+      "type": "long",
+      "index": false
+    },
+    "survivor_max": {
+      "type": "long",
+      "index": false
+    },
+    "survivor_used": {
+      "type": "long",
+      "index": false
+    },
+    "synclocks_contendedlockattempts": {
+      "type": "long",
+      "index": false
+    },
+    "synclocks_deflations": {
+      "type": "long",
+      "index": false
+    },
+    "synclocks_futilewakeups": {
+      "type": "long",
+      "index": false
+    },
+    "synclocks_inflations": {
+      "type": "long",
+      "index": false
+    },
+    "synclocks_monextant": {
+      "type": "long",
+      "index": false
+    },
+    "synclocks_notifications": {
+      "type": "long",
+      "index": false
+    },
+    "synclocks_parks": {
+      "type": "long",
+      "index": false
+    },
+    "tag": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs"
+    },
+    "tags": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs"
+    },
+    "task_failures": {
+      "type": "integer",
+      "index": false
+    },
+    "task_id": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "threads_count": {
+      "type": "long",
+      "index": false
+    },
+    "threads_daemon": {
+      "type": "integer",
+      "index": false
+    },
+    "threads_internal": {
+      "type": "integer",
+      "index": false
+    },
+    "threads_total": {
+      "type": "integer",
+      "index": false
+    },
+    "timestamp": {
+      "type": "date"
+    },
+    "tracking_url": {
+      "type": "text",
+      "norms": false
+    },
+    "type": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs"
+    },
+    "tx": {
+      "type": "long",
+      "index": false
+    },
+    "pkttx": {
+      "type": "long",
+      "index": false
+    },
+    "errout": {
+      "type": "long",
+      "index": false
+    },
+    "uri": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "username": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "value": {
+      "type": "float",
+      "index": false
+    },
+    "writes": {
+      "type": "long",
+      "index": false
+    },
+    "writesbytes": {
+      "type": "long",
+      "index": false
+    }
+  }
+}
