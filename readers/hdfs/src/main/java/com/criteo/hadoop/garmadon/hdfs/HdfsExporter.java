@@ -57,10 +57,11 @@ public class HdfsExporter {
             TMP_FILE_OPEN_RETRY_PERIOD);
 
     static {
-        DEFAULT_PROPERTIES_VALUE.put(MESSAGES_BEFORE_EXPIRING_WRITERS, 500000);
+        DEFAULT_PROPERTIES_VALUE.put(MESSAGES_BEFORE_EXPIRING_WRITERS, 3_000_000);
         DEFAULT_PROPERTIES_VALUE.put(WRITERS_EXPIRATION_DELAY, 30);
         DEFAULT_PROPERTIES_VALUE.put(EXPIRER_PERIOD, 30);
-        DEFAULT_PROPERTIES_VALUE.put(HEARTBEAT_PERIOD, 30);
+        // This is not a multiple of 30s on purpose, to avoid closing files at the same time as running heartbeats
+        DEFAULT_PROPERTIES_VALUE.put(HEARTBEAT_PERIOD, 320);
         DEFAULT_PROPERTIES_VALUE.put(MAX_TMP_FILE_OPEN_RETRIES, 10);
         DEFAULT_PROPERTIES_VALUE.put(TMP_FILE_OPEN_RETRY_PERIOD, 30);
     }
@@ -288,7 +289,6 @@ public class HdfsExporter {
     private static Map<Integer, Map.Entry<String, Class<? extends Message>>> getTypeToDirAndClass() {
         final Map<Integer, Map.Entry<String, Class<? extends Message>>> out = new HashMap<>();
 
-        addTypeMapping(out, GarmadonSerialization.TypeMarker.PATH_EVENT, "path", EventsWithHeader.PathEvent.class);
         addTypeMapping(out, GarmadonSerialization.TypeMarker.FS_EVENT, "fs", EventsWithHeader.FsEvent.class);
         addTypeMapping(out, GarmadonSerialization.TypeMarker.GC_EVENT, "gc", EventsWithHeader.GCStatisticsData.class);
         addTypeMapping(out, GarmadonSerialization.TypeMarker.CONTAINER_MONITORING_EVENT, "container",
