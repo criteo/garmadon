@@ -1,6 +1,27 @@
 Garmadon release notes
 ----------------------
-### v1.1.0 - 2018-11-23
+### v1.2.0 - 2018-12-12
+- Fetch tags from remote (#46) 037167f (William Montaz)
+- [HDFS EXPORTER] Decrease number of output files (#61) ae2ff0a (Xavier NOELLE)
+- [HDFS exporter] Main parameters are configurable through command line 7dae6f8 (Xavier NOELLE)
+- [HDFS exporter] Ensure final file's parent directory exists 16a5b60 (Xavier NOELLE)
+- Add packets & errors information for network (#38) d1ac0f0 (jpbempel)
+- [HDFS exporter] Set Hadoop dependencies as provided 25e7ca0 (Xavier NOELLE)
+- [HDFS exporter] Fix ConcurrentModificationException 135c756 (Xavier NOELLE)
+- Consumer field must be public to be accessible by resourcemanager classes (#51) d9aad9c (Nicolas Fraison)
+- Migrate ES reader to ProtoConcatenator concatToMap function (#52) 1532c80 (Nicolas Fraison)
+- [HDFS reader] Build a shaded JAR (#49) 64fd3cc (Xavier NOELLE)
+- Add APPLICATION_EVENT to hdfs reader b384fe8 (n.fraison)
+- Get canonical hostname to ensure having same hostname format c6d3a8c (n.fraison)
+- Improve ES reader (#44) 440f449 (Nicolas Fraison)
+- Implement whitespace checkstyle 8e00ce4 (n.fraison)
+- Implement imports checkstyle 3c9e11b (n.fraison)
+- Implement Class Design checkstyle 1d147b7 (n.fraison)
+- Implementing blocks checkstyle ff966d4 (n.fraison)
+- Implement naming convention checkstyles 257b1db (n.fraison)
+- Adding checkstyle to build phase b5e122c (n.fraison)
+- Add HDFS exporter 385a068 (Xavier NOELLE)
+### v1.1.0 - 2018-11-22
 - Correct bump_release.sh for OSX (#43) 5ceccd1 (William Montaz)
 - GarmadonReader#Builder accepts a KafkaConsumer for its #stream method 6b21bdf (Xavier NOELLE)
 - Add ProtoConcatenator class for Protobuf & JSON ca1c978 (Xavier NOELLE)
