@@ -62,6 +62,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      * @param when          Message time, used to route to the correct file
      * @param offset        Message offset, used to route to the correct file
      * @param msg           Message to be written
+     * @throws IOException  If the offset computation failed
      */
     public void write(Instant when, Offset offset, MESSAGE_KIND msg) throws IOException {
         final LocalDateTime dayStartTime = LocalDateTime.ofInstant(when.truncatedTo(ChronoUnit.DAYS), UTC_ZONE);
@@ -90,7 +91,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     /**
      * Get the starting offset for a given partition.
      *
-     * @param partitionId
+     * @param partitionId   Id of the kafka partition
      * @return              The lowest offset for a given partition
      * @throws IOException  If the offset computation failed
      */

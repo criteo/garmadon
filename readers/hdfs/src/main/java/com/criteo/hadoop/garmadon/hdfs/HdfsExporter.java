@@ -96,6 +96,7 @@ public class HdfsExporter {
     }
 
     /**
+     * @param args:
      * args[0]: Kafka connection string
      * args[1]: Kafka group
      * args[2]: Temporary HDFS directory
