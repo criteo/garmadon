@@ -21,7 +21,7 @@ public class PartitionsPauseStateHandler implements ConsumerRebalanceListener {
     private final Consumer consumer;
 
     /**
-     * @param consumer  The consumer on which pauses & resumes will be applied
+     * @param consumer  The consumer on which pauses and resumes will be applied
      */
     public PartitionsPauseStateHandler(Consumer consumer) {
         this.consumer = consumer;

@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Send periodic heartbeats to a collection of writers, only if different from previous heartbeat
- * @param <MESSAGE_KIND>
+ * @param <MESSAGE_KIND> Event proto type
  */
 public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonMessageHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(HeartbeatConsumer.class);

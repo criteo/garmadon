@@ -18,8 +18,8 @@ public interface OffsetComputer {
     long computeOffset(int partitionId) throws IOException;
 
     /**
-     * @param time
-     * @param offset
+     * @param time      Time-window start time (eg. day start if daily)
+     * @param offset    Kafka offset
      * @return          Path based on a time and offset
      */
     String computePath(LocalDateTime time, Offset offset);
