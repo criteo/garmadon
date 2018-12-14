@@ -2,8 +2,11 @@ package com.criteo.hadoop.garmadon.hdfs.writer;
 
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 import com.criteo.hadoop.garmadon.hdfs.FixedOffsetComputer;
+import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
+import com.criteo.hadoop.garmadon.reader.Offset;
 import com.criteo.hadoop.garmadon.reader.TopicPartitionOffset;
 import com.google.protobuf.Message;
+import com.google.protobuf.MessageOrBuilder;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -74,15 +77,38 @@ public class ProtoParquetWriterWithOffsetTest {
         parquetWriter.close();
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void closeRenameFails() throws IOException {
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
         final FileSystem fsMock = mock(FileSystem.class);
+        final OffsetComputer fileNamer = mock(OffsetComputer.class);
         final ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
-                new Path("tmp"), new Path("final"), fsMock, null, LocalDateTime.MIN);
+                new Path("tmp"), new Path("final"), fsMock, fileNamer, LocalDateTime.MIN);
+        boolean thrown = false;
 
+        // We need to write one event, otherwise we will fail with a "no message" error
+        parquetWriter.write(mock(MessageOrBuilder.class), new TopicPartitionOffset(TOPIC, 1, 2));
+
+        when(fileNamer.computePath(any(LocalDateTime.class), any(Offset.class))).thenReturn("ignored");
         when(fsMock.rename(any(Path.class), any(Path.class))).thenReturn(false);
-        parquetWriter.close();
+        try {
+            parquetWriter.close();
+        }
+        catch (IOException e) {
+            thrown = true;
+        }
+        // Writer is closed, but rename failed
+        verify(writerMock, times(1)).close();
+
+        reset(writerMock);
+        Assert.assertTrue(thrown);
+        try {
+            parquetWriter.close();
+        }
+        catch (IOException ignored) {
+        }
+        // Writer already closed, so no more interaction
+        verifyZeroInteractions(writerMock);
     }
 
     // We want to check that an empty file gets created and therefore need an actual FS

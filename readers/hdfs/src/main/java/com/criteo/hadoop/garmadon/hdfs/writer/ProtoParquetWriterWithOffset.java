@@ -30,7 +30,8 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
     private final OffsetComputer fileNamer;
     private final LocalDateTime dayStartTime;
 
-    private Offset latestOffset;
+    private Offset latestOffset = null;
+    private boolean writerClosed = false;
 
     /**
      * @param writer            The actual Proto + Parquet writer
@@ -49,7 +50,6 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         this.fs = fs;
         this.fileNamer = fileNamer;
         this.dayStartTime = dayStartTime;
-        this.latestOffset = null;
     }
 
     @Override
@@ -60,7 +60,10 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
             throw new IOException(String.format("Trying to write a zero-sized file, please fix (%s)", additionalInfo));
         }
 
-        writer.close();
+        if (!writerClosed) {
+            writer.close();
+            writerClosed = true;
+        }
 
         final Path finalPath = new Path(finalHdfsDir, fileNamer.computePath(dayStartTime, latestOffset));
 
