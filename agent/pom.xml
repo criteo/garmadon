@@ -113,6 +113,12 @@
             <version>${hadoop.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.facebook.presto</groupId>
+            <artifactId>presto-main</artifactId>
+            <version>${presto.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

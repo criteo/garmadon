@@ -93,6 +93,7 @@
         <protobuf-dynamic.version>0.9.4</protobuf-dynamic.version>
         <jackson.version>2.9.7</jackson.version>
         <commons-io.version>2.6</commons-io.version>
+        <presto.version>0.206</presto.version>
 
         <!-- tests -->
         <junit.version>4.12</junit.version>
