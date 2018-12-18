@@ -238,7 +238,7 @@ public class HdfsExporter {
                 final ProtoParquetWriter<Message> protoWriter;
 
                 try {
-                    protoWriter = new ProtoParquetWriter<>(tmpFilePath, clazz, CompressionCodecName.UNCOMPRESSED,
+                    protoWriter = new ProtoParquetWriter<>(tmpFilePath, clazz, CompressionCodecName.SNAPPY,
                             sizeBeforeFlushingTmp * 1_024 * 1_024, 1_024 * 1_024);
                 } catch (IOException e) {
                     LOGGER.warn("Could not initialize writer ({})", additionalInfo, e);
