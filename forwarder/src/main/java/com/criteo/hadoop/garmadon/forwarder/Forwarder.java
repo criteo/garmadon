@@ -25,8 +25,8 @@ import java.util.Properties;
 public class Forwarder {
     private static final Logger LOGGER = LoggerFactory.getLogger(Forwarder.class);
 
-    private static final String DEFAULT_FORWARDER_PORT = "33000";
-    private static final String DEFAULT_PROMETHEUS_PORT = "33001";
+    private static final String DEFAULT_FORWARDER_PORT = "31000";
+    private static final String DEFAULT_PROMETHEUS_PORT = "31001";
 
     public static final String PRODUCER_PREFIX_NAME = "garmadon.forwarder";
 

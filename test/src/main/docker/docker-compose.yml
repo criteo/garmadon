@@ -170,7 +170,7 @@ services:
     volumes:
       - ../../../../readers/elasticsearch/target/garmadon-readers-elasticsearch-${GARMADON_RELEASE}.jar:/opt/garmadon/lib/garmadon-readers-elasticsearch.jar
     ports:
-      - "33001:33001"
+      - "31001:31001"
     env_file: .env
     depends_on:
       - kafka
