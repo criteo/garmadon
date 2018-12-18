@@ -19,6 +19,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.parquet.proto.ProtoParquetWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,12 +50,13 @@ public class HdfsExporter {
     private static final String HEARTBEAT_PERIOD = "heartbeatPeriod";
     private static final String MAX_TMP_FILE_OPEN_RETRIES = "maxTmpFileOpenRetries";
     private static final String TMP_FILE_OPEN_RETRY_PERIOD = "tmpFileOpenRetryPeriod";
+    private static final String SIZE_BEFORE_FLUSHING_TMP = "sizeBeforeFlushingTmp";
 
     private static final Map<String, Integer> DEFAULT_PROPERTIES_VALUE = new HashMap<>();
     private static final Map<String, String> DEFAULT_PROPERTIES_DESCRIPTION = new HashMap<>();
     private static final List<String> PARAMETERS_NAMES = Arrays.asList(MESSAGES_BEFORE_EXPIRING_WRITERS,
             WRITERS_EXPIRATION_DELAY, EXPIRER_PERIOD, HEARTBEAT_PERIOD, MAX_TMP_FILE_OPEN_RETRIES,
-            TMP_FILE_OPEN_RETRY_PERIOD);
+            TMP_FILE_OPEN_RETRY_PERIOD, SIZE_BEFORE_FLUSHING_TMP);
 
     static {
         DEFAULT_PROPERTIES_VALUE.put(MESSAGES_BEFORE_EXPIRING_WRITERS, 3_000_000);
@@ -64,6 +66,7 @@ public class HdfsExporter {
         DEFAULT_PROPERTIES_VALUE.put(HEARTBEAT_PERIOD, 320);
         DEFAULT_PROPERTIES_VALUE.put(MAX_TMP_FILE_OPEN_RETRIES, 10);
         DEFAULT_PROPERTIES_VALUE.put(TMP_FILE_OPEN_RETRY_PERIOD, 30);
+        DEFAULT_PROPERTIES_VALUE.put(SIZE_BEFORE_FLUSHING_TMP, 16);
     }
 
     static {
@@ -79,9 +82,11 @@ public class HdfsExporter {
                 "How often a placeholder file should be committed to keep track of maximum offset with no message for" +
                         " a given event type (in seconds)");
         DEFAULT_PROPERTIES_DESCRIPTION.put(MAX_TMP_FILE_OPEN_RETRIES,
-                "The maximum number of times failing to open a temporary file (in a row) before aborting the program");
+                "Maximum number of times failing to open a temporary file (in a row) before aborting the program");
         DEFAULT_PROPERTIES_DESCRIPTION.put(TMP_FILE_OPEN_RETRY_PERIOD,
                 "How long to wait between failures to open a temporary file for writing (in seconds)");
+        DEFAULT_PROPERTIES_DESCRIPTION.put(SIZE_BEFORE_FLUSHING_TMP,
+                "How big the temporary files buffer should be before flushing (in MB)");
     }
 
     private static int maxTmpFileOpenRetries;
@@ -90,6 +95,7 @@ public class HdfsExporter {
     private static Duration expirerPeriod;
     private static Duration heartbeatPeriod;
     private static Duration tmpFileOpenRetryPeriod;
+    private static int sizeBeforeFlushingTmp;
 
     protected HdfsExporter() {
         throw new UnsupportedOperationException();
@@ -215,6 +221,8 @@ public class HdfsExporter {
                 DEFAULT_PROPERTIES_VALUE.get(HEARTBEAT_PERIOD)));
         tmpFileOpenRetryPeriod = Duration.ofSeconds(Integer.getInteger(TMP_FILE_OPEN_RETRY_PERIOD,
                 DEFAULT_PROPERTIES_VALUE.get(TMP_FILE_OPEN_RETRY_PERIOD)));
+        sizeBeforeFlushingTmp = Integer.getInteger(SIZE_BEFORE_FLUSHING_TMP,
+                DEFAULT_PROPERTIES_VALUE.get(SIZE_BEFORE_FLUSHING_TMP));
     }
 
     private static Function<LocalDateTime, ExpiringConsumer<Message>> buildMessageConsumerBuilder(
@@ -230,7 +238,8 @@ public class HdfsExporter {
                 final ProtoParquetWriter<Message> protoWriter;
 
                 try {
-                    protoWriter = new ProtoParquetWriter<>(tmpFilePath, clazz);
+                    protoWriter = new ProtoParquetWriter<>(tmpFilePath, clazz, CompressionCodecName.SNAPPY,
+                            sizeBeforeFlushingTmp * 1_024 * 1_024, 1_024 * 1_024);
                 } catch (IOException e) {
                     LOGGER.warn("Could not initialize writer ({})", additionalInfo, e);
 
