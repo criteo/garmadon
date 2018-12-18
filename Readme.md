@@ -178,7 +178,7 @@ Garmadon-forwarder has to be running on all machines that will run the agent (se
  #
  # Forwarder config
  #
- forwarder.port=33000 # Garmadon-agent will try to connect on port 33000 by default. This is however tunable.
+ forwarder.port=31000 # Garmadon-agent will try to connect on port 31000 by default. This is however tunable.
  forwarder.worker.thread=1 # Adapt to your needs 
  
  #
@@ -497,7 +497,7 @@ For now, Garmadon-forwarder and Garmadon-reader exposes metrics that can be fetc
 
 ### Garmadon-forwarder
 
-By default, metrics are exposed on _http://**forwarder_host**:33001/metrics_
+By default, metrics are exposed on _http://**forwarder_host**:31001/metrics_
 
 Garmadon-forwarder exposes on this endpoint:
 * JVM metrics expose by default by prometheus client [https://github.com/prometheus/client_java#included-collectors](https://github.com/prometheus/client_java#included-collectors)
@@ -505,7 +505,7 @@ Garmadon-forwarder exposes on this endpoint:
 * Garmadon event size quantiles
 * Counters on events received/in error
 
-Fetch _http://**forwarder_host**:33001/metrics_ on a running forwarder for details on the gauge names and labels
+Fetch _http://**forwarder_host**:31001/metrics_ on a running forwarder for details on the gauge names and labels
 
 ### Garmadon-reader
 
