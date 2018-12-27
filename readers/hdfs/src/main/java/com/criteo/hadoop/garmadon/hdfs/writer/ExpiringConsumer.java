@@ -18,7 +18,7 @@ public class ExpiringConsumer<MESSAGE_TYPE> implements CloseableBiConsumer<MESSA
     private final TemporalAmount expirationDelay;
     private long messagesReceived;
     private long messagesBeforeExpiring;
-    private Instant lastUpdate = Instant.now();
+    private Instant startDate = Instant.now();
 
     /**
      * @param writer                    The underlying messages writer. Must support receiving null events, which is a
@@ -40,7 +40,6 @@ public class ExpiringConsumer<MESSAGE_TYPE> implements CloseableBiConsumer<MESSA
      */
     @Override
     public void write(MESSAGE_TYPE message, Offset offset) throws IOException {
-        this.lastUpdate = Instant.now();
         ++this.messagesReceived;
 
         this.writer.write(message, offset);
@@ -52,11 +51,11 @@ public class ExpiringConsumer<MESSAGE_TYPE> implements CloseableBiConsumer<MESSA
     }
 
     /**
-     * @return  True if the writer is expired because of last update time being too far away in the past, or enough
+     * @return  True if the writer is expired because of creation date being too far away in the past, or enough
      *          messages being written
      */
     boolean isExpired() {
-        Instant expirationInstant = lastUpdate.plus(expirationDelay);
+        Instant expirationInstant = startDate.plus(expirationDelay);
 
         return messagesReceived >= messagesBeforeExpiring || Instant.now().isAfter(expirationInstant);
     }

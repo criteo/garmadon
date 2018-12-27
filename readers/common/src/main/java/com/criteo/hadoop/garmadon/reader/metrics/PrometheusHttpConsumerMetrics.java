@@ -57,6 +57,7 @@ public class PrometheusHttpConsumerMetrics {
         } catch (MalformedObjectNameException e) {
             LOGGER.error("", e);
         }
+
         scheduler.scheduleAtFixedRate(() -> {
             exposeKafkaMetrics();
         }, 0, 30, TimeUnit.SECONDS);

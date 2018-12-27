@@ -2,6 +2,7 @@ package com.criteo.hadoop.garmadon.hdfs;
 
 import com.criteo.hadoop.garmadon.hdfs.kafka.OffsetResetter;
 import com.criteo.hadoop.garmadon.hdfs.kafka.PartitionsPauseStateHandler;
+import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
 import com.criteo.hadoop.garmadon.hdfs.offset.*;
 import com.criteo.hadoop.garmadon.hdfs.writer.ExpiringConsumer;
 import com.criteo.hadoop.garmadon.hdfs.writer.FileSystemUtils;
@@ -10,8 +11,11 @@ import com.criteo.hadoop.garmadon.hdfs.writer.PartitionedWriter;
 import com.criteo.hadoop.garmadon.protobuf.ProtoConcatenator;
 import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
+import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.google.protobuf.Message;
+import io.prometheus.client.Counter;
+import io.prometheus.client.Gauge;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -107,11 +111,12 @@ public class HdfsExporter {
      * args[1]: Kafka group
      * args[2]: Temporary HDFS directory
      * args[3]: Final HDFS directory
+     * args[4]: Prometheus port
      */
     public static void main(String[] args) {
         setupProperties();
 
-        if (args.length < 4) {
+        if (args.length < 5) {
             printHelp();
             return;
         }
@@ -120,6 +125,7 @@ public class HdfsExporter {
         final String kafkaGroupId = args[1];
         final String baseTemporaryHdfsDir = args[2];
         final Path finalHdfsDir = new Path(args[3]);
+        final int prometheusPort = Integer.parseInt(args[4]);
 
         FileSystem fs = null;
         try {
@@ -142,6 +148,7 @@ public class HdfsExporter {
         final HeartbeatConsumer heartbeat = new HeartbeatConsumer<>(writers, heartbeatPeriod);
         final Map<Integer, Map.Entry<String, Class<? extends Message>>> typeToDirAndClass = getTypeToDirAndClass();
         final Path temporaryHdfsDir = new Path(baseTemporaryHdfsDir, UUID.randomUUID().toString());
+        final PrometheusHttpConsumerMetrics prometheusServer = new PrometheusHttpConsumerMetrics(prometheusPort);
 
         try {
             FileSystemUtils.ensureDirectoriesExist(Arrays.asList(temporaryHdfsDir, finalHdfsDir), fs);
@@ -157,19 +164,19 @@ public class HdfsExporter {
 
         for (Map.Entry<Integer, Map.Entry<String, Class<? extends Message>>> out: typeToDirAndClass.entrySet()) {
             final Integer eventType = out.getKey();
-            final String path = out.getValue().getKey();
+            final String eventName = out.getValue().getKey();
             final Class<? extends Message> clazz = out.getValue().getValue();
             final Function<LocalDateTime, ExpiringConsumer<Message>> consumerBuilder;
-            final Path finalEventDir = new Path(finalHdfsDir, path);
+            final Path finalEventDir = new Path(finalHdfsDir, eventName);
             final OffsetComputer offsetComputer = new HdfsOffsetComputer(fs, finalEventDir);
 
-            consumerBuilder = buildMessageConsumerBuilder(fs, new Path(temporaryHdfsDir, path),
-                    finalEventDir, clazz, offsetComputer, pauser);
+            consumerBuilder = buildMessageConsumerBuilder(fs, new Path(temporaryHdfsDir, eventName),
+                    finalEventDir, clazz, offsetComputer, pauser, eventName);
 
             final PartitionedWriter<Message> writer = new PartitionedWriter<>(
-                    consumerBuilder, offsetComputer);
+                    consumerBuilder, offsetComputer, eventName);
 
-            readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(writer));
+            readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(writer, eventName));
 
             writers.add(writer);
         }
@@ -191,7 +198,15 @@ public class HdfsExporter {
                     }
                 });
 
-        readerBuilder.intercept(any(), heartbeat);
+        readerBuilder.intercept(any(), msg -> {
+            heartbeat.handle(msg);
+
+            CommittableOffset offset = msg.getCommittableOffset();
+
+            Gauge.Child gauge = PrometheusMetrics.buildGaugeChild(PrometheusMetrics.CURRENT_RUNNING_OFFSETS,
+                    "global", offset.getPartition());
+            gauge.set(offset.getOffset());
+        });
 
         final GarmadonReader garmadonReader = readerBuilder.build(false);
 
@@ -204,6 +219,7 @@ public class HdfsExporter {
             LOGGER.error("Reader thread interrupted", e);
         }
 
+        prometheusServer.terminate();
         expirer.stop().join();
         heartbeat.stop().join();
     }
@@ -227,7 +243,10 @@ public class HdfsExporter {
 
     private static Function<LocalDateTime, ExpiringConsumer<Message>> buildMessageConsumerBuilder(
             FileSystem fs, Path temporaryHdfsDir, Path finalHdfsDir, Class<? extends Message> clazz,
-            OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser) {
+            OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser, String eventName) {
+        Counter.Child tmpFileOpenFailures = PrometheusMetrics.buildCounterChild(
+                PrometheusMetrics.TMP_FILE_OPEN_FAILURES, eventName);
+
         return (dayStartTime) -> {
             final String uniqueFileName = UUID.randomUUID().toString();
             final String additionalInfo = String.format("Date = %s, Event type = %s", dayStartTime,
@@ -242,6 +261,7 @@ public class HdfsExporter {
                             sizeBeforeFlushingTmp * 1_024 * 1_024, 1_024 * 1_024);
                 } catch (IOException e) {
                     LOGGER.warn("Could not initialize writer ({})", additionalInfo, e);
+                    tmpFileOpenFailures.inc();
 
                     try {
                         partitionsPauser.pause(clazz);
@@ -256,7 +276,7 @@ public class HdfsExporter {
                 partitionsPauser.resume(clazz);
 
                 return new ExpiringConsumer<>(new ProtoParquetWriterWithOffset<>(
-                        protoWriter, tmpFilePath, finalHdfsDir, fs, offsetComputer, dayStartTime),
+                        protoWriter, tmpFilePath, finalHdfsDir, fs, offsetComputer, dayStartTime, eventName),
                         writersExpirationDelay, messagesBeforeExpiringWriters);
             }
 
@@ -267,15 +287,25 @@ public class HdfsExporter {
         };
     }
 
-    private static GarmadonReader.GarmadonMessageHandler buildGarmadonMessageHandler(PartitionedWriter<Message> writer) {
+    private static GarmadonReader.GarmadonMessageHandler buildGarmadonMessageHandler(PartitionedWriter<Message> writer,
+                                                                                     String eventName) {
         return (msg) -> {
             final CommittableOffset offset = msg.getCommittableOffset();
 
             try {
                 writer.write(Instant.now(), offset,
-                        ProtoConcatenator.concatToProtobuf(Arrays.asList(msg.getHeader(), (Message) msg.getBody())));
+                        ProtoConcatenator.concatToProtobuf(Arrays.asList(msg.getHeader(), msg.getBody())));
+
+                final Counter.Child messagesWritten = PrometheusMetrics.buildCounterChild(
+                        PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
+
+                messagesWritten.inc();
             } catch (IOException e) {
+                final Counter.Child messagesWritingFailures = PrometheusMetrics.buildCounterChild(
+                        PrometheusMetrics.MESSAGES_WRITING_FAILURES, eventName, offset.getPartition());
+
                 // We accept losing messages every now and then, but still log failures
+                messagesWritingFailures.inc();
                 LOGGER.warn("Couldn't write a message", e);
             }
         };

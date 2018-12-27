@@ -270,6 +270,10 @@ public final class GarmadonReader {
         }
 
         public Builder intercept(GarmadonMessageFilter filter, GarmadonMessageHandler handler) {
+            if (this.listeners.containsKey(filter)) {
+                LOGGER.warn("Multiple handlers set for filter of type {}", filter.getClass().toString());
+            }
+
             this.listeners.put(filter, handler);
             return this;
         }

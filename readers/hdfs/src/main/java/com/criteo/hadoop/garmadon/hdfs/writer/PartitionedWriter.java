@@ -1,7 +1,9 @@
 package com.criteo.hadoop.garmadon.hdfs.writer;
 
+import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.reader.Offset;
+import io.prometheus.client.Counter;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     private final OffsetComputer offsetComputer;
     private final Map<Integer, Map<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>>> perPartitionDayWriters = new HashMap<>();
     private final HashMap<Integer, Long> perPartitionStartOffset = new HashMap<>();
+    private final String eventName;
 
     /**
      * @param writerBuilder     Builds an expiring writer based on a path.
@@ -38,7 +41,8 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      *                          consuming message.
      */
     public PartitionedWriter(Function<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> writerBuilder,
-                             OffsetComputer offsetComputer) {
+                             OffsetComputer offsetComputer, String eventName) {
+        this.eventName = eventName;
         this.writerBuilder = writerBuilder;
         this.offsetComputer = offsetComputer;
     }
@@ -130,6 +134,10 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      */
     public void heartbeat(int partition, Offset offset) {
         synchronized (perPartitionDayWriters) {
+            final Counter.Child heartbeatsSent = PrometheusMetrics.buildCounterChild(
+                    PrometheusMetrics.HEARTBEATS_SENT, eventName, partition);
+            PrometheusMetrics.buildCounterChild(PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
+
             if (!perPartitionDayWriters.containsKey(partition) || perPartitionDayWriters.get(partition).isEmpty()) {
                 final ExpiringConsumer<MESSAGE_KIND> heartbeatWriter = writerBuilder.apply(LocalDateTime.now());
 
@@ -138,7 +146,10 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
 
                     final Path writtenFilePath = heartbeatWriter.close();
 
-                    if (writtenFilePath != null) LOGGER.info("Written heartbeat file {}", writtenFilePath.toUri().getPath());
+                    if (writtenFilePath != null) {
+                        heartbeatsSent.inc();
+                        LOGGER.info("Written heartbeat file {}", writtenFilePath.toUri().getPath());
+                    }
                 } catch (IOException e) {
                     LOGGER.warn("Could not write heartbeat", e);
                 }
@@ -212,7 +223,22 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                 dailyWriters.entrySet().removeIf((entry) -> {
                     final ExpiringConsumer<MESSAGE_KIND> consumer = entry.getValue();
 
-                    return shouldClose.test(consumer) && tryExpireConsumer(consumer);
+                    if (shouldClose.test(consumer)) {
+                         if (tryExpireConsumer(consumer)) {
+                            final Counter.Child filesCommitted = PrometheusMetrics.buildCounterChild(
+                                    PrometheusMetrics.FILES_COMMITTED, eventName);
+
+                            filesCommitted.inc();
+                            return true;
+                         } else {
+                             final Counter.Child filesCommitFailures = PrometheusMetrics.buildCounterChild(
+                                     PrometheusMetrics.FILE_COMMIT_FAILURES, eventName);
+
+                             filesCommitFailures.inc();
+                         }
+                    }
+
+                    return false;
                 }));
         }
     }

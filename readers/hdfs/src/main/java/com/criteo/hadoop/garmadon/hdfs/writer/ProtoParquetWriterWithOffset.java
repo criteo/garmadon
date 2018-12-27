@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.hdfs.writer;
 
+import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.reader.Offset;
 import com.google.protobuf.MessageOrBuilder;
@@ -29,6 +30,7 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
     private final FileSystem fs;
     private final OffsetComputer fileNamer;
     private final LocalDateTime dayStartTime;
+    private final String eventName;
 
     private Offset latestOffset = null;
     private boolean writerClosed = false;
@@ -43,13 +45,14 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
      */
     public ProtoParquetWriterWithOffset(ProtoParquetWriter<MESSAGE_KIND> writer, Path temporaryHdfsPath,
                                         Path finalHdfsDir, FileSystem fs, OffsetComputer fileNamer,
-                                        LocalDateTime dayStartTime) {
+                                        LocalDateTime dayStartTime, String eventName) {
         this.writer = writer;
         this.temporaryHdfsPath = temporaryHdfsPath;
         this.finalHdfsDir = finalHdfsDir;
         this.fs = fs;
         this.fileNamer = fileNamer;
         this.dayStartTime = dayStartTime;
+        this.eventName = eventName;
     }
 
     @Override
@@ -74,6 +77,8 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
                     finalPath.toUri(), temporaryHdfsPath));
         }
 
+        PrometheusMetrics.buildGaugeChild(PrometheusMetrics.LATEST_COMMITTED_OFFSETS,
+                eventName, latestOffset.getPartition()).set(latestOffset.getOffset());
         LOGGER.info("Committed {} (from {})", finalPath.toUri(), temporaryHdfsPath);
 
         return finalPath;
@@ -83,6 +88,8 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
     public void write(MESSAGE_KIND msg, Offset offset) throws IOException {
         if (latestOffset == null || offset.getOffset() > latestOffset.getOffset()) latestOffset = offset;
 
-        if (msg != null) writer.write(msg);
+        if (msg != null) {
+            writer.write(msg);
+        }
     }
 }

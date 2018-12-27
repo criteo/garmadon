@@ -50,9 +50,9 @@ public class ExpiringConsumerTest {
         Thread.sleep(1001);
         Assert.assertTrue(consumer.isExpired());
 
-        // Sending another message renews the expiration delay
+        // Sending another message doesn't renew the expiration delay
         consumer.write(12, DUMMY_OFFSET);
-        Assert.assertFalse(consumer.isExpired());
+        Assert.assertTrue(consumer.isExpired());
     }
 
     @Test
