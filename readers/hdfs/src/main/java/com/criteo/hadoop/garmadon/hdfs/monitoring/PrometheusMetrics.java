@@ -26,6 +26,9 @@ public final class PrometheusMetrics {
     public static final Gauge LATEST_COMMITTED_OFFSETS = buildGauge("latest_committed_offsets",
             "Latest committed offsets");
 
+    private PrometheusMetrics() {
+    }
+
     public static Gauge.Child buildGaugeChild(Gauge baseGauge, String eventName, int partition) {
         return baseGauge.labels(eventName, GarmadonReader.getHostname(), PrometheusHttpConsumerMetrics.RELEASE,
                 String.valueOf(partition));
@@ -59,8 +62,5 @@ public final class PrometheusMetrics {
                 .name(name).help(help)
                 .labelNames("name", "hostname", "release", "partition")
                 .register();
-    }
-
-    private PrometheusMetrics() {
     }
 }
