@@ -98,7 +98,7 @@ public final class ElasticSearchReader {
 
     void writeToES(GarmadonMessage msg) {
         String msgType = GarmadonSerialization.getTypeName(msg.getType());
-        if ("JVMSTATS_EVENT".equals(msgType)) {
+        if (GarmadonSerialization.TypeMarker.JVMSTATS_EVENT == msg.getType()) {
             Map<String, Object> jsonMap = ProtoConcatenator.concatToMap(Arrays.asList(msg.getHeader()), true);
 
             HashMap<String, Map<String, Object>> eventMaps = new HashMap<>();
@@ -111,6 +111,15 @@ public final class ElasticSearchReader {
         } else {
             Map<String, Object> eventMap = ProtoConcatenator.concatToMap(Arrays.asList(msg.getHeader(), msg.getBody()), true);
             eventMap.put("event_type", msgType);
+
+            // Specific normalization for FS_EVENT
+            if (GarmadonSerialization.TypeMarker.FS_EVENT == msg.getType()) {
+                String uri = (String) eventMap.get("uri");
+                eventMap.computeIfPresent("src_path", (k, v) -> ((String) v).replace(uri, ""));
+                eventMap.computeIfPresent("dst_path", (k, v) -> ((String) v).replace(uri, ""));
+                eventMap.computeIfPresent("uri", (k, v) -> UriHelper.getUniformizedUri((String) v));
+            }
+
             addEventToBulkProcessor(eventMap, msg.getTimestamp(), msg.getCommittableOffset());
         }
     }
