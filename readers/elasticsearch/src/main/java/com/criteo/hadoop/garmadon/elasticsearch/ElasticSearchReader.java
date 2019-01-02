@@ -113,7 +113,7 @@ public final class ElasticSearchReader {
             eventMap.put("event_type", msgType);
 
             // Specific normalization for FS_EVENT
-            if ("FS_EVENT".equals(msgType)) {
+            if (GarmadonSerialization.TypeMarker.FS_EVENT == msg.getType()) {
                 String uri = (String) eventMap.get("uri");
                 eventMap.computeIfPresent("src_path", (k, v) -> ((String) v).replace(uri, ""));
                 eventMap.computeIfPresent("dst_path", (k, v) -> ((String) v).replace(uri, ""));
