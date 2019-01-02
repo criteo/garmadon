@@ -10,8 +10,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class HeuristicHelper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HeuristicHelper.class);
     public static final int MAX_CONTAINERS_PER_HEURISTIC = 10;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HeuristicHelper.class);
 
     protected HeuristicHelper() {
         throw new UnsupportedOperationException();
@@ -21,7 +22,9 @@ public class HeuristicHelper {
         return applicationId + "#" + attemptId;
     }
 
-    public static <T extends BaseCounter> void createCounterHeuristic(String applicationId, String attemptId, Map<String, Map<String, T>> appCounters, HeuristicsResultDB heuristicsResultDB, Class<?> heuristicClass, Function<T, String> getDetailValue) {
+    public static <T extends BaseCounter> void createCounterHeuristic(String applicationId, String attemptId, Map<String, Map<String, T>> appCounters,
+                                                                      HeuristicsResultDB heuristicsResultDB, Class<?> heuristicClass, Function<T,
+            String> getDetailValue) {
         Map<String, T> containerCounters = appCounters.remove(HeuristicHelper.getAppAttemptId(applicationId, attemptId));
         if (containerCounters == null) return;
         int severityMax = containerCounters.values().stream().mapToInt(counters -> counters.severity).max().orElse(HeuristicsResultDB.Severity.NONE);

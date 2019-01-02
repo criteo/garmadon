@@ -23,12 +23,12 @@ import java.net.UnknownHostException;
 import java.util.Properties;
 
 public class Forwarder {
+    public static final String PRODUCER_PREFIX_NAME = "garmadon.forwarder";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Forwarder.class);
 
     private static final String DEFAULT_FORWARDER_PORT = "31000";
     private static final String DEFAULT_PROMETHEUS_PORT = "31001";
-
-    public static final String PRODUCER_PREFIX_NAME = "garmadon.forwarder";
 
     private static String hostname;
 
@@ -40,12 +40,7 @@ public class Forwarder {
         }
     }
 
-    public static String getHostname() {
-        return hostname;
-    }
-
     private final Properties properties;
-
 
     private final byte[] header;
 
@@ -69,6 +64,10 @@ public class Forwarder {
         this.header = headerBuilder
                 .build()
                 .serialize();
+    }
+
+    public static String getHostname() {
+        return hostname;
     }
 
     /**

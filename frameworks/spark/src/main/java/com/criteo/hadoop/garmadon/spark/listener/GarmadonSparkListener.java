@@ -18,18 +18,6 @@ public class GarmadonSparkListener extends SparkListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonSparkListener.class);
     private final TriConsumer<Long, Header, Object> eventHandler;
     private Header.SerializedHeader header;
-
-    private final HashMap<String, String> executorHostId = new HashMap<>();
-
-    public GarmadonSparkListener() {
-        this(SparkListernerConf.getInstance().getEventHandler(), SparkListernerConf.getInstance().getHeader());
-    }
-
-    public GarmadonSparkListener(TriConsumer<Long, Header, Object> eventHandler, Header.SerializedHeader header) {
-        this.eventHandler = eventHandler;
-        this.header = header;
-    }
-
     private Function0<Long> zeroLongScala = new AbstractFunction0<Long>() {
         @Override
         public Long apply() {
@@ -48,6 +36,19 @@ public class GarmadonSparkListener extends SparkListener {
             return "";
         }
     };
+
+
+    private final HashMap<String, String> executorHostId = new HashMap<>();
+
+    public GarmadonSparkListener() {
+        this(SparkListernerConf.getInstance().getEventHandler(), SparkListernerConf.getInstance().getHeader());
+    }
+
+    public GarmadonSparkListener(TriConsumer<Long, Header, Object> eventHandler, Header.SerializedHeader header) {
+        this.eventHandler = eventHandler;
+        this.header = header;
+    }
+
 
     private <T> T getValOrNull(Supplier<T> supplier) {
         try {
@@ -163,10 +164,14 @@ public class GarmadonSparkListener extends SparkListener {
             tryToSet(() -> stageEventBuilder.setShuffleReadLocalBytes(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().localBytesRead()));
             tryToSet(() -> stageEventBuilder.setShuffleReadRemoteBytes(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().remoteBytesRead()));
             tryToSet(() -> stageEventBuilder.setShuffleReadTotalBytes(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().totalBytesRead()));
-            tryToSet(() -> stageEventBuilder.setShuffleReadLocalBlocksFetched(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().localBlocksFetched()));
-            tryToSet(() -> stageEventBuilder.setShuffleReadRemoteBlocksFetched(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().remoteBlocksFetched()));
-            tryToSet(() -> stageEventBuilder.setShuffleReadTotalBlocksFetched(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics().totalBlocksFetched()));
-            tryToSet(() -> stageEventBuilder.setShuffleWriteShuffleRecords(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleRecordsWritten()));
+            tryToSet(() -> stageEventBuilder.setShuffleReadLocalBlocksFetched(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics()
+                    .localBlocksFetched()));
+            tryToSet(() -> stageEventBuilder.setShuffleReadRemoteBlocksFetched(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics()
+                    .remoteBlocksFetched()));
+            tryToSet(() -> stageEventBuilder.setShuffleReadTotalBlocksFetched(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics()
+                    .totalBlocksFetched()));
+            tryToSet(() -> stageEventBuilder.setShuffleWriteShuffleRecords(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics()
+                    .shuffleRecordsWritten()));
             tryToSet(() -> stageEventBuilder.setShuffleWriteShuffleTime(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleWriteTime()));
             tryToSet(() -> stageEventBuilder.setShuffleWriteShuffleBytes(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleBytesWritten()));
             tryToSet(() -> stageEventBuilder.setInputRecords(stageCompleted.stageInfo().taskMetrics().inputMetrics().recordsRead()));
@@ -174,7 +179,7 @@ public class GarmadonSparkListener extends SparkListener {
             tryToSet(() -> stageEventBuilder.setOutputRecords(stageCompleted.stageInfo().taskMetrics().outputMetrics().recordsWritten()));
             tryToSet(() -> stageEventBuilder.setOutputBytes(stageCompleted.stageInfo().taskMetrics().outputMetrics().bytesWritten()));
 
-            if (!status.equals("succeeded")) {
+            if (!"succeeded".equals(status)) {
                 tryToSet(() -> stageEventBuilder.setFailureReason(stageCompleted.stageInfo().failureReason().getOrElse(emptyStringScala)));
             }
 
@@ -227,7 +232,7 @@ public class GarmadonSparkListener extends SparkListener {
             tryToSet(() -> taskEventBuilder.setOutputRecords(taskEnd.taskMetrics().outputMetrics().recordsWritten()));
             tryToSet(() -> taskEventBuilder.setOutputBytes(taskEnd.taskMetrics().outputMetrics().bytesWritten()));
 
-            if (!status.equals("succeeded")) {
+            if (!"succeeded".equals(status)) {
                 tryToSet(() -> taskEventBuilder.setFailureReason(taskEnd.reason().toString()));
             }
 

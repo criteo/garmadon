@@ -109,9 +109,9 @@ public class TinySampler {
                 unfoldStacks();
             }
             for (Map.Entry<String, Integer> e : unfolded.entrySet()) {
-                String name = e.getKey();
+                String nameKey = e.getKey();
                 int count = e.getValue();
-                os.write((name + " " + count + "\n").getBytes(StandardCharsets.UTF_8));
+                os.write((nameKey + " " + count + "\n").getBytes(StandardCharsets.UTF_8));
             }
         }
 

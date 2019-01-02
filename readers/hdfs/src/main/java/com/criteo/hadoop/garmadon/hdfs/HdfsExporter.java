@@ -162,7 +162,7 @@ public class HdfsExporter {
 
         final PartitionsPauseStateHandler pauser = new PartitionsPauseStateHandler(kafkaConsumer);
 
-        for (Map.Entry<Integer, Map.Entry<String, Class<? extends Message>>> out: typeToDirAndClass.entrySet()) {
+        for (Map.Entry<Integer, Map.Entry<String, Class<? extends Message>>> out : typeToDirAndClass.entrySet()) {
             final Integer eventType = out.getKey();
             final String eventName = out.getValue().getKey();
             final Class<? extends Message> clazz = out.getValue().getValue();
@@ -241,13 +241,14 @@ public class HdfsExporter {
                 DEFAULT_PROPERTIES_VALUE.get(SIZE_BEFORE_FLUSHING_TMP));
     }
 
+
     private static Function<LocalDateTime, ExpiringConsumer<Message>> buildMessageConsumerBuilder(
             FileSystem fs, Path temporaryHdfsDir, Path finalHdfsDir, Class<? extends Message> clazz,
             OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser, String eventName) {
         Counter.Child tmpFileOpenFailures = PrometheusMetrics.buildCounterChild(
                 PrometheusMetrics.TMP_FILE_OPEN_FAILURES, eventName);
 
-        return (dayStartTime) -> {
+        return dayStartTime -> {
             final String uniqueFileName = UUID.randomUUID().toString();
             final String additionalInfo = String.format("Date = %s, Event type = %s", dayStartTime,
                     clazz.getSimpleName());
@@ -289,7 +290,7 @@ public class HdfsExporter {
 
     private static GarmadonReader.GarmadonMessageHandler buildGarmadonMessageHandler(PartitionedWriter<Message> writer,
                                                                                      String eventName) {
-        return (msg) -> {
+        return msg -> {
             final CommittableOffset offset = msg.getCommittableOffset();
 
             try {

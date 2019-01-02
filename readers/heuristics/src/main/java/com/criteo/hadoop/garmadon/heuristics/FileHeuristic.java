@@ -41,6 +41,9 @@ public class FileHeuristic implements Heuristic {
                     break;
                 case APPEND:
                     append.forApp(applicationId, attemptId).increment();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Received a non managed FsEvent.Action " + action.name());
             }
         } catch (IllegalArgumentException ex) {
             LOGGER.warn("received an unexpected FsEvent.Action {}", ex.getMessage());
@@ -55,7 +58,8 @@ public class FileHeuristic implements Heuristic {
     @Override
     public void onAppCompleted(String applicationId, String attemptId) {
         //TODO compute severity based on number of deleted, renamed, read, written...
-        HeuristicResult result = new HeuristicResult(applicationId, attemptId, FileHeuristic.class, HeuristicsResultDB.Severity.NONE, HeuristicsResultDB.Severity.NONE);
+        HeuristicResult result = new HeuristicResult(applicationId, attemptId, FileHeuristic.class, HeuristicsResultDB.Severity.NONE,
+                HeuristicsResultDB.Severity.NONE);
         addDetail(result, deleted, applicationId, attemptId);
         addDetail(result, read, applicationId, attemptId);
         addDetail(result, written, applicationId, attemptId);
@@ -88,7 +92,7 @@ public class FileHeuristic implements Heuristic {
 
         static class Counter {
 
-            private int count = 0;
+            private int count;
 
             int getCount() {
                 return count;

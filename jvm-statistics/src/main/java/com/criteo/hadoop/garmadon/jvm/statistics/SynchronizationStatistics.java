@@ -26,12 +26,12 @@ class SynchronizationStatistics extends AbstractStatistic {
     SynchronizationStatistics(HotspotRuntimeMBean hsRuntime) {
         super(SYNCLOCKS_HEADER);
         this.hsRuntime = hsRuntime;
-        int counters = 0;
+        int countOfCounters = 0;
         for (Counter counter : hsRuntime.getInternalRuntimeCounters()) {
             String counterName = counter.getName();
-            if (this.counters.contains(counterName)) counters++;
+            if (this.counters.contains(counterName)) countOfCounters++;
         }
-        if (counters == 0) throw new RuntimeException("No sync locks counters found");
+        if (countOfCounters == 0) throw new RuntimeException("No sync locks counters found");
     }
 
     @Override

@@ -1,10 +1,6 @@
 package com.criteo.hadoop.garmadon.schema.serialization;
 
 import com.criteo.hadoop.garmadon.event.proto.*;
-import com.criteo.hadoop.garmadon.event.proto.ContainerEventProtos;
-import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
-import com.criteo.hadoop.garmadon.event.proto.ResourceManagerEventProtos;
-import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.exceptions.DeserializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.SerializationException;
 import com.criteo.hadoop.garmadon.schema.exceptions.TypeMarkerException;
@@ -43,25 +39,36 @@ public class GarmadonSerialization {
 
     static {
         // hadoop events
-        register(DataAccessEventProtos.PathEvent.class, TypeMarker.PATH_EVENT, "PATH_EVENT", DataAccessEventProtos.PathEvent::toByteArray, DataAccessEventProtos.PathEvent::parseFrom);
-        register(DataAccessEventProtos.FsEvent.class, TypeMarker.FS_EVENT, "FS_EVENT", DataAccessEventProtos.FsEvent::toByteArray, DataAccessEventProtos.FsEvent::parseFrom);
-        register(DataAccessEventProtos.StateEvent.class, TypeMarker.STATE_EVENT, "STATE_EVENT", DataAccessEventProtos.StateEvent::toByteArray, DataAccessEventProtos.StateEvent::parseFrom);
+        register(DataAccessEventProtos.PathEvent.class, TypeMarker.PATH_EVENT, "PATH_EVENT", DataAccessEventProtos.PathEvent::toByteArray,
+                DataAccessEventProtos.PathEvent::parseFrom);
+        register(DataAccessEventProtos.FsEvent.class, TypeMarker.FS_EVENT, "FS_EVENT", DataAccessEventProtos.FsEvent::toByteArray,
+                DataAccessEventProtos.FsEvent::parseFrom);
+        register(DataAccessEventProtos.StateEvent.class, TypeMarker.STATE_EVENT, "STATE_EVENT", DataAccessEventProtos.StateEvent::toByteArray,
+                DataAccessEventProtos.StateEvent::parseFrom);
 
         // nodemanager events
-        register(ContainerEventProtos.ContainerResourceEvent.class, TypeMarker.CONTAINER_MONITORING_EVENT, "CONTAINER_MONITORING_EVENT", ContainerEventProtos.ContainerResourceEvent::toByteArray, ContainerEventProtos.ContainerResourceEvent::parseFrom);
+        register(ContainerEventProtos.ContainerResourceEvent.class, TypeMarker.CONTAINER_MONITORING_EVENT, "CONTAINER_MONITORING_EVENT",
+                ContainerEventProtos.ContainerResourceEvent::toByteArray, ContainerEventProtos.ContainerResourceEvent::parseFrom);
 
         // jvm stats events
-        register(JVMStatisticsEventsProtos.GCStatisticsData.class, TypeMarker.GC_EVENT, "GC_EVENT", JVMStatisticsEventsProtos.GCStatisticsData::toByteArray, JVMStatisticsEventsProtos.GCStatisticsData::parseFrom);
-        register(JVMStatisticsEventsProtos.JVMStatisticsData.class, TypeMarker.JVMSTATS_EVENT, "JVMSTATS_EVENT", JVMStatisticsEventsProtos.JVMStatisticsData::toByteArray, JVMStatisticsEventsProtos.JVMStatisticsData::parseFrom);
+        register(JVMStatisticsEventsProtos.GCStatisticsData.class, TypeMarker.GC_EVENT, "GC_EVENT", JVMStatisticsEventsProtos.GCStatisticsData::toByteArray,
+                JVMStatisticsEventsProtos.GCStatisticsData::parseFrom);
+        register(JVMStatisticsEventsProtos.JVMStatisticsData.class, TypeMarker.JVMSTATS_EVENT, "JVMSTATS_EVENT",
+                JVMStatisticsEventsProtos.JVMStatisticsData::toByteArray, JVMStatisticsEventsProtos.JVMStatisticsData::parseFrom);
 
         // spark events
-        register(SparkEventProtos.StageEvent.class, TypeMarker.SPARK_STAGE_EVENT, "SPARK_STAGE_EVENT", SparkEventProtos.StageEvent::toByteArray, SparkEventProtos.StageEvent::parseFrom);
-        register(SparkEventProtos.StageStateEvent.class, TypeMarker.SPARK_STAGE_STATE_EVENT, "SPARK_STAGE_STATE_EVENT", SparkEventProtos.StageStateEvent::toByteArray, SparkEventProtos.StageStateEvent::parseFrom);
-        register(SparkEventProtos.ExecutorStateEvent.class, TypeMarker.SPARK_EXECUTOR_STATE_EVENT, "SPARK_EXECUTOR_STATE_EVENT", SparkEventProtos.ExecutorStateEvent::toByteArray, SparkEventProtos.ExecutorStateEvent::parseFrom);
-        register(SparkEventProtos.TaskEvent.class, TypeMarker.SPARK_TASK_EVENT, "SPARK_TASK_EVENT", SparkEventProtos.TaskEvent::toByteArray, SparkEventProtos.TaskEvent::parseFrom);
+        register(SparkEventProtos.StageEvent.class, TypeMarker.SPARK_STAGE_EVENT, "SPARK_STAGE_EVENT", SparkEventProtos.StageEvent::toByteArray,
+                SparkEventProtos.StageEvent::parseFrom);
+        register(SparkEventProtos.StageStateEvent.class, TypeMarker.SPARK_STAGE_STATE_EVENT, "SPARK_STAGE_STATE_EVENT",
+                SparkEventProtos.StageStateEvent::toByteArray, SparkEventProtos.StageStateEvent::parseFrom);
+        register(SparkEventProtos.ExecutorStateEvent.class, TypeMarker.SPARK_EXECUTOR_STATE_EVENT, "SPARK_EXECUTOR_STATE_EVENT",
+                SparkEventProtos.ExecutorStateEvent::toByteArray, SparkEventProtos.ExecutorStateEvent::parseFrom);
+        register(SparkEventProtos.TaskEvent.class, TypeMarker.SPARK_TASK_EVENT, "SPARK_TASK_EVENT", SparkEventProtos.TaskEvent::toByteArray,
+                SparkEventProtos.TaskEvent::parseFrom);
 
         // resourcemanager events
-        register(ResourceManagerEventProtos.ApplicationEvent.class, TypeMarker.APPLICATION_EVENT, "APPLICATION_EVENT", ResourceManagerEventProtos.ApplicationEvent::toByteArray, ResourceManagerEventProtos.ApplicationEvent::parseFrom);
+        register(ResourceManagerEventProtos.ApplicationEvent.class, TypeMarker.APPLICATION_EVENT, "APPLICATION_EVENT",
+                ResourceManagerEventProtos.ApplicationEvent::toByteArray, ResourceManagerEventProtos.ApplicationEvent::parseFrom);
     }
 
     protected GarmadonSerialization() {

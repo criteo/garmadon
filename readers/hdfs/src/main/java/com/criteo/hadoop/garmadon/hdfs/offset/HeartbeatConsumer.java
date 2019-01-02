@@ -49,7 +49,7 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
 
                         if (!offset.equals(latestHeartbeat)) {
                             latestHeartbeats.put(partition, offset);
-                            writers.forEach((writer) -> writer.heartbeat(partition, offset));
+                            writers.forEach(writer -> writer.heartbeat(partition, offset));
                         }
                     }
                 }

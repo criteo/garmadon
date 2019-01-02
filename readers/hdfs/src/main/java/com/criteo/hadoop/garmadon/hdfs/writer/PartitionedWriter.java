@@ -108,7 +108,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                     startingOffset = offsetComputer.computeOffset(partitionId);
                 } catch (IOException e) {
                     perPartitionStartOffset.put(partitionId, OffsetComputer.NO_OFFSET);
-                    throw (e);
+                    throw e;
                 }
 
                 perPartitionStartOffset.put(partitionId, startingOffset);
@@ -220,7 +220,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     private void possiblyCloseConsumers(Predicate<ExpiringConsumer> shouldClose) {
         synchronized (perPartitionDayWriters) {
             perPartitionDayWriters.forEach((partitionId, dailyWriters) ->
-                dailyWriters.entrySet().removeIf((entry) -> {
+                dailyWriters.entrySet().removeIf(entry -> {
                     final ExpiringConsumer<MESSAGE_KIND> consumer = entry.getValue();
 
                     if (shouldClose.test(consumer)) {
@@ -263,7 +263,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      * @return                  Existing or just-created consumer
      */
     private ExpiringConsumer<MESSAGE_KIND> getWriter(LocalDateTime dayStartTime, int partitionId) {
-        perPartitionDayWriters.computeIfAbsent(partitionId, (ignored) -> new HashMap<>());
+        perPartitionDayWriters.computeIfAbsent(partitionId, ignored -> new HashMap<>());
 
         final Map<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> partitionMap = perPartitionDayWriters.get(partitionId);
 

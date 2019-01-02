@@ -9,6 +9,7 @@ import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessageFilter;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
+import com.criteo.hadoop.garmadon.schema.enums.FsAction;
 import com.criteo.hadoop.garmadon.schema.enums.State;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.google.protobuf.Message;
@@ -194,4 +195,31 @@ public class ElasticSearchReaderTest {
         assert (dsikEventMap.equals(diskMap));
         assert (jvmEventMap.equals(jvmMap));
     }
+
+    @Test
+    public void writeToES_FsEventMessage() {
+        int type = 1;
+
+        DataAccessEventProtos.FsEvent event = DataAccessEventProtos.FsEvent.newBuilder()
+                .setAction(FsAction.WRITE.name())
+                .setDstPath("hdfs://data:8020/var/test/val.lz4")
+                .setUri("hdfs://data:8020")
+                .setMethodDurationMillis(100L)
+                .build();
+
+        Map<String, Object> eventMap = new HashMap<>();
+        eventMap.putAll(headerMap);
+        eventMap.put("event_type", GarmadonSerialization.getTypeName(type));
+        eventMap.put("action", "WRITE");
+        eventMap.put("dst_path", "/var/test/val.lz4");
+        eventMap.put("src_path", "");
+        eventMap.put("uri", "hdfs://data-preprod-pa4");
+        eventMap.put("method_duration_millis", 100);
+
+        writeGarmadonMessage(type, event);
+        verify(bulkProcessor, times(1)).add(argument.capture(), any(CommittableOffset.class));
+
+        assert (eventMap.equals(argument.getValue().sourceAsMap()));
+    }
+
 }
