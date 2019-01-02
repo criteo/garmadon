@@ -18,6 +18,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 import static net.bytebuddy.implementation.MethodDelegation.to;
@@ -25,6 +26,9 @@ import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public class FileSystemTracer {
     private static final long NANOSECONDS_PER_MILLISECOND = 1000000;
+    private static final ConcurrentHashMap METHOD_GET_URI = new ConcurrentHashMap<ClassLoader, Method>();
+    private static final ConcurrentHashMap METHOD_GET_SERVER_ADDRESS = new ConcurrentHashMap<ClassLoader, Method>();
+    private static final ConcurrentHashMap FIELD_RPC_PROXY = new ConcurrentHashMap<ClassLoader, Field>();
     private static BiConsumer<Long, Object> eventHandler;
 
     private static TypeDescription pathTD =
@@ -48,11 +52,34 @@ public class FileSystemTracer {
         new FileSystemTracer.AddBlockTracer().installOn(instrumentation);
     }
 
+    public static ConcurrentHashMap getMethodGetServerAddress() {
+        return METHOD_GET_SERVER_ADDRESS;
+    }
+
+    public static ConcurrentHashMap getFieldRpcProxy() {
+        return FIELD_RPC_PROXY;
+    }
+
+    public static ConcurrentHashMap getMethodGetUri() {
+        return METHOD_GET_URI;
+    }
+
+    public static Method getMethod(ClassLoader classLoader, String clazz, String method, Class<?>... parameterTypes) {
+        try {
+            Class distributedFileSystem = classLoader.loadClass(clazz);
+            return distributedFileSystem.getMethod(method, parameterTypes);
+        } catch (NoSuchMethodException | ClassNotFoundException ignored) {
+            return null;
+        }
+    }
+
     public static void initEventHandler(BiConsumer<Long, Object> eventConsumer) {
         FileSystemTracer.eventHandler = eventConsumer;
     }
 
     public static class DeleteTracer extends MethodTracer {
+
+
         @Override
         protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
@@ -73,14 +100,14 @@ public class FileSystemTracer {
                 @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
-            Class distributedFileSystem = o.getClass().getClassLoader().loadClass("org.apache.hadoop.hdfs.DistributedFileSystem");
-            Method getUri = distributedFileSystem.getMethod("getUri");
+            ClassLoader classLoader = o.getClass().getClassLoader();
+            Method getUri = (Method) getMethodGetUri().computeIfAbsent(classLoader,
+                    k -> getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri"));
             return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.DELETE.name());
         }
     }
 
     public static class ReadTracer extends MethodTracer {
-
         @Override
         protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
@@ -101,14 +128,14 @@ public class FileSystemTracer {
                 @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
-            Class distributedFileSystem = o.getClass().getClassLoader().loadClass("org.apache.hadoop.hdfs.DistributedFileSystem");
-            Method getUri = distributedFileSystem.getMethod("getUri");
+            ClassLoader classLoader = o.getClass().getClassLoader();
+            Method getUri = (Method) getMethodGetUri().computeIfAbsent(classLoader,
+                    k -> getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri"));
             return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.READ.name());
         }
     }
 
     public static class RenameTracer extends MethodTracer {
-
         @Override
         protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
@@ -130,14 +157,14 @@ public class FileSystemTracer {
                 @This Object o,
                 @Argument(0) Object src,
                 @Argument(1) Object dst) throws Exception {
-            Class distributedFileSystem = o.getClass().getClassLoader().loadClass("org.apache.hadoop.hdfs.DistributedFileSystem");
-            Method getUri = distributedFileSystem.getMethod("getUri");
+            ClassLoader classLoader = o.getClass().getClassLoader();
+            Method getUri = (Method) getMethodGetUri().computeIfAbsent(classLoader,
+                    k -> getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri"));
             return executeMethod(zuper, getUri.invoke(o).toString(), src.toString(), dst.toString(), FsAction.RENAME.name());
         }
     }
 
     public static class WriteTracer extends MethodTracer {
-
         @Override
         protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
@@ -145,7 +172,7 @@ public class FileSystemTracer {
 
         @Override
         protected ElementMatcher<? super MethodDescription> methodMatcher() {
-            return named("create").and(takesArgument(0, pathTD));
+            return named("create").and(takesArguments(7)).and(takesArgument(0, pathTD));
         }
 
         @Override
@@ -158,14 +185,14 @@ public class FileSystemTracer {
                 @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
-            Class distributedFileSystem = o.getClass().getClassLoader().loadClass("org.apache.hadoop.hdfs.DistributedFileSystem");
-            Method getUri = distributedFileSystem.getMethod("getUri");
+            ClassLoader classLoader = o.getClass().getClassLoader();
+            Method getUri = (Method) getMethodGetUri().computeIfAbsent(classLoader,
+                    k -> getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri"));
             return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.WRITE.name());
         }
     }
 
     public static class AppendTracer extends MethodTracer {
-
         @Override
         protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
@@ -186,14 +213,14 @@ public class FileSystemTracer {
                 @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
-            Class distributedFileSystem = o.getClass().getClassLoader().loadClass("org.apache.hadoop.hdfs.DistributedFileSystem");
-            Method getUri = distributedFileSystem.getMethod("getUri");
+            ClassLoader classLoader = o.getClass().getClassLoader();
+            Method getUri = (Method) getMethodGetUri().computeIfAbsent(classLoader,
+                    k -> getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri"));
             return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.APPEND.name());
         }
     }
 
     public static class ListStatusTracer extends MethodTracer {
-
         @Override
         protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
@@ -216,14 +243,14 @@ public class FileSystemTracer {
                 @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
-            Class distributedFileSystem = o.getClass().getClassLoader().loadClass("org.apache.hadoop.hdfs.DistributedFileSystem");
-            Method getUri = distributedFileSystem.getMethod("getUri");
+            ClassLoader classLoader = o.getClass().getClassLoader();
+            Method getUri = (Method) getMethodGetUri().computeIfAbsent(classLoader,
+                    k -> getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri"));
             return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.LIST_STATUS.name());
         }
     }
 
     public static class GetContentSummaryTracer extends MethodTracer {
-
         @Override
         protected ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
@@ -244,14 +271,14 @@ public class FileSystemTracer {
                 @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
-            Class distributedFileSystem = o.getClass().getClassLoader().loadClass("org.apache.hadoop.hdfs.DistributedFileSystem");
-            Method getUri = distributedFileSystem.getMethod("getUri");
+            ClassLoader classLoader = o.getClass().getClassLoader();
+            Method getUri = (Method) getMethodGetUri().computeIfAbsent(classLoader,
+                    k -> getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri"));
             return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.GET_CONTENT_SUMMARY.name());
         }
     }
 
     public static class AddBlockTracer extends MethodTracer {
-
         @Override
         public ElementMatcher<? super TypeDescription> typeMatcher() {
             return nameStartsWith("org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolTranslatorPB");
@@ -273,13 +300,21 @@ public class FileSystemTracer {
                 @This Object o,
                 @Argument(0) String dst) throws Exception {
 
-            Class clientNamenodeProtocolTranslatorPB = o.getClass().getClassLoader().loadClass("org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolTranslatorPB");
-            Field field = clientNamenodeProtocolTranslatorPB.getDeclaredField("rpcProxy");
-            field.setAccessible(true);
+            ClassLoader classLoader = o.getClass().getClassLoader();
+            Field field = (Field) getFieldRpcProxy().computeIfAbsent(classLoader, k -> {
+                try {
+                    Class clientNamenodeProtocolTranslatorPB = classLoader.loadClass("org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolTranslatorPB");
+                    Field fieldComputed = clientNamenodeProtocolTranslatorPB.getDeclaredField("rpcProxy");
+                    fieldComputed.setAccessible(true);
+                    return fieldComputed;
+                } catch (ClassNotFoundException | NoSuchFieldException ignored) {
+                    return null;
+                }
+            });
             Object rpcProxy = field.get(o);
 
-            Class rpc = o.getClass().getClassLoader().loadClass("org.apache.hadoop.ipc.RPC");
-            Method getServerAddress = rpc.getMethod("getServerAddress", Object.class);
+            Method getServerAddress = (Method) getMethodGetServerAddress().computeIfAbsent(classLoader,
+                    k -> getMethod(classLoader, "org.apache.hadoop.ipc.RPC", "getServerAddress", Object.class));
             InetSocketAddress inetSocketAddress = (InetSocketAddress) getServerAddress.invoke(o, rpcProxy);
             return executeMethod(zuper, "hdfs://" + inetSocketAddress.getHostString() + ":" + inetSocketAddress.getPort(),
                     null, dst, FsAction.ADD_BLOCK.name());
