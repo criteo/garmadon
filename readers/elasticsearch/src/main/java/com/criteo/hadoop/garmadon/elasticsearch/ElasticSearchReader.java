@@ -98,7 +98,7 @@ public final class ElasticSearchReader {
 
     void writeToES(GarmadonMessage msg) {
         String msgType = GarmadonSerialization.getTypeName(msg.getType());
-        if ("JVMSTATS_EVENT".equals(msgType)) {
+        if (GarmadonSerialization.TypeMarker.JVMSTATS_EVENT == msg.getType()) {
             Map<String, Object> jsonMap = ProtoConcatenator.concatToMap(Arrays.asList(msg.getHeader()), true);
 
             HashMap<String, Map<String, Object>> eventMaps = new HashMap<>();
