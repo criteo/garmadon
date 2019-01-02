@@ -111,6 +111,15 @@ public final class ElasticSearchReader {
         } else {
             Map<String, Object> eventMap = ProtoConcatenator.concatToMap(Arrays.asList(msg.getHeader(), msg.getBody()), true);
             eventMap.put("event_type", msgType);
+
+            // Specific normalization for FS_EVENT
+            if ("FS_EVENT".equals(msgType)) {
+                String uri = (String) eventMap.get("uri");
+                eventMap.computeIfPresent("src_path", (k, v) -> ((String) v).replace(uri, ""));
+                eventMap.computeIfPresent("dst_path", (k, v) -> ((String) v).replace(uri, ""));
+                eventMap.computeIfPresent("uri", (k, v) -> UriHelper.getUniformizedUri((String) v));
+            }
+
             addEventToBulkProcessor(eventMap, msg.getTimestamp(), msg.getCommittableOffset());
         }
     }
