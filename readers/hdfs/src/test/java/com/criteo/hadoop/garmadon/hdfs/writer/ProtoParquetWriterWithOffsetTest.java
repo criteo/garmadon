@@ -46,7 +46,7 @@ public class ProtoParquetWriterWithOffsetTest {
         final Message firstMessageMock = mock(Message.class);
         final Message secondMessageMock = mock(Message.class);
         final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writerMock, tmpPath,
-                finalPath, fsMock, new FixedOffsetComputer(FINAL_FILE_NAME, 123), LocalDateTime.MIN);
+                finalPath, fsMock, new FixedOffsetComputer(FINAL_FILE_NAME, 123), LocalDateTime.MIN, "ignored");
 
         consumer.write(firstMessageMock, new TopicPartitionOffset(TOPIC, 1, 2));
         consumer.write(secondMessageMock, new TopicPartitionOffset(TOPIC, 1, 3));
@@ -72,7 +72,7 @@ public class ProtoParquetWriterWithOffsetTest {
     public void closeWithNoEvent() throws IOException {
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
         final ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
-                new Path("tmp"), new Path("final"), null, null, LocalDateTime.MIN);
+                new Path("tmp"), new Path("final"), null, null, LocalDateTime.MIN, "ignored");
 
         parquetWriter.close();
     }
@@ -83,7 +83,7 @@ public class ProtoParquetWriterWithOffsetTest {
         final FileSystem fsMock = mock(FileSystem.class);
         final OffsetComputer fileNamer = mock(OffsetComputer.class);
         final ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
-                new Path("tmp"), new Path("final"), fsMock, fileNamer, LocalDateTime.MIN);
+                new Path("tmp"), new Path("final"), fsMock, fileNamer, LocalDateTime.MIN, "ignored");
         boolean thrown = false;
 
         // We need to write one event, otherwise we will fail with a "no message" error
@@ -147,7 +147,7 @@ public class ProtoParquetWriterWithOffsetTest {
             long offset = 1;
 
             final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writer, tmpPath, baseDir,
-                    localFs, new FixedOffsetComputer(FINAL_FILE_NAME, 123), UTC_EPOCH);
+                    localFs, new FixedOffsetComputer(FINAL_FILE_NAME, 123), UTC_EPOCH, "ignored");
 
             for (EventHeaderProtos.Header header : inputHeaders) {
                 consumer.write(header, new TopicPartitionOffset(TOPIC, 1, offset++));
