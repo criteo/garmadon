@@ -79,7 +79,7 @@
         <netty-all.version>4.1.30.Final</netty-all.version>
         <bytebuddy.version>1.9.2</bytebuddy.version>
         <spark.version>2.3.2</spark.version>
-        <es.version>6.3.2</es.version>
+        <es.version>6.5.3</es.version>
         <logback.version>1.2.3</logback.version>
         <prometheus.version>0.5.0</prometheus.version>
         <maria-java-client.version>2.2.6</maria-java-client.version>
@@ -91,6 +91,8 @@
         <guava.version>20.0</guava.version>
         <parquet-protobuf.version>1.8.1</parquet-protobuf.version>
         <protobuf-dynamic.version>0.9.4</protobuf-dynamic.version>
+        <jackson.version>2.9.7</jackson.version>
+        <commons-io.version>2.6</commons-io.version>
 
         <!-- tests -->
         <junit.version>4.12</junit.version>

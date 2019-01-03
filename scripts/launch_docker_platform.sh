@@ -30,11 +30,6 @@ HADOOP_VERSION=$(grep "ENV HADOOP_VERSION" garmadon/Dockerfile|cut -d= -f2)
 SPARK_VERSION=$(grep "ENV SPARK_VERSION" garmadon/Dockerfile|cut -d= -f2)
 popd
 
-# Create garmadon ES template
-block_until_website_available 'http://localhost:9200'
-curl -XPUT 'http://localhost:9200/_template/garmadon' -H 'Content-Type: application/json' -d @${ES_FOLDER}/es/template.json
-curl -XDELETE 'http://localhost:9200/garmadon*' # Ensure no garmadon index have been created with bad mapping
-
 # Create Kibana Index Pattern
 block_until_website_available 'http://localhost:5601'
 curl 'http://localhost:5601/api/saved_objects/index-pattern' -H 'Content-Type: application/json' -H 'kbn-version: 6.3.2' -d '{"attributes":{"title":"garmadon*","timeFieldName":"timestamp"}}'

@@ -2768,7 +2768,7 @@
               "h": 9,
               "w": 24,
               "x": 0,
-              "y": 12
+              "y": 15
             },
             "id": 2,
             "legend": {
@@ -2796,8 +2796,8 @@
             "scopedVars": {
               "uri": {
                 "selected": false,
-                "text": "hdfs://preprod-pa4",
-                "value": "hdfs://preprod-pa4"
+                "text": "hdfs://namenode",
+                "value": "hdfs://namenode"
               }
             },
             "seriesOverrides": [],
@@ -2894,7 +2894,7 @@
               "h": 9,
               "w": 24,
               "x": 0,
-              "y": 21
+              "y": 24
             },
             "id": 49,
             "legend": {
@@ -2932,7 +2932,7 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "{{metric}} {{action}} (ms)",
+                "alias": "{{metric}} {{action}}",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -2995,7 +2995,7 @@
             },
             "yaxes": [
               {
-                "format": "short",
+                "format": "ms",
                 "label": null,
                 "logBase": 1,
                 "max": null,
@@ -3115,8 +3115,8 @@
         {
           "allValue": "*",
           "current": {
-            "text": "application_1540377037574_0005",
-            "value": "application_1540377037574_0005"
+            "text": "application_1545239171688_0007",
+            "value": "application_1545239171688_0007"
           },
           "datasource": "$datasource",
           "hide": 0,

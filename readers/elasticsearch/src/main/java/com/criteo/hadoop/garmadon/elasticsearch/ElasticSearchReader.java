@@ -7,6 +7,9 @@ import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -14,28 +17,31 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
-import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.*;
 import org.elasticsearch.client.sniff.SniffOnFailureListener;
 import org.elasticsearch.client.sniff.Sniffer;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasType;
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.not;
@@ -51,6 +57,8 @@ public final class ElasticSearchReader {
     private static final int NB_RETRIES = 10;
 
     private static final Format FORMATTER = new SimpleDateFormat("yyyy-MM-dd-HH");
+
+    private static final String ES_TYPE = "doc";
 
     private final GarmadonReader reader;
     private final String esIndexPrefix;
@@ -99,7 +107,7 @@ public final class ElasticSearchReader {
     void writeToES(GarmadonMessage msg) {
         String msgType = GarmadonSerialization.getTypeName(msg.getType());
         if (GarmadonSerialization.TypeMarker.JVMSTATS_EVENT == msg.getType()) {
-            Map<String, Object> jsonMap = ProtoConcatenator.concatToMap(Arrays.asList(msg.getHeader()), true);
+            Map<String, Object> jsonMap = ProtoConcatenator.concatToMap(Collections.singletonList(msg.getHeader()), true);
 
             HashMap<String, Map<String, Object>> eventMaps = new HashMap<>();
             EventHelper.processJVMStatisticsData(msgType, (JVMStatisticsEventsProtos.JVMStatisticsData) msg.getBody(), eventMaps);
@@ -129,7 +137,7 @@ public final class ElasticSearchReader {
         eventMap.remove("id"); // field only used as kafka key
 
         String dailyIndex = esIndexPrefix + "-" + FORMATTER.format(timestamp);
-        IndexRequest req = new IndexRequest(dailyIndex, "doc")
+        IndexRequest req = new IndexRequest(dailyIndex, ES_TYPE)
                 .source(eventMap);
         bulkProcessor.add(req, committableOffset);
     }
@@ -140,9 +148,9 @@ public final class ElasticSearchReader {
         }
 
         @Override
-        public void onFailure(HttpHost host) {
-            LOGGER.warn("Node failed: " + host.getHostName() + "-" + host.getPort());
-            super.onFailure(host);
+        public void onFailure(Node node) {
+            LOGGER.warn("Node failed: " + node.getHost().getHostName() + "-" + node.getHost().getPort());
+            super.onFailure(node);
         }
     }
 
@@ -157,7 +165,35 @@ public final class ElasticSearchReader {
         return GarmadonReader.Builder.stream(new KafkaConsumer<>(props));
     }
 
-    private static BulkProcessor setUpBulkProcessor(String esHost, int esPort, String esUser, String esPassword) {
+    private static void putGarmadonTemplate(RestHighLevelClient esClient, Configuration.ElasticSearch elasticsearch) throws IOException, GarmadonEsException {
+        PutIndexTemplateRequest indexRequest = new PutIndexTemplateRequest("garmadon");
+        indexRequest.patterns(Collections.singletonList("garmadon*"));
+
+        // Create template settings with mandatory one
+        Settings.Builder templateSettings = Settings.builder()
+                .put("sort.field", "timestamp")
+                .put("sort.order", "desc")
+                .put("analysis.analyzer.path_analyzer.tokenizer", "path_tokenizer")
+                .put("analysis.tokenizer.path_tokenizer.type", "path_hierarchy")
+                .put("analysis.tokenizer.path_tokenizer.delimiter", "/");
+
+        // Add settings from config
+        elasticsearch.getSettings().forEach((key, value) -> templateSettings.put(key, value));
+
+        indexRequest.settings(templateSettings);
+
+        String template = IOUtils.toString(Objects.requireNonNull(ElasticSearchReader.class.getClassLoader()
+                .getResourceAsStream("template.json")), "UTF-8");
+
+        indexRequest.mapping(ES_TYPE, template, XContentType.JSON);
+
+        if (!esClient.indices().putTemplate(indexRequest, RequestOptions.DEFAULT).isAcknowledged()) {
+            throw new GarmadonEsException("Failed to insert garmadon template");
+        }
+    }
+
+    private static BulkProcessor setUpBulkProcessor(Configuration.ElasticSearch elasticsearch, String esHost,
+                                                    int esPort, String esUser, String esPassword) throws IOException, GarmadonEsException {
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         int bulkConcurrent = Integer.getInteger("garmadon.esReader.bulkConcurrent", 10);
         int bulkActions = Integer.getInteger("garmadon.esReader.bulkActions", 500);
@@ -187,10 +223,15 @@ public final class ElasticSearchReader {
         //setup es client
         RestHighLevelClient esClient = new RestHighLevelClient(restClientBuilder);
 
+        putGarmadonTemplate(esClient, elasticsearch);
+
         Sniffer sniffer = Sniffer.builder(esClient.getLowLevelClient()).build();
         sniffOnFailureListener.setSniffer(sniffer);
 
-        return BulkProcessor.builder(esClient::bulkAsync, new ElasticSearchListener())
+        BiConsumer<BulkRequest, ActionListener<BulkResponse>> bulkConsumer =
+                (request, bulkListener) -> esClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener);
+
+        return BulkProcessor.builder(bulkConsumer, new ElasticSearchListener())
                 .setBulkActions(bulkActions)
                 .setBulkSize(new ByteSizeValue(bulkSizeMB, ByteSizeUnit.MB))
                 .setFlushInterval(TimeValue.timeValueSeconds(bulkFlushIntervalSec))
@@ -201,7 +242,7 @@ public final class ElasticSearchReader {
                 .build();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, GarmadonEsException {
         if (args.length < 8) {
             printHelp();
             return;
@@ -215,8 +256,12 @@ public final class ElasticSearchReader {
         String esPassword = args[6];
         int prometheusPort = Integer.parseInt(args[7]);
 
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        Configuration config = mapper.readValue(ElasticSearchReader.class.getClassLoader()
+                .getResourceAsStream("garmadon-config.yml"), Configuration.class);
+
         GarmadonReader.Builder builderReader = setUpKafkaReader(kafkaConnectString, kafkaGroupId);
-        BulkProcessor bulkProcessorMain = setUpBulkProcessor(esHost, esPort, esUser, esPassword);
+        BulkProcessor bulkProcessorMain = setUpBulkProcessor(config.getElasticsearch(), esHost, esPort, esUser, esPassword);
 
         ElasticSearchReader reader = new ElasticSearchReader(builderReader, bulkProcessorMain,
                 esIndexPrefix, new PrometheusHttpConsumerMetrics(prometheusPort));
@@ -225,7 +270,6 @@ public final class ElasticSearchReader {
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> reader.stop().join()));
     }
-
 
     private static void printHelp() {
         System.out.println("Usage:");
