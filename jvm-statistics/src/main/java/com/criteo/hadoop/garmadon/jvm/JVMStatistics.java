@@ -19,11 +19,24 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.function.BiConsumer;
 
 public class JVMStatistics {
+
     public static final String DEFAULT_SINK_TYPE = "log";
     private static final Logger LOGGER = LoggerFactory.getLogger(JVMStatistics.class);
 
     private static final Map<String, Class<?>> STATISTIC_COLLECTOR_CLASSES = new ConcurrentHashMap<>();
     private static final Map<String, Class<?>> GC_NOTIFICATIONS_CLASSES = new ConcurrentHashMap<>();
+    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1, JVMStatistics::createDaemonThread);
+    private final Conf<?, ?, ?> conf;
+    private final StatisticCollector<?> jvmStatsCollector;
+    private final StatisticCollector<?> machineStatsCollector;
+    private final GCNotifications gcNotifications;
+
+    public JVMStatistics(Conf<?, ?, ?> conf) {
+        this.conf = conf;
+        this.jvmStatsCollector = createStatisticCollector(conf, conf.getLogJVMStats());
+        this.machineStatsCollector = createStatisticCollector(conf, conf.getLogMachineStats());
+        this.gcNotifications = createGCNotifications(conf);
+    }
 
     static {
         registerStatisticCollector(DEFAULT_SINK_TYPE, LogStatisticCollector.class);
@@ -36,20 +49,6 @@ public class JVMStatistics {
 
     public static void registerGCNotifications(String name, Class<?> clazz) {
         GC_NOTIFICATIONS_CLASSES.put(name, clazz);
-    }
-
-
-    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1, JVMStatistics::createDaemonThread);
-    private final Conf<?, ?, ?> conf;
-    private final StatisticCollector<?> jvmStatsCollector;
-    private final StatisticCollector<?> machineStatsCollector;
-    private final GCNotifications gcNotifications;
-
-    public JVMStatistics(Conf<?, ?, ?> conf) {
-        this.conf = conf;
-        this.jvmStatsCollector = createStatisticCollector(conf, conf.getLogJVMStats());
-        this.machineStatsCollector = createStatisticCollector(conf, conf.getLogMachineStats());
-        this.gcNotifications = createGCNotifications(conf);
     }
 
     public void start() {

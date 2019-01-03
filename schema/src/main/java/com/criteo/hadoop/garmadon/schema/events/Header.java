@@ -70,34 +70,40 @@ public class Header {
                 Objects.equals(this.mainClass, otherHeader.mainClass);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, applicationID, attemptID, applicationName, user, containerID, hostname, pid, framework, component,
+                executorId, mainClass, tags);
+    }
+
     public Header cloneAndOverride(Header override) {
-        String id = override.id != null ? override.id : this.id;
-        String applicationID = override.applicationID != null ? override.applicationID : this.applicationID;
-        String appAttemptID = override.attemptID != null ? override.attemptID : this.attemptID;
-        String applicationName = override.applicationName != null ? override.applicationName : this.applicationName;
-        String user = override.user != null ? override.user : this.user;
-        String containerID = override.containerID != null ? override.containerID : this.containerID;
-        String hostname = override.hostname != null ? override.hostname : this.hostname;
-        List<String> tags = (override.tags != null && override.tags.size() > 0) ? override.tags : this.tags;
-        String pid = override.pid != null ? override.pid : this.pid;
-        String framework = override.framework != null ? override.framework : this.framework;
-        String component = override.component != null ? override.component : this.component;
-        String executorId = override.executorId != null ? override.executorId : this.executorId;
-        String mainClass = override.mainClass != null ? override.mainClass : this.mainClass;
+        String idClone = override.id != null ? override.id : this.id;
+        String applicationIDClone = override.applicationID != null ? override.applicationID : this.applicationID;
+        String attemptIDClone = override.attemptID != null ? override.attemptID : this.attemptID;
+        String applicationNameClone = override.applicationName != null ? override.applicationName : this.applicationName;
+        String userClone = override.user != null ? override.user : this.user;
+        String containerIDClone = override.containerID != null ? override.containerID : this.containerID;
+        String hostnameClone = override.hostname != null ? override.hostname : this.hostname;
+        List<String> tagsClone = (override.tags != null && override.tags.size() > 0) ? override.tags : this.tags;
+        String pidClone = override.pid != null ? override.pid : this.pid;
+        String frameworkClone = override.framework != null ? override.framework : this.framework;
+        String componentClone = override.component != null ? override.component : this.component;
+        String executorIdClone = override.executorId != null ? override.executorId : this.executorId;
+        String mainClassClone = override.mainClass != null ? override.mainClass : this.mainClass;
         return new Header(
-                id,
-                applicationID,
-                appAttemptID,
-                applicationName,
-                user,
-                containerID,
-                hostname,
-                tags,
-                pid,
-                framework,
-                component,
-                executorId,
-                mainClass
+                idClone,
+                applicationIDClone,
+                attemptIDClone,
+                applicationNameClone,
+                userClone,
+                containerIDClone,
+                hostnameClone,
+                tagsClone,
+                pidClone,
+                frameworkClone,
+                componentClone,
+                executorIdClone,
+                mainClassClone
         );
     }
 

@@ -30,7 +30,7 @@ public class ProtoConcatenator {
     public static Message concatToProtobuf(Collection<Message> messages) {
         try {
             final DynamicMessage.Builder messageBuilder = concatInner(messages,
-                    (keys) -> {
+                    keys -> {
                         try {
                             return buildMessageBuilder("GeneratedObject", keys);
                         } catch (Descriptors.DescriptorValidationException e) {
@@ -72,7 +72,7 @@ public class ProtoConcatenator {
      */
     public static Map<String, Object> concatToMap(Collection<Message> messages, boolean includeDefaultValueFields) {
         return concatInner(messages,
-                (keys) -> {
+                keys -> {
                     Map<String, Object> concatMap = new HashMap<>(keys.size());
                     if (includeDefaultValueFields) {
                         for (Descriptors.FieldDescriptor fieldDescriptor : keys) {
@@ -152,7 +152,8 @@ public class ProtoConcatenator {
 
     private static void setRepeatedField(DynamicMessage.Builder builder, Descriptors.FieldDescriptor dstFieldDescriptor,
                                          Map.Entry<Descriptors.FieldDescriptor, Object> entry) {
-        @SuppressWarnings("unchecked") final Collection<Object> values = (Collection<Object>) entry.getValue();
+        @SuppressWarnings("unchecked")
+        final Collection<Object> values = (Collection<Object>) entry.getValue();
 
         for (Object value : values) {
             builder.addRepeatedField(dstFieldDescriptor, value);

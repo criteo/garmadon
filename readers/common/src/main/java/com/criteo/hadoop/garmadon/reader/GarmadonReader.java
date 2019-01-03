@@ -25,9 +25,10 @@ import static com.criteo.hadoop.garmadon.protocol.ProtocolConstants.FRAME_DELIMI
 
 public final class GarmadonReader {
     public static final String GARMADON_TOPIC = "garmadon";
+    public static final String CONSUMER_ID = "garmadon.reader." + getHostname();
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonReader.class);
 
-    protected final Reader reader;
     private static String hostname;
 
     static {
@@ -39,12 +40,7 @@ public final class GarmadonReader {
         }
     }
 
-    public static String getHostname() {
-        return hostname;
-    }
-
-    public static final String CONSUMER_ID = "garmadon.reader." + hostname;
-
+    protected final Reader reader;
 
     private final CompletableFuture<Void> cf;
 
@@ -54,6 +50,10 @@ public final class GarmadonReader {
                            Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners) {
         this.cf = new CompletableFuture<>();
         this.reader = new Reader(kafkaConsumer, beforeInterceptHandlers, listeners, cf);
+    }
+
+    public static String getHostname() {
+        return hostname;
     }
 
     /**
@@ -91,7 +91,8 @@ public final class GarmadonReader {
 
         private volatile boolean keepOnReading = true;
 
-        Reader(Consumer<String, byte[]> consumer, List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, CompletableFuture<Void> cf) {
+        Reader(Consumer<String, byte[]> consumer, List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter,
+                GarmadonMessageHandler> listeners, CompletableFuture<Void> cf) {
             this.consumer = SynchronizedConsumer.synchronize(consumer);
             this.beforeInterceptHandlers = beforeInterceptHandlers;
             this.listeners = listeners;
@@ -181,7 +182,8 @@ public final class GarmadonReader {
                             }
 
                             if (header != null && body != null) {
-                                CommittableOffset<String, byte[]> committableOffset = new CommittableOffset<>(consumer, record.topic(), record.partition(), record.offset());
+                                CommittableOffset<String, byte[]> committableOffset = new CommittableOffset<>(consumer, record.topic(),
+                                        record.partition(), record.offset());
 
                                 GarmadonMessage msg = new GarmadonMessage(typeMarker, timestamp, header, body, committableOffset);
 
@@ -200,7 +202,7 @@ public final class GarmadonReader {
 
         private static class Counter {
 
-            private int count = 0;
+            private int count;
 
             void increment() {
                 count++;
@@ -247,11 +249,11 @@ public final class GarmadonReader {
     }
 
     public static class Builder {
+        public static final Properties DEFAULT_KAFKA_PROPS = new Properties();
+
         private final Consumer<String, byte[]> kafkaConsumer;
         private Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners = new HashMap<>();
         private List<GarmadonMessageHandler> beforeInterceptHandlers = new ArrayList<>();
-
-        public static final Properties DEFAULT_KAFKA_PROPS = new Properties();
 
         static {
             DEFAULT_KAFKA_PROPS.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString()); //by default groupId is random

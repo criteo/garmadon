@@ -45,7 +45,7 @@ public class AsyncEventProcessor implements Runnable {
         private final Header header;
         private final Object body;
 
-        public Message(long timestamp, Header header, Object body) {
+        Message(long timestamp, Header header, Object body) {
             this.timestamp = timestamp;
             this.header = header;
             this.body = body;

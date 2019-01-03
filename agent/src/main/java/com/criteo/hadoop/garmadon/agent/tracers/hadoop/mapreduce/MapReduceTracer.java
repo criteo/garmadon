@@ -105,7 +105,8 @@ public class MapReduceTracer {
 
         public static void intercept(@Argument(1) TaskAttemptContext taskAttemptContext) {
             String paths = (taskAttemptContext.getConfiguration().get(FILE_INPUT_FORMAT_INPUT_DIR) != null) ?
-                    taskAttemptContext.getConfiguration().get(FILE_INPUT_FORMAT_INPUT_DIR) : taskAttemptContext.getConfiguration().get(DEPRECATED_FILE_INPUT_FORMAT_INPUT_DIR);
+                    taskAttemptContext.getConfiguration().get(FILE_INPUT_FORMAT_INPUT_DIR) :
+                    taskAttemptContext.getConfiguration().get(DEPRECATED_FILE_INPUT_FORMAT_INPUT_DIR);
             if (paths != null) {
                 DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
                         .newBuilder()
@@ -136,7 +137,8 @@ public class MapReduceTracer {
 
         public static void intercept(@Argument(0) TaskAttemptContext taskAttemptContext) {
             String paths = (taskAttemptContext.getConfiguration().get(FILE_OUTPUT_FORMAT_OUTPUT_DIR) != null) ?
-                    taskAttemptContext.getConfiguration().get(FILE_OUTPUT_FORMAT_OUTPUT_DIR) : taskAttemptContext.getConfiguration().get(DEPRECATED_FILE_OUTPUT_FORMAT_OUTPUT_DIR);
+                    taskAttemptContext.getConfiguration().get(FILE_OUTPUT_FORMAT_OUTPUT_DIR) :
+                    taskAttemptContext.getConfiguration().get(DEPRECATED_FILE_OUTPUT_FORMAT_OUTPUT_DIR);
             if (paths != null) {
                 DataAccessEventProtos.PathEvent pathEvent = DataAccessEventProtos.PathEvent
                         .newBuilder()

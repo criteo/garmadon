@@ -17,7 +17,8 @@ public class Safepoints implements JVMStatsHeuristic {
     public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsEventsProtos.JVMStatisticsData jvmStats) {
         for (JVMStatisticsEventsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             if ("safepoints".equals(section.getName())) {
-                Map<String, SafepointsCounters> containerCounters = appCounters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());
+                Map<String, SafepointsCounters> containerCounters = appCounters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId),
+                        s -> new HashMap<>());
                 SafepointsCounters safepointsCounters = containerCounters.computeIfAbsent(containerId, s -> new SafepointsCounters());
                 for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     if ("count".equals(property.getName())) {

@@ -811,7 +811,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:OS AND tags:FORWARDER AND tags:$tags AND hostname:$hostname AND network:$network",
+            "query": "event_type:OS AND tags:FORWARDER AND tags:$tags AND hostname:$hostname",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -821,6 +821,167 @@
         "timeFrom": null,
         "timeShift": null,
         "title": "Network tx/rx",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        },
+        "id": 17,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 100,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "{{network}}.errin",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "network",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "asc",
+                  "orderBy": "_term",
+                  "size": "50"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "9s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "errin",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:OS AND tags:FORWARDER AND tags:$tags AND hostname:$hostname",
+            "refId": "F",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "{{network}}.errout",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "network",
+                "id": "5",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "asc",
+                  "orderBy": "_term",
+                  "size": "50"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "9s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "errout",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:OS AND tags:FORWARDER AND tags:$tags AND hostname:$hostname",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Network errin/errout",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -883,9 +1044,8 @@
         {
           "allValue": "*",
           "current": {
-            "tags": [],
-            "text": "RESOURCEMANAGER",
-            "value": "RESOURCEMANAGER"
+            "text": "All",
+            "value": "$__all"
           },
           "datasource": "$datasource",
           "hide": 0,

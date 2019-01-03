@@ -28,7 +28,6 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -59,7 +58,10 @@ public final class ElasticSearchReader {
     private PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics;
 
 
-    ElasticSearchReader(GarmadonReader.Builder builderReader, BulkProcessor bulkProcessorMain, String esIndexPrefix, PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics) {
+    ElasticSearchReader(GarmadonReader.Builder builderReader,
+                        BulkProcessor bulkProcessorMain,
+                        String esIndexPrefix,
+                        PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics) {
         this.reader = builderReader
                 .intercept(not(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)), this::writeToES)
                 .build();
@@ -96,7 +98,7 @@ public final class ElasticSearchReader {
 
     void writeToES(GarmadonMessage msg) {
         String msgType = GarmadonSerialization.getTypeName(msg.getType());
-        if (msgType.equals("JVMSTATS_EVENT")) {
+        if (GarmadonSerialization.TypeMarker.JVMSTATS_EVENT == msg.getType()) {
             Map<String, Object> jsonMap = ProtoConcatenator.concatToMap(Arrays.asList(msg.getHeader()), true);
 
             HashMap<String, Map<String, Object>> eventMaps = new HashMap<>();
@@ -109,6 +111,15 @@ public final class ElasticSearchReader {
         } else {
             Map<String, Object> eventMap = ProtoConcatenator.concatToMap(Arrays.asList(msg.getHeader(), msg.getBody()), true);
             eventMap.put("event_type", msgType);
+
+            // Specific normalization for FS_EVENT
+            if (GarmadonSerialization.TypeMarker.FS_EVENT == msg.getType()) {
+                String uri = (String) eventMap.get("uri");
+                eventMap.computeIfPresent("src_path", (k, v) -> ((String) v).replace(uri, ""));
+                eventMap.computeIfPresent("dst_path", (k, v) -> ((String) v).replace(uri, ""));
+                eventMap.computeIfPresent("uri", (k, v) -> UriHelper.getUniformizedUri((String) v));
+            }
+
             addEventToBulkProcessor(eventMap, msg.getTimestamp(), msg.getCommittableOffset());
         }
     }
@@ -188,10 +199,9 @@ public final class ElasticSearchReader {
                         BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), NB_RETRIES)
                 )
                 .build();
-
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         if (args.length < 8) {
             printHelp();
             return;
@@ -208,7 +218,8 @@ public final class ElasticSearchReader {
         GarmadonReader.Builder builderReader = setUpKafkaReader(kafkaConnectString, kafkaGroupId);
         BulkProcessor bulkProcessorMain = setUpBulkProcessor(esHost, esPort, esUser, esPassword);
 
-        ElasticSearchReader reader = new ElasticSearchReader(builderReader, bulkProcessorMain, esIndexPrefix, new PrometheusHttpConsumerMetrics(prometheusPort));
+        ElasticSearchReader reader = new ElasticSearchReader(builderReader, bulkProcessorMain,
+                esIndexPrefix, new PrometheusHttpConsumerMetrics(prometheusPort));
 
         reader.startReading().join();
 
@@ -218,6 +229,7 @@ public final class ElasticSearchReader {
 
     private static void printHelp() {
         System.out.println("Usage:");
-        System.out.println("\tjava com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader <kafkaConnectionString> <kafkaGroupId> <EsHost> <EsPort> <esIndexPrefix> <EsUser> <EsPassword> <prometheusPort>");
+        System.out.println("\tjava com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader <kafkaConnectionString> " +
+                "<kafkaGroupId> <EsHost> <EsPort> <esIndexPrefix> <EsUser> <EsPassword> <prometheusPort>");
     }
 }

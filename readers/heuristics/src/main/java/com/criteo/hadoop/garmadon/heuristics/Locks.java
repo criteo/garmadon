@@ -17,7 +17,8 @@ public class Locks implements JVMStatsHeuristic {
     public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsEventsProtos.JVMStatisticsData jvmStats) {
         for (JVMStatisticsEventsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             if ("synclocks".equals(section.getName())) {
-                Map<String, LockCounters> containerCounters = appCounters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId), s -> new HashMap<>());
+                Map<String, LockCounters> containerCounters = appCounters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId),
+                        s -> new HashMap<>());
                 LockCounters lockCounters = containerCounters.computeIfAbsent(containerId, s -> new LockCounters());
                 for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     if ("contendedlockattempts".equals(property.getName())) {
