@@ -315,7 +315,7 @@ public class HdfsExporter {
     private static void printHelp() {
         System.out.println("Usage:");
         System.out.println("\tjava com.criteo.hadoop.garmadon.parquet.HdfsExporter " +
-                "kafka_connection_string kafka_group temp_dir final_dir");
+                "kafka_connection_string kafka_group temp_dir final_dir prometheus_port");
 
         System.out.println();
         System.out.println("Properties settable via -D:");
