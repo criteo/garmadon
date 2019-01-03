@@ -26,9 +26,8 @@ import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public class FileSystemTracer {
     private static final long NANOSECONDS_PER_MILLISECOND = 1000000;
-    private static final ConcurrentHashMap METHOD_GET_URI = new ConcurrentHashMap<ClassLoader, Method>();
-    private static final ConcurrentHashMap METHOD_GET_SERVER_ADDRESS = new ConcurrentHashMap<ClassLoader, Method>();
-    private static final ConcurrentHashMap FIELD_RPC_PROXY = new ConcurrentHashMap<ClassLoader, Field>();
+    private static final ConcurrentHashMap METHOD_CACHE = new ConcurrentHashMap<Object, Method>();
+    private static final ConcurrentHashMap FIELD_CACHE = new ConcurrentHashMap<ClassLoader, Field>();
     private static BiConsumer<Long, Object> eventHandler;
 
     private static TypeDescription pathTD =
@@ -52,25 +51,37 @@ public class FileSystemTracer {
         new FileSystemTracer.AddBlockTracer().installOn(instrumentation);
     }
 
-    public static ConcurrentHashMap getMethodGetServerAddress() {
-        return METHOD_GET_SERVER_ADDRESS;
+    public static ConcurrentHashMap getFieldCache() {
+        return FIELD_CACHE;
     }
 
-    public static ConcurrentHashMap getFieldRpcProxy() {
-        return FIELD_RPC_PROXY;
-    }
-
-    public static ConcurrentHashMap getMethodGetUri() {
-        return METHOD_GET_URI;
+    public static ConcurrentHashMap getMethodCache() {
+        return METHOD_CACHE;
     }
 
     public static Method getMethod(ClassLoader classLoader, String clazz, String method, Class<?>... parameterTypes) {
-        try {
-            Class distributedFileSystem = classLoader.loadClass(clazz);
-            return distributedFileSystem.getMethod(method, parameterTypes);
-        } catch (NoSuchMethodException | ClassNotFoundException ignored) {
-            return null;
-        }
+        return (Method) getMethodCache().computeIfAbsent(classLoader + clazz + method,
+                k -> {
+                    try {
+                        Class distributedFileSystem = classLoader.loadClass(clazz);
+                        return distributedFileSystem.getMethod(method, parameterTypes);
+                    } catch (NoSuchMethodException | ClassNotFoundException ignored) {
+                        return null;
+                    }
+                });
+    }
+
+    public static Field getField(ClassLoader classLoader, String clazz, String field) {
+        return (Field) getFieldCache().computeIfAbsent(classLoader + clazz + field, k -> {
+            try {
+                Class clientNamenodeProtocolTranslatorPB = classLoader.loadClass(clazz);
+                Field fieldComputed = clientNamenodeProtocolTranslatorPB.getDeclaredField(field);
+                fieldComputed.setAccessible(true);
+                return fieldComputed;
+            } catch (ClassNotFoundException | NoSuchFieldException ignored) {
+                return null;
+            }
+        });
     }
 
     public static void initEventHandler(BiConsumer<Long, Object> eventConsumer) {
@@ -101,8 +112,7 @@ public class FileSystemTracer {
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
             ClassLoader classLoader = o.getClass().getClassLoader();
-            Method getUri = (Method) getMethodGetUri().computeIfAbsent(classLoader,
-                    k -> getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri"));
+            Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
             return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.DELETE.name());
         }
     }
@@ -129,8 +139,7 @@ public class FileSystemTracer {
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
             ClassLoader classLoader = o.getClass().getClassLoader();
-            Method getUri = (Method) getMethodGetUri().computeIfAbsent(classLoader,
-                    k -> getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri"));
+            Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
             return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.READ.name());
         }
     }
@@ -158,8 +167,7 @@ public class FileSystemTracer {
                 @Argument(0) Object src,
                 @Argument(1) Object dst) throws Exception {
             ClassLoader classLoader = o.getClass().getClassLoader();
-            Method getUri = (Method) getMethodGetUri().computeIfAbsent(classLoader,
-                    k -> getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri"));
+            Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
             return executeMethod(zuper, getUri.invoke(o).toString(), src.toString(), dst.toString(), FsAction.RENAME.name());
         }
     }
@@ -186,8 +194,7 @@ public class FileSystemTracer {
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
             ClassLoader classLoader = o.getClass().getClassLoader();
-            Method getUri = (Method) getMethodGetUri().computeIfAbsent(classLoader,
-                    k -> getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri"));
+            Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
             return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.WRITE.name());
         }
     }
@@ -214,8 +221,7 @@ public class FileSystemTracer {
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
             ClassLoader classLoader = o.getClass().getClassLoader();
-            Method getUri = (Method) getMethodGetUri().computeIfAbsent(classLoader,
-                    k -> getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri"));
+            Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
             return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.APPEND.name());
         }
     }
@@ -244,8 +250,7 @@ public class FileSystemTracer {
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
             ClassLoader classLoader = o.getClass().getClassLoader();
-            Method getUri = (Method) getMethodGetUri().computeIfAbsent(classLoader,
-                    k -> getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri"));
+            Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
             return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.LIST_STATUS.name());
         }
     }
@@ -272,8 +277,7 @@ public class FileSystemTracer {
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
             ClassLoader classLoader = o.getClass().getClassLoader();
-            Method getUri = (Method) getMethodGetUri().computeIfAbsent(classLoader,
-                    k -> getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri"));
+            Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
             return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.GET_CONTENT_SUMMARY.name());
         }
     }
@@ -301,20 +305,10 @@ public class FileSystemTracer {
                 @Argument(0) String dst) throws Exception {
 
             ClassLoader classLoader = o.getClass().getClassLoader();
-            Field field = (Field) getFieldRpcProxy().computeIfAbsent(classLoader, k -> {
-                try {
-                    Class clientNamenodeProtocolTranslatorPB = classLoader.loadClass("org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolTranslatorPB");
-                    Field fieldComputed = clientNamenodeProtocolTranslatorPB.getDeclaredField("rpcProxy");
-                    fieldComputed.setAccessible(true);
-                    return fieldComputed;
-                } catch (ClassNotFoundException | NoSuchFieldException ignored) {
-                    return null;
-                }
-            });
+            Field field = getField(classLoader, "org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolTranslatorPB", "rpcProxy");
             Object rpcProxy = field.get(o);
 
-            Method getServerAddress = (Method) getMethodGetServerAddress().computeIfAbsent(classLoader,
-                    k -> getMethod(classLoader, "org.apache.hadoop.ipc.RPC", "getServerAddress", Object.class));
+            Method getServerAddress = getMethod(classLoader, "org.apache.hadoop.ipc.RPC", "getServerAddress", Object.class);
             InetSocketAddress inetSocketAddress = (InetSocketAddress) getServerAddress.invoke(o, rpcProxy);
             return executeMethod(zuper, "hdfs://" + inetSocketAddress.getHostString() + ":" + inetSocketAddress.getPort(),
                     null, dst, FsAction.ADD_BLOCK.name());
