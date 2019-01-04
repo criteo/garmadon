@@ -34,6 +34,7 @@ public abstract class Tracer {
                 "org.apache.flink.",
                 "org.apache.hadoop.",
                 "org.apache.spark.",
+                "com.facebook.presto.",
                 "com.criteo.",
         };
         String[] predefBlacklist = {

@@ -77,7 +77,6 @@ public class FileSystemTracerTest {
                         HdfsDataOutputStream.class,
                         ClientNamenodeProtocolTranslatorPB.class,
                         Class.forName("org.apache.hadoop.hdfs.BlockReaderLocal"),
-                        Class.forName(FileSystemTracer.AddBlockTracer.class.getName() + "$SingletonHolder"),
                         Class.forName(DFSOutputStream.class.getName() + "$Packet"),
                         Class.forName(DFSOutputStream.class.getName() + "$DataStreamer"),
                         Class.forName(DFSOutputStream.class.getName() + "$DataStreamer$1"),
