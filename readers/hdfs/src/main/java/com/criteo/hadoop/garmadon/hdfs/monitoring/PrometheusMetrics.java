@@ -7,8 +7,10 @@ import io.prometheus.client.Gauge;
 
 public final class PrometheusMetrics {
     // Output metrics
+    public static final Counter TMP_FILES_OPENED = buildCounter("tmp_files_opened",
+            "Success opening temporary files", false);
     public static final Counter TMP_FILE_OPEN_FAILURES = buildCounter("tmp_file_open_failures",
-            "Failures to open temporary files", false);
+            "Failures opening temporary files", false);
     public static final Counter FILES_COMMITTED = buildCounter("files_committed",
             "Files moved to their final destination", false);
     public static final Counter FILE_COMMIT_FAILURES = buildCounter("file_commit_failures",

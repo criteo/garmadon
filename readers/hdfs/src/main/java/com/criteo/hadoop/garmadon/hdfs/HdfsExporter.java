@@ -247,6 +247,8 @@ public class HdfsExporter {
             OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser, String eventName) {
         Counter.Child tmpFileOpenFailures = PrometheusMetrics.buildCounterChild(
                 PrometheusMetrics.TMP_FILE_OPEN_FAILURES, eventName);
+        Counter.Child tmpFilesOpened = PrometheusMetrics.buildCounterChild(
+                PrometheusMetrics.TMP_FILES_OPENED, eventName);
 
         return dayStartTime -> {
             final String uniqueFileName = UUID.randomUUID().toString();
@@ -260,6 +262,7 @@ public class HdfsExporter {
                 try {
                     protoWriter = new ProtoParquetWriter<>(tmpFilePath, clazz, CompressionCodecName.SNAPPY,
                             sizeBeforeFlushingTmp * 1_024 * 1_024, 1_024 * 1_024);
+                    tmpFilesOpened.inc();
                 } catch (IOException e) {
                     LOGGER.warn("Could not initialize writer ({})", additionalInfo, e);
                     tmpFileOpenFailures.inc();
