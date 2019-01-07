@@ -25,7 +25,7 @@ import static com.criteo.hadoop.garmadon.protocol.ProtocolConstants.FRAME_DELIMI
 
 public final class GarmadonReader {
     public static final String GARMADON_TOPIC = "garmadon";
-    public static final String CONSUMER_ID = "garmadon.reader." + getHostname();
+    public static final String CONSUMER_ID = "consumer-1";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonReader.class);
 
