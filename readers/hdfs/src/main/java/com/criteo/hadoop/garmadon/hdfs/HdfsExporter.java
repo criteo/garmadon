@@ -295,19 +295,17 @@ public class HdfsExporter {
                                                                                      String eventName) {
         return msg -> {
             final CommittableOffset offset = msg.getCommittableOffset();
+            final Counter.Child messagesWritingFailures = PrometheusMetrics.buildCounterChild(
+                    PrometheusMetrics.MESSAGES_WRITING_FAILURES, eventName, offset.getPartition());
+            final Counter.Child messagesWritten = PrometheusMetrics.buildCounterChild(
+                    PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
 
             try {
                 writer.write(Instant.now(), offset,
                         ProtoConcatenator.concatToProtobuf(Arrays.asList(msg.getHeader(), msg.getBody())));
 
-                final Counter.Child messagesWritten = PrometheusMetrics.buildCounterChild(
-                        PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
-
                 messagesWritten.inc();
             } catch (IOException e) {
-                final Counter.Child messagesWritingFailures = PrometheusMetrics.buildCounterChild(
-                        PrometheusMetrics.MESSAGES_WRITING_FAILURES, eventName, offset.getPartition());
-
                 // We accept losing messages every now and then, but still log failures
                 messagesWritingFailures.inc();
                 LOGGER.warn("Couldn't write a message", e);
