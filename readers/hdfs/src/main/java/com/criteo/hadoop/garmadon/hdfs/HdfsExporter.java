@@ -247,6 +247,8 @@ public class HdfsExporter {
             OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser, String eventName) {
         Counter.Child tmpFileOpenFailures = PrometheusMetrics.buildCounterChild(
                 PrometheusMetrics.TMP_FILE_OPEN_FAILURES, eventName);
+        Counter.Child tmpFilesOpened = PrometheusMetrics.buildCounterChild(
+                PrometheusMetrics.TMP_FILES_OPENED, eventName);
 
         return dayStartTime -> {
             final String uniqueFileName = UUID.randomUUID().toString();
@@ -260,6 +262,7 @@ public class HdfsExporter {
                 try {
                     protoWriter = new ProtoParquetWriter<>(tmpFilePath, clazz, CompressionCodecName.SNAPPY,
                             sizeBeforeFlushingTmp * 1_024 * 1_024, 1_024 * 1_024);
+                    tmpFilesOpened.inc();
                 } catch (IOException e) {
                     LOGGER.warn("Could not initialize writer ({})", additionalInfo, e);
                     tmpFileOpenFailures.inc();
@@ -292,23 +295,21 @@ public class HdfsExporter {
                                                                                      String eventName) {
         return msg -> {
             final CommittableOffset offset = msg.getCommittableOffset();
+            final Counter.Child messagesWritingFailures = PrometheusMetrics.buildCounterChild(
+                    PrometheusMetrics.MESSAGES_WRITING_FAILURES, eventName, offset.getPartition());
+            final Counter.Child messagesWritten = PrometheusMetrics.buildCounterChild(
+                    PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
+
             Gauge.Child gauge = PrometheusMetrics.buildGaugeChild(PrometheusMetrics.CURRENT_RUNNING_OFFSETS,
                     eventName, offset.getPartition());
-
             gauge.set(offset.getOffset());
 
             try {
                 writer.write(Instant.now(), offset,
                         ProtoConcatenator.concatToProtobuf(Arrays.asList(msg.getHeader(), msg.getBody())));
 
-                final Counter.Child messagesWritten = PrometheusMetrics.buildCounterChild(
-                        PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
-
                 messagesWritten.inc();
             } catch (IOException e) {
-                final Counter.Child messagesWritingFailures = PrometheusMetrics.buildCounterChild(
-                        PrometheusMetrics.MESSAGES_WRITING_FAILURES, eventName, offset.getPartition());
-
                 // We accept losing messages every now and then, but still log failures
                 messagesWritingFailures.inc();
                 LOGGER.warn("Couldn't write a message", e);

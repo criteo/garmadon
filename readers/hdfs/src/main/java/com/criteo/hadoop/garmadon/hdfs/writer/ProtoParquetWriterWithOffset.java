@@ -63,6 +63,9 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
             throw new IOException(String.format("Trying to write a zero-sized file, please fix (%s)", additionalInfo));
         }
 
+        PrometheusMetrics.buildGaugeChild(PrometheusMetrics.LATEST_COMMITTED_OFFSETS,
+                eventName, latestOffset.getPartition()).set(latestOffset.getOffset());
+
         if (!writerClosed) {
             writer.close();
             writerClosed = true;
@@ -77,8 +80,6 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
                     finalPath.toUri(), temporaryHdfsPath));
         }
 
-        PrometheusMetrics.buildGaugeChild(PrometheusMetrics.LATEST_COMMITTED_OFFSETS,
-                eventName, latestOffset.getPartition()).set(latestOffset.getOffset());
         LOGGER.info("Committed {} (from {})", finalPath.toUri(), temporaryHdfsPath);
 
         return finalPath;
