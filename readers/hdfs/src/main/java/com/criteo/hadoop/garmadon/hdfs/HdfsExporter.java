@@ -292,6 +292,10 @@ public class HdfsExporter {
                                                                                      String eventName) {
         return msg -> {
             final CommittableOffset offset = msg.getCommittableOffset();
+            Gauge.Child gauge = PrometheusMetrics.buildGaugeChild(PrometheusMetrics.CURRENT_RUNNING_OFFSETS,
+                    eventName, offset.getPartition());
+
+            gauge.set(offset.getOffset());
 
             try {
                 writer.write(Instant.now(), offset,
