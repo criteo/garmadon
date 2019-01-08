@@ -25,7 +25,8 @@ import static com.criteo.hadoop.garmadon.protocol.ProtocolConstants.FRAME_DELIMI
 
 public final class GarmadonReader {
     public static final String GARMADON_TOPIC = "garmadon";
-    public static final String CONSUMER_ID = "garmadon.reader." + getHostname();
+
+    public static final String CONSUMER_ID;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonReader.class);
 
@@ -38,6 +39,8 @@ public final class GarmadonReader {
             LOGGER.error("", e);
             System.exit(1);
         }
+        CONSUMER_ID = "garmadon.reader." + getHostname();
+
     }
 
     protected final Reader reader;
@@ -261,6 +264,7 @@ public final class GarmadonReader {
             DEFAULT_KAFKA_PROPS.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
             DEFAULT_KAFKA_PROPS.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
             DEFAULT_KAFKA_PROPS.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
+            DEFAULT_KAFKA_PROPS.put(ConsumerConfig.CLIENT_ID_CONFIG, CONSUMER_ID);
         }
 
         Builder(Consumer<String, byte[]> kafkaConsumer) {
