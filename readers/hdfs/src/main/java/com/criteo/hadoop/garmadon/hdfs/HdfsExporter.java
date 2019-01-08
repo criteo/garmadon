@@ -300,6 +300,10 @@ public class HdfsExporter {
             final Counter.Child messagesWritten = PrometheusMetrics.buildCounterChild(
                     PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
 
+            Gauge.Child gauge = PrometheusMetrics.buildGaugeChild(PrometheusMetrics.CURRENT_RUNNING_OFFSETS,
+                    eventName, offset.getPartition());
+            gauge.set(offset.getOffset());
+
             try {
                 writer.write(Instant.now(), offset,
                         ProtoConcatenator.concatToProtobuf(Arrays.asList(msg.getHeader(), msg.getBody())));
