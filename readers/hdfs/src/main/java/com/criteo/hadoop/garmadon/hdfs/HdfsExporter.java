@@ -141,6 +141,10 @@ public class HdfsExporter {
         props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, kafkaGroupId);
         props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConnectionString);
 
+        // Auto-commit for lag monitoring, since we don't use Kafka commits
+        props.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
+        props.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "5000");
+
         final KafkaConsumer<String, byte[]> kafkaConsumer = new KafkaConsumer<>(props);
         final GarmadonReader.Builder readerBuilder = GarmadonReader.Builder.stream(kafkaConsumer);
         final Collection<PartitionedWriter<Message>> writers = new ArrayList<>();
