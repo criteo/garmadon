@@ -20,10 +20,12 @@ public class FileHeuristic implements Heuristic {
 
     private final HeuristicsResultDB db;
     private final Properties config;
+    private final int maxCreatedFiles;
 
     public FileHeuristic(HeuristicsResultDB db, Properties config) {
         this.db = db;
         this.config = config;
+        this.maxCreatedFiles = Integer.parseInt(config.getProperty("heuristic.file.max_created_files"));
     }
 
     public void compute(String applicationId, String attemptId, String containerId, DataAccessEventProtos.FsEvent fsEvent) {
@@ -60,7 +62,6 @@ public class FileHeuristic implements Heuristic {
 
     @Override
     public void onAppCompleted(String applicationId, String attemptId) {
-        int maxCreatedFiles = Integer.parseInt(config.getProperty("heuristic.file.max_created_files"));
         int created = written.forApp(applicationId, attemptId).getCount();
         int severity;
         if (created > maxCreatedFiles) severity = HeuristicsResultDB.Severity.SEVERE;
