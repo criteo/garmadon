@@ -63,6 +63,12 @@ public class HdfsExporter {
             TMP_FILE_OPEN_RETRY_PERIOD, SIZE_BEFORE_FLUSHING_TMP);
 
     static {
+        // Configuration for underlying packages using JUL
+        String path = HdfsExporter.class.getClassLoader()
+                .getResource("logging.properties")
+                .getFile();
+        System.setProperty("java.util.logging.config.file", path);
+
         DEFAULT_PROPERTIES_VALUE.put(MESSAGES_BEFORE_EXPIRING_WRITERS, 3_000_000);
         DEFAULT_PROPERTIES_VALUE.put(WRITERS_EXPIRATION_DELAY, 30);
         DEFAULT_PROPERTIES_VALUE.put(EXPIRER_PERIOD, 30);
