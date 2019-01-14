@@ -33,6 +33,16 @@ function es-reader {
          com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader kafka:9092 es-reader elasticsearch 9200 garmadon esuser espassword 31001
 }
 
+function hdfs-reader {
+    check_namenode_up
+    java -cp /opt/garmadon/lib/garmadon-readers-hdfs.jar:$(/opt/hadoop/bin/hadoop classpath) \
+         -DmessagesBeforeExpiringWriters=500 \
+         -DwritersExpirationDelay=1 \
+         -DexpirerPeriod=1 \
+         -DsizeBeforeFlushingTmp=1 \
+         com.criteo.hadoop.garmadon.hdfs.HdfsExporter kafka:9092 hdfs-reader /tmp/hdfs-exporter/temp /tmp/hdfs-exporter/final/ 31001
+}
+
 function namenode {
     hdfs namenode -format -force
     hdfs namenode
@@ -79,6 +89,9 @@ case $1 in
         ;;
     es-reader)
         es-reader
+        ;;
+    hdfs-reader)
+        hdfs-reader
         ;;
     namenode)
         namenode
