@@ -92,4 +92,14 @@ docker-compose exec client /opt/spark/bin/spark-submit \
     --conf spark.dynamicAllocation.minExecutors=1 --conf spark.dynamicAllocation.initialExecutors=4 \
     --conf spark.dynamicAllocation.maxExecutors=4 --conf spark.dynamicAllocation.executorIdleTimeout=1s \
     --class org.apache.spark.examples.sql.SparkSQLExample /opt/spark/examples/jars/spark-examples_2.11-${SPARK_VERSION}.jar
+
+# Exemple to select data from hdfs reader parquet table
+# docker-compose exec -ti client /opt/spark/bin/spark-shell \
+#    --deploy-mode client
+#
+#		import spark.implicits._
+#		val parquetFileDF = spark.read.parquet("/tmp/hdfs-exporter/final/application_event/2019-01-14")
+#		parquetFileDF.createOrReplaceTempView("parquetFile")
+#		val namesDF = spark.sql("SELECT * FROM parquetFile")
+#		namesDF.show(10)
 popd
