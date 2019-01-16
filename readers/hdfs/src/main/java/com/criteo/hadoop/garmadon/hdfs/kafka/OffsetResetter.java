@@ -58,6 +58,8 @@ public class OffsetResetter<K, V, MESSAGE_KIND> implements ConsumerRebalanceList
                     .collect(Collectors.toList());
 
             try {
+                // Batch-collect starting offsets to save HDFS calls (thereby avoiding this reader to be marked as dead
+                // by Kafka)
                 final Map<Integer, Long> startingOffsets = writer.getStartingOffsets(partitionsId);
 
                 startingOffsets.forEach((part, offset) ->
