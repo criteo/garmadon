@@ -11,6 +11,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,15 +39,27 @@ public class HdfsOffsetComputer implements OffsetComputer {
     }
 
     @Override
-    public long computeOffset(int partitionId) throws IOException {
+    public Map<Integer, Long> computeOffsets(Collection<Integer> partitionIds) throws IOException {
         final RemoteIterator<LocatedFileStatus> filesIterator = fs.listFiles(basePath, true);
+        final Collection<String> fileNames = new ArrayList<>();
+        final Map<Integer, Long> result = new HashMap<>();
+
+        while (filesIterator.hasNext()) {
+            fileNames.add(filesIterator.next().getPath().getName());
+        }
+
+        for (int partitionId: partitionIds) {
+            result.put(partitionId, computeOffset(partitionId, fileNames));
+        }
+
+        return result;
+    }
+
+    private long computeOffset(int partitionId, Collection<String> fileNames) {
         final Pattern partitionBasedPattern = offsetFilePatternGenerator.apply(partitionId);
         long highestOffset = NO_OFFSET;
 
-        while (filesIterator.hasNext()) {
-            final LocatedFileStatus fileStatus = filesIterator.next();
-            final String fileName = fileStatus.getPath().getName();
-
+        for (String fileName: fileNames) {
             final Matcher matcher = partitionBasedPattern.matcher(fileName);
             if (!matcher.matches() || matcher.groupCount() < 1) continue;
 

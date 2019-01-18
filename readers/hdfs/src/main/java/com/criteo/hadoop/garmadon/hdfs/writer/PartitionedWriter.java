@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Route messages to dedicated writers for a given MESSAGE_KIND: per day, per partition.
@@ -73,15 +74,25 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
         final int partitionId = offset.getPartition();
 
         synchronized (perPartitionDayWriters) {
-            final long startingOffset = getStartingOffset(partitionId);
-
-            if (offset.getOffset() <= startingOffset) return;
+            if (shouldSkipOffset(offset.getOffset(), partitionId)) return;
 
             // /!\ This line must not be switched with the offset computation as this would create empty files otherwise
             final ExpiringConsumer<MESSAGE_KIND> consumer = getWriter(dayStartTime, partitionId);
 
             consumer.write(msg, offset);
         }
+    }
+
+    private boolean shouldSkipOffset(long offset, int partitionId) throws IOException {
+        long startOffset;
+
+        if (!perPartitionStartOffset.keySet().contains(partitionId)) {
+            startOffset = getStartingOffsets(Collections.singleton(partitionId)).get(partitionId);
+        } else {
+            startOffset = perPartitionStartOffset.get(partitionId);
+        }
+
+        return offset <= startOffset;
     }
 
     /**
@@ -95,26 +106,30 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     /**
      * Get the starting offset for a given partition.
      *
-     * @param partitionId   Id of the kafka partition
-     * @return              The lowest offset for a given partition
+     * @param partitionsId  Id of the kafka partitions
+     * @return              Map with partition id -> lowest offset
      * @throws IOException  If the offset computation failed
      */
-    public long getStartingOffset(int partitionId) throws IOException {
+    public Map<Integer, Long> getStartingOffsets(Collection<Integer> partitionsId) throws IOException {
         synchronized (perPartitionStartOffset) {
-            if (!perPartitionStartOffset.containsKey(partitionId)) {
-                final long startingOffset;
+            if (!perPartitionStartOffset.keySet().containsAll(partitionsId)) {
+                final Map<Integer, Long> startingOffsets;
 
                 try {
-                    startingOffset = offsetComputer.computeOffset(partitionId);
+                    startingOffsets = offsetComputer.computeOffsets(partitionsId);
                 } catch (IOException e) {
-                    perPartitionStartOffset.put(partitionId, OffsetComputer.NO_OFFSET);
+                    partitionsId.forEach(id -> perPartitionStartOffset.put(id, OffsetComputer.NO_OFFSET));
                     throw e;
                 }
 
-                perPartitionStartOffset.put(partitionId, startingOffset);
+                perPartitionStartOffset.putAll(startingOffsets);
+
+                return startingOffsets;
             }
 
-            return perPartitionStartOffset.get(partitionId);
+            return partitionsId.stream()
+                .filter(perPartitionStartOffset::containsKey)
+                .collect(Collectors.toMap(Function.identity(), perPartitionStartOffset::get));
         }
     }
 
