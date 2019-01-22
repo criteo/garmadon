@@ -42,7 +42,7 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
      * @param fs                The filesystem on which both the temporary and final files reside
      * @param fileNamer         File-naming logic for the final path
      * @param dayStartTime      The day partition the final file will go to
-     * @param eventName         Event name used for logging & monitoring
+     * @param eventName         Event name used for logging &amp; monitoring
      */
     public ProtoParquetWriterWithOffset(ProtoParquetWriter<MESSAGE_KIND> writer, Path temporaryHdfsPath,
                                         Path finalHdfsDir, FileSystem fs, OffsetComputer fileNamer,
