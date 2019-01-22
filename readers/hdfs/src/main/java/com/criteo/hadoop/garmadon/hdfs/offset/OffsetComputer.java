@@ -14,7 +14,7 @@ public interface OffsetComputer {
      * Compute the max offset for a given partition.
      *
      * @param partitionIds  The partitions to computeOffset the offsets for
-     * @return              A partition id -> offset map. Value is NO_OFFSET if no offset could be fetched but there was
+     * @return              A partition id => offset map. Value is NO_OFFSET if no offset could be fetched but there was
      *                      no error
      * @throws IOException  If there was an issue while fetching the offset
      */

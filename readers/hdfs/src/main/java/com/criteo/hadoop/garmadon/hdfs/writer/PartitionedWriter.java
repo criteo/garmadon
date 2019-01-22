@@ -40,6 +40,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      * @param writerBuilder     Builds an expiring writer based on a path.
      * @param offsetComputer    Computes the first offset which should not be ignored by the PartitionedWriter when
      *                          consuming message.
+     * @param eventName         Event name used for logging & monitoring.
      */
     public PartitionedWriter(Function<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> writerBuilder,
                              OffsetComputer offsetComputer, String eventName) {
@@ -107,7 +108,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      * Get the starting offset for a given partition.
      *
      * @param partitionsId  Id of the kafka partitions
-     * @return              Map with partition id -> lowest offset
+     * @return              Map with partition id => lowest offset
      * @throws IOException  If the offset computation failed
      */
     public Map<Integer, Long> getStartingOffsets(Collection<Integer> partitionsId) throws IOException {
