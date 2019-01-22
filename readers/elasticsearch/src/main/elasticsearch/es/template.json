@@ -405,7 +405,7 @@
         },
         "method_duration_millis": {
           "type": "long",
-          "index": false
+          "index": true 
         },
         "network": {
           "type": "keyword",
