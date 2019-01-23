@@ -82,7 +82,7 @@ Garmadon integrates with any JVM based Yarn framework (mapreduce v1, v2, spark, 
 
 For non JVM applications, you will still get information from NodeManager and ResourceManger.
 
-Beside being set up on the Hadoop Cluster, Garmadon relies on other services to work properly, at least **Kafka 0.10.2**, **Elastic Search 6.3.2** and **Grafana 5**.
+Beside being set up on the Hadoop Cluster, Garmadon relies on other services to work properly, at least **Kafka 2.0.1**, **Elastic Search 6.3.2** and **Grafana 5**.
 
 This quick install guide won't cover the setup of those components and supposes they are already available in your infrastructure.
 
