@@ -106,18 +106,19 @@ public final class ElasticSearchReader {
 
     void writeToES(GarmadonMessage msg) {
         String msgType = GarmadonSerialization.getTypeName(msg.getType());
+        long timestampMillis = msg.getTimestamp();
         if (GarmadonSerialization.TypeMarker.JVMSTATS_EVENT == msg.getType()) {
-            Map<String, Object> jsonMap = ProtoConcatenator.concatToMap(msg.getTimestamp(), Collections.singletonList(msg.getHeader()), true);
+            Map<String, Object> jsonMap = ProtoConcatenator.concatToMap(timestampMillis, Collections.singletonList(msg.getHeader()), true);
 
             HashMap<String, Map<String, Object>> eventMaps = new HashMap<>();
             EventHelper.processJVMStatisticsData(msgType, (JVMStatisticsEventsProtos.JVMStatisticsData) msg.getBody(), eventMaps);
 
             for (Map<String, Object> eventMap : eventMaps.values()) {
                 eventMap.putAll(jsonMap);
-                addEventToBulkProcessor(eventMap, msg.getTimestamp(), msg.getCommittableOffset());
+                addEventToBulkProcessor(eventMap, timestampMillis, msg.getCommittableOffset());
             }
         } else {
-            Map<String, Object> eventMap = ProtoConcatenator.concatToMap(msg.getTimestamp(), Arrays.asList(msg.getHeader(), msg.getBody()), true);
+            Map<String, Object> eventMap = ProtoConcatenator.concatToMap(timestampMillis, Arrays.asList(msg.getHeader(), msg.getBody()), true);
             eventMap.put("event_type", msgType);
 
             // Specific normalization for FS_EVENT
@@ -128,15 +129,14 @@ public final class ElasticSearchReader {
                 eventMap.computeIfPresent("uri", (k, v) -> UriHelper.getUniformizedUri((String) v));
             }
 
-            addEventToBulkProcessor(eventMap, msg.getTimestamp(), msg.getCommittableOffset());
+            addEventToBulkProcessor(eventMap, timestampMillis, msg.getCommittableOffset());
         }
     }
 
-    private void addEventToBulkProcessor(Map<String, Object> eventMap, long timestamp, CommittableOffset committableOffset) {
-        eventMap.put("timestamp", timestamp);
+    private void addEventToBulkProcessor(Map<String, Object> eventMap, long timestampMillis, CommittableOffset committableOffset) {
         eventMap.remove("id"); // field only used as kafka key
 
-        String dailyIndex = esIndexPrefix + "-" + FORMATTER.format(timestamp);
+        String dailyIndex = esIndexPrefix + "-" + FORMATTER.format(timestampMillis);
         IndexRequest req = new IndexRequest(dailyIndex, ES_TYPE)
                 .source(eventMap);
         bulkProcessor.add(req, committableOffset);
