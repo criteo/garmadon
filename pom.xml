@@ -47,6 +47,13 @@
             <organization>Criteo</organization>
             <organizationUrl>http://www.criteo.com</organizationUrl>
         </developer>
+        <developer>
+            <name>Mathieu Chataigner</name>
+            <email>m.chataigner@criteo.com</email>
+            <url>https://github.com/mchataigner</url>
+            <organization>Criteo</organization>
+            <organizationUrl>http://www.criteo.com</organizationUrl>
+        </developer>
     </developers>
 
     <scm>
