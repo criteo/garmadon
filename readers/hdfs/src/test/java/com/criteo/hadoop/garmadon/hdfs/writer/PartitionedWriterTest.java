@@ -153,8 +153,8 @@ public class PartitionedWriterTest {
         partitionedWriter.close();
 
         // All consumers are closed
-        verify(throwingConsumer, times(1)).close();
-        verify(nonThrowingConsumer, times(1)).close();
+        verify(throwingConsumer, atLeastOnce()).close();
+        verify(nonThrowingConsumer, atLeastOnce()).close();
     }
 
     @Test
@@ -274,7 +274,7 @@ public class PartitionedWriterTest {
         final PartitionedWriter.Expirer<String> expirer = new PartitionedWriter.Expirer<>(
                 Arrays.asList(firstConsumer, secondConsumer), Duration.ofMillis(1));
 
-        expirer.start();
+        expirer.start(mock(Thread.UncaughtExceptionHandler.class));
 
         Thread.sleep(500);
 
@@ -291,7 +291,7 @@ public class PartitionedWriterTest {
         final PartitionedWriter.Expirer<String> expirer = new PartitionedWriter.Expirer<>(Collections.emptyList(),
                 Duration.ofMillis(10));
 
-        expirer.start();
+        expirer.start(mock(Thread.UncaughtExceptionHandler.class));
         Thread.sleep(500);
         expirer.stop().join();
     }
@@ -301,7 +301,7 @@ public class PartitionedWriterTest {
         final PartitionedWriter.Expirer<String> expirer = new PartitionedWriter.Expirer<>(
                 Collections.singleton(mock(PartitionedWriter.class)), Duration.ofHours(42));
 
-        expirer.start();
+        expirer.start(mock(Thread.UncaughtExceptionHandler.class));
         Thread.sleep(1000);
         expirer.stop().join();
     }

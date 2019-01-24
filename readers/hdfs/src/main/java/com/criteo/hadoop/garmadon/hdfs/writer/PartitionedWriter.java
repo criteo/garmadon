@@ -192,7 +192,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
             this.period = period;
         }
 
-        public void start() {
+        public void start(Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
             runningThread = new Thread(() -> {
                 while (!Thread.currentThread().isInterrupted()) {
                     writers.forEach(PartitionedWriter::expireConsumers);
@@ -206,6 +206,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                 }
             });
 
+            runningThread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
             runningThread.start();
         }
 
@@ -215,7 +216,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
          * @return  A completable future which will complete once the expirer is properly stopped
          */
         public CompletableFuture<Void> stop() {
-            if (runningThread != null) {
+            if (runningThread != null && runningThread.isAlive()) {
                 runningThread.interrupt();
 
                 return CompletableFuture.supplyAsync(() -> {
@@ -251,6 +252,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                                      PrometheusMetrics.FILE_COMMIT_FAILURES, eventName);
 
                              filesCommitFailures.inc();
+                             return false;
                          }
                     }
 
@@ -260,13 +262,18 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     }
 
     private boolean tryExpireConsumer(ExpiringConsumer<MESSAGE_KIND> consumer) {
-        try {
-            consumer.close();
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Couldn't close writer, will retry later", e);
-            return false;
+        final int maxAttempts = 3;
+
+        for (int retry = 1; retry <= maxAttempts; ++retry) {
+            try {
+                consumer.close();
+                return true;
+            } catch (IOException e) {
+                LOGGER.error("Couldn't close writer for {} ({}/{})", eventName, retry, maxAttempts, e);
+            }
         }
+
+        return false;
     }
 
     /**

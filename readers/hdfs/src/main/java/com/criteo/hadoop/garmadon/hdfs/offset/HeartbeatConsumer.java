@@ -38,7 +38,7 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
         this.period = period;
     }
 
-    public void start() {
+    public void start(Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
         runningThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 synchronized (latestPartitionsOffset) {
@@ -62,6 +62,8 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
                 }
             }
         });
+
+        runningThread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
 
         runningThread.start();
     }
@@ -89,7 +91,7 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
      * @return  A completable future which will complete once the expirer is properly stopped
      */
     public CompletableFuture<Void> stop() {
-        if (runningThread != null) {
+        if (runningThread != null && runningThread.isAlive()) {
             runningThread.interrupt();
             return CompletableFuture.supplyAsync(() -> {
                 try {

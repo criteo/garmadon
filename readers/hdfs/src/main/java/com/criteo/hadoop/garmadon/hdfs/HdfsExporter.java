@@ -35,6 +35,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.any;
@@ -220,11 +221,17 @@ public class HdfsExporter {
 
         final GarmadonReader garmadonReader = readerBuilder.build(false);
 
-        expirer.start();
-        heartbeat.start();
+        CompletableFuture<Void> readerFuture = garmadonReader.startReading();
+        Thread.UncaughtExceptionHandler uncaughtExceptionHandler = (thread, e) -> {
+            LOGGER.error("Interrupting reader", e);
+            garmadonReader.stopReading();
+        };
+
+        expirer.start(uncaughtExceptionHandler);
+        heartbeat.start(uncaughtExceptionHandler);
 
         try {
-            garmadonReader.startReading().join();
+            readerFuture.join();
         } catch (Exception e) {
             LOGGER.error("Reader thread interrupted", e);
         }
