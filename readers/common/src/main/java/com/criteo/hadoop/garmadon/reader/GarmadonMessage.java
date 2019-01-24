@@ -21,6 +21,8 @@ import com.google.protobuf.Message;
  */
 public class GarmadonMessage {
     private final int type;
+
+    // timestamp in millisecond
     private final long timestamp;
     private final EventHeaderProtos.Header header;
     private final Message body;
