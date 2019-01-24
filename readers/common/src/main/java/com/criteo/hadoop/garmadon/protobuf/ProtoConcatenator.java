@@ -13,6 +13,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class ProtoConcatenator {
+    // timestamp in millisecond
+    public static final String TIMESTAMP_FIELD_NAME = "timestamp";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtoConcatenator.class);
 
     protected ProtoConcatenator() {
@@ -27,7 +30,7 @@ public class ProtoConcatenator {
      * @return A single, one-level Protobuf objects holding fields and values from all input messages.
      * Null if an error occurred (shouldn't happen).
      */
-    public static Message concatToProtobuf(Collection<Message> messages) {
+    public static Message concatToProtobuf(long timestampMillis, Collection<Message> messages) {
         try {
             final DynamicMessage.Builder messageBuilder = concatInner(messages,
                     keys -> {
@@ -54,6 +57,7 @@ public class ProtoConcatenator {
                         }
                     });
 
+            messageBuilder.setField(messageBuilder.getDescriptorForType().findFieldByName(TIMESTAMP_FIELD_NAME), timestampMillis);
             return messageBuilder.build();
         } catch (IllegalArgumentException e) {
             LOGGER.error("Could not flatten Protobuf event", e);
@@ -70,7 +74,7 @@ public class ProtoConcatenator {
      * @return A single, one-level (String, Object) map holding fields and values from all input messages.
      * Null if an error occurred (shouldn't happen).
      */
-    public static Map<String, Object> concatToMap(Collection<Message> messages, boolean includeDefaultValueFields) {
+    public static Map<String, Object> concatToMap(long timestampMillis, Collection<Message> messages, boolean includeDefaultValueFields) {
         return concatInner(messages,
                 keys -> {
                     Map<String, Object> concatMap = new HashMap<>(keys.size());
@@ -79,6 +83,7 @@ public class ProtoConcatenator {
                             concatMap.put(fieldDescriptor.getName(), fieldDescriptor.getDefaultValue());
                         }
                     }
+                    concatMap.put(TIMESTAMP_FIELD_NAME, timestampMillis);
                     return concatMap;
                 },
                 (entry, eventMap) -> {
@@ -111,6 +116,8 @@ public class ProtoConcatenator {
             msgDef.addField(label,
                     fieldDescriptor.getType().toString().toLowerCase(), fieldDescriptor.getName(), currentIndex++);
         }
+
+        msgDef.addField("optional", "int64", TIMESTAMP_FIELD_NAME, currentIndex++);
 
         final DynamicSchema.Builder schemaBuilder = DynamicSchema.newBuilder();
         schemaBuilder.addMessageDefinition(msgDef.build());

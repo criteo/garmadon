@@ -14,7 +14,10 @@ import java.util.*;
 public class ProtoConcatenatorTest {
     @Test
     public void concatenateEmptyList() {
-        testAllOutTypesWith(Collections.emptyList(), new HashMap<>());
+        HashMap<String, Object> expectedValues = new HashMap<>();
+        expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+
+        testAllOutTypesWith(0L, Collections.emptyList(), expectedValues);
     }
 
     @Test
@@ -28,7 +31,9 @@ public class ProtoConcatenatorTest {
         Map<String, Object> expectedValues = new HashMap<>();
         expectedValues.put("bodyInt", 1);
         expectedValues.put("bodyString", "one");
-        testAllOutTypesWith(Collections.singletonList(inMsg.build()), expectedValues);
+        expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 21L);
+
+        testAllOutTypesWith(21L, Collections.singletonList(inMsg.build()), expectedValues);
     }
 
     @Test
@@ -45,8 +50,9 @@ public class ProtoConcatenatorTest {
         Map<String, Object> expectedValues = new HashMap<>();
         expectedValues.put("emptyint32", 0);
         expectedValues.put("emptystring", "");
+        expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
 
-        testToMapOutTypesWith(Collections.singletonList(schema.newMessageBuilder("Body").build()), expectedValues);
+        testToMapOutTypesWith(0L, Collections.singletonList(schema.newMessageBuilder("Body").build()), expectedValues);
     }
 
     @Test
@@ -68,7 +74,9 @@ public class ProtoConcatenatorTest {
         expectedValues.put("name", "one");
         expectedValues.put("bodyInt", 2);
         expectedValues.put("bodyString", "two");
-        testAllOutTypesWith(Arrays.asList(headerMessageBuilder.build(), bodyMessageBuilder.build()), expectedValues);
+        expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+
+        testAllOutTypesWith(0L, Arrays.asList(headerMessageBuilder.build(), bodyMessageBuilder.build()), expectedValues);
     }
 
     @Test
@@ -82,9 +90,10 @@ public class ProtoConcatenatorTest {
         Map<String, Object> expectedValues = new HashMap<>();
         expectedValues.put("id", 1);
         expectedValues.put("name", "one");
+        expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
 
         // As of proto3, two fields cannot have the same name (even if they have a different id)
-        Assert.assertNull(ProtoConcatenator.concatToProtobuf(
+        Assert.assertNull(ProtoConcatenator.concatToProtobuf(0,
                 Arrays.asList(headerMessageBuilder.build(), headerMessageBuilder.build())));
     }
 
@@ -99,12 +108,17 @@ public class ProtoConcatenatorTest {
         Map<String, Object> expectedValues = new HashMap<>();
         expectedValues.put("id", 1);
         expectedValues.put("name", "one");
-        testAllOutTypesWith(Arrays.asList(headerMessageBuilder.build(), createEmptyMessage()), expectedValues);
+        expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+
+        testAllOutTypesWith(0L, Arrays.asList(headerMessageBuilder.build(), createEmptyMessage()), expectedValues);
     }
 
     @Test
     public void concatenateEmptyWithEmpty() throws Descriptors.DescriptorValidationException {
-        testAllOutTypesWith(Arrays.asList(createEmptyMessage(), createEmptyMessage()), new HashMap<>());
+        HashMap<String, Object> expectedValues = new HashMap<>();
+        expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+
+        testAllOutTypesWith(0L, Arrays.asList(createEmptyMessage(), createEmptyMessage()), expectedValues);
     }
 
     @Test
@@ -126,7 +140,9 @@ public class ProtoConcatenatorTest {
         expectedValues.put("name", "one");
         expectedValues.put("otherId", 2);
         expectedValues.put("otherName", "two");
-        testAllOutTypesWith(Arrays.asList(headerMessageBuilder.build(), bodyMessageBuilder.build()), expectedValues);
+        expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+
+        testAllOutTypesWith(0L, Arrays.asList(headerMessageBuilder.build(), bodyMessageBuilder.build()), expectedValues);
     }
 
     @Test
@@ -137,7 +153,9 @@ public class ProtoConcatenatorTest {
         for (int i = 0; i < ALL_PROTOBUF_TYPES.size(); i++) {
             expectedValues.put(ALL_PROTOBUF_TYPES.get(i), ALL_PROTOBUF_DEFAULT_VALUES.get(i));
         }
-        testAllOutTypesWith(Arrays.asList(allTypesMessage, createEmptyMessage()), expectedValues);
+        expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+
+        testAllOutTypesWith(0L, Arrays.asList(allTypesMessage, createEmptyMessage()), expectedValues);
     }
 
     @Test
@@ -153,8 +171,9 @@ public class ProtoConcatenatorTest {
         Map<String, Object> expectedValues = new HashMap<>();
         ArrayList<Object> ints = new ArrayList<>(Arrays.asList(1, 2));
         expectedValues.put("repeated_field", ints);
+        expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
 
-        testAllOutTypesWith(Arrays.asList(msg, createEmptyMessage()), expectedValues);
+        testAllOutTypesWith(0L, Arrays.asList(msg, createEmptyMessage()), expectedValues);
     }
 
     /**
@@ -163,16 +182,17 @@ public class ProtoConcatenatorTest {
      * @param inputMessages  Input Protobuf messages
      * @param expectedValues Strictly-expected values (must be equal in size and values to the output)
      */
-    private void testAllOutTypesWith(Collection<Message> inputMessages, Map<String, Object> expectedValues) {
-        Message outProtoMessage = ProtoConcatenator.concatToProtobuf(inputMessages);
+    private void testAllOutTypesWith(long timestampMillis, Collection<Message> inputMessages, Map<String, Object> expectedValues) {
+        Message outProtoMessage = ProtoConcatenator.concatToProtobuf(timestampMillis, inputMessages);
 
         Assert.assertNotNull(outProtoMessage);
         Assert.assertEquals(expectedValues.size(), outProtoMessage.getAllFields().size());
         for (Map.Entry<String, Object> v : expectedValues.entrySet()) {
             Assert.assertEquals(v.getValue(), getProtoFieldValueByName(outProtoMessage, v.getKey()));
         }
+        expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
 
-        testToMapOutTypesWith(inputMessages, expectedValues);
+        testToMapOutTypesWith(0L, inputMessages, expectedValues);
     }
 
     /**
@@ -181,8 +201,8 @@ public class ProtoConcatenatorTest {
      * @param inputMessages  Input Protobuf messages
      * @param expectedValues Strictly-expected values (must be equal in size and values to the output)
      */
-    private void testToMapOutTypesWith(Collection<Message> inputMessages, Map<String, Object> expectedValues) {
-        Map<String, Object> outMap = ProtoConcatenator.concatToMap(inputMessages, true);
+    private void testToMapOutTypesWith(long timestampMillis, Collection<Message> inputMessages, Map<String, Object> expectedValues) {
+        Map<String, Object> outMap = ProtoConcatenator.concatToMap(timestampMillis, inputMessages, true);
 
         Assert.assertNotNull(outMap);
         Assert.assertEquals(expectedValues.size(), outMap.size());
