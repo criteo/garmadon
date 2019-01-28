@@ -14,10 +14,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static com.criteo.hadoop.garmadon.hdfs.TestUtils.localDateTimeFromDate;
 import static org.mockito.Matchers.any;
@@ -67,7 +64,7 @@ public class HdfsOffsetComputerTest {
                 Arrays.asList("456.12", "123.12", "456.24")),
                 new Path("Fake path"));
 
-        Assert.assertEquals(12, offsetComputer.computeOffset(123));
+        Assert.assertEquals(12L, offsetComputer.computeOffsets(Collections.singleton(123)).get(123).longValue());
     }
 
     @Test
@@ -76,7 +73,7 @@ public class HdfsOffsetComputerTest {
                 Arrays.asList("456.12", "123.abc", "456.24")),
                 new Path("Fake path"));
 
-        Assert.assertEquals(OffsetComputer.NO_OFFSET, offsetComputer.computeOffset(123));
+        Assert.assertEquals(OffsetComputer.NO_OFFSET, offsetComputer.computeOffsets(Collections.singleton(123)).get(123).longValue());
     }
 
     @Test
@@ -111,20 +108,24 @@ public class HdfsOffsetComputerTest {
             localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(day1, buildOffset(2, 12))));
             localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(day2, buildOffset(1, 1))));
 
-            Assert.assertEquals(3, hdfsOffsetComputer.computeOffset(1));
-            Assert.assertEquals(12, hdfsOffsetComputer.computeOffset(2));
-            Assert.assertEquals(-1, hdfsOffsetComputer.computeOffset(3));
+            Map<Integer, Long> offsets = hdfsOffsetComputer.computeOffsets(Arrays.asList(1, 2, 3));
+
+            Assert.assertEquals(3, offsets.get(1).longValue());
+            Assert.assertEquals(12, offsets.get(2).longValue());
+            Assert.assertEquals(-1, offsets.get(3).longValue());
         }
         finally {
             FileUtils.deleteDirectory(tmpDir.toFile());
         }
     }
 
-    private void performSinglePartitionTest(List<String> fileNames, int partitionId, long expectedOffset) throws IOException {
+    private void performSinglePartitionTest(List<String> fileNames, int partitionId, long expectedOffset)
+            throws IOException {
         final HdfsOffsetComputer offsetComputer = new HdfsOffsetComputer(buildFileSystem(fileNames),
                 new Path("Fake path"));
 
-        Assert.assertEquals(expectedOffset, offsetComputer.computeOffset(partitionId));
+        Assert.assertEquals(expectedOffset,
+                offsetComputer.computeOffsets(Collections.singleton(partitionId)).get(partitionId).longValue());
     }
 
     private Offset buildOffset(int partition, long offset) {

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -81,11 +82,12 @@ public class ElasticSearchReaderTest {
         headerMap.put("timestamp", 0);
     }
 
-    public void writeGarmadonMessage(int type, Message message) {
+    public void writeGarmadonMessage(int type, Message message, long timestampMillis) {
         GarmadonMessage garmadonMessage = Mockito.mock(GarmadonMessage.class);
         when(garmadonMessage.getType()).thenReturn(type);
         when(garmadonMessage.getHeader()).thenReturn(header);
         when(garmadonMessage.getBody()).thenReturn(message);
+        when(garmadonMessage.getTimestamp()).thenReturn(timestampMillis);
         elasticSearchReader.writeToES(garmadonMessage);
     }
 
@@ -103,10 +105,10 @@ public class ElasticSearchReaderTest {
         eventMap.put("event_type", GarmadonSerialization.getTypeName(type));
         eventMap.put("state", state);
 
-        writeGarmadonMessage(type, event);
+        writeGarmadonMessage(type, event, 0L);
         verify(bulkProcessor, times(1)).add(argument.capture(), any(CommittableOffset.class));
 
-        assert (eventMap.equals(argument.getValue().sourceAsMap()));
+        assertEquals(eventMap, argument.getValue().sourceAsMap());
     }
 
     @Test
@@ -128,10 +130,10 @@ public class ElasticSearchReaderTest {
         eventMap.put("tracking_url", "http:/garmadon/test");
         eventMap.put("original_tracking_url", "");
 
-        writeGarmadonMessage(type, event);
+        writeGarmadonMessage(type, event, 0L);
         verify(bulkProcessor, times(1)).add(argument.capture(), any(CommittableOffset.class));
 
-        assert (eventMap.equals(argument.getValue().sourceAsMap()));
+        assertEquals(eventMap, argument.getValue().sourceAsMap());
     }
 
     @Test
@@ -180,7 +182,7 @@ public class ElasticSearchReaderTest {
         dsikEventMap.put("rx", 10.0);
         dsikEventMap.put("tx", 10.0);
 
-        writeGarmadonMessage(type, event);
+        writeGarmadonMessage(type, event, 0L);
         verify(bulkProcessor, times(2)).add(argument.capture(), any(CommittableOffset.class));
 
         Map<String, Object> diskMap = null;
@@ -192,8 +194,8 @@ public class ElasticSearchReaderTest {
                 jvmMap = indexRequest.sourceAsMap();
             }
         }
-        assert (dsikEventMap.equals(diskMap));
-        assert (jvmEventMap.equals(jvmMap));
+        assertEquals(dsikEventMap, diskMap);
+        assertEquals(jvmEventMap, jvmMap);
     }
 
     @Test
@@ -216,10 +218,10 @@ public class ElasticSearchReaderTest {
         eventMap.put("uri", "hdfs://data-preprod-pa4");
         eventMap.put("method_duration_millis", 100);
 
-        writeGarmadonMessage(type, event);
+        writeGarmadonMessage(type, event, 0L);
         verify(bulkProcessor, times(1)).add(argument.capture(), any(CommittableOffset.class));
 
-        assert (eventMap.equals(argument.getValue().sourceAsMap()));
+        assertEquals(eventMap, argument.getValue().sourceAsMap());
     }
 
 }

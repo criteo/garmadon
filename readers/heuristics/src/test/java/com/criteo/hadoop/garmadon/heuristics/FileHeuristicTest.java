@@ -3,8 +3,15 @@ package com.criteo.hadoop.garmadon.heuristics;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.schema.enums.FsAction;
 import com.criteo.hadoop.garmadon.schema.enums.State;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -17,8 +24,11 @@ public class FileHeuristicTest {
 
     @Before
     public void setUp() {
+        final Properties config = new Properties();
+        config.setProperty("heuristic.file.max_created_files", "1000000");
+
         this.db = mock(HeuristicsResultDB.class);
-        this.heuristic = new FileHeuristic(db);
+        this.heuristic = new FileHeuristic(db, config);
     }
 
     @Test
@@ -74,6 +84,12 @@ public class FileHeuristicTest {
         DataAccessEventProtos.FsEvent unknowActionEvent = newFsEvent("whatever");
 
         heuristic.compute("app_1", "att_1", "cid_1", unknowActionEvent);
+
+        assertThat(heuristic.append.forApp("app_1", "att_1").getCount(), is(0));
+        assertThat(heuristic.deleted.forApp("app_1", "att_1").getCount(), is(0));
+        assertThat(heuristic.read.forApp("app_1", "att_1").getCount(), is(0));
+        assertThat(heuristic.renamed.forApp("app_1", "att_1").getCount(), is(0));
+        assertThat(heuristic.written.forApp("app_1", "att_1").getCount(), is(0));
     }
 
     @Test
@@ -118,7 +134,6 @@ public class FileHeuristicTest {
 
         heuristic.onAppCompleted("app_1", "att_1");
         verify(db).createHeuristicResult(expectedResults);
-        reset(db);
 
         expectedResults = new HeuristicResult("app_1", "att_2", FileHeuristic.class, HeuristicsResultDB.Severity.NONE, HeuristicsResultDB.Severity.NONE);
         expectedResults.addDetail("Files deleted", "0");
@@ -129,6 +144,44 @@ public class FileHeuristicTest {
 
         heuristic.onAppCompleted("app_1", "att_2");
         verify(db).createHeuristicResult(expectedResults);
+    }
+
+    @Test
+    public void FileHeuristic_should_have_severity() {
+        testFileHeuresticSeverity("app_1", HeuristicsResultDB.Severity.NONE, 100, 100);
+        testFileHeuresticSeverity("app_2", HeuristicsResultDB.Severity.SEVERE, 1200000, 0);
+        testFileHeuresticSeverity("app_3", HeuristicsResultDB.Severity.SEVERE, 1100000, 950000);
+        testFileHeuresticSeverity("app_4", HeuristicsResultDB.Severity.MODERATE, 600000, 100);
+        testFileHeuresticSeverity("app_5", HeuristicsResultDB.Severity.NONE, 10, 100);
+        testFileHeuresticSeverity("app_6", HeuristicsResultDB.Severity.NONE, 100000, 100);
+        testFileHeuresticSeverity("app_7", HeuristicsResultDB.Severity.LOW, 200000, 100);
+    }
+
+    private void computeHeuristic(String appId, String attempId, HashMap<FsAction, Integer> actions) {
+        for (HashMap.Entry<FsAction, Integer> action : actions.entrySet()) {
+            int incrementBy = action.getValue();
+            while (incrementBy > 0) {
+                heuristic.compute(appId, attempId, "", newFsEvent(action.getKey()));
+                --incrementBy;
+            }
+        }
+    }
+
+    private void testFileHeuresticSeverity(String appId, int severity, int nbWrite, int nbDelete) {
+        Mockito.doAnswer(invocationOnMock -> {
+            HeuristicResult result = invocationOnMock.getArgumentAt(0, HeuristicResult.class);
+            Assert.assertEquals(severity, result.severity);
+            Assert.assertEquals(severity, result.score);
+            return null;
+        }).when(db).createHeuristicResult(Matchers.any());
+        HashMap<FsAction, Integer> actions = new HashMap<>();
+        actions.put(FsAction.APPEND, 0);
+        actions.put(FsAction.DELETE, nbDelete);
+        actions.put(FsAction.READ, 0);
+        actions.put(FsAction.RENAME, 0);
+        actions.put(FsAction.WRITE, nbWrite);
+        computeHeuristic(appId, "att_1", actions);
+        heuristic.onAppCompleted(appId, "att_1");
         reset(db);
     }
 

@@ -17,6 +17,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -34,10 +36,8 @@ public class Heuristics {
     private final FileHeuristic fileHeuristic;
     private PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics;
 
-    private final FlinkHeuristicsManager flinkHeuristicsManager;
-
-    public Heuristics(String kafkaConnectString, String kafkaGroupId, int prometheusPort, HeuristicsResultDB db) {
-        this.fileHeuristic = new FileHeuristic(db);
+    public Heuristics(String kafkaConnectString, String kafkaGroupId, int prometheusPort, HeuristicsResultDB db, Properties properties) {
+        this.fileHeuristic = new FileHeuristic(db, properties);
 
         //setup Prometheus client
         prometheusHttpConsumerMetrics = new PrometheusHttpConsumerMetrics(prometheusPort);
@@ -156,10 +156,15 @@ public class Heuristics {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         if (args.length < 6) {
             printHelp();
             return;
+        }
+        // Get properties
+        Properties properties = new Properties();
+        try (InputStream streamPropFilePath = Heuristics.class.getResourceAsStream("/server.properties")) {
+            properties.load(streamPropFilePath);
         }
         String kafkaConnectString = args[0];
         String kafkaGroupId = args[1];
@@ -168,7 +173,7 @@ public class Heuristics {
         String dbUser = args[4];
         String dbPassword = args[5];
         HeuristicsResultDB db = new HeuristicsResultDB(dbConnectionString, dbUser, dbPassword);
-        Heuristics heuristics = new Heuristics(kafkaConnectString, kafkaGroupId, prometheusPort, db);
+        Heuristics heuristics = new Heuristics(kafkaConnectString, kafkaGroupId, prometheusPort, db, properties);
         heuristics.start();
         Runtime.getRuntime().addShutdownHook(new Thread(heuristics::stop));
     }

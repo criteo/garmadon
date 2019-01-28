@@ -96,4 +96,14 @@ docker-compose exec client /opt/spark/bin/spark-submit \
 # Flink wordcount job
 docker-compose exec client flink run -m yarn-cluster -yn 1  -yD metrics.reporters=garmadon \
     -yD metrics.reporter.garmadon.class=com.criteo.hadoop.garmadon.flink.GarmadonFlinkReporter /opt/flink/examples/batch/WordCount.jar
+
+# Exemple to select data from hdfs reader parquet table
+# docker-compose exec -ti client /opt/spark/bin/spark-shell \
+#    --deploy-mode client
+#
+#		import spark.implicits._
+#		val parquetFileDF = spark.read.parquet("/tmp/hdfs-exporter/final/application_event/2019-01-14")
+#		parquetFileDF.createOrReplaceTempView("parquetFile")
+#		val namesDF = spark.sql("SELECT * FROM parquetFile")
+#		namesDF.show(10)
 popd

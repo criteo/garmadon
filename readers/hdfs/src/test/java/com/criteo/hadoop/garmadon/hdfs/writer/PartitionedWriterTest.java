@@ -9,8 +9,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.time.*;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 import java.util.function.Function;
 
 import static com.criteo.hadoop.garmadon.hdfs.TestUtils.instantFromDate;
@@ -154,8 +153,8 @@ public class PartitionedWriterTest {
         partitionedWriter.close();
 
         // All consumers are closed
-        verify(throwingConsumer, times(1)).close();
-        verify(nonThrowingConsumer, times(1)).close();
+        verify(throwingConsumer, atLeastOnce()).close();
+        verify(nonThrowingConsumer, atLeastOnce()).close();
     }
 
     @Test
@@ -173,13 +172,12 @@ public class PartitionedWriterTest {
     @Test
     public void dropPartition() throws IOException {
         final Function<LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(Function.class);
-        final OffsetComputer offsetComputer = mock(OffsetComputer.class);
+        final OffsetComputer offsetComputer = new FixedOffsetComputer("0", 0);
         final PartitionedWriter<String> writer = new PartitionedWriter<>(writerBuilder, offsetComputer, "ignored");
         final ExpiringConsumer<String> firstMockConsumer = mock(ExpiringConsumer.class);
         final ExpiringConsumer<String> secondMockConsumer = mock(ExpiringConsumer.class);
         final Instant instant = Instant.EPOCH;
 
-        when(offsetComputer.computeOffset(anyInt())).thenReturn(0L);
         when(writerBuilder.apply(any(LocalDateTime.class))).thenReturn(firstMockConsumer).thenReturn(secondMockConsumer);
 
         writer.write(instant, buildOffset(1, 8), "Ignored");
@@ -191,7 +189,6 @@ public class PartitionedWriterTest {
         writer.expireConsumers();
 
         verify(secondMockConsumer, times(1)).isExpired();
-        verify(offsetComputer, times(2)).computeOffset(anyInt());
         verifyNoMoreInteractions(firstMockConsumer);
         verifyNoMoreInteractions(secondMockConsumer);
     }
@@ -199,7 +196,8 @@ public class PartitionedWriterTest {
     @Test
     public void dropUnknownPartition() throws IOException {
         final Function<LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(Function.class);
-        final PartitionedWriter<String> writer = new PartitionedWriter<>(writerBuilder, mock(OffsetComputer.class), "ignored");
+        final PartitionedWriter<String> writer = new PartitionedWriter<>(writerBuilder,
+                new FixedOffsetComputer("0", 0), "ignored");
 
         when(writerBuilder.apply(any(LocalDateTime.class))).thenReturn(mock(ExpiringConsumer.class));
 
@@ -210,24 +208,33 @@ public class PartitionedWriterTest {
     }
 
     @Test
-    public void getStartingOffset() throws IOException {
-        final long firstOffset = 12;
-        final long secondOffset = 30;
-        final int partition = 42;
+    public void getStartingOffsets() throws IOException {
+        final Map<Integer, Long> firstOffsets = new HashMap<>();
+        final Map<Integer, Long> secondOffsets = new HashMap<>();
+        final int firstPartition = 42;
+        final int secondPartition = 51;
         final OffsetComputer offsetComputer = mock(OffsetComputer.class);
         final PartitionedWriter<String> writer = new PartitionedWriter<>(mock(Function.class), offsetComputer,
                 "ignored");
 
-        when(offsetComputer.computeOffset(anyInt())).thenReturn(firstOffset).thenReturn(secondOffset);
+        firstOffsets.put(firstPartition, 2L);
+        firstOffsets.put(secondPartition, 3L);
 
-        Assert.assertEquals(firstOffset, writer.getStartingOffset(partition));
-        Assert.assertEquals(firstOffset, writer.getStartingOffset(partition));
+        secondOffsets.put(firstPartition, 4L);
+        secondOffsets.put(secondPartition, 5L);
+
+        when(offsetComputer.computeOffsets(any())).thenReturn(firstOffsets).thenReturn(secondOffsets);
+
+        final List<Integer> bothPartitions = Arrays.asList(firstPartition, secondPartition);
+        Assert.assertEquals(firstOffsets, writer.getStartingOffsets(bothPartitions));
+        Assert.assertEquals(firstOffsets, writer.getStartingOffsets(bothPartitions));
 
         // No unnecessary round-trip if value already filled
-        verify(offsetComputer, times(1)).computeOffset(partition);
+        verify(offsetComputer, times(1)).computeOffsets(bothPartitions);
 
-        writer.dropPartition(partition);
-        Assert.assertEquals(secondOffset, writer.getStartingOffset(partition));
+        // If any gets dropped, then everything gets recomputed
+        writer.dropPartition(firstPartition);
+        Assert.assertEquals(secondOffsets, writer.getStartingOffsets(bothPartitions));
     }
 
     @Test
@@ -251,7 +258,7 @@ public class PartitionedWriterTest {
         final Offset offset = new TopicPartitionOffset("topic", partition, offsetValue);
         final ExpiringConsumer<String> consumer = mock(ExpiringConsumer.class);
         final PartitionedWriter<String> writer = new PartitionedWriter<>((ignored) -> consumer,
-                mock(OffsetComputer.class), "ignored");
+                new FixedOffsetComputer("0", 0), "ignored");
 
         writer.write(Instant.EPOCH, offset, "Message");
         writer.heartbeat(partition, offset);
@@ -267,7 +274,7 @@ public class PartitionedWriterTest {
         final PartitionedWriter.Expirer<String> expirer = new PartitionedWriter.Expirer<>(
                 Arrays.asList(firstConsumer, secondConsumer), Duration.ofMillis(1));
 
-        expirer.start();
+        expirer.start(mock(Thread.UncaughtExceptionHandler.class));
 
         Thread.sleep(500);
 
@@ -284,7 +291,7 @@ public class PartitionedWriterTest {
         final PartitionedWriter.Expirer<String> expirer = new PartitionedWriter.Expirer<>(Collections.emptyList(),
                 Duration.ofMillis(10));
 
-        expirer.start();
+        expirer.start(mock(Thread.UncaughtExceptionHandler.class));
         Thread.sleep(500);
         expirer.stop().join();
     }
@@ -294,7 +301,7 @@ public class PartitionedWriterTest {
         final PartitionedWriter.Expirer<String> expirer = new PartitionedWriter.Expirer<>(
                 Collections.singleton(mock(PartitionedWriter.class)), Duration.ofHours(42));
 
-        expirer.start();
+        expirer.start(mock(Thread.UncaughtExceptionHandler.class));
         Thread.sleep(1000);
         expirer.stop().join();
     }

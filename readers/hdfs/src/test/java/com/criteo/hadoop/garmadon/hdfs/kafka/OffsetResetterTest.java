@@ -7,9 +7,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 
@@ -28,11 +26,15 @@ public class OffsetResetterTest {
         final TopicPartition secondPartition = new TopicPartition(TOPIC, 2);
         final List<TopicPartition> partitions = Arrays.asList(firstPartition, secondPartition);
 
-        when(firstWriter.getStartingOffset(firstPartition.partition())).thenReturn(10L);
-        when(firstWriter.getStartingOffset(secondPartition.partition())).thenReturn(20L);
+        final Map<Integer, Long> firstOffsets = new HashMap<>();
+        firstOffsets.put(firstPartition.partition(), 10L);
+        firstOffsets.put(secondPartition.partition(), 20L);
+        when(firstWriter.getStartingOffsets(any())).thenReturn(firstOffsets);
 
-        when(secondWriter.getStartingOffset(firstPartition.partition())).thenReturn(15L);
-        when(secondWriter.getStartingOffset(secondPartition.partition())).thenReturn(OffsetComputer.NO_OFFSET);
+        final Map<Integer, Long> secondOffsets = new HashMap<>();
+        secondOffsets.put(firstPartition.partition(), 15L);
+        secondOffsets.put(secondPartition.partition(), OffsetComputer.NO_OFFSET);
+        when(secondWriter.getStartingOffsets(any())).thenReturn(secondOffsets);
 
         offsetResetter.onPartitionsAssigned(partitions);
         verify(consumer, times(1)).seek(eq(firstPartition), eq(10L));
@@ -50,8 +52,8 @@ public class OffsetResetterTest {
         final TopicPartition partition = new TopicPartition(TOPIC, 1);
         final List<TopicPartition> partitions = Collections.singletonList(partition);
 
-        when(successfulWriter.getStartingOffset(partition.partition())).thenReturn(12L);
-        when(exceptionalWriter.getStartingOffset(partition.partition())).thenThrow(new IOException("Ayo"));
+        when(successfulWriter.getStartingOffsets(any())).thenReturn(new HashMap<>());
+        when(exceptionalWriter.getStartingOffsets(any())).thenThrow(new IOException("Ayo"));
 
         offsetResetter.onPartitionsAssigned(partitions);
         verify(consumer, times(1)).seekToBeginning(Collections.singleton(partition));

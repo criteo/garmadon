@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Route messages to dedicated writers for a given MESSAGE_KIND: per day, per partition.
@@ -39,6 +40,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      * @param writerBuilder     Builds an expiring writer based on a path.
      * @param offsetComputer    Computes the first offset which should not be ignored by the PartitionedWriter when
      *                          consuming message.
+     * @param eventName         Event name used for logging &amp; monitoring.
      */
     public PartitionedWriter(Function<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> writerBuilder,
                              OffsetComputer offsetComputer, String eventName) {
@@ -73,15 +75,25 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
         final int partitionId = offset.getPartition();
 
         synchronized (perPartitionDayWriters) {
-            final long startingOffset = getStartingOffset(partitionId);
-
-            if (offset.getOffset() <= startingOffset) return;
+            if (shouldSkipOffset(offset.getOffset(), partitionId)) return;
 
             // /!\ This line must not be switched with the offset computation as this would create empty files otherwise
             final ExpiringConsumer<MESSAGE_KIND> consumer = getWriter(dayStartTime, partitionId);
 
             consumer.write(msg, offset);
         }
+    }
+
+    private boolean shouldSkipOffset(long offset, int partitionId) throws IOException {
+        long startOffset;
+
+        if (!perPartitionStartOffset.keySet().contains(partitionId)) {
+            startOffset = getStartingOffsets(Collections.singleton(partitionId)).get(partitionId);
+        } else {
+            startOffset = perPartitionStartOffset.get(partitionId);
+        }
+
+        return offset <= startOffset;
     }
 
     /**
@@ -95,26 +107,30 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     /**
      * Get the starting offset for a given partition.
      *
-     * @param partitionId   Id of the kafka partition
-     * @return              The lowest offset for a given partition
+     * @param partitionsId  Id of the kafka partitions
+     * @return              Map with partition id =&gt; lowest offset
      * @throws IOException  If the offset computation failed
      */
-    public long getStartingOffset(int partitionId) throws IOException {
+    public Map<Integer, Long> getStartingOffsets(Collection<Integer> partitionsId) throws IOException {
         synchronized (perPartitionStartOffset) {
-            if (!perPartitionStartOffset.containsKey(partitionId)) {
-                final long startingOffset;
+            if (!perPartitionStartOffset.keySet().containsAll(partitionsId)) {
+                final Map<Integer, Long> startingOffsets;
 
                 try {
-                    startingOffset = offsetComputer.computeOffset(partitionId);
+                    startingOffsets = offsetComputer.computeOffsets(partitionsId);
                 } catch (IOException e) {
-                    perPartitionStartOffset.put(partitionId, OffsetComputer.NO_OFFSET);
+                    partitionsId.forEach(id -> perPartitionStartOffset.put(id, OffsetComputer.NO_OFFSET));
                     throw e;
                 }
 
-                perPartitionStartOffset.put(partitionId, startingOffset);
+                perPartitionStartOffset.putAll(startingOffsets);
+
+                return startingOffsets;
             }
 
-            return perPartitionStartOffset.get(partitionId);
+            return partitionsId.stream()
+                .filter(perPartitionStartOffset::containsKey)
+                .collect(Collectors.toMap(Function.identity(), perPartitionStartOffset::get));
         }
     }
 
@@ -176,7 +192,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
             this.period = period;
         }
 
-        public void start() {
+        public void start(Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
             runningThread = new Thread(() -> {
                 while (!Thread.currentThread().isInterrupted()) {
                     writers.forEach(PartitionedWriter::expireConsumers);
@@ -190,6 +206,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                 }
             });
 
+            runningThread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
             runningThread.start();
         }
 
@@ -199,7 +216,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
          * @return  A completable future which will complete once the expirer is properly stopped
          */
         public CompletableFuture<Void> stop() {
-            if (runningThread != null) {
+            if (runningThread != null && runningThread.isAlive()) {
                 runningThread.interrupt();
 
                 return CompletableFuture.supplyAsync(() -> {
@@ -235,6 +252,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                                      PrometheusMetrics.FILE_COMMIT_FAILURES, eventName);
 
                              filesCommitFailures.inc();
+                             return false;
                          }
                     }
 
@@ -244,13 +262,18 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     }
 
     private boolean tryExpireConsumer(ExpiringConsumer<MESSAGE_KIND> consumer) {
-        try {
-            consumer.close();
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Couldn't close writer, will retry later", e);
-            return false;
+        final int maxAttempts = 3;
+
+        for (int retry = 1; retry <= maxAttempts; ++retry) {
+            try {
+                consumer.close();
+                return true;
+            } catch (IOException e) {
+                LOGGER.error("Couldn't close writer for {} ({}/{})", eventName, retry, maxAttempts, e);
+            }
         }
+
+        return false;
     }
 
     /**

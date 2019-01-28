@@ -35,6 +35,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.any;
@@ -63,6 +64,12 @@ public class HdfsExporter {
             TMP_FILE_OPEN_RETRY_PERIOD, SIZE_BEFORE_FLUSHING_TMP);
 
     static {
+        // Configuration for underlying packages using JUL
+        String path = HdfsExporter.class.getClassLoader()
+                .getResource("logging.properties")
+                .getFile();
+        System.setProperty("java.util.logging.config.file", path);
+
         DEFAULT_PROPERTIES_VALUE.put(MESSAGES_BEFORE_EXPIRING_WRITERS, 3_000_000);
         DEFAULT_PROPERTIES_VALUE.put(WRITERS_EXPIRATION_DELAY, 30);
         DEFAULT_PROPERTIES_VALUE.put(EXPIRER_PERIOD, 30);
@@ -214,11 +221,17 @@ public class HdfsExporter {
 
         final GarmadonReader garmadonReader = readerBuilder.build(false);
 
-        expirer.start();
-        heartbeat.start();
+        CompletableFuture<Void> readerFuture = garmadonReader.startReading();
+        Thread.UncaughtExceptionHandler uncaughtExceptionHandler = (thread, e) -> {
+            LOGGER.error("Interrupting reader", e);
+            garmadonReader.stopReading();
+        };
+
+        expirer.start(uncaughtExceptionHandler);
+        heartbeat.start(uncaughtExceptionHandler);
 
         try {
-            garmadonReader.startReading().join();
+            readerFuture.join();
         } catch (Exception e) {
             LOGGER.error("Reader thread interrupted", e);
         }
@@ -309,8 +322,8 @@ public class HdfsExporter {
             gauge.set(offset.getOffset());
 
             try {
-                writer.write(Instant.now(), offset,
-                        ProtoConcatenator.concatToProtobuf(Arrays.asList(msg.getHeader(), msg.getBody())));
+                writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset,
+                        ProtoConcatenator.concatToProtobuf(msg.getTimestamp(), Arrays.asList(msg.getHeader(), msg.getBody())));
 
                 messagesWritten.inc();
             } catch (IOException e) {

@@ -182,6 +182,26 @@ services:
        aliases:
          - elasticsearch-reader
 
+  hdfs-reader:
+    build: garmadon
+    image: garmadon:latest
+    hostname: hdfs-reader
+    restart: always
+    command:
+      - /usr/bin/entrypoint.sh
+      - hdfs-reader
+    volumes:
+      - ../../../../readers/hdfs/target/garmadon-readers-hdfs-${GARMADON_RELEASE}.jar:/opt/garmadon/lib/garmadon-readers-hdfs.jar
+    env_file: .env
+    depends_on:
+      - kafka
+      - namenode
+      - datanode
+    networks:
+      nwk:
+        aliases:
+          - hdfs-reader
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_RELEASE}
     hostname: elasticsearch
