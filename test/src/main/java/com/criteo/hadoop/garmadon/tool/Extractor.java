@@ -1,6 +1,7 @@
 package com.criteo.hadoop.garmadon.tool;
 
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.FlinkEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
@@ -38,6 +39,10 @@ public final class Extractor {
                         msg -> getStats(msg).jvmStatCount++)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)),
                         msg -> System.out.println(getStats(msg)))
+                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.FLINK_JOB_MANAGER_EVENT)),
+                        this::processFlinkJobManagerEvent)
+                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.FLINK_JOB_EVENT)),
+                        this::processFlinkJobEvent)
                 .build();
     }
 
@@ -54,6 +59,12 @@ public final class Extractor {
                         this::processJvmStatEvent)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)),
                         this::processStateEvent)
+                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId))
+                    .and(hasType(GarmadonSerialization.TypeMarker.FLINK_JOB_MANAGER_EVENT)),
+                        this::processFlinkJobManagerEvent)
+                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId))
+                    .and(hasType(GarmadonSerialization.TypeMarker.FLINK_JOB_EVENT)),
+                        this::processFlinkJobEvent)
                 .build();
     }
 
@@ -107,6 +118,32 @@ public final class Extractor {
         if (State.END.toString().equals(stateEvent.getState())) {
             System.exit(0);
         }
+    }
+
+    private void processFlinkJobManagerEvent(GarmadonMessage msg) {
+        FlinkEventProtos.JobManagerEvent event = (FlinkEventProtos.JobManagerEvent) msg.getBody();
+        StringBuilder sb = new StringBuilder();
+        String timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(msg.getTimestamp()));
+        sb.append(timestamp).append(" ");
+        sb.append("Host[").append(event.getHost()).append("] ");
+        for (FlinkEventProtos.Property property : event.getMetricsList()) {
+            sb.append("[").append(property.getName()).append("=").append(property.getValue()).append("] ");
+        }
+        System.out.println(sb.toString());
+    }
+
+    private void processFlinkJobEvent(GarmadonMessage msg) {
+        FlinkEventProtos.JobEvent event = (FlinkEventProtos.JobEvent) msg.getBody();
+        StringBuilder sb = new StringBuilder();
+        String timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(msg.getTimestamp()));
+        sb.append(timestamp).append(" ");
+        sb.append("Host[").append(event.getHost()).append("] ");
+        sb.append("JobId[").append(event.getJobId()).append("] ");
+        sb.append("JobName[").append(event.getJobName()).append("] ");
+        for (FlinkEventProtos.Property property : event.getMetricsList()) {
+            sb.append("[").append(property.getName()).append("=").append(property.getValue()).append("] ");
+        }
+        System.out.println(sb.toString());
     }
 
     private static void appendSpaceInfo(StringBuilder sb, String spaceName, long before, long after) {

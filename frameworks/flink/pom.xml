@@ -31,11 +31,38 @@
             <version>${flink.version}</version>
         </dependency>
 
+        <!-- Logging -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+
         <!-- Other garmadon modules -->
         <dependency>
             <groupId>com.criteo.java</groupId>
             <artifactId>garmadon-schema</artifactId>
             <version>${garmadon.version}</version>
+        </dependency>
+
+        <!-- For testing purposes -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <!-- use 2.9.1 for Java 7 projects -->
+            <version>3.11.1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

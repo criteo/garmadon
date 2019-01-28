@@ -43,10 +43,10 @@ public class G1GCTest {
         long timestamp = 1528206041354L;
         Mockito.doAnswer(invocationOnMock -> {
             HeuristicResult result = invocationOnMock.getArgumentAt(0, HeuristicResult.class);
-            Assert.assertEquals(APPLICATION_ID, result.appId);
-            Assert.assertEquals(HeuristicsResultDB.Severity.SEVERE, result.severity);
-            Assert.assertEquals(HeuristicsResultDB.Severity.SEVERE, result.score);
-            Assert.assertEquals(G1GC.class, result.heuristicClass);
+            Assert.assertEquals(APPLICATION_ID, result.getAppId());
+            Assert.assertEquals(HeuristicsResultDB.Severity.SEVERE, result.getSeverity());
+            Assert.assertEquals(HeuristicsResultDB.Severity.SEVERE, result.getScore());
+            Assert.assertEquals(G1GC.class, result.getHeuristicClass());
             assertDetails.accept(result);
             return null;
         }).when(mockDB).createHeuristicResult(Matchers.any());

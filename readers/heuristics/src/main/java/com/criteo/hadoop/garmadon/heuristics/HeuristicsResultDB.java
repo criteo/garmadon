@@ -68,11 +68,11 @@ public class HeuristicsResultDB {
         int resultId = -1;
         try {
             createYarnAppResultStat.clearParameters();
-            createYarnAppResultStat.setString(1, heuristicResult.appId);
-            createYarnAppResultStat.setString(2, heuristicResult.heuristicClass.getName());
-            createYarnAppResultStat.setString(3, heuristicResult.heuristicClass.getSimpleName() + "@" + heuristicResult.attemptId);
-            createYarnAppResultStat.setInt(4, heuristicResult.severity);
-            createYarnAppResultStat.setInt(5, heuristicResult.score);
+            createYarnAppResultStat.setString(1, heuristicResult.getAppId());
+            createYarnAppResultStat.setString(2, heuristicResult.getHeuristicClass().getName());
+            createYarnAppResultStat.setString(3, heuristicResult.getHeuristicClass().getSimpleName() + "@" + heuristicResult.getAttemptId());
+            createYarnAppResultStat.setInt(4, heuristicResult.getSeverity());
+            createYarnAppResultStat.setInt(5, heuristicResult.getScore());
             createYarnAppResultStat.setInt(6, 1);
             createYarnAppResultStat.executeUpdate();
             try (ResultSet rsGenKey = createYarnAppResultStat.getGeneratedKeys()) {

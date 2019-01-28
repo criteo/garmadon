@@ -29,6 +29,8 @@ public class GarmadonSerialization {
         int SPARK_EXECUTOR_STATE_EVENT = 3002;
         int SPARK_TASK_EVENT = 3003;
         int APPLICATION_EVENT = 4000;
+        int FLINK_JOB_MANAGER_EVENT = 5000;
+        int FLINK_JOB_EVENT = 5001;
     }
 
     private static HashMap<Integer, Deserializer> typeMarkerToDeserializer = new HashMap<>();
@@ -65,6 +67,12 @@ public class GarmadonSerialization {
                 SparkEventProtos.ExecutorStateEvent::toByteArray, SparkEventProtos.ExecutorStateEvent::parseFrom);
         register(SparkEventProtos.TaskEvent.class, TypeMarker.SPARK_TASK_EVENT, "SPARK_TASK_EVENT", SparkEventProtos.TaskEvent::toByteArray,
                 SparkEventProtos.TaskEvent::parseFrom);
+
+        // Flink events
+        register(FlinkEventProtos.JobManagerEvent.class, TypeMarker.FLINK_JOB_MANAGER_EVENT, "FLINK_JOB_MANAGER_EVENT",
+          FlinkEventProtos.JobManagerEvent::toByteArray, FlinkEventProtos.JobManagerEvent::parseFrom);
+        register(FlinkEventProtos.JobEvent.class, TypeMarker.FLINK_JOB_EVENT, "FLINK_JOB_EVENT",
+          FlinkEventProtos.JobEvent::toByteArray, FlinkEventProtos.JobEvent::parseFrom);
 
         // resourcemanager events
         register(ResourceManagerEventProtos.ApplicationEvent.class, TypeMarker.APPLICATION_EVENT, "APPLICATION_EVENT",

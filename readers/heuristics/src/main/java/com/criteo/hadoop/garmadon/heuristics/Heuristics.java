@@ -2,6 +2,9 @@ package com.criteo.hadoop.garmadon.heuristics;
 
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
+import com.criteo.hadoop.garmadon.heuristics.flink.FlinkCheckpointDuration;
+import com.criteo.hadoop.garmadon.heuristics.flink.FlinkHeuristic;
+import com.criteo.hadoop.garmadon.heuristics.flink.FlinkHeuristicsManager;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
@@ -14,11 +17,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -36,6 +34,8 @@ public class Heuristics {
     private final FileHeuristic fileHeuristic;
     private PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics;
 
+    private final FlinkHeuristicsManager flinkHeuristicsManager;
+
     public Heuristics(String kafkaConnectString, String kafkaGroupId, int prometheusPort, HeuristicsResultDB db) {
         this.fileHeuristic = new FileHeuristic(db);
 
@@ -48,6 +48,9 @@ public class Heuristics {
         props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, kafkaGroupId);
         props.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
         props.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
+
+        List<FlinkHeuristic> flinkHeuristics = Arrays.asList(new FlinkCheckpointDuration(db));
+        flinkHeuristicsManager = new FlinkHeuristicsManager(flinkHeuristics);
 
         this.reader = GarmadonReader.Builder
                 .stream(new KafkaConsumer<>(props))
@@ -63,6 +66,10 @@ public class Heuristics {
                         msg -> fileHeuristic.compute(msg.getHeader().getApplicationId(), msg.getHeader().getAttemptId(),
                                 msg.getHeader().getContainerId(), (DataAccessEventProtos.FsEvent) msg.getBody())
                 )
+                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.FLINK_JOB_MANAGER_EVENT)),
+                  flinkHeuristicsManager::processFlinkJobManagerEvent)
+                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.FLINK_JOB_EVENT)),
+                  flinkHeuristicsManager::processFlinkJobEvent)
                 .beforeIntercept(this::registerAppContainer)
                 .build();
 
@@ -78,6 +85,7 @@ public class Heuristics {
         this.heuristics.add(fileHeuristic);
         this.heuristics.addAll(gcStatsHeuristics);
         this.heuristics.addAll(jvmStatsHeuristics);
+        this.heuristics.addAll(flinkHeuristicsManager.getHeuristics());
         db.updateHeuristicHelp(heuristics);
     }
 
@@ -143,6 +151,7 @@ public class Heuristics {
                 LOGGER.info("App {} is finished. All containers have been removed", applicationId);
                 containersPerApp.remove(HeuristicHelper.getAppAttemptId(applicationId, attemptId));
                 heuristics.forEach(h -> h.onAppCompleted(applicationId, attemptId));
+                flinkHeuristicsManager.onAppCompleted(applicationId, attemptId);
             }
         }
     }
