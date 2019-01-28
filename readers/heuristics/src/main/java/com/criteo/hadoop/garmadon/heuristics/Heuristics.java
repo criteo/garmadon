@@ -36,6 +36,8 @@ public class Heuristics {
     private final FileHeuristic fileHeuristic;
     private PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics;
 
+    private final FlinkHeuristicsManager flinkHeuristicsManager;
+
     public Heuristics(String kafkaConnectString, String kafkaGroupId, int prometheusPort, HeuristicsResultDB db, Properties properties) {
         this.fileHeuristic = new FileHeuristic(db, properties);
 
