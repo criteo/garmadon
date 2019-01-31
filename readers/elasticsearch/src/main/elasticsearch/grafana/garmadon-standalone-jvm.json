@@ -102,6 +102,7 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
         "title": "CPU",
         "tooltip": {
@@ -238,6 +239,7 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
         "title": "HEAP Usage",
         "tooltip": {
@@ -346,6 +348,7 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
         "title": "OFF-HEAP Usage",
         "tooltip": {
@@ -454,6 +457,7 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
         "title": "Metadata Space Used",
         "tooltip": {
@@ -607,7 +611,7 @@
             "timeField": "timestamp"
           },
           {
-            "alias": "{{pid}}.ConcurrentMarkSweep",
+            "alias": "ConcurrentMarkSweep",
             "bucketAggs": [
               {
                 "fake": true,
@@ -769,6 +773,7 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
         "title": "GC duration",
         "tooltip": {
@@ -1017,6 +1022,7 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
         "title": "GC Count",
         "tooltip": {
@@ -1125,6 +1131,7 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
         "title": "#Threads",
         "tooltip": {
@@ -1185,7 +1192,7 @@
           "min": false,
           "rightSide": true,
           "show": true,
-          "sideWidth": 100,
+          "sideWidth": 120,
           "total": false,
           "values": false
         },
@@ -1242,6 +1249,7 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
         "title": "#Threads Created",
         "tooltip": {
@@ -1302,7 +1310,7 @@
           "min": false,
           "rightSide": true,
           "show": true,
-          "sideWidth": 100,
+          "sideWidth": 120,
           "total": false,
           "values": false
         },
@@ -1350,6 +1358,7 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
         "title": "#File Descriptors",
         "tooltip": {
@@ -1468,6 +1477,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "Compile Count",
             "tooltip": {
@@ -1576,6 +1586,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "Compile Time",
             "tooltip": {
@@ -1684,6 +1695,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "Number of compile threads",
             "tooltip": {
@@ -1792,6 +1804,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "Safepoint Count",
             "tooltip": {
@@ -1929,6 +1942,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "Safepoint Time",
             "tooltip": {
@@ -1992,7 +2006,7 @@
               "h": 9,
               "w": 24,
               "x": 0,
-              "y": 43
+              "y": 59
             },
             "id": 2,
             "legend": {
@@ -2069,6 +2083,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS action on $uri",
             "tooltip": {
@@ -2118,7 +2133,7 @@
               "h": 9,
               "w": 24,
               "x": 0,
-              "y": 61
+              "y": 68
             },
             "id": 47,
             "legend": {
@@ -2201,6 +2216,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS Latency action on $uri",
             "tooltip": {
@@ -2264,6 +2280,7 @@
           "query": "elasticsearch",
           "refresh": 1,
           "regex": "/garmadon*/",
+          "skipUrlSync": false,
           "type": "datasource"
         },
         {
@@ -2273,6 +2290,7 @@
             "value": "client"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2282,6 +2300,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\": \"tags:STANDALONE\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
@@ -2296,6 +2315,7 @@
             "value": "root"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2305,6 +2325,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"username\", \"query\": \"tags:STANDALONE AND hostname:$hostname\", \"size\": 1000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
@@ -2319,6 +2340,7 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2328,6 +2350,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"main_class\", \"query\": \"tags:STANDALONE AND hostname:$hostname AND username:$username\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
@@ -2338,10 +2361,11 @@
         {
           "allValue": "*",
           "current": {
-            "text": "76",
-            "value": "76"
+            "text": "9",
+            "value": "9"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": false,
           "label": null,
@@ -2351,6 +2375,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"pid\", \"query\": \"tags:STANDALONE AND hostname:$hostname AND username:$username AND main_class:$main_class\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 2,
           "tagValuesQuery": "",
           "tags": [],
@@ -2365,6 +2390,7 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2374,6 +2400,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"tags:STANDALONE AND hostname:$hostname AND pid:$pid AND main_class:$main_class\"}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
