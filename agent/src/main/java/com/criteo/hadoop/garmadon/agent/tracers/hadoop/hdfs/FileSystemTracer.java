@@ -309,7 +309,7 @@ public class FileSystemTracer {
         Object ugi = ugiField.get(dfs);
         Method getShortUserName = getMethod(classLoader, "org.apache.hadoop.security.UserGroupInformation", "getShortUserName");
         Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
-        return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.DELETE.name(), (String) getShortUserName.invoke(ugi));
+        return executeMethod(zuper, getUri.invoke(o).toString(), src, dst, fsAction, (String) getShortUserName.invoke(ugi));
     }
 
     private static Object executeMethod(@SuperCall Callable<?> zuper, String uri, String src, String dst, String fsAction, String username) throws Exception {
