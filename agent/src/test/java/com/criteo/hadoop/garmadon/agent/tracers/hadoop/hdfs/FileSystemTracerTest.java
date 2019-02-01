@@ -19,6 +19,7 @@ import org.apache.hadoop.hdfs.client.HdfsDataInputStream;
 import org.apache.hadoop.hdfs.client.HdfsDataOutputStream;
 import org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolTranslatorPB;
 import org.apache.hadoop.hdfs.shortcircuit.DomainSocketFactory;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.Progressable;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -29,12 +30,14 @@ import org.mockito.ArgumentCaptor;
 import java.io.File;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.function.BiConsumer;
 
+import static com.criteo.hadoop.garmadon.agent.tracers.hadoop.hdfs.FileSystemTracer.getMethod;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -54,6 +57,7 @@ public class FileSystemTracerTest {
     private static ClassLoader classLoader;
     private static BiConsumer eventHandler;
     private static ArgumentCaptor<DataAccessEventProtos.FsEvent> argument;
+    private static String hdfs_user;
 
     @Rule
     public MethodRule agentAttachmentRule = new AgentAttachmentRule();
@@ -131,16 +135,31 @@ public class FileSystemTracerTest {
         initDFS();
     }
 
-    private static void initDFS() throws ClassNotFoundException, NoSuchMethodException, URISyntaxException, InvocationTargetException, IllegalAccessException {
+    private static void initDFS() throws ClassNotFoundException, NoSuchMethodException, URISyntaxException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
         clazzFS = classLoader.loadClass(DistributedFileSystem.class.getName());
         Method get = clazzFS.getMethod("get", URI.class, Configuration.class);
         dfs = get.invoke(null, new URI(hdfsURI), conf);
 
         Method mkdir = clazzFS.getMethod("mkdir", Path.class, FsPermission.class);
         mkdir.invoke(dfs, pathFolder, FsPermission.getDefault());
+
+        Class clazz = classLoader.loadClass("org.apache.hadoop.hdfs.DistributedFileSystem");
+        Field dfsField = clazz.getDeclaredField("dfs");
+        dfsField.setAccessible(true);
+        Object dfsClient = dfsField.get(dfs);
+
+        Class clazzDFS = classLoader.loadClass("org.apache.hadoop.hdfs.DFSClient");
+        Field ugiField = clazzDFS.getDeclaredField("ugi");
+        ugiField.setAccessible(true);
+        UserGroupInformation ugi = (UserGroupInformation) ugiField.get(dfsClient);
+
+        Class distributedFileSystem = classLoader.loadClass("org.apache.hadoop.security.UserGroupInformation");
+        Method getShortUserName = distributedFileSystem.getMethod("getShortUserName");
+
+        hdfs_user = (String) getShortUserName.invoke(ugi);
     }
 
-    private void checkEvent(String action, Path path) {
+    private void checkEvent(String action, Path path) throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException {
         assertNotNull(eventHandler);
 
         verify(eventHandler, atLeastOnce()).accept(any(Long.class), argument.capture());
@@ -150,11 +169,13 @@ public class FileSystemTracerTest {
         assertEquals(action, eventTmp.getAction());
         assertEquals(hdfsURI, eventTmp.getUri());
         assertEquals(path.toString(), eventTmp.getDstPath());
+
+        assertEquals(hdfs_user, eventTmp.getHdfsUser());
     }
 
     @Test
     @AgentAttachmentRule.Enforce
-    public void FileSystemTracer_should_attach_to_write() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void FileSystemTracer_should_attach_to_write() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, NoSuchFieldException, ClassNotFoundException {
         Method create = clazzFS.getMethod("create", Path.class,
                 FsPermission.class,
                 boolean.class,
@@ -169,7 +190,7 @@ public class FileSystemTracerTest {
 
     @Test
     @AgentAttachmentRule.Enforce
-    public void FileSystemTracer_should_attach_to_read() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException {
+    public void FileSystemTracer_should_attach_to_read() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, NoSuchFieldException, ClassNotFoundException {
         Method create = clazzFS.getMethod("create", Path.class,
                 FsPermission.class,
                 boolean.class,
@@ -192,7 +213,7 @@ public class FileSystemTracerTest {
 
     @Test
     @AgentAttachmentRule.Enforce
-    public void FileSystemTracer_should_attach_to_list() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void FileSystemTracer_should_attach_to_list() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, NoSuchFieldException, ClassNotFoundException {
         Method listStatus = clazzFS.getMethod("listStatus", Path.class);
         listStatus.invoke(dfs, pathFolder);
 
@@ -201,7 +222,7 @@ public class FileSystemTracerTest {
 
     @Test
     @AgentAttachmentRule.Enforce
-    public void FileSystemTracer_should_attach_to_get_content() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void FileSystemTracer_should_attach_to_get_content() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, NoSuchFieldException, ClassNotFoundException {
         Method getContentSummary = clazzFS.getMethod("getContentSummary", Path.class);
         getContentSummary.invoke(dfs, pathFolder);
 
@@ -210,7 +231,7 @@ public class FileSystemTracerTest {
 
     @Test
     @AgentAttachmentRule.Enforce
-    public void FileSystemTracer_should_attach_to_delete() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void FileSystemTracer_should_attach_to_delete() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, NoSuchFieldException, ClassNotFoundException {
         Method delete = clazzFS.getMethod("delete", Path.class, boolean.class);
         delete.invoke(dfs, pathSrc, true);
 
@@ -219,7 +240,7 @@ public class FileSystemTracerTest {
 
     @Test
     @AgentAttachmentRule.Enforce
-    public void FileSystemTracer_should_attach_to_rename() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void FileSystemTracer_should_attach_to_rename() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, NoSuchFieldException, ClassNotFoundException {
         Method rename = clazzFS.getMethod("rename", Path.class, Path.class);
         rename.invoke(dfs, pathSrc, pathDst);
 

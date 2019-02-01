@@ -63,8 +63,8 @@ public class FileSystemTracer {
         return (Method) getMethodCache().computeIfAbsent(classLoader + clazz + method,
                 k -> {
                     try {
-                        Class distributedFileSystem = classLoader.loadClass(clazz);
-                        return distributedFileSystem.getMethod(method, parameterTypes);
+                        Class classzz = classLoader.loadClass(clazz);
+                        return classzz.getMethod(method, parameterTypes);
                     } catch (NoSuchMethodException | ClassNotFoundException ignored) {
                         return null;
                     }
@@ -74,8 +74,8 @@ public class FileSystemTracer {
     public static Field getField(ClassLoader classLoader, String clazz, String field) {
         return (Field) getFieldCache().computeIfAbsent(classLoader + clazz + field, k -> {
             try {
-                Class clientNamenodeProtocolTranslatorPB = classLoader.loadClass(clazz);
-                Field fieldComputed = clientNamenodeProtocolTranslatorPB.getDeclaredField(field);
+                Class classzz = classLoader.loadClass(clazz);
+                Field fieldComputed = classzz.getDeclaredField(field);
                 fieldComputed.setAccessible(true);
                 return fieldComputed;
             } catch (ClassNotFoundException | NoSuchFieldException ignored) {
