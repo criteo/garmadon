@@ -3,6 +3,7 @@ package com.criteo.hadoop.garmadon.schema.events;
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -219,7 +220,6 @@ public class Header {
             return this;
         }
 
-
         public Builder withUser(String user) {
             this.user = user;
             return this;
@@ -232,6 +232,13 @@ public class Header {
 
         public Builder addTag(String tag) {
             this.tags.add(tag);
+            return this;
+        }
+
+        public Builder addTags(String tags) {
+            if (tags != null) {
+                Arrays.stream(tags.split(",")).forEach(tag -> this.tags.add(tag));
+            }
             return this;
         }
 
