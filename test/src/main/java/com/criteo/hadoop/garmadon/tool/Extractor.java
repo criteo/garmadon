@@ -125,7 +125,7 @@ public final class Extractor {
         StringBuilder sb = new StringBuilder();
         String timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(msg.getTimestamp()));
         sb.append(timestamp).append(" ");
-        sb.append("Host[").append(event.getHost()).append("] ");
+        sb.append("Host[").append(msg.getHeader().getHostname()).append("] ");
         for (FlinkEventProtos.Property property : event.getMetricsList()) {
             sb.append("[").append(property.getName()).append("=").append(property.getValue()).append("] ");
         }
@@ -137,7 +137,7 @@ public final class Extractor {
         StringBuilder sb = new StringBuilder();
         String timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(msg.getTimestamp()));
         sb.append(timestamp).append(" ");
-        sb.append("Host[").append(event.getHost()).append("] ");
+        sb.append("Host[").append(msg.getHeader().getHostname()).append("] ");
         sb.append("JobId[").append(event.getJobId()).append("] ");
         sb.append("JobName[").append(event.getJobName()).append("] ");
         for (FlinkEventProtos.Property property : event.getMetricsList()) {

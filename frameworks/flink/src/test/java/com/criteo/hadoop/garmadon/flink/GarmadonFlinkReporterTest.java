@@ -90,9 +90,6 @@ public class GarmadonFlinkReporterTest {
     FlinkEventProtos.JobManagerEvent jobManagerEvent = (FlinkEventProtos.JobManagerEvent) capturedValues.get(0);
     assertThat(jobManagerEvent.getMetricsList()).containsAll(jobManagerProperties);
 
-    // THEN: handler was called with an host field from JobManagerEvent as the one from variable
-    assertThat(jobManagerEvent.getHost()).isEqualTo(jobManagerVariables.get(HOST_VARIABLE));
-
     // THEN: handler is called for JobEvent with expected Metrics
     FlinkEventProtos.JobEvent jobEvent = (FlinkEventProtos.JobEvent) capturedValues.get(1);
     assertThat(jobEvent.getMetricsList()).containsAll(jobProperties);

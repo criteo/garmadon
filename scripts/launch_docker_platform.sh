@@ -94,8 +94,7 @@ docker-compose exec client /opt/spark/bin/spark-submit \
     --class org.apache.spark.examples.sql.SparkSQLExample /opt/spark/examples/jars/spark-examples_2.11-${SPARK_VERSION}.jar
 
 # Flink wordcount job
-docker-compose exec client flink run -m yarn-cluster -yn 1  -yD metrics.reporters=garmadon \
-    -yD metrics.reporter.garmadon.class=com.criteo.hadoop.garmadon.flink.GarmadonFlinkReporter /opt/flink/examples/batch/WordCount.jar
+docker-compose exec client flink run -m yarn-cluster -yn 1  /opt/flink/examples/batch/WordCount.jar
 
 # Exemple to select data from hdfs reader parquet table
 # docker-compose exec -ti client /opt/spark/bin/spark-shell \

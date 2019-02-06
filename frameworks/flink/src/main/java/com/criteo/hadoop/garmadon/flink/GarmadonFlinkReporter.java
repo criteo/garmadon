@@ -137,8 +137,6 @@ public class GarmadonFlinkReporter implements MetricReporter, Scheduled {
         List<Property> jobManagerMetrics = createProperties(JOB_MANAGER_WHITE_LIST, Function.identity());
 
         FlinkEventProtos.JobManagerEvent.Builder builder = FlinkEventProtos.JobManagerEvent.newBuilder();
-        if (host != null) builder.setHost(host);
-
         builder.addAllMetrics(jobManagerMetrics);
 
         eventHandler.accept(currentTimeMillis, header, builder.build());
@@ -165,10 +163,6 @@ public class GarmadonFlinkReporter implements MetricReporter, Scheduled {
             }
         }
 
-        // TODO: remove log
-        String toLog = properties.stream().map(prop -> prop.getName() + "[" + prop.getValue() + "]").collect(Collectors.joining(","));
-        LOGGER.info("report: {}", toLog);
-
         return properties;
     }
 
@@ -182,7 +176,6 @@ public class GarmadonFlinkReporter implements MetricReporter, Scheduled {
           metricName -> jobIdentifier.getJobName() + "." + metricName);
 
         JobEvent.Builder builder = JobEvent.newBuilder();
-        if (host != null) builder.setHost(host);
         builder.addAllMetrics(metrics);
 
         eventHandler.accept(currentTimeMillis, header, builder.build());

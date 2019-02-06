@@ -102,6 +102,7 @@
         <commons-io.version>2.6</commons-io.version>
         <flink.version>1.6.3</flink.version>
         <presto.version>0.215</presto.version>
+        <assertj.version>3.11.1</assertj.version>
 
         <!-- tests -->
         <junit.version>4.12</junit.version>
