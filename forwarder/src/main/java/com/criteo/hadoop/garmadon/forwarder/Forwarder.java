@@ -155,6 +155,8 @@ public class Forwarder {
 
         try {
             forwarder.run().channel().closeFuture().sync();
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
         } finally {
             forwarder.close();
         }
