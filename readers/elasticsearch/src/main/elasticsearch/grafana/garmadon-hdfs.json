@@ -103,7 +103,7 @@
                 "type": "count"
               }
             ],
-            "query": "event_type:FS_EVENT AND uri:$uri",
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:$path",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -111,8 +111,9 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
-        "title": "FS OPS per action on $uri",
+        "title": "FS OPS for $uri:$path",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -208,7 +209,7 @@
                 "type": "count"
               }
             ],
-            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/apps\"",
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/apps\" AND action:$action",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -234,7 +235,7 @@
                 "type": "count"
               }
             ],
-            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/glup\"",
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/glup\" AND action:$action",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -260,7 +261,7 @@
                 "type": "count"
               }
             ],
-            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/user\"",
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/user\" AND action:$action",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -286,7 +287,7 @@
                 "type": "count"
               }
             ],
-            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/tmp\"",
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/tmp\" AND action:$action",
             "refId": "D",
             "target": "",
             "timeField": "timestamp"
@@ -312,7 +313,7 @@
                 "type": "count"
               }
             ],
-            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/var\"",
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/var\" AND action:$action",
             "refId": "E",
             "target": "",
             "timeField": "timestamp"
@@ -320,8 +321,9 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
-        "title": "FS OPS per path on $uri",
+        "title": "FS OPS per path  on action $action for $uri",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -436,7 +438,7 @@
                 "type": "percentiles"
               }
             ],
-            "query": "event_type:FS_EVENT AND uri:$uri",
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:$path",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -444,8 +446,9 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
-        "title": "FS Latency per on $uri",
+        "title": "FS Latency for $uri:$path",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -541,13 +544,13 @@
                 "meta": {},
                 "settings": {
                   "percents": [
-                    "95"
+                    "99"
                   ]
                 },
                 "type": "percentiles"
               }
             ],
-            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/apps\"",
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/apps\" AND action:$action",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -573,13 +576,13 @@
                 "meta": {},
                 "settings": {
                   "percents": [
-                    "95"
+                    "99"
                   ]
                 },
                 "type": "percentiles"
               }
             ],
-            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/glup\"",
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/glup\" AND action:$action",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -605,13 +608,13 @@
                 "meta": {},
                 "settings": {
                   "percents": [
-                    "95"
+                    "99"
                   ]
                 },
                 "type": "percentiles"
               }
             ],
-            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/user\"",
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/user\" AND action:$action",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -637,13 +640,13 @@
                 "meta": {},
                 "settings": {
                   "percents": [
-                    "95"
+                    "99"
                   ]
                 },
                 "type": "percentiles"
               }
             ],
-            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/tmp\"",
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/tmp\" AND action:$action",
             "refId": "D",
             "target": "",
             "timeField": "timestamp"
@@ -669,13 +672,13 @@
                 "meta": {},
                 "settings": {
                   "percents": [
-                    "95"
+                    "99"
                   ]
                 },
                 "type": "percentiles"
               }
             ],
-            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/var\"",
+            "query": "event_type:FS_EVENT AND uri:$uri AND dst_path:\"/var\" AND action:$action",
             "refId": "E",
             "target": "",
             "timeField": "timestamp"
@@ -683,8 +686,9 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
-        "title": "FS Latency per path on action $action on $uri",
+        "title": "FS Latency per path on action $action for $uri",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -913,6 +917,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per user on $uri:$path (top 20)",
             "tooltip": {
@@ -964,7 +969,7 @@
               "x": 12,
               "y": 28
             },
-            "id": 125,
+            "id": 135,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -988,7 +993,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1541514691907,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 12,
             "scopedVars": {
               "action": {
@@ -1042,6 +1047,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per user on $uri:$path (top 20)",
             "tooltip": {
@@ -1093,7 +1099,7 @@
               "x": 0,
               "y": 36
             },
-            "id": 126,
+            "id": 136,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -1117,7 +1123,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1541514691907,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 12,
             "scopedVars": {
               "action": {
@@ -1171,6 +1177,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per user on $uri:$path (top 20)",
             "tooltip": {
@@ -1222,7 +1229,7 @@
               "x": 12,
               "y": 36
             },
-            "id": 127,
+            "id": 137,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -1246,7 +1253,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1541514691907,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 12,
             "scopedVars": {
               "action": {
@@ -1300,6 +1307,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per user on $uri:$path (top 20)",
             "tooltip": {
@@ -1351,7 +1359,7 @@
               "x": 0,
               "y": 44
             },
-            "id": 128,
+            "id": 138,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -1375,7 +1383,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1541514691907,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 12,
             "scopedVars": {
               "action": {
@@ -1429,6 +1437,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per user on $uri:$path (top 20)",
             "tooltip": {
@@ -1480,7 +1489,7 @@
               "x": 12,
               "y": 44
             },
-            "id": 129,
+            "id": 139,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -1504,7 +1513,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1541514691907,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 12,
             "scopedVars": {
               "action": {
@@ -1558,6 +1567,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per user on $uri:$path (top 20)",
             "tooltip": {
@@ -1706,6 +1716,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS Latency $action per user on $uri:$path (top 20)",
             "tooltip": {
@@ -1757,7 +1768,7 @@
               "x": 12,
               "y": 29
             },
-            "id": 130,
+            "id": 115,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -1781,7 +1792,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1545239418545,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 97,
             "scopedVars": {
               "action": {
@@ -1842,6 +1853,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS Latency $action per user on $uri:$path (top 20)",
             "tooltip": {
@@ -1893,7 +1905,7 @@
               "x": 0,
               "y": 37
             },
-            "id": 131,
+            "id": 116,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -1917,7 +1929,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1545239418545,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 97,
             "scopedVars": {
               "action": {
@@ -1978,6 +1990,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS Latency $action per user on $uri:$path (top 20)",
             "tooltip": {
@@ -2029,7 +2042,7 @@
               "x": 12,
               "y": 37
             },
-            "id": 132,
+            "id": 117,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -2053,7 +2066,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1545239418545,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 97,
             "scopedVars": {
               "action": {
@@ -2114,6 +2127,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS Latency $action per user on $uri:$path (top 20)",
             "tooltip": {
@@ -2165,7 +2179,7 @@
               "x": 0,
               "y": 45
             },
-            "id": 133,
+            "id": 118,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -2189,7 +2203,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1545239418545,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 97,
             "scopedVars": {
               "action": {
@@ -2250,6 +2264,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS Latency $action per user on $uri:$path (top 20)",
             "tooltip": {
@@ -2301,7 +2316,7 @@
               "x": 12,
               "y": 45
             },
-            "id": 134,
+            "id": 119,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -2325,7 +2340,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1545239418545,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 97,
             "scopedVars": {
               "action": {
@@ -2386,6 +2401,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS Latency $action per user on $uri:$path (top 20)",
             "tooltip": {
@@ -2449,7 +2465,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 29
+              "y": 30
             },
             "id": 16,
             "legend": {
@@ -2527,6 +2543,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per application on $uri:$path (top 20)",
             "tooltip": {
@@ -2576,9 +2593,9 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 29
+              "y": 30
             },
-            "id": 87,
+            "id": 120,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -2602,7 +2619,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1541514691905,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 16,
             "scopedVars": {
               "action": {
@@ -2656,6 +2673,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per application on $uri:$path (top 20)",
             "tooltip": {
@@ -2705,9 +2723,9 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 37
+              "y": 38
             },
-            "id": 88,
+            "id": 121,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -2731,7 +2749,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1541514691905,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 16,
             "scopedVars": {
               "action": {
@@ -2785,6 +2803,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per application on $uri:$path (top 20)",
             "tooltip": {
@@ -2834,9 +2853,9 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 37
+              "y": 38
             },
-            "id": 89,
+            "id": 122,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -2860,7 +2879,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1541514691905,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 16,
             "scopedVars": {
               "action": {
@@ -2914,6 +2933,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per application on $uri:$path (top 20)",
             "tooltip": {
@@ -2963,9 +2983,9 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 45
+              "y": 46
             },
-            "id": 90,
+            "id": 123,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -2989,7 +3009,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1541514691905,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 16,
             "scopedVars": {
               "action": {
@@ -3043,6 +3063,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per application on $uri:$path (top 20)",
             "tooltip": {
@@ -3092,9 +3113,9 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 45
+              "y": 46
             },
-            "id": 91,
+            "id": 124,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -3118,7 +3139,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1541514691905,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 16,
             "scopedVars": {
               "action": {
@@ -3172,6 +3193,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per application on $uri:$path (top 20)",
             "tooltip": {
@@ -3235,7 +3257,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 12
+              "y": 31
             },
             "id": 57,
             "legend": {
@@ -3264,8 +3286,8 @@
             "scopedVars": {
               "action": {
                 "selected": false,
-                "text": "APPEND",
-                "value": "APPEND"
+                "text": "ADD_BLOCK",
+                "value": "ADD_BLOCK"
               }
             },
             "seriesOverrides": [],
@@ -3318,7 +3340,7 @@
                     "type": "count"
                   }
                 ],
-                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path AND NOT framework:\"\"",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -3326,6 +3348,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per application on $uri:$path (top 20)",
             "tooltip": {
@@ -3375,9 +3398,9 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 12
+              "y": 31
             },
-            "id": 61,
+            "id": 140,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -3401,7 +3424,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1530696383355,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 57,
             "scopedVars": {
               "action": {
@@ -3460,7 +3483,7 @@
                     "type": "count"
                   }
                 ],
-                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path AND NOT framework:\"\"",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -3468,6 +3491,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per application on $uri:$path (top 20)",
             "tooltip": {
@@ -3517,9 +3541,9 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 20
+              "y": 39
             },
-            "id": 62,
+            "id": 141,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -3543,7 +3567,150 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1530696383355,
+            "repeatIteration": 1548967858778,
+            "repeatPanelId": 57,
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "LIST_STATUS",
+                "value": "LIST_STATUS"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "{{framework}}.{{component}}",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "framework",
+                    "id": "4",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "20"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "fake": true,
+                    "field": "component",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "20"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "select field",
+                    "id": "1",
+                    "type": "count"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path AND NOT framework:\"\"",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "FS OPS $action per application on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 39
+            },
+            "id": 142,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": null,
+            "repeatDirection": "h",
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 57,
             "scopedVars": {
               "action": {
@@ -3602,7 +3769,7 @@
                     "type": "count"
                   }
                 ],
-                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path AND NOT framework:\"\"",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -3610,6 +3777,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per application on $uri:$path (top 20)",
             "tooltip": {
@@ -3658,10 +3826,10 @@
             "gridPos": {
               "h": 8,
               "w": 12,
-              "x": 12,
-              "y": 20
+              "x": 0,
+              "y": 47
             },
-            "id": 63,
+            "id": 143,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -3685,7 +3853,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1530696383355,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 57,
             "scopedVars": {
               "action": {
@@ -3744,7 +3912,7 @@
                     "type": "count"
                   }
                 ],
-                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path AND NOT framework:\"\"",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -3752,6 +3920,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per application on $uri:$path (top 20)",
             "tooltip": {
@@ -3800,10 +3969,10 @@
             "gridPos": {
               "h": 8,
               "w": 12,
-              "x": 0,
-              "y": 28
+              "x": 12,
+              "y": 47
             },
-            "id": 64,
+            "id": 144,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -3827,7 +3996,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1530696383355,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 57,
             "scopedVars": {
               "action": {
@@ -3886,7 +4055,7 @@
                     "type": "count"
                   }
                 ],
-                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path",
+                "query": "event_type:FS_EVENT AND uri:$uri AND action:$action AND dst_path:$path AND NOT framework:\"\"",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -3894,6 +4063,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per application on $uri:$path (top 20)",
             "tooltip": {
@@ -3957,7 +4127,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 23
+              "y": 56
             },
             "id": 76,
             "legend": {
@@ -3983,6 +4153,161 @@
             "renderer": "flot",
             "repeat": "action",
             "repeatDirection": "h",
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "ADD_BLOCK",
+                "value": "ADD_BLOCK"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "{{hostname}}-{{username}}-{{pid}}",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "hostname",
+                    "id": "4",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "5"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "fake": true,
+                    "field": "username",
+                    "id": "5",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "5"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "select field",
+                    "id": "1",
+                    "type": "count"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND tags:STANDALONE AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "FS OPS $action per host-user-pid on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 56
+            },
+            "id": 130,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": null,
+            "repeatDirection": "h",
+            "repeatIteration": 1548967858778,
+            "repeatPanelId": 76,
             "scopedVars": {
               "action": {
                 "selected": false,
@@ -4060,6 +4385,162 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "FS OPS $action per host-user-pid on $uri:$path (top 20)",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 64
+            },
+            "id": 131,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "minSpan": 12,
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "repeat": null,
+            "repeatDirection": "h",
+            "repeatIteration": 1548967858778,
+            "repeatPanelId": 76,
+            "scopedVars": {
+              "action": {
+                "selected": false,
+                "text": "LIST_STATUS",
+                "value": "LIST_STATUS"
+              }
+            },
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "{{hostname}}-{{username}}-{{pid}}",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "hostname",
+                    "id": "4",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "5"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "fake": true,
+                    "field": "username",
+                    "id": "5",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "5"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_count",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "select field",
+                    "id": "1",
+                    "type": "count"
+                  }
+                ],
+                "query": "event_type:FS_EVENT AND tags:STANDALONE AND uri:$uri AND action:$action AND dst_path:$path",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per host-user-pid on $uri:$path (top 20)",
             "tooltip": {
@@ -4109,9 +4590,9 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 23
+              "y": 64
             },
-            "id": 77,
+            "id": 132,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -4135,7 +4616,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1537167677858,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 76,
             "scopedVars": {
               "action": {
@@ -4214,6 +4695,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per host-user-pid on $uri:$path (top 20)",
             "tooltip": {
@@ -4263,9 +4745,9 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 31
+              "y": 72
             },
-            "id": 78,
+            "id": 133,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -4289,7 +4771,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1537167677858,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 76,
             "scopedVars": {
               "action": {
@@ -4368,6 +4850,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per host-user-pid on $uri:$path (top 20)",
             "tooltip": {
@@ -4417,9 +4900,9 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 31
+              "y": 72
             },
-            "id": 79,
+            "id": 134,
             "legend": {
               "alignAsTable": true,
               "avg": false,
@@ -4443,7 +4926,7 @@
             "renderer": "flot",
             "repeat": null,
             "repeatDirection": "h",
-            "repeatIteration": 1537167677858,
+            "repeatIteration": 1548967858778,
             "repeatPanelId": 76,
             "scopedVars": {
               "action": {
@@ -4522,6 +5005,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS $action per host-user-pid on $uri:$path (top 20)",
             "tooltip": {
@@ -4585,15 +5069,18 @@
           "query": "elasticsearch",
           "refresh": 1,
           "regex": "/garmadon*/",
+          "skipUrlSync": false,
           "type": "datasource"
         },
         {
           "allValue": "*",
           "current": {
+            "tags": [],
             "text": "All",
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -4603,6 +5090,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"uri\"}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
@@ -4655,6 +5143,7 @@
             }
           ],
           "query": "/apps,/glup,/tmp,/user,/var",
+          "skipUrlSync": false,
           "type": "custom"
         },
         {
@@ -4664,6 +5153,7 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -4673,6 +5163,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"action\",\"query\":\"uri:$uri AND dst_path:$path\"}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],

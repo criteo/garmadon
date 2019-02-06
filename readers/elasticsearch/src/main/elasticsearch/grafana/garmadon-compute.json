@@ -42,143 +42,8 @@
         "fill": 1,
         "gridPos": {
           "h": 8,
-          "w": 12,
+          "w": 24,
           "x": 0,
-          "y": 1
-        },
-        "id": 4,
-        "legend": {
-          "alignAsTable": true,
-          "avg": false,
-          "current": false,
-          "max": false,
-          "min": false,
-          "rightSide": true,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "connected",
-        "percentage": false,
-        "pointradius": 5,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": false,
-        "targets": [
-          {
-            "alias": "used",
-            "bucketAggs": [
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "10s",
-                  "min_doc_count": 0,
-                  "trimEdges": 0
-                },
-                "type": "date_histogram"
-              }
-            ],
-            "metrics": [
-              {
-                "field": "value",
-                "id": "1",
-                "meta": {},
-                "settings": {},
-                "type": "sum"
-              }
-            ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND hostname:$hostname",
-            "refId": "A",
-            "target": "",
-            "timeField": "timestamp"
-          },
-          {
-            "alias": "reserved",
-            "bucketAggs": [
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "10s",
-                  "min_doc_count": 0,
-                  "trimEdges": 0
-                },
-                "type": "date_histogram"
-              }
-            ],
-            "metrics": [
-              {
-                "field": "limit",
-                "id": "1",
-                "meta": {},
-                "settings": {},
-                "type": "sum"
-              }
-            ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND hostname:$hostname",
-            "refId": "B",
-            "target": "",
-            "timeField": "timestamp"
-          }
-        ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeShift": null,
-        "title": "YARN Memory Used/Reserved",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "format": "bytes",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "datasource": "$datasource",
-        "fill": 1,
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 12,
           "y": 1
         },
         "id": 12,
@@ -270,8 +135,281 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
         "title": "Applications/Containers runnning",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 9
+        },
+        "id": 4,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "reserved",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "limit",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "YARN Memory Used/Reserved",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 9
+        },
+        "id": 33,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "reserved",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "limit",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "YARN Vcores Used/Reserved",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -320,7 +458,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 9
+          "y": 17
         },
         "id": 15,
         "legend": {
@@ -407,6 +545,7 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
         "title": "Disks bytes reads/writes",
         "tooltip": {
@@ -457,7 +596,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 9
+          "y": 17
         },
         "id": 17,
         "legend": {
@@ -544,6 +683,7 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
         "title": "Network tx/rx",
         "tooltip": {
@@ -588,7 +728,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 17
+          "y": 25
         },
         "id": 27,
         "panels": [
@@ -603,7 +743,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 18
+              "y": 26
             },
             "id": 28,
             "legend": {
@@ -679,6 +819,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "Top app running container",
             "tooltip": {
@@ -728,7 +869,7 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 18
+              "y": 26
             },
             "id": 29,
             "legend": {
@@ -799,6 +940,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "Top app reserved memory",
             "tooltip": {
@@ -836,6 +978,127 @@
               "align": false,
               "alignLevel": null
             }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 34
+            },
+            "id": 30,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 230,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "nullPointMode": "connected",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "{{application_id}}",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "application_id",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "1",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "10s",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "limit",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {},
+                    "type": "sum"
+                  }
+                ],
+                "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER",
+                "refId": "B",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "Top app reserved vcores",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
           }
         ],
         "title": "Top App Consumer",
@@ -847,7 +1110,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 18
+          "y": 26
         },
         "id": 19,
         "panels": [
@@ -938,6 +1201,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "#Applications Per User",
             "tooltip": {
@@ -1064,6 +1328,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "#Containers Per User",
             "tooltip": {
@@ -1112,7 +1377,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 19
+          "y": 27
         },
         "id": 23,
         "panels": [
@@ -1127,7 +1392,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 20
+              "y": 28
             },
             "id": 24,
             "legend": {
@@ -1138,7 +1403,7 @@
               "min": false,
               "rightSide": true,
               "show": true,
-              "sideWidth": 100,
+              "sideWidth": 120,
               "total": false,
               "values": false
             },
@@ -1195,7 +1460,7 @@
                     "type": "cardinality"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND hostname:$hostname AND framework:$framework AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND hostname:$hostname",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -1203,6 +1468,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "#Applications Per Framework",
             "tooltip": {
@@ -1253,7 +1519,7 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 20
+              "y": 28
             },
             "id": 25,
             "legend": {
@@ -1333,7 +1599,7 @@
                     "type": "cardinality"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND hostname:$hostname AND framework:$framework AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND hostname:$hostname",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1341,6 +1607,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "#Container Per Framework/Component",
             "tooltip": {
@@ -1404,15 +1671,18 @@
           "query": "elasticsearch",
           "refresh": 1,
           "regex": "/garmadon*/",
+          "skipUrlSync": false,
           "type": "datasource"
         },
         {
           "allValue": "*",
           "current": {
+            "tags": [],
             "text": "All",
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -1422,6 +1692,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\":\"tags:NODEMANAGER\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
@@ -1436,62 +1707,17 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
-          "label": null,
+          "label": "",
           "multi": false,
           "name": "username",
           "options": [],
           "query": "{\"find\": \"terms\", \"field\": \"username\", \"size\": 1000}",
           "refresh": 1,
           "regex": "",
-          "sort": 1,
-          "tagValuesQuery": "",
-          "tags": [],
-          "tagsQuery": "",
-          "type": "query",
-          "useTags": false
-        },
-        {
-          "allValue": "*",
-          "current": {
-            "text": "All",
-            "value": "$__all"
-          },
-          "datasource": "$datasource",
-          "hide": 0,
-          "includeAll": true,
-          "label": null,
-          "multi": false,
-          "name": "framework",
-          "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"framework\"}",
-          "refresh": 1,
-          "regex": "",
-          "sort": 1,
-          "tagValuesQuery": "",
-          "tags": [],
-          "tagsQuery": "",
-          "type": "query",
-          "useTags": false
-        },
-        {
-          "allValue": "*",
-          "current": {
-            "selected": true,
-            "text": "All",
-            "value": "$__all"
-          },
-          "datasource": "$datasource",
-          "hide": 0,
-          "includeAll": true,
-          "label": null,
-          "multi": false,
-          "name": "component",
-          "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"component\", \"query\":\"framework:$framework\"}",
-          "refresh": 1,
-          "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
