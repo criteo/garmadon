@@ -132,8 +132,9 @@ Here is the event repartition on ElasticSearch cluster over a 4h period
 
 #### Configure Elastic Search
 
-You can use our template [readers/elasticsearch/src/main/elasticsearch/es/template.json](readers/elasticsearch/src/main/elasticsearch/es/template.json) as the index template and configure *number_of_shards* and *number_of_replica*
-to fit your needs.
+You can update index configuration (*number_of_shards*, *number_of_replica*, *refresh_interval*, *merge.scheduler.max_thread_count*, ...) by adding a garmadon-config.yml at the beginning of the classpath. It will replace this default one [readers/elasticsearch/src/main/resources/garmadon-config.yml](readers/elasticsearch/src/main/resources/garmadon-config.yml)]
+
+Index configurations will be pushed in a garmadon template by the Elastic Search reader at startup with all fields mapping.
 
 The current code expects the use of a _hourly index_.
 
