@@ -6,7 +6,7 @@ option java_package = "com.criteo.hadoop.garmadon.event.proto";
 option java_outer_classname = "FlinkEventProtos";
 
 message JobManagerEvent {
-    repeated Property metrics = 2;
+    repeated Property metrics = 1;
 }
 
 message Property {
@@ -15,7 +15,7 @@ message Property {
 }
 
 message JobEvent {
-    string job_id = 2;
-    string job_name = 3;
-    repeated Property metrics = 4;
+    string job_id = 1;
+    string job_name = 2;
+    repeated Property metrics = 3;
 }
