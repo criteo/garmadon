@@ -5,6 +5,7 @@ import com.criteo.hadoop.garmadon.protobuf.ProtoConcatenator;
 import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
+import com.criteo.hadoop.garmadon.reader.UriHelper;
 import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -108,7 +109,7 @@ public final class ElasticSearchReader {
         String msgType = GarmadonSerialization.getTypeName(msg.getType());
         long timestampMillis = msg.getTimestamp();
         if (GarmadonSerialization.TypeMarker.JVMSTATS_EVENT == msg.getType()) {
-            Map<String, Object> jsonMap = ProtoConcatenator.concatToMap(timestampMillis, Collections.singletonList(msg.getHeader()), true);
+            Map<String, Object> jsonMap = msg.getMap(true, true);
 
             HashMap<String, Map<String, Object>> eventMaps = new HashMap<>();
             EventHelper.processJVMStatisticsData(msgType, (JVMStatisticsEventsProtos.JVMStatisticsData) msg.getBody(), eventMaps);
@@ -118,16 +119,7 @@ public final class ElasticSearchReader {
                 addEventToBulkProcessor(eventMap, timestampMillis, msg.getCommittableOffset());
             }
         } else {
-            Map<String, Object> eventMap = ProtoConcatenator.concatToMap(timestampMillis, Arrays.asList(msg.getHeader(), msg.getBody()), true);
-            eventMap.put("event_type", msgType);
-
-            // Specific normalization for FS_EVENT
-            if (GarmadonSerialization.TypeMarker.FS_EVENT == msg.getType()) {
-                String uri = (String) eventMap.get("uri");
-                eventMap.computeIfPresent("src_path", (k, v) -> ((String) v).replace(uri, ""));
-                eventMap.computeIfPresent("dst_path", (k, v) -> ((String) v).replace(uri, ""));
-                eventMap.computeIfPresent("uri", (k, v) -> UriHelper.getUniformizedUri((String) v));
-            }
+            Map<String, Object> eventMap = msg.getMap(true, true);
 
             addEventToBulkProcessor(eventMap, timestampMillis, msg.getCommittableOffset());
         }

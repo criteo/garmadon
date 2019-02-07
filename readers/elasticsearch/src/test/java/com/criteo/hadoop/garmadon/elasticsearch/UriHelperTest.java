@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.elasticsearch;
 
+import com.criteo.hadoop.garmadon.reader.UriHelper;
 import org.junit.Assert;
 import org.junit.Test;
 

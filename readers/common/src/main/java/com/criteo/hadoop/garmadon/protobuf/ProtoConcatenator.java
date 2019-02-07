@@ -1,5 +1,7 @@
 package com.criteo.hadoop.garmadon.protobuf;
 
+import com.criteo.hadoop.garmadon.reader.UriHelper;
+import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.github.os72.protobuf.dynamic.DynamicSchema;
 import com.github.os72.protobuf.dynamic.MessageDefinition;
 import com.google.protobuf.Descriptors;
@@ -30,7 +32,7 @@ public class ProtoConcatenator {
      * @return A single, one-level Protobuf objects holding fields and values from all input messages.
      * Null if an error occurred (shouldn't happen).
      */
-    public static Message concatToProtobuf(long timestampMillis, Collection<Message> messages) {
+    public static Message.Builder concatToProtobuf(long timestampMillis, Collection<Message> messages) {
         try {
             final DynamicMessage.Builder messageBuilder = concatInner(messages,
                     keys -> {
@@ -58,7 +60,7 @@ public class ProtoConcatenator {
                     });
 
             messageBuilder.setField(messageBuilder.getDescriptorForType().findFieldByName(TIMESTAMP_FIELD_NAME), timestampMillis);
-            return messageBuilder.build();
+            return messageBuilder;
         } catch (IllegalArgumentException e) {
             LOGGER.error("Could not flatten Protobuf event", e);
             return null;
