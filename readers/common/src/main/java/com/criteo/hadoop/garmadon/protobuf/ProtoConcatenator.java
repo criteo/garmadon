@@ -1,7 +1,5 @@
 package com.criteo.hadoop.garmadon.protobuf;
 
-import com.criteo.hadoop.garmadon.reader.UriHelper;
-import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.github.os72.protobuf.dynamic.DynamicSchema;
 import com.github.os72.protobuf.dynamic.MessageDefinition;
 import com.google.protobuf.Descriptors;
