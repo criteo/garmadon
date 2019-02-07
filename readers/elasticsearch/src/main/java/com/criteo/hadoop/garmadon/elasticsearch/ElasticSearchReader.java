@@ -107,7 +107,7 @@ public final class ElasticSearchReader {
         String msgType = GarmadonSerialization.getTypeName(msg.getType());
         long timestampMillis = msg.getTimestamp();
         if (GarmadonSerialization.TypeMarker.JVMSTATS_EVENT == msg.getType()) {
-            Map<String, Object> jsonMap = msg.getMap(true, true);
+            Map<String, Object> jsonMap = msg.getHeaderMap(true);
 
             HashMap<String, Map<String, Object>> eventMaps = new HashMap<>();
             EventHelper.processJVMStatisticsData(msgType, (JVMStatisticsEventsProtos.JVMStatisticsData) msg.getBody(), eventMaps);

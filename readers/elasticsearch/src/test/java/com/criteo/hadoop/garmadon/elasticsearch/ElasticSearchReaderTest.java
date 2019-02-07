@@ -83,11 +83,7 @@ public class ElasticSearchReaderTest {
     }
 
     public void writeGarmadonMessage(int type, Message message, long timestampMillis) {
-        GarmadonMessage garmadonMessage = Mockito.mock(GarmadonMessage.class);
-        when(garmadonMessage.getType()).thenReturn(type);
-        when(garmadonMessage.getHeader()).thenReturn(header);
-        when(garmadonMessage.getBody()).thenReturn(message);
-        when(garmadonMessage.getTimestamp()).thenReturn(timestampMillis);
+        GarmadonMessage garmadonMessage = new GarmadonMessage(type, timestampMillis, header, message, null);
         elasticSearchReader.writeToES(garmadonMessage);
     }
 

@@ -34,7 +34,7 @@ public class GarmadonMessage {
     private final Message body;
     private final CommittableOffset committableOffset;
 
-    GarmadonMessage(int type, long timestamp, EventHeaderProtos.Header header, Message body, CommittableOffset committableOffset) {
+    public GarmadonMessage(int type, long timestamp, EventHeaderProtos.Header header, Message body, CommittableOffset committableOffset) {
         this.type = type;
         this.timestamp = timestamp;
         this.header = header;
@@ -60,6 +60,10 @@ public class GarmadonMessage {
 
     public CommittableOffset getCommittableOffset() {
         return committableOffset;
+    }
+
+    public Map<String, Object> getHeaderMap(boolean includeDefaultValue) {
+        return ProtoConcatenator.concatToMap(timestamp, Arrays.asList(header), includeDefaultValue);
     }
 
     public Map<String, Object> getMap(boolean includeDefaultValue, boolean addTypeMarker) {
