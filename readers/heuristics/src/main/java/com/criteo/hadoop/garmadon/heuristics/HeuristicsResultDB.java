@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
+import com.criteo.hadoop.garmadon.heuristics.configurations.DbConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +44,11 @@ public class HeuristicsResultDB {
     private final PreparedStatement createYarnAppResultDetailsStat;
     private final PreparedStatement createHeuristicHelp;
 
-    public HeuristicsResultDB(String connectionString, String user, String password) {
+    public HeuristicsResultDB(DbConfiguration dbConfiguration) {
         try {
-            connection = DriverManager.getConnection(connectionString, user, password);
+            connection = DriverManager.getConnection(dbConfiguration.getConnectionString(), dbConfiguration.getUser(), dbConfiguration.getPassword());
         } catch (SQLException ex) {
-            LOGGER.error("Cannot get JDBC connection with: {}", connectionString, ex);
+            LOGGER.error("Cannot get JDBC connection with: {}", dbConfiguration.getConnectionString(), ex);
             throw new RuntimeException(ex);
         }
         createYarnAppResultStat = prepareStatements(CREATE_YARN_APP_HEURISTIC_RESULT_SQL);

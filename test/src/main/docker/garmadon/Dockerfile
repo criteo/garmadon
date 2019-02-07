@@ -52,6 +52,7 @@ ADD hadoop_conf/ ${HADOOP_CONF_DIR}
 ADD spark_conf ${SPARK_CONF_DIR}
 ADD conf-forwarder/ /opt/garmadon/conf-forwarder
 ADD conf-es-reader/ /opt/garmadon/conf-es-reader
+ADD conf-hdfs-reader/ /opt/garmadon/conf-hdfs-reader
 ADD scripts/ /usr/bin
 ADD ressources/ /tmp
 

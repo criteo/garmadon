@@ -10,8 +10,6 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Properties;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -24,11 +22,8 @@ public class FileHeuristicTest {
 
     @Before
     public void setUp() {
-        final Properties config = new Properties();
-        config.setProperty("heuristic.file.max_created_files", "1000000");
-
         this.db = mock(HeuristicsResultDB.class);
-        this.heuristic = new FileHeuristic(db, config);
+        this.heuristic = new FileHeuristic(db, 1000000);
     }
 
     @Test

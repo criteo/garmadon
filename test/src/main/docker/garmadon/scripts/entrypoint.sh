@@ -30,17 +30,13 @@ function client {
 function es-reader {
     check_es_up
     java -cp /opt/garmadon/conf-es-reader:/opt/garmadon/lib/garmadon-readers-elasticsearch.jar \
-         com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader kafka:9092 es-reader elasticsearch 9200 garmadon esuser espassword 31001
+         com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader
 }
 
 function hdfs-reader {
     check_namenode_up
-    java -cp /opt/garmadon/lib/garmadon-readers-hdfs.jar:$(/opt/hadoop/bin/hadoop classpath) \
-         -DmessagesBeforeExpiringWriters=500 \
-         -DwritersExpirationDelay=1 \
-         -DexpirerPeriod=1 \
-         -DsizeBeforeFlushingTmp=1 \
-         com.criteo.hadoop.garmadon.hdfs.HdfsExporter kafka:9092 hdfs-reader /tmp/hdfs-exporter/temp /tmp/hdfs-exporter/final/ 31001
+    java -cp /opt/garmadon/conf-hdfs-reader:/opt/garmadon/lib/garmadon-readers-hdfs.jar:$(/opt/hadoop/bin/hadoop classpath)\
+         com.criteo.hadoop.garmadon.hdfs.HdfsExporter
 }
 
 function namenode {

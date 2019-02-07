@@ -1,0 +1,13 @@
+hdfs:
+  baseTemporaryDir: /tmp/hdfs-exporter/temp
+  finalDir: /tmp/hdfs-exporter/final
+  messagesBeforeExpiringWriters: 500
+  writersExpirationDelay: 1
+  expirerPeriod: 1
+  sizeBeforeFlushingTmp: 1
+kafka:
+  settings:
+    bootstrap.servers: kafka:9092
+    group.id: hdfs-reader
+prometheus:
+  port: 31001
