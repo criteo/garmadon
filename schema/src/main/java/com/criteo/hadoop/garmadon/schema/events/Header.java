@@ -1,13 +1,15 @@
 package com.criteo.hadoop.garmadon.schema.events;
 
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 public class Header {
-
     private final String id;
     private final String applicationID;
     private final String attemptID;
@@ -176,6 +178,8 @@ public class Header {
     }
 
     public static class Builder {
+        private static final Logger LOGGER = LoggerFactory.getLogger(Header.Builder.class);
+        private static final String TAGS_REGEX = "^[a-zA-Z0-9_\\-\\.]*$";
 
         private String id;
         private String applicationID;
@@ -219,7 +223,6 @@ public class Header {
             return this;
         }
 
-
         public Builder withUser(String user) {
             this.user = user;
             return this;
@@ -232,6 +235,19 @@ public class Header {
 
         public Builder addTag(String tag) {
             this.tags.add(tag);
+            return this;
+        }
+
+        public Builder addTags(String tags) {
+            if (tags != null) {
+                Arrays.stream(tags.split(",")).forEach(tag -> {
+                    if (tag.matches(TAGS_REGEX)) {
+                        this.tags.add(tag.toUpperCase());
+                    } else {
+                        LOGGER.warn("Tag {} not added as it doesn't complies to authorized chars {}", tag, TAGS_REGEX);
+                    }
+                });
+            }
             return this;
         }
 
