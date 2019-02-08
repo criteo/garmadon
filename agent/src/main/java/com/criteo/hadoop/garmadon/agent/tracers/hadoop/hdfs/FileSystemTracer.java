@@ -63,8 +63,8 @@ public class FileSystemTracer {
         return (Method) getMethodCache().computeIfAbsent(classLoader + clazz + method,
                 k -> {
                     try {
-                        Class distributedFileSystem = classLoader.loadClass(clazz);
-                        return distributedFileSystem.getMethod(method, parameterTypes);
+                        Class classzz = classLoader.loadClass(clazz);
+                        return classzz.getMethod(method, parameterTypes);
                     } catch (NoSuchMethodException | ClassNotFoundException ignored) {
                         return null;
                     }
@@ -74,8 +74,8 @@ public class FileSystemTracer {
     public static Field getField(ClassLoader classLoader, String clazz, String field) {
         return (Field) getFieldCache().computeIfAbsent(classLoader + clazz + field, k -> {
             try {
-                Class clientNamenodeProtocolTranslatorPB = classLoader.loadClass(clazz);
-                Field fieldComputed = clientNamenodeProtocolTranslatorPB.getDeclaredField(field);
+                Class classzz = classLoader.loadClass(clazz);
+                Field fieldComputed = classzz.getDeclaredField(field);
                 fieldComputed.setAccessible(true);
                 return fieldComputed;
             } catch (ClassNotFoundException | NoSuchFieldException ignored) {
@@ -111,9 +111,7 @@ public class FileSystemTracer {
                 @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
-            ClassLoader classLoader = o.getClass().getClassLoader();
-            Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
-            return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.DELETE.name());
+            return callDistributedFileSystem(zuper, o, null, dst.toString(), FsAction.DELETE.name());
         }
     }
 
@@ -138,9 +136,7 @@ public class FileSystemTracer {
                 @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
-            ClassLoader classLoader = o.getClass().getClassLoader();
-            Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
-            return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.READ.name());
+            return callDistributedFileSystem(zuper, o, null, dst.toString(), FsAction.READ.name());
         }
     }
 
@@ -166,9 +162,7 @@ public class FileSystemTracer {
                 @This Object o,
                 @Argument(0) Object src,
                 @Argument(1) Object dst) throws Exception {
-            ClassLoader classLoader = o.getClass().getClassLoader();
-            Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
-            return executeMethod(zuper, getUri.invoke(o).toString(), src.toString(), dst.toString(), FsAction.RENAME.name());
+            return callDistributedFileSystem(zuper, o, src.toString(), dst.toString(), FsAction.RENAME.name());
         }
     }
 
@@ -193,9 +187,7 @@ public class FileSystemTracer {
                 @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
-            ClassLoader classLoader = o.getClass().getClassLoader();
-            Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
-            return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.WRITE.name());
+            return callDistributedFileSystem(zuper, o, null, dst.toString(), FsAction.WRITE.name());
         }
     }
 
@@ -220,9 +212,7 @@ public class FileSystemTracer {
                 @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
-            ClassLoader classLoader = o.getClass().getClassLoader();
-            Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
-            return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.APPEND.name());
+            return callDistributedFileSystem(zuper, o, null, dst.toString(), FsAction.APPEND.name());
         }
     }
 
@@ -249,9 +239,7 @@ public class FileSystemTracer {
                 @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
-            ClassLoader classLoader = o.getClass().getClassLoader();
-            Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
-            return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.LIST_STATUS.name());
+            return callDistributedFileSystem(zuper, o, null, dst.toString(), FsAction.LIST_STATUS.name());
         }
     }
 
@@ -276,9 +264,7 @@ public class FileSystemTracer {
                 @SuperCall Callable<?> zuper,
                 @This Object o,
                 @Argument(0) Object dst) throws Exception {
-            ClassLoader classLoader = o.getClass().getClassLoader();
-            Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
-            return executeMethod(zuper, getUri.invoke(o).toString(), null, dst.toString(), FsAction.GET_CONTENT_SUMMARY.name());
+            return callDistributedFileSystem(zuper, o, null, dst.toString(), FsAction.GET_CONTENT_SUMMARY.name());
         }
     }
 
@@ -311,11 +297,22 @@ public class FileSystemTracer {
             Method getServerAddress = getMethod(classLoader, "org.apache.hadoop.ipc.RPC", "getServerAddress", Object.class);
             InetSocketAddress inetSocketAddress = (InetSocketAddress) getServerAddress.invoke(o, rpcProxy);
             return executeMethod(zuper, "hdfs://" + inetSocketAddress.getHostString() + ":" + inetSocketAddress.getPort(),
-                    null, dst, FsAction.ADD_BLOCK.name());
+                    null, dst, FsAction.ADD_BLOCK.name(), null);
         }
     }
 
-    private static Object executeMethod(@SuperCall Callable<?> zuper, String uri, String src, String dst, String fsAction) throws Exception {
+    private static Object callDistributedFileSystem(@SuperCall Callable<?> zuper, @This Object o, String src, String dst, String fsAction) throws Exception {
+        ClassLoader classLoader = o.getClass().getClassLoader();
+        Field dfsField = getField(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "dfs");
+        Object dfs = dfsField.get(o);
+        Field ugiField = getField(classLoader, "org.apache.hadoop.hdfs.DFSClient", "ugi");
+        Object ugi = ugiField.get(dfs);
+        Method getShortUserName = getMethod(classLoader, "org.apache.hadoop.security.UserGroupInformation", "getShortUserName");
+        Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
+        return executeMethod(zuper, getUri.invoke(o).toString(), src, dst, fsAction, (String) getShortUserName.invoke(ugi));
+    }
+
+    private static Object executeMethod(@SuperCall Callable<?> zuper, String uri, String src, String dst, String fsAction, String username) throws Exception {
         long startTime = System.nanoTime();
         try {
             return zuper.call();
@@ -323,11 +320,11 @@ public class FileSystemTracer {
             throw e;
         } finally {
             long elapsedTime = (System.nanoTime() - startTime) / NANOSECONDS_PER_MILLISECOND;
-            sendFsEvent(uri, src, dst, fsAction, elapsedTime);
+            sendFsEvent(uri, src, dst, fsAction, username, elapsedTime);
         }
     }
 
-    private static void sendFsEvent(String uri, String src, String dst, String fsAction, long durationMillis) {
+    private static void sendFsEvent(String uri, String src, String dst, String fsAction, String username, long durationMillis) {
         DataAccessEventProtos.FsEvent.Builder eventBuilder = DataAccessEventProtos.FsEvent
                 .newBuilder();
 
@@ -335,6 +332,10 @@ public class FileSystemTracer {
                 .setDstPath(dst)
                 .setUri(uri)
                 .setMethodDurationMillis(durationMillis);
+
+        if (username != null) {
+            eventBuilder.setHdfsUser(username);
+        }
 
         if (src != null) {
             eventBuilder.setSrcPath(src);
