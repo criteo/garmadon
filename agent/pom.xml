@@ -77,6 +77,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- discovery dependency -->
+        <dependency>
+            <groupId>com.orbitz.consul</groupId>
+            <artifactId>consul-client</artifactId>
+            <version>1.3.0</version>
+        </dependency>
+
         <!-- Other garmadon modules -->
         <dependency>
             <groupId>com.criteo.java</groupId>

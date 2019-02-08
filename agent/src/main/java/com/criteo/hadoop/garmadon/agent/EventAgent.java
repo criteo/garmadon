@@ -53,12 +53,24 @@ public class EventAgent {
             if (System.getProperty("garmadon.disable") == null) {
                 LOGGER.info("Starting Garmadon Agent Version {}", RELEASE);
 
+                String[] options = arguments.split("-");
+                String modules = options[0];
+
+                Connection connection = null;
+
+                if (options.length >= 3 && options[1].equals("consul")) {
+                    connection = new ConsulConnection(options[2]);
+                } else {
+                    connection = new FixedConnection("127.0.0.1", DEFAULT_FORWARDER_PORT);
+                }
+                SocketAppender appender = new SocketAppender(connection);
+
+
                 // Init SocketAppender and EventProcessor
-                SocketAppender appender = new SocketAppender("127.0.0.1", DEFAULT_FORWARDER_PORT);
                 AsyncEventProcessor eventProcessor = new AsyncEventProcessor(appender);
 
                 //load user provided modules
-                loadModules(arguments, instrumentation, eventProcessor);
+                loadModules(modules, instrumentation, eventProcessor);
                 LOGGER.debug("Garmadon Agent initialized");
 
             }
