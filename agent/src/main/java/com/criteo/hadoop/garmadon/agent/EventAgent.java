@@ -53,7 +53,7 @@ public class EventAgent {
             if (System.getProperty("garmadon.disable") == null) {
                 LOGGER.info("Starting Garmadon Agent Version {}", RELEASE);
 
-                String[] options = arguments.split("-");
+                String[] options = arguments.split("\\+");
                 String modules = options[0];
 
                 Connection connection = null;
