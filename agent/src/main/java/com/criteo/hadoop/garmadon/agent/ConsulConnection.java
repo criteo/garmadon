@@ -1,15 +1,14 @@
 package com.criteo.hadoop.garmadon.agent;
 
-import com.orbitz.consul.Consul;
-import com.orbitz.consul.HealthClient;
-import com.orbitz.consul.model.health.Node;
-import com.orbitz.consul.model.health.ServiceHealth;
+import com.ecwid.consul.v1.ConsulClient;
+import com.ecwid.consul.v1.QueryParams;
+import com.ecwid.consul.v1.Response;
+import com.ecwid.consul.v1.health.HealthServicesRequest;
+import com.ecwid.consul.v1.health.model.HealthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -39,34 +38,36 @@ public class ConsulConnection implements Connection {
         return underlying.read(buf);
     }
 
-    private List<ServiceHealth> getHealthyEndPoints() {
-        Consul client = Consul.builder().build();
-        HealthClient healthClient = client.healthClient();
-        List<ServiceHealth> nodes = healthClient.getHealthyServiceInstances(serviceName).getResponse();
+    private List<HealthService> getHealthyEndPoints() {
+        ConsulClient client = new ConsulClient("localhost");
 
-        client.destroy();
+        HealthServicesRequest request = HealthServicesRequest.newBuilder()
+                .setPassing(true)
+                .setQueryParams(QueryParams.DEFAULT)
+                .build();
+        Response<List<HealthService>> healthyServices = client.getHealthServices(serviceName, request);
 
-        return nodes;
+        return healthyServices.getValue();
     }
 
     @Override
     public void establishConnection() {
-        List<ServiceHealth> nodes = getHealthyEndPoints();
-        ServiceHealth electedNode = nodes.get(ThreadLocalRandom.current().nextInt(nodes.size()));
+        List<HealthService> nodes = getHealthyEndPoints();
 
-        Node node = electedNode.getNode();
-        URI uri = null;
-        try {
-            uri = new URI(node.getAddress());
-        } catch (URISyntaxException e) {
-            LOGGER.error(e.getMessage(), e);
+        HealthService electedNode = nodes.get(ThreadLocalRandom.current().nextInt(nodes.size()));
+
+        String host = electedNode.getNode().getAddress();
+        Integer port = electedNode.getService().getPort();
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("will use forwarder at " + host + ":" + port);
         }
 
         if (underlying != null) {
             underlying.close();
         }
 
-        underlying = new FixedConnection(uri.getHost(), uri.getPort());
+        underlying = new FixedConnection(host, port);
 
         underlying.establishConnection();
     }
