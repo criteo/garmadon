@@ -16,6 +16,7 @@ message FsEvent {
     string action = 3;
     string uri = 4;
     uint64 method_duration_millis = 5;
+    string hdfs_user = 6;
 }
 
 message StateEvent {

@@ -740,6 +740,10 @@
             "value": "username"
           },
           {
+            "text": "hdfs_user",
+            "value": "hdfs_user"
+          },
+          {
             "text": "application_id",
             "value": "application_id"
           },
@@ -881,7 +885,7 @@
                 "bucketAggs": [
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "3",
                     "settings": {
                       "min_doc_count": 1,
@@ -1011,7 +1015,7 @@
                 "bucketAggs": [
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "3",
                     "settings": {
                       "min_doc_count": 1,
@@ -1141,7 +1145,7 @@
                 "bucketAggs": [
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "3",
                     "settings": {
                       "min_doc_count": 1,
@@ -1271,7 +1275,7 @@
                 "bucketAggs": [
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "3",
                     "settings": {
                       "min_doc_count": 1,
@@ -1401,7 +1405,7 @@
                 "bucketAggs": [
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "3",
                     "settings": {
                       "min_doc_count": 1,
@@ -1531,7 +1535,7 @@
                 "bucketAggs": [
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "3",
                     "settings": {
                       "min_doc_count": 1,
@@ -1670,11 +1674,11 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "{{metric}} {{username}}",
+                "alias": "{{metric}} {{hdfs_user}}",
                 "bucketAggs": [
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "3",
                     "settings": {
                       "min_doc_count": 1,
@@ -1807,11 +1811,11 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "{{metric}} {{username}}",
+                "alias": "{{metric}} {{hdfs_user}}",
                 "bucketAggs": [
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "3",
                     "settings": {
                       "min_doc_count": 1,
@@ -1944,11 +1948,11 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "{{metric}} {{username}}",
+                "alias": "{{metric}} {{hdfs_user}}",
                 "bucketAggs": [
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "3",
                     "settings": {
                       "min_doc_count": 1,
@@ -2081,11 +2085,11 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "{{metric}} {{username}}",
+                "alias": "{{metric}} {{hdfs_user}}",
                 "bucketAggs": [
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "3",
                     "settings": {
                       "min_doc_count": 1,
@@ -2218,11 +2222,11 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "{{metric}} {{username}}",
+                "alias": "{{metric}} {{hdfs_user}}",
                 "bucketAggs": [
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "3",
                     "settings": {
                       "min_doc_count": 1,
@@ -2355,11 +2359,11 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "{{metric}} {{username}}",
+                "alias": "{{metric}} {{hdfs_user}}",
                 "bucketAggs": [
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "3",
                     "settings": {
                       "min_doc_count": 1,
@@ -4166,7 +4170,7 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "{{hostname}}-{{username}}-{{pid}}",
+                "alias": "{{hostname}}-{{hdfs_user}}-{{pid}}",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -4182,7 +4186,7 @@
                   },
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "5",
                     "settings": {
                       "min_doc_count": 1,
@@ -4321,7 +4325,7 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "{{hostname}}-{{username}}-{{pid}}",
+                "alias": "{{hostname}}-{{hdfs_user}}-{{pid}}",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -4337,7 +4341,7 @@
                   },
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "5",
                     "settings": {
                       "min_doc_count": 1,
@@ -4476,7 +4480,7 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "{{hostname}}-{{username}}-{{pid}}",
+                "alias": "{{hostname}}-{{hdfs_user}}-{{pid}}",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -4492,7 +4496,7 @@
                   },
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "5",
                     "settings": {
                       "min_doc_count": 1,
@@ -4631,7 +4635,7 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "{{hostname}}-{{username}}-{{pid}}",
+                "alias": "{{hostname}}-{{hdfs_user}}-{{pid}}",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -4647,7 +4651,7 @@
                   },
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "5",
                     "settings": {
                       "min_doc_count": 1,
@@ -4786,7 +4790,7 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "{{hostname}}-{{username}}-{{pid}}",
+                "alias": "{{hostname}}-{{hdfs_user}}-{{pid}}",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -4802,7 +4806,7 @@
                   },
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "5",
                     "settings": {
                       "min_doc_count": 1,
@@ -4941,7 +4945,7 @@
             "steppedLine": false,
             "targets": [
               {
-                "alias": "{{hostname}}-{{username}}-{{pid}}",
+                "alias": "{{hostname}}-{{hdfs_user}}-{{pid}}",
                 "bucketAggs": [
                   {
                     "fake": true,
@@ -4957,7 +4961,7 @@
                   },
                   {
                     "fake": true,
-                    "field": "username",
+                    "field": "hdfs_user",
                     "id": "5",
                     "settings": {
                       "min_doc_count": 1,

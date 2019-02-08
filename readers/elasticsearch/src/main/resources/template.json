@@ -289,6 +289,12 @@
       "type": "long",
       "index": false
     },
+    "hdfs_user": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
     "heap_committed": {
       "type": "long",
       "index": false
