@@ -15,6 +15,7 @@ public final class NodemanagerHeader {
                 .withUser(Utils.getUser())
                 .withPid(Utils.getPid())
                 .addTag(Header.Tag.NODEMANAGER.name())
+                .addTags(System.getProperty("garmadon.tags"))
                 .build();
     }
 
