@@ -132,8 +132,9 @@ Here is the event repartition on ElasticSearch cluster over a 4h period
 
 #### Configure Elastic Search
 
-You can use our template [readers/elasticsearch/src/main/elasticsearch/es/template.json](readers/elasticsearch/src/main/elasticsearch/es/template.json) as the index template and configure *number_of_shards* and *number_of_replica*
-to fit your needs.
+You can update index configuration (*number_of_shards*, *number_of_replica*, *refresh_interval*, *merge.scheduler.max_thread_count*, ...) by adding a garmadon-config.yml at the beginning of the classpath. It will replace this default one [readers/elasticsearch/src/main/resources/garmadon-config.yml](readers/elasticsearch/src/main/resources/garmadon-config.yml)]
+
+Index configurations will be pushed in a garmadon template by the Elastic Search reader at startup with all fields mapping.
 
 The current code expects the use of a _hourly index_.
 
@@ -302,6 +303,13 @@ in users env.
 You can use any technique that fit your needs to load Garmadon-agent on any JVM that's performing HDFS calls with Hadoop library classes.
 
 **Just make sure to use com.criteo.hadoop.garmadon.agent.modules.StandaloneModule and to have a running forwarder beside the instrumented JVM.** 
+
+To ease the filtering of event from any standalone application we provide capabilities to set tags. For this add the garmadon.tags java properties with a list of tags
+separated by a comma. Tags naming should only contains alpha-numeris and "-|_|." chars.
+<pre>
+JAVA_TOOL_OPTIONS=-javaagent:<b><i>path-to-garmadon-agent-jar</i></b>=com.criteo.hadoop.garmadon.agent.modules.StandaloneModule <b><i>-Dgarmadon.tags=tags1,tags2</i></b>
+</pre>
+
 
 
 ### Checking your install

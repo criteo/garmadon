@@ -96,7 +96,7 @@
     "links": [],
     "panels": [
       {
-        "content": "Select executor_id for which you want to see Container/JVM detailed merics and then click here: [Yarn Application Dashboard for $application_id - $container_id](dashboard/db/garmadon-yarn-application?orgId=1&var-username=All&var-framework=All&var-application_name=All&var-application_id=$application_id&var-component=All&var-container_id=$container_id&var-hostname=All&var-uri=All)",
+        "content": "Select executor_id for which you want to see Container/JVM detailed merics and then click here: [Yarn Application Dashboard for $application_id - $container_id](dashboard/db/garmadon-yarn-application?orgId=1&var-datasource=$datasource&var-username=All&var-framework=All&var-application_name=All&var-application_id=$application_id&var-component=All&var-container_id=$container_id&var-hostname=All&var-uri=All)",
         "gridPos": {
           "h": 2,
           "w": 24,
@@ -232,6 +232,7 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
         "title": "Number of Tasks/Status/ExecutorId",
         "tooltip": {
@@ -2811,6 +2812,8 @@
       "list": [
         {
           "current": {
+            "selected": false,
+            "tags": [],
             "text": "garmadon",
             "value": "garmadon"
           },
@@ -2821,6 +2824,7 @@
           "query": "elasticsearch",
           "refresh": 1,
           "regex": "/garmadon*/",
+          "skipUrlSync": false,
           "type": "datasource"
         },
         {
@@ -2830,6 +2834,7 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2839,6 +2844,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"username\",\"query\": \"event_type:SPARK_TASK_EVENT\", \"size\": 1000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
@@ -2853,6 +2859,7 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2862,6 +2869,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"event_type:SPARK_TASK_EVENT AND username:$username\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 2,
           "tagValuesQuery": "",
           "tags": [],
@@ -2872,10 +2880,11 @@
         {
           "allValue": "*",
           "current": {
-            "text": "application_1537173778920_0007",
-            "value": "application_1537173778920_0007"
+            "text": "application_1548967731506_0007",
+            "value": "application_1548967731506_0007"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": false,
           "label": null,
@@ -2885,6 +2894,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_name.keyword:$application_name AND username:$username\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 2,
           "tagValuesQuery": "",
           "tags": [],
@@ -2899,6 +2909,7 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2908,6 +2919,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"attempt_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_id:$application_id\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
@@ -2922,6 +2934,7 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2931,6 +2944,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"executor_hostname\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 3,
           "tagValuesQuery": "",
           "tags": [],
@@ -2945,6 +2959,7 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2954,6 +2969,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"executor_id\", \"query\": \"event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 3,
           "tagValuesQuery": "",
           "tags": [],
@@ -2964,11 +2980,11 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
-            "text": "container_1537173778920_0007_01_000002",
-            "value": "container_1537173778920_0007_01_000002"
+            "text": "container_1548967731506_0007_01_000001",
+            "value": "container_1548967731506_0007_01_000001"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 2,
           "includeAll": false,
           "label": null,
@@ -2978,6 +2994,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"container_id\", \"query\": \"event_type:JVMSTATS_EVENT AND application_id:$application_id AND executor_id:$executor_id\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 3,
           "tagValuesQuery": "",
           "tags": [],

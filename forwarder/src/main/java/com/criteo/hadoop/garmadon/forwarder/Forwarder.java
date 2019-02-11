@@ -27,6 +27,7 @@ public class Forwarder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Forwarder.class);
 
+    private static final String DEFAULT_FORWARDER_HOST = "localhost";
     private static final String DEFAULT_FORWARDER_PORT = "31000";
     private static final String DEFAULT_PROMETHEUS_PORT = "31001";
 
@@ -87,13 +88,13 @@ public class Forwarder {
         HostStatistics.startReport(forwarderEventSender);
 
         //initialize netty
+        String forwarderHost = properties.getProperty("forwarder.host", DEFAULT_FORWARDER_HOST);
         int forwarderPort = Integer.parseInt(properties.getProperty("forwarder.port", DEFAULT_FORWARDER_PORT));
-        return startNetty(forwarderPort);
+        return startNetty(forwarderHost, forwarderPort);
     }
 
     /**
      * Closes netty server (in a blocking fashion)
-     *
      */
     public void close() {
         LOGGER.info("Shutdown netty server");
@@ -116,7 +117,7 @@ public class Forwarder {
         PrometheusHttpMetrics.stop();
     }
 
-    private ChannelFuture startNetty(int port) {
+    private ChannelFuture startNetty(String host, int port) {
         int workerThreads = Integer.parseInt(properties.getProperty("forwarder.worker.thread", "1"));
 
         // Setup netty listener
@@ -134,7 +135,7 @@ public class Forwarder {
 
         //start server
         LOGGER.info("Startup netty server");
-        ChannelFuture f = b.bind("localhost", port).addListener(future -> LOGGER.info("Netty server started"));
+        ChannelFuture f = b.bind(host, port).addListener(future -> LOGGER.info("Netty server started"));
         serverChannel = f.channel();
         return f;
     }
@@ -154,6 +155,8 @@ public class Forwarder {
 
         try {
             forwarder.run().channel().closeFuture().sync();
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
         } finally {
             forwarder.close();
         }

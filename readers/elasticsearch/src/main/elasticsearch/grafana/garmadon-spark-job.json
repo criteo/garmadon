@@ -96,7 +96,7 @@
     "links": [],
     "panels": [
       {
-        "content": "Container metrics/JVM detailed metrics for this app available here: [Yarn Application Dashboard for $application_id](dashboard/db/garmadon-yarn-application?orgId=1&var-username=All&var-framework=All&var-application_id=$application_id&var-component=All&var-container_id=All&var-hostname=All&var-uri=All)",
+        "content": "Container metrics/JVM detailed metrics for this app available here: [Yarn Application Dashboard for $application_id](dashboard/db/garmadon-yarn-application?orgId=1&var-datasource=$datasource&var-username=All&var-framework=All&var-application_id=$application_id&var-component=All&var-container_id=All&var-hostname=All&var-uri=All)",
         "gridPos": {
           "h": 2,
           "w": 24,
@@ -187,7 +187,7 @@
             "link": true,
             "linkTargetBlank": true,
             "linkTooltip": "Click to display Spark Stages Detailled for this stage",
-            "linkUrl": "dashboard/db/garmadon-spark-job-stages?orgId=1&var-username=All&&var-application_id=$application_id&var-attempt_id=All&var-stage_id=${__cell_2}&var-stage_attempt_id=${__cell_3}",
+            "linkUrl": "dashboard/db/garmadon-spark-job-stages?orgId=1&var-datasource=$datasource&var-username=All&&var-application_id=$application_id&var-attempt_id=All&var-stage_id=${__cell_2}&var-stage_attempt_id=${__cell_3}",
             "mappingType": 1,
             "pattern": "stage_name",
             "thresholds": [],
@@ -296,7 +296,7 @@
             "link": true,
             "linkTargetBlank": true,
             "linkTooltip": "Click to display Spark Executor Detailled for this executor",
-            "linkUrl": "dashboard/db/garmadon-spark-job-executors?orgId=1&var-username=All&var-application_id=$application_id&var-attempt_id=All&var-executor_hostname=${__cell_1}&var-executor_id=${__cell_2}",
+            "linkUrl": "dashboard/db/garmadon-spark-job-executors?orgId=1&var-datasource=$datasource&var-username=All&var-application_id=$application_id&var-attempt_id=All&var-executor_hostname=${__cell_1}&var-executor_id=${__cell_2}",
             "mappingType": 1,
             "pattern": "executor_hostname",
             "thresholds": [],
@@ -426,6 +426,7 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
         "title": "Number of Tasks",
         "tooltip": {
@@ -2443,6 +2444,7 @@
       "list": [
         {
           "current": {
+            "selected": false,
             "text": "garmadon",
             "value": "garmadon"
           },
@@ -2453,15 +2455,18 @@
           "query": "elasticsearch",
           "refresh": 1,
           "regex": "/garmadon*/",
+          "skipUrlSync": false,
           "type": "datasource"
         },
         {
           "allValue": "*",
           "current": {
+            "selected": true,
             "text": "All",
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2471,6 +2476,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"username\",\"query\": \"event_type:SPARK_STAGE_EVENT\", \"size\": 1000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
@@ -2481,10 +2487,12 @@
         {
           "allValue": "*",
           "current": {
+            "selected": true,
             "text": "All",
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2494,6 +2502,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"event_type:SPARK_STAGE_EVENT AND username:$username\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 2,
           "tagValuesQuery": "",
           "tags": [],
@@ -2504,10 +2513,12 @@
         {
           "allValue": "*",
           "current": {
-            "text": "application_1541514518755_0004",
-            "value": "application_1541514518755_0004"
+            "selected": false,
+            "text": "application_1548967731506_0005",
+            "value": "application_1548967731506_0005"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": false,
           "label": null,
@@ -2517,6 +2528,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_STAGE_EVENT AND application_name.keyword:$application_name AND username:$username\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 2,
           "tagValuesQuery": "",
           "tags": [],
@@ -2527,10 +2539,12 @@
         {
           "allValue": "*",
           "current": {
+            "selected": true,
             "text": "All",
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -2540,6 +2554,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"attempt_id\", \"query\": \"event_type:SPARK_STAGE_EVENT AND application_id:$application_id\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
@@ -2550,10 +2565,12 @@
         {
           "allValue": "*",
           "current": {
+            "selected": true,
             "text": "All",
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 2,
           "includeAll": true,
           "label": null,
@@ -2563,6 +2580,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"application_id:$application_id AND attempt_id:$attempt_id\"}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
