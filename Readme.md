@@ -128,6 +128,14 @@ Here is the event repartition on ElasticSearch cluster over a 4h period
 
 ![](doc/images/es/event_type_repartition.png)
 
+### Common reader configuration
+
+You can add nameservice mapping to normalize path URI of FSEvent. File should be located in */hdfs-mapping.properties* in the classpath. Source and destination path will contain only path information without schema and host.
+Format is:
+<pre>
+source_nameservice=normalized_nameservice
+</pre>
+
 ### Install Garmadon Reader for Elastic Search
 
 #### Configure Elastic Search
