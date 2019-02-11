@@ -32,7 +32,7 @@ public class GarmadonMessageTest {
         expected.put("src_path", "/src_file");
         expected.put("dst_path", "/dst_file");
         // normalized uri
-        expected.put("uri", "hdfs://prod-par");
+        expected.put("uri", "hdfs://preprod-pa4");
 
         expected.put("hdfs_user", "mathieu");
         expected.put("action", "FS_RENAME");
@@ -62,7 +62,7 @@ public class GarmadonMessageTest {
         expected.put("src_path", "/src_file");
         expected.put("dst_path", "/dst_file");
         // normalized uri
-        expected.put("uri", "hdfs://prod-par");
+        expected.put("uri", "hdfs://preprod-pa4");
 
         expected.put("hdfs_user", "mathieu");
         expected.put("action", "FS_RENAME");
