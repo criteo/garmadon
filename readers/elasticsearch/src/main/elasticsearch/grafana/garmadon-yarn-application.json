@@ -62,7 +62,7 @@
             "value": "state"
           }
         ],
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "fontSize": "100%",
         "gridPos": {
           "h": 3,
