@@ -304,6 +304,13 @@ You can use any technique that fit your needs to load Garmadon-agent on any JVM 
 
 **Just make sure to use com.criteo.hadoop.garmadon.agent.modules.StandaloneModule and to have a running forwarder beside the instrumented JVM.** 
 
+To ease the filtering of event from any standalone application we provide capabilities to set tags. For this add the garmadon.tags java properties with a list of tags
+separated by a comma. Tags naming should only contains alpha-numeris and "-|_|." chars.
+<pre>
+JAVA_TOOL_OPTIONS=-javaagent:<b><i>path-to-garmadon-agent-jar</i></b>=com.criteo.hadoop.garmadon.agent.modules.StandaloneModule <b><i>-Dgarmadon.tags=tags1,tags2</i></b>
+</pre>
+
+
 
 ### Checking your install
 
