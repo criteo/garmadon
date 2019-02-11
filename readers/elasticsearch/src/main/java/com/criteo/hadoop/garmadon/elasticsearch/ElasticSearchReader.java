@@ -117,7 +117,7 @@ public final class ElasticSearchReader {
                 addEventToBulkProcessor(eventMap, timestampMillis, msg.getCommittableOffset());
             }
         } else {
-            Map<String, Object> eventMap = msg.getMap(true, true);
+            Map<String, Object> eventMap = msg.toMap(true, true);
 
             addEventToBulkProcessor(eventMap, timestampMillis, msg.getCommittableOffset());
         }

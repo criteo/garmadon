@@ -66,7 +66,7 @@ public class GarmadonMessage {
         return ProtoConcatenator.concatToMap(timestamp, Arrays.asList(header), includeDefaultValue);
     }
 
-    public Map<String, Object> getMap(boolean includeDefaultValue, boolean addTypeMarker) {
+    public Map<String, Object> toMap(boolean includeDefaultValue, boolean addTypeMarker) {
         Map<String, Object> eventMap = ProtoConcatenator.concatToMap(timestamp, Arrays.asList(header, body), includeDefaultValue);
 
         if (addTypeMarker) {
@@ -84,7 +84,7 @@ public class GarmadonMessage {
         return eventMap;
     }
 
-    public Message getProto() {
+    public Message toProto() {
         Message.Builder messageBuilder = ProtoConcatenator.concatToProtobuf(timestamp, Arrays.asList(header, body));
 
         // Specific normalization for FS_EVENT

@@ -321,7 +321,7 @@ public class HdfsExporter {
             gauge.set(offset.getOffset());
 
             try {
-                writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset, msg.getProto());
+                writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset, msg.toProto());
 
                 messagesWritten.inc();
             } catch (IOException e) {
