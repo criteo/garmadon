@@ -53,24 +53,27 @@ public class EventAgent {
             if (System.getProperty("garmadon.disable") == null) {
                 LOGGER.info("Starting Garmadon Agent Version {}", RELEASE);
 
-                String[] options = arguments.split("\\+");
-                String modules = options[0];
-
+                String discovery = System.getProperty("garmadon.discovery", "local");
                 Connection connection = null;
-
-                if (options.length >= 3 && options[1].equals("consul")) {
-                    connection = new ConsulConnection(options[2]);
-                } else {
-                    connection = new FixedConnection("127.0.0.1", DEFAULT_FORWARDER_PORT);
+                switch (discovery) {
+                    case "local":
+                        connection = new FixedConnection("127.0.0.1", DEFAULT_FORWARDER_PORT);
+                        break;
+                    case "consul":
+                        String consulServiceName = System.getProperty("garmadon.consul.service");
+                        connection = new ConsulConnection(consulServiceName);
+                        break;
+                    default:
+                        throw new UnsupportedOperationException("discovery " + discovery + " is not supported yet");
                 }
-                SocketAppender appender = new SocketAppender(connection);
 
+                SocketAppender appender = new SocketAppender(connection);
 
                 // Init SocketAppender and EventProcessor
                 AsyncEventProcessor eventProcessor = new AsyncEventProcessor(appender);
 
                 //load user provided modules
-                loadModules(modules, instrumentation, eventProcessor);
+                loadModules(arguments, instrumentation, eventProcessor);
                 LOGGER.debug("Garmadon Agent initialized");
 
             }
