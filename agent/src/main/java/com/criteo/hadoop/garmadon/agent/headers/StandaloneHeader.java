@@ -14,6 +14,7 @@ public final class StandaloneHeader {
         return Header.newBuilder()
                 .withId(Utils.getStandaloneId())
                 .addTag(Header.Tag.STANDALONE.name())
+                .addTags(System.getProperty("garmadon.tags"))
                 .withHostname(Utils.getHostname())
                 .withUser(Utils.getUser())
                 .withPid(Utils.getPid())

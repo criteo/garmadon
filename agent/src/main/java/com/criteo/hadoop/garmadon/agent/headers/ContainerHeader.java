@@ -105,6 +105,7 @@ public final class ContainerHeader {
         return Header.newBuilder()
                 .withId(appId.toString())
                 .addTag(Header.Tag.YARN_APPLICATION.name())
+                .addTags(System.getProperty("garmadon.tags"))
                 .withHostname(host)
                 .withApplicationID(appId.toString())
                 .withAttemptID(appAttemptID.toString())

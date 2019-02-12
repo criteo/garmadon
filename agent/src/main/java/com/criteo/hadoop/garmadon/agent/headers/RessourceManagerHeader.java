@@ -15,6 +15,7 @@ public final class RessourceManagerHeader {
                 .withUser(Utils.getUser())
                 .withPid(Utils.getPid())
                 .addTag(Header.Tag.RESOURCEMANAGER.name())
+                .addTags(System.getProperty("garmadon.tags"))
                 .build();
     }
 

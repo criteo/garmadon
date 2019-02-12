@@ -56,7 +56,7 @@ pushd ${DOCKER_COMPOSE_FOLDER}
 
 # Ensure that garmadon agent doesn't failed with StandaloneModule
 # We had issues due to NoClassDefFoundError
-docker-compose exec client java -version
+docker-compose exec client java -Dgarmadon.tags=version,presto-server -version
 
 # MapRed Teragen
 docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce2/hadoop-mapreduce-examples-${HADOOP_VERSION}.jar \

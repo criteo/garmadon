@@ -83,11 +83,7 @@ public class ElasticSearchReaderTest {
     }
 
     public void writeGarmadonMessage(int type, Message message, long timestampMillis) {
-        GarmadonMessage garmadonMessage = Mockito.mock(GarmadonMessage.class);
-        when(garmadonMessage.getType()).thenReturn(type);
-        when(garmadonMessage.getHeader()).thenReturn(header);
-        when(garmadonMessage.getBody()).thenReturn(message);
-        when(garmadonMessage.getTimestamp()).thenReturn(timestampMillis);
+        GarmadonMessage garmadonMessage = new GarmadonMessage(type, timestampMillis, header, message, null);
         elasticSearchReader.writeToES(garmadonMessage);
     }
 
@@ -206,6 +202,7 @@ public class ElasticSearchReaderTest {
                 .setAction(FsAction.WRITE.name())
                 .setDstPath("hdfs://data:8020/var/test/val.lz4")
                 .setUri("hdfs://data:8020")
+                .setHdfsUser("lakeprobes")
                 .setMethodDurationMillis(100L)
                 .build();
 
@@ -217,6 +214,7 @@ public class ElasticSearchReaderTest {
         eventMap.put("src_path", "");
         eventMap.put("uri", "hdfs://data-preprod-pa4");
         eventMap.put("method_duration_millis", 100);
+        eventMap.put("hdfs_user", "lakeprobes");
 
         writeGarmadonMessage(type, event, 0L);
         verify(bulkProcessor, times(1)).add(argument.capture(), any(CommittableOffset.class));

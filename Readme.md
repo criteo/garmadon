@@ -304,6 +304,13 @@ You can use any technique that fit your needs to load Garmadon-agent on any JVM 
 
 **Just make sure to use com.criteo.hadoop.garmadon.agent.modules.StandaloneModule and to have a running forwarder beside the instrumented JVM.** 
 
+To ease the filtering of event from any standalone application we provide capabilities to set tags. For this add the garmadon.tags java properties with a list of tags
+separated by a comma. Tags naming should only contains alpha-numeris and "-|_|." chars.
+<pre>
+JAVA_TOOL_OPTIONS=-javaagent:<b><i>path-to-garmadon-agent-jar</i></b>=com.criteo.hadoop.garmadon.agent.modules.StandaloneModule <b><i>-Dgarmadon.tags=tags1,tags2</i></b>
+</pre>
+
+
 
 ### Checking your install
 
@@ -466,7 +473,7 @@ If you declare multiple HDFS clusters in the same hadoop configuration (and poss
 
 That helps standardize HDFS metrics between preprod and prod environments.
 
-This configuration needs to be inserted in a _hdfs-mapping.properties_ file in a directory of your choice.
+This configuration needs to be inserted in a _hdfs-mapping.properties_ file in a directory of your choice and put in the classpath.
 
 For instance, this an example with two environments and HDFS federation with 2 nameservices.
 
@@ -483,6 +490,8 @@ In the hdfs-mapping.properties file of the prod instance:
 root=prod
 logs=logs-prod
 ```
+
+This is part of reader common, so for each garmadon reader, you may add this configuration.
 
 ## Release management
 
