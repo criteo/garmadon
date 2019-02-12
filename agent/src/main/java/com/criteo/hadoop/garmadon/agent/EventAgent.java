@@ -15,7 +15,7 @@ import java.util.Optional;
  * Garmadon is based on ByteBuddy to instrument classes and intercept interesting part of the code
  * where we want to trace information.
  * <p>
- * The agent can be disabled if need by setting the -Dgarmadon.disable on the command line
+ * The agent can be disabled if need by setting the {@code -Dgarmadon.disable} on the command line
  * <p>
  * We also define the notion of module which basically allows to setup specific context information
  * and instrumentation methods
@@ -23,6 +23,15 @@ import java.util.Optional;
  * (it only relies on the fact that it uses a daemon thread).
  * This means that we can loose some trailing events when the
  * container is killed
+ * <p>
+ * By default it uses a local garmadon forwarder.
+ * It's possible to configure the agent to use consul discovery with 2 system properties:
+ *
+ * <ul>
+ *     <li>{@code -Dgarmadon.discovery=consul}</li>
+ *     <li>{@code -Dgarmadon.consul.service=SERVICE_NAME}</li>
+ * </ul>
+ *
  */
 public class EventAgent {
 
@@ -44,9 +53,10 @@ public class EventAgent {
      * (which is the thread serializing and pushing events to the appender),
      * the ContainerHeader gathering information about the running container,
      * attaches the instrumentation code and starts the thread reading JVM JMX events.
+     * </p>
      *
-     * @param arguments
-     * @param instrumentation
+     * @param arguments agent option
+     * @param instrumentation agent instrumentation
      */
     public static void premain(String arguments, Instrumentation instrumentation) {
         try {
