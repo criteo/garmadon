@@ -183,7 +183,7 @@ public class ProtoConcatenatorTest {
      * @param expectedValues Strictly-expected values (must be equal in size and values to the output)
      */
     private void testAllOutTypesWith(long timestampMillis, Collection<Message> inputMessages, Map<String, Object> expectedValues) {
-        Message outProtoMessage = ProtoConcatenator.concatToProtobuf(timestampMillis, inputMessages);
+        Message outProtoMessage = ProtoConcatenator.concatToProtobuf(timestampMillis, inputMessages).build();
 
         Assert.assertNotNull(outProtoMessage);
         Assert.assertEquals(expectedValues.size(), outProtoMessage.getAllFields().size());
