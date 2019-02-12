@@ -40,26 +40,31 @@ public class FixedConnection implements Connection {
 
     public void establishConnection() {
         for (; ; ) {
-            try {
-                LOGGER.debug("try connecting to {}:{}", host, port);
-
-                socket = new Socket();
-                socket.connect(new InetSocketAddress(host, port), CONNECTION_TIMEOUT);
-                socket.setSoTimeout(READ_TIMEOUT);
-
-                out = socket.getOutputStream();
-                in = socket.getInputStream();
-
-                makeHandshake();
-
-                LOGGER.debug("connection established");
-                connectionEstablished = true;
-                return;
-            } catch (IOException | ProtocolVersion.InvalidFrameException | ProtocolVersion.InvalidProtocolVersionException exception) {
-                close();
-                waitBeforeRetry();
-            }
+            if (establishConnectionOnce()) return;
         }
+    }
+
+    boolean establishConnectionOnce() {
+        try {
+            LOGGER.debug("try connecting to {}:{}", host, port);
+
+            socket = new Socket();
+            socket.connect(new InetSocketAddress(host, port), CONNECTION_TIMEOUT);
+            socket.setSoTimeout(READ_TIMEOUT);
+
+            out = socket.getOutputStream();
+            in = socket.getInputStream();
+
+            makeHandshake();
+
+            LOGGER.debug("connection established");
+            connectionEstablished = true;
+            return true;
+        } catch (IOException | ProtocolVersion.InvalidFrameException | ProtocolVersion.InvalidProtocolVersionException exception) {
+            close();
+            waitBeforeRetry();
+        }
+        return false;
     }
 
     public boolean isConnected() {
