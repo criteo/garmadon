@@ -62,7 +62,7 @@ public class ConsulConnection implements Connection {
      */
     @Override
     public void establishConnection() {
-        for (;;) {
+        for (; ; ) {
             List<HealthService> nodes = getHealthyEndPoints();
 
             HealthService electedNode = nodes.get(ThreadLocalRandom.current().nextInt(nodes.size()));
