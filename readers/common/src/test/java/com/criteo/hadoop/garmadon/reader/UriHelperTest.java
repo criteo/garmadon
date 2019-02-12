@@ -1,4 +1,4 @@
-package com.criteo.hadoop.garmadon.elasticsearch;
+package com.criteo.hadoop.garmadon.reader;
 
 import org.junit.Assert;
 import org.junit.Test;

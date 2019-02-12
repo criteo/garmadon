@@ -8,7 +8,6 @@ import com.criteo.hadoop.garmadon.hdfs.writer.ExpiringConsumer;
 import com.criteo.hadoop.garmadon.hdfs.writer.FileSystemUtils;
 import com.criteo.hadoop.garmadon.hdfs.writer.ProtoParquetWriterWithOffset;
 import com.criteo.hadoop.garmadon.hdfs.writer.PartitionedWriter;
-import com.criteo.hadoop.garmadon.protobuf.ProtoConcatenator;
 import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
@@ -322,8 +321,7 @@ public class HdfsExporter {
             gauge.set(offset.getOffset());
 
             try {
-                writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset,
-                        ProtoConcatenator.concatToProtobuf(msg.getTimestamp(), Arrays.asList(msg.getHeader(), msg.getBody())));
+                writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset, msg.toProto());
 
                 messagesWritten.inc();
             } catch (IOException e) {
