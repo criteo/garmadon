@@ -12,6 +12,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Create a connection based on a Consul service name.
+ * In case of connection drop, it will fetch again healthy instances of garmadon agent.
+ */
 public class ConsulConnection implements Connection {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsulConnection.class);
 
@@ -38,6 +42,9 @@ public class ConsulConnection implements Connection {
         return underlying.read(buf);
     }
 
+    /**
+     * Fetches healthy garmadon forwarder end points from consul.
+     */
     private List<HealthService> getHealthyEndPoints() {
         ConsulClient client = new ConsulClient("localhost");
 
@@ -50,6 +57,9 @@ public class ConsulConnection implements Connection {
         return healthyServices.getValue();
     }
 
+    /**
+     * Choose randomly a healthy garmadon forwarder and connect to it via a FixedConnection.
+     */
     @Override
     public void establishConnection() {
         List<HealthService> nodes = getHealthyEndPoints();
@@ -72,6 +82,9 @@ public class ConsulConnection implements Connection {
         underlying.establishConnection();
     }
 
+    /**
+     * @return true if underlying is not null and underlying is connected.
+     */
     @Override
     public boolean isConnected() {
         return underlying != null && underlying.isConnected();
