@@ -310,7 +310,13 @@ separated by a comma. Tags naming should only contains alpha-numeris and "-|_|."
 JAVA_TOOL_OPTIONS=-javaagent:<b><i>path-to-garmadon-agent-jar</i></b>=com.criteo.hadoop.garmadon.agent.modules.StandaloneModule <b><i>-Dgarmadon.tags=tags1,tags2</i></b>
 </pre>
 
+#### Activate consul discovery
 
+In order to activate consul discovery for garmadon forwarder instead of local garmandon forwarder, you need to add those parameters to your JVM.
+
+<pre>
+<b><i>-Dgarmadon.discovery=consul -Dgarmadon.consul.service=FORWARDER_CONSUL_SERVICE_NAME</i></b>
+</pre>
 
 ### Checking your install
 
