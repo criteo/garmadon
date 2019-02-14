@@ -11,11 +11,12 @@ ENV EPEL_VERSION latest-7
 
 # Java
 ENV JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
-ENV PATH=${JAVA_HOME}/bin:/opt/hadoop/bin:/opt/spark/bin:$PATH
+ENV PATH=${JAVA_HOME}/bin:/opt/hadoop/bin:/opt/spark/bin:/opt/flink/bin:$PATH
 
 # Environment Version
 ENV HADOOP_VERSION=2.6.0-cdh5.15.0
 ENV SPARK_VERSION=2.3.2
+ENV FLINK_VERSION=1.6.3
 
 # Environment Config
 ENV HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
@@ -40,6 +41,12 @@ RUN wget https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SP
     tar xvfz spark-${SPARK_VERSION}-bin-hadoop2.6.tgz -C /opt && \
     ln -s /opt/spark-${SPARK_VERSION}-bin-hadoop2.6 /opt/spark && \
     rm -f spark-${SPARK_VERSION}-bin-hadoop2.6.tgz
+
+# Download and unzip flink
+RUN wget http://apache.mediamirrors.org/flink/flink-${FLINK_VERSION}/flink-${FLINK_VERSION}-bin-hadoop26-scala_2.11.tgz && \
+    tar xvfz flink-${FLINK_VERSION}-bin-hadoop26-scala_2.11.tgz -C /opt && \
+    ln -s /opt/flink-${FLINK_VERSION} /opt/flink && \
+    rm -f flink-${FLINK_VERSION}-bin-hadoop26-scala_2.11.tgz
 
 # Create all needed folders
 RUN mkdir -p /opt/garmadon/conf-forwarder \

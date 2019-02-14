@@ -165,8 +165,8 @@ public class FileHeuristicTest {
     private void testFileHeuresticSeverity(String appId, int severity, int nbWrite, int nbDelete) {
         Mockito.doAnswer(invocationOnMock -> {
             HeuristicResult result = invocationOnMock.getArgumentAt(0, HeuristicResult.class);
-            Assert.assertEquals(severity, result.severity);
-            Assert.assertEquals(severity, result.score);
+            Assert.assertEquals(severity, result.getSeverity());
+            Assert.assertEquals(severity, result.getScore());
             return null;
         }).when(db).createHeuristicResult(Matchers.any());
         HashMap<FsAction, Integer> actions = new HashMap<>();

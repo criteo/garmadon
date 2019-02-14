@@ -151,6 +151,8 @@ services:
     image: wurstmeister/kafka:${KAFKA_RELEASE}
     hostname: kafka
     restart: always
+    ports:
+      - "9092:9092"
     env_file: .env
     depends_on:
       - zookeeper
@@ -249,6 +251,24 @@ services:
      nwk:
        aliases:
          - grafana
+
+  mariadb:
+   container_name: mariadb
+   image: mariadb
+   environment:
+    MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    MYSQL_DATABASE: drelephant_db
+    MYSQL_USER: user
+    MYSQL_PASSWORD: pass
+   ports:
+    - "3306:3306"
+   restart: always
+   depends_on:
+     - kafka
+   networks:
+    nwk:
+      aliases:
+        - mariadb
 
 networks:
   nwk:

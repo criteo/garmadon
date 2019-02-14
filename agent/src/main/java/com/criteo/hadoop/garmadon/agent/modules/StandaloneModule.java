@@ -2,6 +2,7 @@ package com.criteo.hadoop.garmadon.agent.modules;
 
 import com.criteo.hadoop.garmadon.agent.AsyncEventProcessor;
 import com.criteo.hadoop.garmadon.agent.headers.StandaloneHeader;
+import com.criteo.hadoop.garmadon.agent.tracers.flink.FlinkReporterTracer;
 import com.criteo.hadoop.garmadon.agent.tracers.hadoop.hdfs.FileSystemTracer;
 import com.criteo.hadoop.garmadon.agent.tracers.jvm.JVMStatisticsTracer;
 import com.criteo.hadoop.garmadon.agent.tracers.spark.SparkListenerTracer;
@@ -27,6 +28,12 @@ public class StandaloneModule implements GarmadonAgentModule {
         // Set SPARK Listener
         executorService.submit(() -> {
             SparkListenerTracer.setup(StandaloneHeader.getInstance().getHeader(),
+                    (timestamp, header, event) -> eventProcessor.offer(timestamp, header, event));
+        });
+
+        // Set FLINK Listener
+        executorService.submit(() -> {
+            FlinkReporterTracer.setup(StandaloneHeader.getInstance().getHeader(),
                     (timestamp, header, event) -> eventProcessor.offer(timestamp, header, event));
         });
 

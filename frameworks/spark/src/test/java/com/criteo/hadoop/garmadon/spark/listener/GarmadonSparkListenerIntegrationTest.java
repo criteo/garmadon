@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
-import java.util.function.BiConsumer;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;

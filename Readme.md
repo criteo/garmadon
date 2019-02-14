@@ -379,7 +379,13 @@ separated by a comma. Tags naming should only contains alpha-numeris and "-|_|."
 JAVA_TOOL_OPTIONS=-javaagent:<b><i>path-to-garmadon-agent-jar</i></b>=com.criteo.hadoop.garmadon.agent.modules.StandaloneModule <b><i>-Dgarmadon.tags=tags1,tags2</i></b>
 </pre>
 
+#### Activate consul discovery
 
+In order to activate consul discovery for garmadon forwarder instead of local garmandon forwarder, you need to add those parameters to your JVM.
+
+<pre>
+<b><i>-Dgarmadon.discovery=consul -Dgarmadon.consul.service=FORWARDER_CONSUL_SERVICE_NAME</i></b>
+</pre>
 
 ### Checking your install
 
@@ -615,7 +621,7 @@ If you declare multiple HDFS clusters in the same hadoop configuration (and poss
 
 That helps standardize HDFS metrics between preprod and prod environments.
 
-This configuration needs to be inserted in a _hdfs-mapping.properties_ file in a directory of your choice.
+This configuration needs to be inserted in a _hdfs-mapping.properties_ file in a directory of your choice and put in the classpath.
 
 For instance, this an example with two environments and HDFS federation with 2 nameservices.
 
@@ -632,6 +638,8 @@ In the hdfs-mapping.properties file of the prod instance:
 root=prod
 logs=logs-prod
 ```
+
+This is part of reader common, so for each garmadon reader, you may add this configuration.
 
 ## Release management
 

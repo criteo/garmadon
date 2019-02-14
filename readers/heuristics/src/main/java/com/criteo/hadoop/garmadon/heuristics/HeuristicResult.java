@@ -33,11 +33,11 @@ public class HeuristicResult {
         }
     }
 
-    protected final String appId;
-    protected final String attemptId;
-    protected final Class<?> heuristicClass;
-    protected final int severity;
-    protected final int score;
+    private final String appId;
+    private final String attemptId;
+    private final Class<?> heuristicClass;
+    private final int severity;
+    private final int score;
     private final List<HeuristicResultDetail> details = new ArrayList<>();
 
     public HeuristicResult(String appId, String attemptId, Class<?> heuristicClass, int severity, int score) {
@@ -68,6 +68,26 @@ public class HeuristicResult {
         return details.get(index);
     }
 
+    public String getAppId() {
+        return appId;
+    }
+
+    public String getAttemptId() {
+        return attemptId;
+    }
+
+    public Class<?> getHeuristicClass() {
+        return heuristicClass;
+    }
+
+    public int getSeverity() {
+        return severity;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
     public static String formatTimestamp(long timestamp) {
         return DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneId.of("UTC")).format(Instant.ofEpochMilli(timestamp));
     }
@@ -87,7 +107,6 @@ public class HeuristicResult {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(appId, attemptId, heuristicClass, severity, score, details);
     }
 }

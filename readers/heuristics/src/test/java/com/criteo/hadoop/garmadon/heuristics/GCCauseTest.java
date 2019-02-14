@@ -68,10 +68,10 @@ public class GCCauseTest {
         long timestamp = System.currentTimeMillis();
         Mockito.doAnswer(invocationOnMock -> {
             HeuristicResult result = invocationOnMock.getArgumentAt(0, HeuristicResult.class);
-            Assert.assertEquals(APPLICATION_ID, result.appId);
-            Assert.assertEquals(HeuristicsResultDB.Severity.MODERATE, result.severity);
-            Assert.assertEquals(HeuristicsResultDB.Severity.MODERATE, result.score);
-            Assert.assertEquals(GCCause.class, result.heuristicClass);
+            Assert.assertEquals(APPLICATION_ID, result.getAppId());
+            Assert.assertEquals(HeuristicsResultDB.Severity.MODERATE, result.getSeverity());
+            Assert.assertEquals(HeuristicsResultDB.Severity.MODERATE, result.getScore());
+            Assert.assertEquals(GCCause.class, result.getHeuristicClass());
             assertDetails.accept(result);
             return null;
         }).when(mockDB).createHeuristicResult(Matchers.any());

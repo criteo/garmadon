@@ -35,7 +35,7 @@ public class SocketAppenderTest {
 
     @Test
     public void SocketAppender_should_establish_greetings_with_server() throws IOException {
-        SocketAppender appender = new SocketAppender("localhost", 8080);
+        SocketAppender appender = new SocketAppender(new FixedConnection("localhost", 8080));
         appender.append("test".getBytes());
 
         assertThat(appender.isConnected(), is(true));
@@ -48,7 +48,7 @@ public class SocketAppenderTest {
         //We must restart server asynchronously because main thread will be stuck in reconnection
         Executors.newScheduledThreadPool(1).schedule(() -> server.start(), 1000, TimeUnit.MILLISECONDS);
 
-        SocketAppender appender = new SocketAppender("localhost", 8080);
+        SocketAppender appender = new SocketAppender(new FixedConnection("localhost", 8080));
         appender.append("test".getBytes());
 
         assertThat(appender.isConnected(), is(true));
@@ -72,7 +72,7 @@ public class SocketAppenderTest {
             server.start();
         } , 1000, TimeUnit.MILLISECONDS);
 
-        SocketAppender appender = new SocketAppender("localhost", 8080);
+        SocketAppender appender = new SocketAppender(new FixedConnection("localhost", 8080));
         appender.append("test".getBytes());
 
         assertThat(appender.isConnected(), is(true));
@@ -90,7 +90,7 @@ public class SocketAppenderTest {
         //We must restart server asynchronously because main thread will be stuck in reconnection
         Executors.newScheduledThreadPool(1).schedule(() -> server.start(), 1000, TimeUnit.MILLISECONDS);
 
-        SocketAppender appender = new SocketAppender("localhost", 8080);
+        SocketAppender appender = new SocketAppender(new FixedConnection("localhost", 8080));
         appender.append(randomByteArray(200));
 
         AsyncTestHelper.tryDuring(2000, () -> server.verifyReceiveMsg());

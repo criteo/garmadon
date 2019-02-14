@@ -79,10 +79,10 @@ public class LocksTest {
         long timestamp = System.currentTimeMillis();
         Mockito.doAnswer(invocationOnMock -> {
             HeuristicResult result = invocationOnMock.getArgumentAt(0, HeuristicResult.class);
-            Assert.assertEquals(APPLICATION_ID, result.appId);
-            Assert.assertEquals(severity, result.severity);
-            Assert.assertEquals(severity, result.score);
-            Assert.assertEquals(Locks.class, result.heuristicClass);
+            Assert.assertEquals(APPLICATION_ID, result.getAppId());
+            Assert.assertEquals(severity, result.getSeverity());
+            Assert.assertEquals(severity, result.getScore());
+            Assert.assertEquals(Locks.class, result.getHeuristicClass());
             assertDetails.accept(result);
             return null;
         }).when(mockDB).createHeuristicResult(Matchers.any());
