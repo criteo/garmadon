@@ -563,13 +563,13 @@ Garmadon-readers-hdfs's jar can be fetch from maven central:
  hdfs:
    finalDir: /tmp/hdfs-exporter/final           # Hdfs folder where final parquet files are moved
    baseTemporaryDir: /tmp/hdfs-exporter/temp    # Temporary hdfs folder where parquet file are created and append
-   messagesBeforeExpiringWriters: 500           # OPTIONAL: Soft limit (see 'expirerPeriod') for number of messages before writing final files (DEFAULT: 3 000 000)
-   writersExpirationDelay: 1                    # OPTIONAL: Soft limit (see 'expirerPeriod') for time since opening before writing final files (in minutes) (DEFAULT: 30)
-   expirerPeriod: 1                             # OPTIONAL: How often the exporter should try to commit files to their final destination, based on messagesBeforeExpiringWriters' and 'writersExpirationDelay' (in seconds) (DEFAULT: 30)
-   heartbeatPeriod: 1                           # OPTIONAL: How often a placeholder file should be committed to keep track of maximum offset  with no message for a given event type (in seconds) (DEFAULT: 320)
-   maxTmpFileOpenRetries: 1                     # OPTIONAL: Maximum number of times failing to open a temporary file (in a row) before aborting the program (DEFAULT: 10)
-   tmpFileOpenRetryPeriod: 1                     # OPTIONAL: How long to wait between failures to open a temporary file for writing (in seconds) (DEFAULT: 30)
-   sizeBeforeFlushingTmp: 1                     # OPTIONAL: How big the temporary files buffer should be before flushing (in MB) (DEFAULT: 16)
+   messagesBeforeExpiringWriters: 3000000       # OPTIONAL: Soft limit (see 'expirerPeriod') for number of messages before writing final files (DEFAULT: 3 000 000)
+   writersExpirationDelay: 30                   # OPTIONAL: Soft limit (see 'expirerPeriod') for time since opening before writing final files (in minutes) (DEFAULT: 30)
+   expirerPeriod: 30                            # OPTIONAL: How often the exporter should try to commit files to their final destination, based on messagesBeforeExpiringWriters' and 'writersExpirationDelay' (in seconds) (DEFAULT: 30)
+   heartbeatPeriod: 320                         # OPTIONAL: How often a placeholder file should be committed to keep track of maximum offset  with no message for a given event type (in seconds) (DEFAULT: 320)
+   maxTmpFileOpenRetries: 10                    # OPTIONAL: Maximum number of times failing to open a temporary file (in a row) before aborting the program (DEFAULT: 10)
+   tmpFileOpenRetryPeriod: 30                   # OPTIONAL: How long to wait between failures to open a temporary file for writing (in seconds) (DEFAULT: 30)
+   sizeBeforeFlushingTmp: 16                    # OPTIONAL: How big the temporary files buffer should be before flushing (in MB) (DEFAULT: 16)
  kafka:
    settings:                                    # Any consumer kafka settings
      bootstrap.servers: kafka:9092
