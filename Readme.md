@@ -48,6 +48,7 @@ See [Contributing](#Contributing).
       - [Garmadon-compute](#garmadon-compute)
       - [Garmadon-hdfs](#garmadon-hdfs)
       - [Garmadon-server-overview](#garmadon-server-overview)
+  * [Frameworks metrics](#frameworks-metrics)
   * [Heuristics for DrElephant integration](#heuristics-for-drelephant-integration)
   * [HDFS dump for batch processing](#hdfs-dump-for-batch-processing)
   * [Other features](#other-features)
@@ -462,6 +463,24 @@ This dashboard helped us many time in finding the application causing slowness o
 A dashboard specific to yarn nodes resources.
 
 ![](doc/images/dashboards/Garmadon_server_overview/all.png)
+
+### Frameworks Metrics
+
+Currently only spark is supported
+
+#### Spark
+
+It is based on Spark Listener mechanism.
+
+The garmadon agent will automatically attached the garmadon spark listener on the driver if StandaloneModule 
+*(-javaagent:path-to-garmadon-agent-jar=com.criteo.hadoop.garmadon.agent.modules.StandaloneModule)* 
+or ContainerModule *(-javaagent:path-to-garmadon-agent-jar=com.criteo.hadoop.garmadon.agent.modules.ContainerModule) are used.
+
+
+Here is the set of dashboards based on metrics from garmadon spark listener:
+  - [Garmadon-spark-job](#garmadon-spark-job)
+  - [Garmadon-spark-job-executors](#garmadon-spark-job-executors)
+  - [Garmadon-spark-job-stages](#garmadon-spark-job-stages)
 
 ### Heuristics for DrElephant integration
 
