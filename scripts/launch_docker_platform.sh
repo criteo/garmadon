@@ -93,6 +93,9 @@ docker-compose exec client /opt/spark/bin/spark-submit \
     --conf spark.dynamicAllocation.maxExecutors=4 --conf spark.dynamicAllocation.executorIdleTimeout=1s \
     --class org.apache.spark.examples.sql.SparkSQLExample /opt/spark/examples/jars/spark-examples_2.11-${SPARK_VERSION}.jar
 
+# Flink wordcount job
+docker-compose exec client flink run -m yarn-cluster -yn 1  /opt/flink/examples/batch/WordCount.jar
+
 # Exemple to select data from hdfs reader parquet table
 # docker-compose exec -ti client /opt/spark/bin/spark-shell \
 #    --deploy-mode client

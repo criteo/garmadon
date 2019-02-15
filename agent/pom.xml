@@ -77,6 +77,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- discovery dependency -->
+        <dependency>
+            <groupId>com.ecwid.consul</groupId>
+            <artifactId>consul-api</artifactId>
+            <version>${consul.version}</version>
+        </dependency>
+
         <!-- Other garmadon modules -->
         <dependency>
             <groupId>com.criteo.java</groupId>
@@ -86,6 +93,11 @@
         <dependency>
             <groupId>com.criteo.java</groupId>
             <artifactId>garmadon-frameworks-spark</artifactId>
+            <version>${garmadon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.criteo.java</groupId>
+            <artifactId>garmadon-frameworks-flink</artifactId>
             <version>${garmadon.version}</version>
         </dependency>
         <dependency>
@@ -189,6 +201,16 @@
                                 <relocation>
                                     <pattern>org.slf4j</pattern>
                                     <shadedPattern>garmadon.org.slf4j</shadedPattern>
+                                </relocation>
+                                <!-- Relocating org.apache.httpcomponents -->
+                                <relocation>
+                                    <pattern>org.apache.http</pattern>
+                                    <shadedPattern>garmadon.org.apache.http</shadedPattern>
+                                </relocation>
+                                <!-- Relocating com.google.gson -->
+                                <relocation>
+                                    <pattern>com.google.gson</pattern>
+                                    <shadedPattern>garmadon.com.google.gson</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
