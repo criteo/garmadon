@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.Properties;
 
 public class FileHeuristic implements Heuristic {
 
@@ -19,13 +18,11 @@ public class FileHeuristic implements Heuristic {
     protected final Counters append = new Counters("Files appended");
 
     private final HeuristicsResultDB db;
-    private final Properties config;
     private final int maxCreatedFiles;
 
-    public FileHeuristic(HeuristicsResultDB db, Properties config) {
+    public FileHeuristic(HeuristicsResultDB db, int maxCreatedFiles) {
         this.db = db;
-        this.config = config;
-        this.maxCreatedFiles = Integer.parseInt(config.getProperty("heuristic.file.max_created_files"));
+        this.maxCreatedFiles = maxCreatedFiles;
     }
 
     public void compute(String applicationId, String attemptId, String containerId, DataAccessEventProtos.FsEvent fsEvent) {
