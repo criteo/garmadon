@@ -2,11 +2,14 @@ package com.criteo.hadoop.garmadon.heuristics;
 
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
+import com.criteo.hadoop.garmadon.heuristics.configurations.HeuristicsConfiguration;
+import com.criteo.hadoop.garmadon.heuristics.configurations.HeuristicsReaderConfiguration;
 import com.criteo.hadoop.garmadon.heuristics.flink.FlinkCheckpointDuration;
 import com.criteo.hadoop.garmadon.heuristics.flink.FlinkHeuristic;
 import com.criteo.hadoop.garmadon.heuristics.flink.FlinkHeuristicsManager;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
+import com.criteo.hadoop.garmadon.reader.configurations.ReaderConfiguration;
 import com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics;
 import com.criteo.hadoop.garmadon.schema.enums.Framework;
 import com.criteo.hadoop.garmadon.schema.enums.State;
@@ -18,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -35,19 +37,17 @@ public class Heuristics {
 
     private final FileHeuristic fileHeuristic;
     private PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics;
-
     private final FlinkHeuristicsManager flinkHeuristicsManager;
 
-    public Heuristics(String kafkaConnectString, String kafkaGroupId, int prometheusPort, HeuristicsResultDB db, Properties properties) {
-        this.fileHeuristic = new FileHeuristic(db, properties);
+    public Heuristics(Properties kafkaSettings, int prometheusPort, HeuristicsResultDB db, HeuristicsConfiguration heuristicsConfiguration) {
+        this.fileHeuristic = new FileHeuristic(db, heuristicsConfiguration.getFileMaxCreatedFiles());
 
         //setup Prometheus client
         prometheusHttpConsumerMetrics = new PrometheusHttpConsumerMetrics(prometheusPort);
         Properties props = new Properties();
         props.putAll(GarmadonReader.Builder.DEFAULT_KAFKA_PROPS);
 
-        props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConnectString);
-        props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, kafkaGroupId);
+        props.putAll(kafkaSettings);
         props.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
         props.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
 
@@ -159,31 +159,12 @@ public class Heuristics {
     }
 
     public static void main(String[] args) throws IOException {
-        if (args.length < 6) {
-            printHelp();
-            return;
-        }
-        // Get properties
-        Properties properties = new Properties();
-        try (InputStream streamPropFilePath = Heuristics.class.getResourceAsStream("/server.properties")) {
-            properties.load(streamPropFilePath);
-        }
-        String kafkaConnectString = args[0];
-        String kafkaGroupId = args[1];
-        int prometheusPort = Integer.parseInt(args[2]);
-        String dbConnectionString = args[3];
-        String dbUser = args[4];
-        String dbPassword = args[5];
-        HeuristicsResultDB db = new HeuristicsResultDB(dbConnectionString, dbUser, dbPassword);
-        Heuristics heuristics = new Heuristics(kafkaConnectString, kafkaGroupId, prometheusPort, db, properties);
+        HeuristicsReaderConfiguration config = ReaderConfiguration.loadConfig(HeuristicsReaderConfiguration.class);
+
+        HeuristicsResultDB db = new HeuristicsResultDB(config.getDb());
+        Heuristics heuristics = new Heuristics(config.getKafka().getSettings(), config.getPrometheus().getPort(), db, config.getHeuristicsConfiguration());
         heuristics.start();
         Runtime.getRuntime().addShutdownHook(new Thread(heuristics::stop));
-    }
-
-    private static void printHelp() {
-        System.out.println("Usage:");
-        System.out.println("\tjava com.criteo.hadoop.garmadon.heuristics.Heuristics <kafkaConnectionString> <kafkaGroupId> " +
-                "<prometheusPort> <DrElephantDBConnectionString> <DrElephantDBUser> <DrElephantDBPassword>");
     }
 
 }

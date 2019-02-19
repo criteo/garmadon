@@ -1,0 +1,14 @@
+elasticsearch:
+  host: elasticsearch                     # ES host
+  port: 9200                              # ES port
+  user: esuser                            # ES username
+  password: espassword                    # ES password
+  bulkSizeMB: 10
+kafka:
+  settings:                               # Any consumer kafka settings
+    bootstrap.servers: kafka:9092
+    group.id: es-reader
+prometheus:
+  port: 31001
+unknownfield:
+  toto: toto
