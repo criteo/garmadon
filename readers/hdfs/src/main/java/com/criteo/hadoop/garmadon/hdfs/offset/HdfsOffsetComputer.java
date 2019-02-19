@@ -27,6 +27,7 @@ public class HdfsOffsetComputer implements OffsetComputer {
     private final FileSystem fs;
     private final Path basePath;
     private final String kafkaCluster;
+    private final String fileRenamePattern;
 
     public HdfsOffsetComputer(FileSystem fs, Path basePath) {
         this(fs, basePath, null);
@@ -43,8 +44,10 @@ public class HdfsOffsetComputer implements OffsetComputer {
         this.kafkaCluster = kafkaCluster;
         if (kafkaCluster == null) {
             this.offsetFilePatternGenerator = Pattern.compile("^(\\d+)\\.(\\d+)$");
+            this.fileRenamePattern = "%s/%d.%d";
         } else {
             this.offsetFilePatternGenerator = Pattern.compile(String.format("^(\\d+)\\.cluster=%s\\.(\\d+)$", kafkaCluster));
+            this.fileRenamePattern = String.format("%%s/%%d.cluster=%s.%%d", kafkaCluster);
         }
     }
 
@@ -74,12 +77,6 @@ public class HdfsOffsetComputer implements OffsetComputer {
 
     @Override
     public String computePath(LocalDateTime time, Offset offset) {
-        if (kafkaCluster == null) {
-            return String.format("%s/%d.%d", time.format(DateTimeFormatter.ISO_DATE), offset.getPartition(),
-                    offset.getOffset());
-        } else {
-            return String.format("%s/%d.cluster=%s.%d", time.format(DateTimeFormatter.ISO_DATE), offset.getPartition(),
-                    kafkaCluster, offset.getOffset());
-        }
+        return String.format(fileRenamePattern, time.format(DateTimeFormatter.ISO_DATE), offset.getPartition(), offset.getOffset());
     }
 }
