@@ -133,7 +133,7 @@ public class HdfsExporter {
             final Class<? extends Message> clazz = out.getValue().getValue();
             final Function<LocalDateTime, ExpiringConsumer<Message>> consumerBuilder;
             final Path finalEventDir = new Path(finalHdfsDir, eventName);
-            final OffsetComputer offsetComputer = new HdfsOffsetComputer(fs, finalEventDir, config.getKafka().getCluster());
+            final OffsetComputer offsetComputer = new HdfsOffsetComputer(fs, finalEventDir, config.getKafka().getCluster(), 2);
 
             consumerBuilder = buildMessageConsumerBuilder(fs, new Path(temporaryHdfsDir, eventName),
                     finalEventDir, clazz, offsetComputer, pauser, eventName);
