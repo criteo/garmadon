@@ -16,6 +16,8 @@ public class FileHeuristic implements Heuristic {
     protected final Counters written = new Counters("Files written");
     protected final Counters renamed = new Counters("Files renamed");
     protected final Counters append = new Counters("Files appended");
+    protected final Counters listStatus = new Counters("List status performed");
+    protected final Counters addBlock = new Counters("Blocks added");
 
     private final HeuristicsResultDB db;
     private final int maxCreatedFiles;
@@ -26,29 +28,33 @@ public class FileHeuristic implements Heuristic {
     }
 
     public void compute(String applicationId, String attemptId, String containerId, DataAccessEventProtos.FsEvent fsEvent) {
-        try {
-            FsAction action = FsAction.valueOf(fsEvent.getAction());
-            switch (action) {
-                case DELETE:
-                    deleted.forApp(applicationId, attemptId).increment();
-                    break;
-                case READ:
-                    read.forApp(applicationId, attemptId).increment();
-                    break;
-                case WRITE:
-                    written.forApp(applicationId, attemptId).increment();
-                    break;
-                case RENAME:
-                    renamed.forApp(applicationId, attemptId).increment();
-                    break;
-                case APPEND:
-                    append.forApp(applicationId, attemptId).increment();
-                    break;
-                default:
-                    throw new IllegalArgumentException("Received a non managed FsEvent.Action " + action.name());
-            }
-        } catch (IllegalArgumentException ex) {
-            LOGGER.warn("received an unexpected FsEvent.Action {}", ex.getMessage());
+        FsAction action = FsAction.valueOf(fsEvent.getAction());
+        switch (action) {
+            case DELETE:
+                deleted.forApp(applicationId, attemptId).increment();
+                break;
+            case READ:
+                read.forApp(applicationId, attemptId).increment();
+                break;
+            case WRITE:
+                written.forApp(applicationId, attemptId).increment();
+                break;
+            case RENAME:
+                renamed.forApp(applicationId, attemptId).increment();
+                break;
+            case APPEND:
+                append.forApp(applicationId, attemptId).increment();
+                break;
+            case LIST_STATUS:
+                listStatus.forApp(applicationId, attemptId).increment();
+                break;
+            case ADD_BLOCK:
+                addBlock.forApp(applicationId, attemptId).increment();
+                break;
+            default:
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("received an unexpected FsEvent.Action {}", action);
+                }
         }
     }
 
@@ -76,6 +82,8 @@ public class FileHeuristic implements Heuristic {
         addDetail(result, written, applicationId, attemptId);
         addDetail(result, renamed, applicationId, attemptId);
         addDetail(result, append, applicationId, attemptId);
+        addDetail(result, listStatus, applicationId, attemptId);
+        addDetail(result, addBlock, applicationId, attemptId);
         db.createHeuristicResult(result);
     }
 

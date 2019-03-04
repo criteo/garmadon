@@ -22,7 +22,7 @@ public class FlinkHeuristicsManager {
     heuristics.addAll(flinkHeuristics);
 
     // Schedule an export every hour
-    scheduler.scheduleWithFixedDelay(() -> exportHeuristicsResults(), 1, 1, TimeUnit.HOURS);
+    scheduler.scheduleWithFixedDelay(this::exportHeuristicsResults, 1, 1, TimeUnit.HOURS);
   }
 
   private void exportHeuristicsResults() {
