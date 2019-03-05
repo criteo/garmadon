@@ -36,7 +36,7 @@ public class HdfsOffsetComputer implements OffsetComputer {
      * @param basePath      Root directory to look in for offsets filenames
      * @param kafkaCluster  Name of corresponding kafka cluster
      * @param backlogDays   How many days to look for offsets for in the past (earlier directories will be ignored),
-     *                      eg. 2 => today and tomorrow
+     *                      eg. 2 =&lt; today and tomorrow
      */
     public HdfsOffsetComputer(FileSystem fs, Path basePath, @Nullable String kafkaCluster, int backlogDays) {
         this.fs = fs;
