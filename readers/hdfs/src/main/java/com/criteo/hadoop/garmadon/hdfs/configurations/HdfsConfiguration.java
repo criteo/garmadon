@@ -10,6 +10,7 @@ public class HdfsConfiguration {
     private int maxTmpFileOpenRetries = 10;
     private int tmpFileOpenRetryPeriod = 30;
     private int sizeBeforeFlushingTmp = 16;
+    private int backlogDays = 2;
 
     public String getBaseTemporaryDir() {
         return baseTemporaryDir;
@@ -81,5 +82,13 @@ public class HdfsConfiguration {
 
     public void setSizeBeforeFlushingTmp(int sizeBeforeFlushingTmp) {
         this.sizeBeforeFlushingTmp = sizeBeforeFlushingTmp;
+    }
+
+    public int getBacklogDays() {
+        return backlogDays;
+    }
+
+    public void setBacklogDays(int backlogDays) {
+        this.backlogDays = backlogDays;
     }
 }

@@ -570,6 +570,7 @@ Garmadon-readers-hdfs's jar can be fetch from maven central:
    maxTmpFileOpenRetries: 10                    # OPTIONAL: Maximum number of times failing to open a temporary file (in a row) before aborting the program (DEFAULT: 10)
    tmpFileOpenRetryPeriod: 30                   # OPTIONAL: How long to wait between failures to open a temporary file for writing (in seconds) (DEFAULT: 30)
    sizeBeforeFlushingTmp: 16                    # OPTIONAL: How big the temporary files buffer should be before flushing (in MB) (DEFAULT: 16)
+   backlogDays: 2	  			# OPTIONAL: How many days to search for the latest HDFS offset in, thereby avoiding to scan all directories (DEFAULT: 2)
  kafka:
    settings:                                    # Any consumer kafka settings
      bootstrap.servers: kafka:9092
