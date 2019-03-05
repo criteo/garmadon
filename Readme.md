@@ -83,7 +83,7 @@ Garmadon integrates with any JVM based Yarn framework (mapreduce v1, v2, spark, 
 
 For non JVM applications, you will still get information from NodeManager and ResourceManger.
 
-Beside being set up on the Hadoop Cluster, Garmadon relies on other services to work properly, at least **Kafka 0.10.2**, **Elastic Search 6.3.2** and **Grafana 5**.
+Beside being set up on the Hadoop Cluster, Garmadon relies on other services to work properly, at least **Kafka 2.0.1**, **Elastic Search 6.3.2** and **Grafana 5**.
 
 This quick install guide won't cover the setup of those components and supposes they are already available in your infrastructure.
 
@@ -145,12 +145,81 @@ Your Elastic Search cluster has to be configured as a datasource for Grafana. Th
 
 Then you can import JSON from [readers/elasticsearch/src/main/elasticsearch/grafana](readers/elasticsearch/src/main/elasticsearch/grafana) in your Grafana and use the Elastic Search datasource.
 
-#### Run reader instances
+### Install Garmadon Elasticsearch reader
 
-start as many instances as you want:
+Garmadon-readers-elasticsearch's jar can be fetch from maven central:
+```
+<dependency>
+  <groupId>com.criteo.java</groupId>
+  <artifactId>garmadon-readers-elasticsearch</artifactId>
+  <version>0.0.1</version>
+</dependency>
+```
+
+#### Configure Garmadon Elasticsearch reader
+
+1. Create a configuration directory of your choice
+2. Create a __garmadon-config.yml__ file in this directory
+ 
+ Below is a recommended example:
+ ```
+ elasticsearch:
+   host: elasticsearch                     # ES host
+   port: 9200                              # ES port
+   user: esuser                            # OPTIONAL: ES username (DEFAULT: null)
+   password: espassword                    # OPTIONAL: ES password (DEFAULT: null)
+   indexPrefix: garmadon                   # OPTIONAL: ES index prefix (DEFAULT: garmadon)
+   bulkConcurrent: 10                      # OPTIONAL: Number of thread pushing events to ES asynchronously (DEFAULT: 10)
+   bulkActions: 500                        # OPTIONAL: Flush bulk every bulkActions event (DEFAULT: 500)
+   bulkSizeMB: 5                           # OPTIONAL: Flush bulk ever bulkSizeMB mb (DEFAULT: 5)
+   bulkFlushIntervalSec: 10                # OPTIONAL: Flush bulk ever bulkFlushIntervalSec s (DEFAULT: 10)
+   settings:                               # Any index settings to put on the garmadon template
+     index.number_of_shards: 10
+     index.number_of_replicas: 2
+     merge.scheduler.max_thread_count: 1
+     translog.flush_threshold_size: 1gb
+     refresh_interval: 30s
+     unassigned.node_left.delayed_timeout: 15m
+ kafka:
+   settings:                               # Any consumer kafka settings
+     bootstrap.servers: kafka:9092
+     group.id: es-reader
+ prometheus:
+   port: 31001
+ ```
+3. [Optional] You can add a standard logback.xml file in this directory:
+ ```$xslt
+<configuration  scan="true" scanPeriod="60 seconds">
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>/var/log/garmadon/garmadon.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!-- daily rollover -->
+      <fileNamePattern>garmadon.%d.gz</fileNamePattern>
+
+      <!-- Adapt to your needs -->
+      <maxHistory>7</maxHistory>
+      <totalSizeCap>3GB</totalSizeCap>
+
+    </rollingPolicy>
+
+    <encoder>
+      <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="INFO">
+    <appender-ref ref="FILE" />
+  </root>
+</configuration>
+   ```
+
+
+#### Run Garmadon Elasticsearch reader instances
+
+Start as many instances as you want (with same kafka -> settings -> group.id):
 
 <pre>
-java -XX:+UseG1GC -Xms1g -Xmx1g -Dgarmadon.esReader.bulkConcurrent=5 -Dgarmadon.esReader.bulkActions=5000 -Dgarmadon.esReader.bulkSizeMB=5 -Dgarmadon.esReader.bulkFlushIntervalSec=10 -cp <b><i>path-to-garmadon-elasticsearch-reader-jar</i></b> com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader <b><i>kafka-discovery-stream</i></b> <b><i>kafka-group-id</i></b> <b><i>elasticsearch-host</i></b> <b><i>elasticsearch-port</i></b> <b><i>elasticsearch-user</i></b> <b><i>elasticsearch-passsword</i></b> <b><i>promteheus-port</i></b>
+java -XX:+UseG1GC -Xms1g -Xmx1g -cp <b><i>path-to-garmadon-readers-elasticsearch-conf-folder</i></b>:<b><i>path-to-garmadon-readers-elasticsearch-jar</i></b> com.criteo.hadoop.garmadon.elasticsearch.ElasticSearchReader
 </pre>
 
 ### Install Garmadon forwarder
@@ -488,7 +557,80 @@ Not documented yet
 
 ### HDFS dump for batch processing
 
-To come in a next release
+Used to flush metrics per events and days on hdfs parquet table.
+
+It is usefull for long term retention like capacity planning requests.
+
+#### Install Garmadon HDFS reader for batch processing
+
+Garmadon-readers-hdfs's jar can be fetch from maven central:
+```
+<dependency>
+  <groupId>com.criteo.java</groupId>
+  <artifactId>garmadon-readers-hdfs</artifactId>
+  <version>0.0.1</version>
+</dependency>
+```
+
+#### Configure Garmadon HDFS reader
+
+1. Create a configuration directory of your choice
+2. Create a __garmadon-config.yml__ file in this directory
+ 
+ Below is a recommended example:
+ ```
+ hdfs:
+   finalDir: /tmp/hdfs-exporter/final           # Hdfs folder where final parquet files are moved
+   baseTemporaryDir: /tmp/hdfs-exporter/temp    # Temporary hdfs folder where parquet file are created and append
+   messagesBeforeExpiringWriters: 3000000       # OPTIONAL: Soft limit (see 'expirerPeriod') for number of messages before writing final files (DEFAULT: 3 000 000)
+   writersExpirationDelay: 30                   # OPTIONAL: Soft limit (see 'expirerPeriod') for time since opening before writing final files (in minutes) (DEFAULT: 30)
+   expirerPeriod: 30                            # OPTIONAL: How often the exporter should try to commit files to their final destination, based on messagesBeforeExpiringWriters' and 'writersExpirationDelay' (in seconds) (DEFAULT: 30)
+   heartbeatPeriod: 320                         # OPTIONAL: How often a placeholder file should be committed to keep track of maximum offset  with no message for a given event type (in seconds) (DEFAULT: 320)
+   maxTmpFileOpenRetries: 10                    # OPTIONAL: Maximum number of times failing to open a temporary file (in a row) before aborting the program (DEFAULT: 10)
+   tmpFileOpenRetryPeriod: 30                   # OPTIONAL: How long to wait between failures to open a temporary file for writing (in seconds) (DEFAULT: 30)
+   sizeBeforeFlushingTmp: 16                    # OPTIONAL: How big the temporary files buffer should be before flushing (in MB) (DEFAULT: 16)
+ kafka:
+   settings:                                    # Any consumer kafka settings
+     bootstrap.servers: kafka:9092
+     group.id: hdfs-reader
+ prometheus:
+   port: 31001
+ ```
+3. [Optional] You can add a standard logback.xml file in this directory:
+ ```$xslt
+<configuration  scan="true" scanPeriod="60 seconds">
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>/var/log/garmadon/garmadon.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!-- daily rollover -->
+      <fileNamePattern>garmadon.%d.gz</fileNamePattern>
+
+      <!-- Adapt to your needs -->
+      <maxHistory>7</maxHistory>
+      <totalSizeCap>3GB</totalSizeCap>
+
+    </rollingPolicy>
+
+    <encoder>
+      <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="INFO">
+    <appender-ref ref="FILE" />
+  </root>
+</configuration>
+   ```
+
+
+#### Run Garmadon HDFS reader instances
+
+Start as many instances as you want (with same kafka -> settings -> group.id):
+
+<pre>
+java -XX:+UseG1GC -Xms1g -Xmx1g -cp <b><i>path-to-garmadon-readers-hdfs-conf-folder</i></b>:<b><i>path-to-garmadon-readers-hdfs-jar</i></b>:$(hadoop classpath) com.criteo.hadoop.garmadon.hdfs.HdfsExporter
+</pre>
+
 
 ### Other features
 

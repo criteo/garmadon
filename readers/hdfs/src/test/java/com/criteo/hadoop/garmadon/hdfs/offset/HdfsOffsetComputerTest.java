@@ -59,6 +59,15 @@ public class HdfsOffsetComputerTest {
     }
 
     @Test
+    public void migrationToClusterInfo() throws IOException {
+        performSinglePartitionTest(Arrays.asList("123.12", "123.cluster=pa4.13"), 123, 13, "pa4");
+        performSinglePartitionTest(Arrays.asList("123.12", "123.cluster=pa4.13"), 123, 12);
+
+        performSinglePartitionTest(Arrays.asList("42.23", "42.cluster=pa4.22"), 42, 22, "pa4");
+        performSinglePartitionTest(Arrays.asList("42.23", "42.cluster=pa4.22"), 42, 23);
+    }
+
+    @Test
     public void matchingPatternAmongMultiplePartitions() throws IOException {
         final HdfsOffsetComputer offsetComputer = new HdfsOffsetComputer(buildFileSystem(
                 Arrays.asList("456.12", "123.12", "456.24")),
@@ -119,10 +128,14 @@ public class HdfsOffsetComputerTest {
         }
     }
 
-    private void performSinglePartitionTest(List<String> fileNames, int partitionId, long expectedOffset)
+    private void performSinglePartitionTest(List<String> fileNames, int partitionId, long expectedOffset) throws IOException {
+        performSinglePartitionTest(fileNames, partitionId, expectedOffset, null);
+    }
+
+    private void performSinglePartitionTest(List<String> fileNames, int partitionId, long expectedOffset, String kafkaCluster)
             throws IOException {
         final HdfsOffsetComputer offsetComputer = new HdfsOffsetComputer(buildFileSystem(fileNames),
-                new Path("Fake path"));
+                new Path("Fake path"), kafkaCluster);
 
         Assert.assertEquals(expectedOffset,
                 offsetComputer.computeOffsets(Collections.singleton(partitionId)).get(partitionId).longValue());

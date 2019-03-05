@@ -122,7 +122,7 @@ public class GarmadonReaderTest {
         kafkaConsumer.addRecord(new ConsumerRecord<>(TOPIC,
                 0, 0L, KEY, "bad msg".getBytes()));
         kafkaConsumer.addRecord(new ConsumerRecord<>(TOPIC,
-                0, 0L, KEY, ProtocolMessage.create(System.currentTimeMillis(), header.toByteArray(), statEvent)));
+                0, 1L, KEY, ProtocolMessage.create(System.currentTimeMillis(), header.toByteArray(), statEvent)));
 
         reader.readConsumerRecords();
         verify(garmadonMessageHandler, times(1)).handle(any(GarmadonMessage.class));
