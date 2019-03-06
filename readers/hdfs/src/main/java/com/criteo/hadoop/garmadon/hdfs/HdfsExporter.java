@@ -78,6 +78,7 @@ public class HdfsExporter {
      * args[2]: Temporary HDFS directory
      * args[3]: Final HDFS directory
      * args[4]: Prometheus port
+     * @throws IOException in case of error during config loading
      */
     public static void main(String[] args) throws IOException {
         HdfsReaderConfiguration config = ReaderConfiguration.loadConfig(HdfsReaderConfiguration.class);
@@ -133,7 +134,8 @@ public class HdfsExporter {
             final Class<? extends Message> clazz = out.getValue().getValue();
             final Function<LocalDateTime, ExpiringConsumer<Message>> consumerBuilder;
             final Path finalEventDir = new Path(finalHdfsDir, eventName);
-            final OffsetComputer offsetComputer = new HdfsOffsetComputer(fs, finalEventDir, config.getKafka().getCluster());
+            final OffsetComputer offsetComputer = new HdfsOffsetComputer(fs, finalEventDir,
+                    config.getKafka().getCluster(), config.getHdfs().getBacklogDays());
 
             consumerBuilder = buildMessageConsumerBuilder(fs, new Path(temporaryHdfsDir, eventName),
                     finalEventDir, clazz, offsetComputer, pauser, eventName);

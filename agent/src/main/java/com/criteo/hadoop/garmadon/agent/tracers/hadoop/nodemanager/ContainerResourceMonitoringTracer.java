@@ -83,9 +83,11 @@ public class ContainerResourceMonitoringTracer {
                         .withContainerID(containerID)
                         .build();
 
+                long memUsage = (currentMemUsage > 0) ? currentMemUsage : 0;
+
                 ContainerEventProtos.ContainerResourceEvent event = ContainerEventProtos.ContainerResourceEvent.newBuilder()
                         .setType(ContainerType.MEMORY.name())
-                        .setValue(currentMemUsage)
+                        .setValue(memUsage)
                         .setLimit(limit)
                         .build();
                 eventHandler.accept(System.currentTimeMillis(), header, event);
@@ -143,7 +145,7 @@ public class ContainerResourceMonitoringTracer {
                     String applicationId = applicationAttemptId.getApplicationId().toString();
                     String attemptId = applicationAttemptId.toString();
 
-                    float cpuVcoreUsed = (float) milliVcoresUsed / 1000;
+                    float cpuVcoreUsed = (milliVcoresUsed > 0) ? (float) milliVcoresUsed / 1000 : 0f;
                     int cpuVcoreLimit = ((ContainerMetrics) containerMetrics).cpuVcoreLimit.value();
 
                     Header header = Header.newBuilder()
