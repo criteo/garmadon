@@ -44,6 +44,8 @@ See [Contributing](#Contributing).
       - [Garmadon-spark-job](#garmadon-spark-job)
       - [Garmadon-spark-job-executors](#garmadon-spark-job-executors)
       - [Garmadon-spark-job-stages](#garmadon-spark-job-stages)
+      - [Garmadon-flink-job](#garmadon-flink-job)
+      - [Garmadon-flink-job-tasks](#garmadon-flink-job-tasks)
     + [SRE dashboard](#sre-dashboard)
       - [Garmadon-compute](#garmadon-compute)
       - [Garmadon-hdfs](#garmadon-hdfs)
@@ -79,7 +81,7 @@ We recommend to use the LATEST version of Garmadon (1.0.0)
 
 Garmadon is designed for **Hadoop 2.6**. You can probably use Garmadon on other Hadoop 2 clusters but we cannot guarantee that for sure.
 
-Garmadon integrates with any JVM based Yarn framework (mapreduce v1, v2, spark, flink, hive, etc...) and has specific extensions for **Spark 2**.
+Garmadon integrates with any JVM based Yarn framework (mapreduce v1, v2, spark, flink, hive, etc...) and has specific extensions for **Spark 2** and **Flink**.
 
 For non JVM applications, you will still get information from NodeManager and ResourceManger.
 
@@ -105,6 +107,8 @@ To help you dimension your ElasticSearch and Kafka cluster here are some stats t
   * FS_EVENT when it performs HDFS actions
   * GC_EVENT when gc occurs
 * Every spark container will in addition send Spark events from the Spark LiveListenerBus
+* Every flink container will in addition send Flink events from the Flink Metrics if they add appropriate options to the Flink job
+
 
 The size observed for those events on our production cluster:
 
@@ -334,7 +338,7 @@ Activating Garmadon-agent on NodeManagers will provide:
 
 Activating Garmadon-agent on containers will provide:
 - JVM monitoring metrics
-- framework specific metrics (Spark is the only framework that benefit specific metrics for now)
+- framework specific metrics (Spark and Flink are the only framework that benefit specific metrics for now)
 - HDFS interaction metrics
 
 1. [Install Garmadon-forwarder](#install-garmadon-forwarder) on all cluster nodes 
@@ -499,6 +503,35 @@ This dashboard is specific to spark jobs. We use it on Spark 2.2 and Spark 2.3. 
 
 ![](doc/images/dashboards/Garmadon_spark_job_stages/tab_overview.png)
 
+##### Garmadon-flink-job
+
+This dashboard is specific to flink jobs. We use it on Flink 1.6.
+
+It provide an overview of the flink job:
+* number of jobs/tasks running
+* checkpointing size/duration
+* availibility of jobs (number of restart/duration being unavailable)
+* kafka consumer metrics (lags, rate)
+
+![](doc/images/dashboards/Garmadon_flink_job/overview.png)
+
+![](doc/images/dashboards/Garmadon_flink_job/checkpoint.png)
+
+![](doc/images/dashboards/Garmadon_flink_job/kafka_consumer.png)
+
+##### Garmadon-flink-job-tasks
+
+This dashboard is specific to flink jobs. We use it on Flink 1.6.
+
+It provide a more detailed view on tasks
+* IO records/bytes
+* Network buffer/queues usage
+* Operators metrics (kafka, watermark)
+
+![](doc/images/dashboards/Garmadon_flink_job_tasks/overview.png)
+
+![](doc/images/dashboards/Garmadon_flink_job_tasks/operator.png)
+
 #### SRE dashboard
 
 SRE dashboards provide aggregated information that helps in cluster management
@@ -544,6 +577,22 @@ It is based on Spark Listener mechanism.
 The garmadon agent will automatically attached the garmadon spark listener on the driver if StandaloneModule 
 *(-javaagent:path-to-garmadon-agent-jar=com.criteo.hadoop.garmadon.agent.modules.StandaloneModule)* 
 or ContainerModule *(-javaagent:path-to-garmadon-agent-jar=com.criteo.hadoop.garmadon.agent.modules.ContainerModule) are used.
+
+
+Here is the set of dashboards based on metrics from garmadon spark listener:
+  - [Garmadon-spark-job](#garmadon-spark-job)
+  - [Garmadon-spark-job-executors](#garmadon-spark-job-executors)
+  - [Garmadon-spark-job-stages](#garmadon-spark-job-stages)
+  
+
+#### Flink
+
+It is based on Flink metric reporter.
+
+You will have to specify the metrics reporters to add to your flink job adding this flink parameters *(-yD metrics.reporters=garmadon
+ -yD metrics.reporter.garmadon.class=com.criteo.hadoop.garmadon.flink.GarmadonFlinkReporter)* and ensuring garmadon agent
+is also set to the JVM if StandaloneModule *(-javaagent:path-to-garmadon-agent-jar=com.criteo.hadoop.garmadon.agent.modules.StandaloneModule)* 
+or ContainerModule *(-javaagent:path-to-garmadon-agent-jar=com.criteo.hadoop.garmadon.agent.modules.ContainerModule)* are used.
 
 
 Here is the set of dashboards based on metrics from garmadon spark listener:

@@ -126,9 +126,8 @@ public final class Extractor {
         String timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(msg.getTimestamp()));
         sb.append(timestamp).append(" ");
         sb.append("Host[").append(msg.getHeader().getHostname()).append("] ");
-        for (FlinkEventProtos.Property property : event.getMetricsList()) {
-            sb.append("[").append(property.getName()).append("=").append(property.getValue()).append("] ");
-        }
+        sb.append("NumRunningJobs[").append(event.getNumRunningJobs()).append("] ");
+        sb.append(event.toString());
         System.out.println(sb.toString());
     }
 
@@ -140,9 +139,7 @@ public final class Extractor {
         sb.append("Host[").append(msg.getHeader().getHostname()).append("] ");
         sb.append("JobId[").append(event.getJobId()).append("] ");
         sb.append("JobName[").append(event.getJobName()).append("] ");
-        for (FlinkEventProtos.Property property : event.getMetricsList()) {
-            sb.append("[").append(property.getName()).append("=").append(property.getValue()).append("] ");
-        }
+        sb.append("UpTime[").append(event.getUptime()).append("] ");
         System.out.println(sb.toString());
     }
 

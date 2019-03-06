@@ -814,6 +814,290 @@
     "writesbytes": {
       "type": "long",
       "index": false
+    },
+    "num_registered_task_managers": {
+      "type": "long",
+      "index": false
+    },
+    "num_running_jobs": {
+      "type": "long",
+      "index": false
+    },
+    "task_slots_available": {
+      "type": "long",
+      "index": false
+    },
+    "task_slots_total": {
+      "type": "long",
+      "index": false
+    },
+    "network_total_memory_segments": {
+      "type": "long",
+      "index": false
+    },
+    "network_available_memory_segments": {
+      "type": "long",
+      "index": false
+    },
+    "uptime": {
+      "type": "long",
+      "index": false
+    },
+    "downtime": {
+      "type": "long",
+      "index": false
+    },
+    "restarting_time": {
+      "type": "long",
+      "index": false
+    },
+    "full_restarts": {
+      "type": "long",
+      "index": false
+    },
+    "total_number_of_checkpoints": {
+      "type": "long",
+      "index": false
+    },
+    "number_of_in_progress_checkpoints": {
+      "type": "integer",
+      "index": false
+    },
+    "number_of_completed_checkpoints": {
+      "type": "long",
+      "index": false
+    },
+    "number_of_failed_checkpoints": {
+      "type": "long",
+      "index": false
+    },
+    "last_checkpoint_restore_timestamp": {
+      "type": "date"
+    },
+    "last_checkpoint_size": {
+      "type": "long",
+      "index": false
+    },
+    "last_checkpoint_duration": {
+      "type": "long",
+      "index": false
+    },
+    "last_checkpoint_alignment_buffered": {
+      "type": "long",
+      "index": false
+    },
+    "last_checkpoint_external_path": {
+      "type": "text",
+      "norms": false,
+      "index_options": "freqs",
+      "analyzer": "path_analyzer",
+      "search_analyzer": "keyword",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 1024
+        }
+      }
+    },
+    "buffers_input_queue_length": {
+      "type": "long",
+      "index": false
+    },
+    "buffers_output_queue_length": {
+      "type": "long",
+      "index": false
+    },
+    "buffers_in_pool_usage": {
+      "type": "long",
+      "index": false
+    },
+    "buffers_out_pool_usage": {
+      "type": "long",
+      "index": false
+    },
+    "num_records_out": {
+      "type": "long",
+      "index": false
+    },
+    "num_records_in": {
+      "type": "long",
+      "index": false
+    },
+    "num_bytes_out": {
+      "type": "long",
+      "index": false
+    },
+    "num_bytes_in_local": {
+      "type": "long",
+      "index": false
+    },
+    "num_bytes_in_remote": {
+      "type": "long",
+      "index": false
+    },
+    "num_buffers_out": {
+      "type": "long",
+      "index": false
+    },
+    "num_buffers_in_local": {
+      "type": "long",
+      "index": false
+    },
+    "num_buffers_in_remote": {
+      "type": "long",
+      "index": false
+    },
+    "num_splits_processed": {
+      "type": "long",
+      "index": false
+    },
+    "num_bytes_out_per_second": {
+      "type": "double",
+      "index": false
+    },
+    "num_bytes_in_local_per_second": {
+      "type": "double",
+      "index": false
+    },
+    "num_bytes_in_remote_per_second": {
+      "type": "double",
+      "index": false
+    },
+    "num_buffers_out_per_second": {
+      "type": "double",
+      "index": false
+    },
+    "num_buffers_in_local_per_second": {
+      "type": "double",
+      "index": false
+    },
+    "num_buffers_in_remote_per_second": {
+      "type": "double",
+      "index": false
+    },
+    "num_records_in_per_second": {
+      "type": "double",
+      "index": false
+    },
+    "num_records_out_per_second": {
+      "type": "double",
+      "index": false
+    },
+    "task_name": {
+      "type": "text",
+      "norms": false,
+      "index_options": "positions",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 1024
+        }
+      }
+    },
+    "job_name": {
+      "type": "text",
+      "norms": false,
+      "index_options": "positions",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 1024
+        }
+      }
+    },
+    "operator_name": {
+      "type": "text",
+      "norms": false,
+      "index_options": "positions",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 1024
+        }
+      }
+    },
+    "job_id": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "task_attempt_num": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs"
+    },
+    "subtask_index": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "current_input_watermark": {
+      "type": "date"
+    },
+    "num_late_records_dropped": {
+      "type": "long",
+      "index": false
+    },
+    "current_input_1_watermark": {
+      "type": "date"
+    },
+    "current_input_2_watermark": {
+      "type": "date"
+    },
+    "current_output_watermark": {
+      "type": "date"
+    },
+    "commits_succeeded": {
+      "type": "long",
+      "index": false
+    },
+    "commits_failed": {
+      "type": "long",
+      "index": false
+    },
+    "committed_offsets": {
+      "type": "long",
+      "index": false
+    },
+    "current_offsets": {
+      "type": "long",
+      "index": false
+    },
+    "partition": {
+      "type": "text",
+      "norms": false,
+      "index_options": "positions",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 1024
+        }
+      }
+    },
+    "topic": {
+      "type": "text",
+      "norms": false,
+      "index_options": "positions",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 1024
+        }
+      }
+    },
+    "records_lag_max": {
+      "type": "double",
+      "index": false
+    },
+    "records_consumed_rate": {
+      "type": "double",
+      "index": false
+    },
+    "bytes_consumed_rate": {
+      "type": "double",
+      "index": false
     }
   }
 }

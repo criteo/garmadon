@@ -1,0 +1,2076 @@
+{
+  "dashboard": {
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": "-- Grafana --",
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
+        }
+      ]
+    },
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "id": null,
+    "iteration": null,
+    "links": [],
+    "panels": [
+      {
+        "content": "Set interval to the interval metrics set in flink otherwise it will affect sum result on per_second metrics (Due to the way ES do bucketing aggregation)",
+        "gridPos": {
+          "h": 2,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "id": 23,
+        "links": [],
+        "mode": "markdown",
+        "title": "",
+        "transparent": true,
+        "type": "text"
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 2
+        },
+        "id": 19,
+        "panels": [],
+        "title": "Records/Bytes",
+        "type": "row"
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 3
+        },
+        "id": 25,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": true,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [
+          {
+            "alias": "/per_second/",
+            "yaxis": 2
+          }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "in_total",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_records_in",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "in_per_second",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_records_in_per_second",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Total number of records this task has read",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 3
+        },
+        "id": 29,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": true,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [
+          {
+            "alias": "/per_second/",
+            "yaxis": 2
+          }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "in_local",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_bytes_in_local",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "in_remote",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_bytes_in_remote",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "in_local_per_sec",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_bytes_in_local_per_second",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "in_remote_per_sec",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_bytes_in_remote_per_second",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "D",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Total number of bytes this task has read",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 11
+        },
+        "id": 24,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": true,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [
+          {
+            "alias": "/per_second/",
+            "yaxis": 2
+          }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "out_total",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_records_out",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "out_per_second",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_records_out_per_second",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Total number of records this task has emitted",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 11
+        },
+        "id": 20,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": true,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [
+          {
+            "alias": "/per_second/",
+            "yaxis": 2
+          }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "out_total",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_bytes_out",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "out_per_second",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_bytes_out_per_second",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Total number of bytes this task has emitted",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 19
+        },
+        "id": 28,
+        "panels": [],
+        "title": "Buffers/Queues",
+        "type": "row"
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 20
+        },
+        "id": 21,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": true,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [
+          {
+            "alias": "/per_second/",
+            "yaxis": 2
+          }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "out_total",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_buffers_out",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "out_per_second",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_buffers_out_per_second",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Total number of network buffers this task has emitted",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 20
+        },
+        "id": 30,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": true,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [
+          {
+            "alias": "/per_second/",
+            "yaxis": 2
+          }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "in_local_total",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_buffers_in_local",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "in_remote_total",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_buffers_in_remote",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "in_local_per_second",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_buffers_in_local_per_second",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "in_remote_per_second",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_buffers_in_remote_per_second",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "D",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Total number of network buffers this task has read",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 28
+        },
+        "id": 31,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": true,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "output",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "buffers_out_pool_usage",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "input",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "buffers_in_pool_usage",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "An estimate of the output/input buffers usage",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 28
+        },
+        "id": 32,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": true,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "output",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "buffers_output_queue_length",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "input",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "buffers_input_queue_length",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "The number of queued output/input buffers",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 36
+        },
+        "id": 34,
+        "panels": [],
+        "title": "Operator",
+        "type": "row"
+      },
+      {
+        "columns": [
+          {
+            "text": "current_input_watermark",
+            "value": "current_input_watermark"
+          },
+          {
+            "text": "current_input_1_watermark",
+            "value": "current_input_1_watermark"
+          },
+          {
+            "text": "current_input_2_watermark",
+            "value": "current_input_2_watermark"
+          },
+          {
+            "text": "current_output_watermark",
+            "value": "current_output_watermark"
+          },
+          {
+            "text": "operator_name",
+            "value": "operator_name"
+          }
+        ],
+        "datasource": "$datasource",
+        "fontSize": "100%",
+        "gridPos": {
+          "h": 5,
+          "w": 24,
+          "x": 0,
+          "y": 37
+        },
+        "id": 40,
+        "links": [],
+        "pageSize": null,
+        "scroll": true,
+        "showHeader": true,
+        "sort": {
+          "col": 0,
+          "desc": true
+        },
+        "styles": [
+          {
+            "alias": "",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "pattern": "/.*watermark/",
+            "type": "date"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "decimals": 2,
+            "pattern": "/.*/",
+            "thresholds": [],
+            "type": "string",
+            "unit": "short"
+          }
+        ],
+        "targets": [
+          {
+            "bucketAggs": [],
+            "metrics": [
+              {
+                "field": "select field",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "size": 50
+                },
+                "type": "raw_document"
+              }
+            ],
+            "query": "event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "title": "Last watermark emitted/received by operator",
+        "transform": "json",
+        "transparent": true,
+        "type": "table"
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 42
+        },
+        "id": 35,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": true,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [
+          {
+            "alias": "/per_second/",
+            "yaxis": 2
+          }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "succeeded",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "commits_succeeded",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "failed",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "commits_failed",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Kafka Commits",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 42
+        },
+        "id": 41,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": true,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [
+          {
+            "alias": "/per_second/",
+            "yaxis": 2
+          }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "{{topic.keyword}}.{{partition.keyword}}",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "topic.keyword",
+                "id": "4",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "_term",
+                  "size": "10"
+                },
+                "type": "terms"
+              },
+              {
+                "fake": true,
+                "field": "partition.keyword",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "_term",
+                  "size": "0"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "committed_offsets",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:FLINK_KAFKA_CONSUMER_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Kafka Committed Offsets",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 9,
+          "w": 24,
+          "x": 0,
+          "y": 50
+        },
+        "id": 38,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": true,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [
+          {
+            "alias": "/per_second/",
+            "yaxis": 2
+          }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "num_late_records_dropped",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_late_records_dropped",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "num_splits_processed",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "$intervals",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "num_splits_processed",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Others",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      }
+    ],
+    "schemaVersion": 16,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+      "list": [
+        {
+          "current": {
+            "text": "garmadon",
+            "value": "garmadon"
+          },
+          "hide": 0,
+          "label": null,
+          "name": "datasource",
+          "options": [],
+          "query": "elasticsearch",
+          "refresh": 1,
+          "regex": "/garmadon*/",
+          "skipUrlSync": false,
+          "type": "datasource"
+        },
+        {
+          "auto": false,
+          "auto_count": 30,
+          "auto_min": "10s",
+          "current": {
+            "text": "10s",
+            "value": "10s"
+          },
+          "hide": 0,
+          "label": null,
+          "name": "intervals",
+          "options": [
+            {
+              "selected": true,
+              "text": "10s",
+              "value": "10s"
+            },
+            {
+              "selected": false,
+              "text": "30s",
+              "value": "30s"
+            },
+            {
+              "selected": false,
+              "text": "1m",
+              "value": "1m"
+            }
+          ],
+          "query": "10s,30s,1m",
+          "refresh": 2,
+          "skipUrlSync": false,
+          "type": "interval"
+        },
+        {
+          "allValue": "*",
+          "current": {
+            "text": "n.fraison",
+            "value": "n.fraison"
+          },
+          "datasource": "$datasource",
+          "definition": "{\"find\": \"terms\", \"field\": \"username\",\"query\": \"event_type:FLINK_JOB_MANAGER_EVENT\", \"size\": 1000}",
+          "hide": 0,
+          "includeAll": true,
+          "label": null,
+          "multi": false,
+          "name": "username",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"username\",\"query\": \"event_type:FLINK_JOB_MANAGER_EVENT\", \"size\": 1000}",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 1,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": "*",
+          "current": {
+            "text": "Delight-Marmotini-Cluster",
+            "value": "Delight-Marmotini-Cluster"
+          },
+          "datasource": "$datasource",
+          "definition": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"event_type:APPLICATION_EVENT AND username:$username AND framework:\\\"APACHE FLINK\\\"\"}",
+          "hide": 0,
+          "includeAll": true,
+          "label": null,
+          "multi": false,
+          "name": "application_name",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"event_type:APPLICATION_EVENT AND username:$username AND framework:\\\"APACHE FLINK\\\"\"}",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 1,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": "*",
+          "current": {
+            "text": "application_1554802999854_94419",
+            "value": "application_1554802999854_94419"
+          },
+          "datasource": "$datasource",
+          "definition": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:APPLICATION_EVENT AND username:$username AND framework:\\\"APACHE FLINK\\\" AND application_name:$application_name\", \"size\": 5000}",
+          "hide": 0,
+          "includeAll": false,
+          "label": null,
+          "multi": false,
+          "name": "application_id",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:APPLICATION_EVENT AND username:$username AND framework:\\\"APACHE FLINK\\\" AND application_name:$application_name\", \"size\": 5000}",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 2,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": "*",
+          "current": {
+            "tags": [],
+            "text": "overdisplayer_EU",
+            "value": "overdisplayer_EU"
+          },
+          "datasource": "$datasource",
+          "definition": "{\"find\": \"terms\", \"field\": \"job_name.keyword\", \"query\": \"event_type:FLINK_JOB_EVENT AND username:$username AND application_id:$application_id\", \"size\": 5000}",
+          "hide": 0,
+          "includeAll": false,
+          "label": null,
+          "multi": false,
+          "name": "job_name",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"job_name.keyword\", \"query\": \"event_type:FLINK_JOB_EVENT AND username:$username AND application_id:$application_id\", \"size\": 5000}",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 2,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": "*",
+          "current": {
+            "tags": [],
+            "text": "Source: glup_billable_display_EU -> Filter -> Map -> tsAssigner -> watermarkFilter -> rowMapper -> from: (uid, arbitrage_id, ua_form_factor, ip3firstbytes, timestamp) -> where: (IsValidUid(uid)), select: (uid, DeviceType(ua_form_factor) AS $f1, timestamp) -> time attribute: (timestamp)",
+            "value": "Source: glup_billable_display_EU -> Filter -> Map -> tsAssigner -> watermarkFilter -> rowMapper -> from: (uid, arbitrage_id, ua_form_factor, ip3firstbytes, timestamp) -> where: (IsValidUid(uid)), select: (uid, DeviceType(ua_form_factor) AS $f1, timestamp) -> time attribute: (timestamp)"
+          },
+          "datasource": "$datasource",
+          "definition": "{\"find\": \"terms\", \"field\": \"task_name.keyword\", \"query\": \"event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name\", \"size\": 5000}",
+          "hide": 0,
+          "includeAll": false,
+          "label": null,
+          "multi": false,
+          "name": "task_name",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"task_name.keyword\", \"query\": \"event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name\", \"size\": 5000}",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 1,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": "*",
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
+          "datasource": "$datasource",
+          "definition": "{\"find\": \"terms\", \"field\": \"subtask_index\", \"query\": \"event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name\", \"size\": 5000}",
+          "hide": 0,
+          "includeAll": true,
+          "label": null,
+          "multi": false,
+          "name": "subtask_index",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"subtask_index\", \"query\": \"event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name\", \"size\": 5000}",
+          "refresh": 2,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 3,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": "*",
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
+          "datasource": "$datasource",
+          "definition": "{\"find\": \"terms\", \"field\": \"operator_name.keyword\", \"query\": \"event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index\", \"size\": 5000}",
+          "hide": 0,
+          "includeAll": true,
+          "label": null,
+          "multi": false,
+          "name": "operator_name",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"operator_name.keyword\", \"query\": \"event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index\", \"size\": 5000}",
+          "refresh": 2,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 1,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        }
+      ]
+    },
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": [
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ],
+      "time_options": [
+        "5m",
+        "15m",
+        "1h",
+        "6h",
+        "12h",
+        "24h",
+        "2d",
+        "7d",
+        "30d"
+      ]
+    },
+    "timezone": "",
+    "title": "Garmadon - Flink Job Tasks",
+    "uid": null,
+    "version": null
+  }
+}

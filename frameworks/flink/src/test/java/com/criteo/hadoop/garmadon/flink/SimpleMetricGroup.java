@@ -17,4 +17,8 @@ public class SimpleMetricGroup extends UnregisteredMetricsGroup {
     return variables;
   }
 
+  @Override
+  public String[] getScopeComponents() {
+    return variables.values().stream().toArray(String[]::new);
+  }
 }
