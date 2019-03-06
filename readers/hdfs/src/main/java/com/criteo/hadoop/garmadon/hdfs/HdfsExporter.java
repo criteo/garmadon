@@ -78,6 +78,7 @@ public class HdfsExporter {
      * args[2]: Temporary HDFS directory
      * args[3]: Final HDFS directory
      * args[4]: Prometheus port
+     * @throws IOException in case of error during config loading
      */
     public static void main(String[] args) throws IOException {
         HdfsReaderConfiguration config = ReaderConfiguration.loadConfig(HdfsReaderConfiguration.class);
