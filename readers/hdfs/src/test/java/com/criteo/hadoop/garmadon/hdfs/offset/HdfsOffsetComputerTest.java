@@ -4,10 +4,7 @@ import com.criteo.hadoop.garmadon.reader.Offset;
 import com.criteo.hadoop.garmadon.reader.TopicPartitionOffset;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.LocatedFileStatus;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.RemoteIterator;
+import org.apache.hadoop.fs.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,6 +12,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.criteo.hadoop.garmadon.hdfs.TestUtils.localDateTimeFromDate;
 import static org.mockito.Matchers.any;
@@ -71,7 +70,7 @@ public class HdfsOffsetComputerTest {
     public void matchingPatternAmongMultiplePartitions() throws IOException {
         final HdfsOffsetComputer offsetComputer = new HdfsOffsetComputer(buildFileSystem(
                 Arrays.asList("456.12", "123.12", "456.24")),
-                new Path("Fake path"));
+                new Path("Fake path"), 2);
 
         Assert.assertEquals(12L, offsetComputer.computeOffsets(Collections.singleton(123)).get(123).longValue());
     }
@@ -80,7 +79,7 @@ public class HdfsOffsetComputerTest {
     public void noMatchForPartition() throws IOException {
         final HdfsOffsetComputer offsetComputer = new HdfsOffsetComputer(buildFileSystem(
                 Arrays.asList("456.12", "123.abc", "456.24")),
-                new Path("Fake path"));
+                new Path("Fake path"), 2);
 
         Assert.assertEquals(OffsetComputer.NO_OFFSET, offsetComputer.computeOffsets(Collections.singleton(123)).get(123).longValue());
     }
@@ -95,27 +94,31 @@ public class HdfsOffsetComputerTest {
             final Path basePath = new Path(rootPath, "embedded");
             final FileSystem localFs = FileSystem.getLocal(new Configuration());
 
-            final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, basePath);
+            final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, basePath, 2);
 
-            final LocalDateTime day1 = localDateTimeFromDate("1987-08-13 00:00:00");
-            final LocalDateTime day2 = localDateTimeFromDate("1987-08-14 00:00:00");
+            final LocalDateTime today = LocalDateTime.now();
+            final LocalDateTime yesterday = today.minusDays(1);
+            final LocalDateTime twoDaysAgo = today.minusDays(2);
 
             /*
                 /tmp/hdfs-reader-test-1234
                 └── embedded
-                    ├── 1987-08-13
-                    │   ├── 1.2
-                    │   ├── 1.3
+                    ├── <today>
+                    │   ├── 1.1
                     │   └── 2.12
-                    └── 1987-08-14
-                        └── 1.1
+                    └── <yesterday>
+                    │   ├── 1.2
+                    │   └── 1.3
+                    └── <2 days ago> # Should be ignored
+                        └── 1.42
              */
             localFs.mkdirs(rootPath);
             localFs.mkdirs(basePath);
-            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(day1, buildOffset(1, 2))));
-            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(day1, buildOffset(1, 3))));
-            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(day1, buildOffset(2, 12))));
-            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(day2, buildOffset(1, 1))));
+            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(today, buildOffset(1, 1))));
+            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(today, buildOffset(2, 12))));
+            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(yesterday, buildOffset(1, 2))));
+            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(yesterday, buildOffset(1, 3))));
+            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(twoDaysAgo, buildOffset(1, 42))));
 
             Map<Integer, Long> offsets = hdfsOffsetComputer.computeOffsets(Arrays.asList(1, 2, 3));
 
@@ -135,7 +138,7 @@ public class HdfsOffsetComputerTest {
     private void performSinglePartitionTest(List<String> fileNames, int partitionId, long expectedOffset, String kafkaCluster)
             throws IOException {
         final HdfsOffsetComputer offsetComputer = new HdfsOffsetComputer(buildFileSystem(fileNames),
-                new Path("Fake path"), kafkaCluster);
+                new Path("Fake path"), kafkaCluster, 2);
 
         Assert.assertEquals(expectedOffset,
                 offsetComputer.computeOffsets(Collections.singleton(partitionId)).get(partitionId).longValue());
@@ -147,26 +150,10 @@ public class HdfsOffsetComputerTest {
 
     private FileSystem buildFileSystem(List<String> fileNames) throws IOException {
         final FileSystem fs = mock(FileSystem.class);
-        final Iterator<String> fileNamesIterator = fileNames.iterator();
+        final FileStatus[] statuses = fileNames.stream().map(name ->
+                new FileStatus(0, false, 0, 0, 0, new Path(name))).toArray(FileStatus[]::new);
 
-        final RemoteIterator<LocatedFileStatus> files = new RemoteIterator<LocatedFileStatus>() {
-            @Override
-            public boolean hasNext() {
-                return fileNamesIterator.hasNext();
-            }
-
-            @Override
-            public LocatedFileStatus next() {
-                final String next = fileNamesIterator.next();
-                final LocatedFileStatus fileStatus = mock(LocatedFileStatus.class);
-
-                when(fileStatus.getPath()).thenReturn(new Path(next));
-
-                return fileStatus;
-            }
-        };
-
-        when(fs.listFiles(any(Path.class), anyBoolean())).thenReturn(files);
+        when(fs.globStatus(any(Path.class))).thenReturn(statuses);
 
         return fs;
     }
