@@ -269,7 +269,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                 consumer.close();
                 return true;
             } catch (IOException e) {
-                LOGGER.error("Couldn't close writer for {} ({}/{}): {}", eventName, retry, maxAttempts, e.getMessage());
+                LOGGER.error(String.format("Couldn't close writer for %s (%d/%d)", eventName, retry, maxAttempts), e);
             }
         }
 
