@@ -67,6 +67,8 @@ public class HdfsExporter {
     private static Duration tmpFileOpenRetryPeriod;
     private static int sizeBeforeFlushingTmp;
 
+    private static FileSystem fs;
+
     protected HdfsExporter() {
         throw new UnsupportedOperationException();
     }
@@ -88,14 +90,22 @@ public class HdfsExporter {
         final String baseTemporaryHdfsDir = config.getHdfs().getBaseTemporaryDir();
         final Path finalHdfsDir = new Path(config.getHdfs().getFinalDir());
 
-
-        FileSystem fs = null;
         try {
             fs = finalHdfsDir.getFileSystem(HDFS_CONF);
         } catch (IOException e) {
             LOGGER.error("Could not initialize HDFS", e);
             exit(1);
         }
+
+        // Add Shutdown Hook to close FS and delete temp folders
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                fs.close();
+            } catch (IOException e) {
+                LOGGER.error("Could not close FS", e);
+                exit(1);
+            }
+        }));
 
         final Properties props = new Properties();
 
@@ -122,6 +132,7 @@ public class HdfsExporter {
             LOGGER.error("Couldn't ensure base directories exist, exiting", e);
             return;
         }
+        fs.deleteOnExit(temporaryHdfsDir);
 
         LOGGER.info("Temporary HDFS dir: {}", temporaryHdfsDir.toUri());
         LOGGER.info("Final HDFS dir: {}", finalHdfsDir.toUri());
