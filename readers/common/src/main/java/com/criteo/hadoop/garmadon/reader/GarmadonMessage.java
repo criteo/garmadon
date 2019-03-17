@@ -85,7 +85,7 @@ public class GarmadonMessage {
     }
 
     public Message toProto() {
-        Message.Builder messageBuilder = ProtoConcatenator.concatToProtobuf(timestamp, Arrays.asList(header, body));
+        Message.Builder messageBuilder = ProtoConcatenator.concatToProtobuf(timestamp, committableOffset.getOffset(), Arrays.asList(header, body));
 
         // Specific normalization for FS_EVENT
         if (GarmadonSerialization.TypeMarker.FS_EVENT == type) {

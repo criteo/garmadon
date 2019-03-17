@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
-** FIXME: These exist because ProtoParquetWriter requires a class to expose the final schema via a static getDescriptor
-** which we cannot provide easily
+ * * FIXME: These exist because ProtoParquetWriter requires a class to expose the final schema via a static getDescriptor
+ * * which we cannot provide easily
  */
 final class EventsWithHeader {
     public static abstract class GCStatisticsData implements Message {
@@ -63,7 +63,7 @@ final class EventsWithHeader {
     }
 
     private static Descriptors.Descriptor descriptorForTypeWithHeader(Descriptors.Descriptor classDescriptor)
-                throws Descriptors.DescriptorValidationException {
+            throws Descriptors.DescriptorValidationException {
         final Collection<Descriptors.FieldDescriptor> allFields = new ArrayList<>();
 
         allFields.addAll(EventHeaderProtos.Header.getDescriptor().getFields());

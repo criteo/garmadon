@@ -12,10 +12,13 @@ import org.junit.Test;
 import java.util.*;
 
 public class ProtoConcatenatorTest {
+    private final long KAFKA_OFFSET = 0L;
+
     @Test
     public void concatenateEmptyList() {
         HashMap<String, Object> expectedValues = new HashMap<>();
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, KAFKA_OFFSET);
 
         testAllOutTypesWith(0L, Collections.emptyList(), expectedValues);
     }
@@ -32,6 +35,7 @@ public class ProtoConcatenatorTest {
         expectedValues.put("bodyInt", 1);
         expectedValues.put("bodyString", "one");
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 21L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, KAFKA_OFFSET);
 
         testAllOutTypesWith(21L, Collections.singletonList(inMsg.build()), expectedValues);
     }
@@ -75,6 +79,7 @@ public class ProtoConcatenatorTest {
         expectedValues.put("bodyInt", 2);
         expectedValues.put("bodyString", "two");
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, KAFKA_OFFSET);
 
         testAllOutTypesWith(0L, Arrays.asList(headerMessageBuilder.build(), bodyMessageBuilder.build()), expectedValues);
     }
@@ -91,9 +96,10 @@ public class ProtoConcatenatorTest {
         expectedValues.put("id", 1);
         expectedValues.put("name", "one");
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, KAFKA_OFFSET);
 
         // As of proto3, two fields cannot have the same name (even if they have a different id)
-        Assert.assertNull(ProtoConcatenator.concatToProtobuf(0,
+        Assert.assertNull(ProtoConcatenator.concatToProtobuf(0, 0,
                 Arrays.asList(headerMessageBuilder.build(), headerMessageBuilder.build())));
     }
 
@@ -109,6 +115,7 @@ public class ProtoConcatenatorTest {
         expectedValues.put("id", 1);
         expectedValues.put("name", "one");
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, KAFKA_OFFSET);
 
         testAllOutTypesWith(0L, Arrays.asList(headerMessageBuilder.build(), createEmptyMessage()), expectedValues);
     }
@@ -117,6 +124,7 @@ public class ProtoConcatenatorTest {
     public void concatenateEmptyWithEmpty() throws Descriptors.DescriptorValidationException {
         HashMap<String, Object> expectedValues = new HashMap<>();
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, KAFKA_OFFSET);
 
         testAllOutTypesWith(0L, Arrays.asList(createEmptyMessage(), createEmptyMessage()), expectedValues);
     }
@@ -141,6 +149,7 @@ public class ProtoConcatenatorTest {
         expectedValues.put("otherId", 2);
         expectedValues.put("otherName", "two");
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, KAFKA_OFFSET);
 
         testAllOutTypesWith(0L, Arrays.asList(headerMessageBuilder.build(), bodyMessageBuilder.build()), expectedValues);
     }
@@ -154,6 +163,7 @@ public class ProtoConcatenatorTest {
             expectedValues.put(ALL_PROTOBUF_TYPES.get(i), ALL_PROTOBUF_DEFAULT_VALUES.get(i));
         }
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, KAFKA_OFFSET);
 
         testAllOutTypesWith(0L, Arrays.asList(allTypesMessage, createEmptyMessage()), expectedValues);
     }
@@ -172,6 +182,7 @@ public class ProtoConcatenatorTest {
         ArrayList<Object> ints = new ArrayList<>(Arrays.asList(1, 2));
         expectedValues.put("repeated_field", ints);
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, KAFKA_OFFSET);
 
         testAllOutTypesWith(0L, Arrays.asList(msg, createEmptyMessage()), expectedValues);
     }
@@ -183,7 +194,7 @@ public class ProtoConcatenatorTest {
      * @param expectedValues Strictly-expected values (must be equal in size and values to the output)
      */
     private void testAllOutTypesWith(long timestampMillis, Collection<Message> inputMessages, Map<String, Object> expectedValues) {
-        Message outProtoMessage = ProtoConcatenator.concatToProtobuf(timestampMillis, inputMessages).build();
+        Message outProtoMessage = ProtoConcatenator.concatToProtobuf(timestampMillis, KAFKA_OFFSET, inputMessages).build();
 
         Assert.assertNotNull(outProtoMessage);
         Assert.assertEquals(expectedValues.size(), outProtoMessage.getAllFields().size());
@@ -191,6 +202,7 @@ public class ProtoConcatenatorTest {
             Assert.assertEquals(v.getValue(), getProtoFieldValueByName(outProtoMessage, v.getKey()));
         }
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.remove(ProtoConcatenator.KAFKA_OFFSET);
 
         testToMapOutTypesWith(0L, inputMessages, expectedValues);
     }
