@@ -13,7 +13,7 @@ import java.util.Collection;
  ** FIXME: These exist because ProtoParquetWriter requires a class to expose the final schema via a static getDescriptor
  ** which we cannot provide easily
  */
-final class EventsWithHeader {
+final public class EventsWithHeader {
     public static abstract class GCStatisticsData implements Message {
         public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
             return descriptorForTypeWithHeader(JVMStatisticsEventsProtos.GCStatisticsData.getDescriptor());
