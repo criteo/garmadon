@@ -21,9 +21,22 @@ public interface OffsetComputer {
     Map<Integer, Long> computeOffsets(Collection<Integer> partitionIds) throws IOException;
 
     /**
+     * @param fileName  A final fileName from which we want to find index
+     * @return          Index of the file
+     */
+    long getIndex(String fileName);
+
+    /**
+     * @param time      Time-window start time (eg. day start if daily)
+     * @param offset    Kafka offset
+     * @return          Topic Glob Path based on a time and offset
+     */
+    String computeTopicGlob(LocalDateTime time, Offset offset);
+
+    /**
      * @param time      Time-window start time (eg. day start if daily)
      * @param offset    Kafka offset
      * @return          Path based on a time and offset
      */
-    String computePath(LocalDateTime time, Offset offset);
+    String computePath(LocalDateTime time, long index, Offset offset);
 }

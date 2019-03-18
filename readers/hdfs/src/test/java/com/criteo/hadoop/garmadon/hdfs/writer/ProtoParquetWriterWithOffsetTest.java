@@ -9,10 +9,7 @@ import com.google.protobuf.Message;
 import com.google.protobuf.MessageOrBuilder;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.LocatedFileStatus;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.RemoteIterator;
+import org.apache.hadoop.fs.*;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.proto.ProtoParquetReader;
 import org.apache.parquet.proto.ProtoParquetWriter;
@@ -59,10 +56,12 @@ public class ProtoParquetWriterWithOffsetTest {
         when(fsMock.mkdirs(any(Path.class))).thenReturn(true);
 
         when(fsMock.rename(any(Path.class), any(Path.class))).thenReturn(true);
+        when(fsMock.globStatus(any(Path.class))).thenReturn(new FileStatus[]{});
 
         consumer.close();
 
         verify(fsMock, times(1)).rename(tmpPath, new Path(finalPath, FINAL_FILE_NAME));
+        verify(fsMock, times(1)).globStatus(new Path(finalPath, FINAL_FILE_NAME + "*"));
         verify(fsMock, times(1)).exists(eq(finalPath));
         verify(fsMock, times(1)).mkdirs(eq(finalPath));
         verifyNoMoreInteractions(fsMock);
@@ -89,8 +88,10 @@ public class ProtoParquetWriterWithOffsetTest {
         // We need to write one event, otherwise we will fail with a "no message" error
         parquetWriter.write(mock(MessageOrBuilder.class), new TopicPartitionOffset(TOPIC, 1, 2));
 
-        when(fileNamer.computePath(any(LocalDateTime.class), any(Offset.class))).thenReturn("ignored");
+        when(fileNamer.computeTopicGlob(any(LocalDateTime.class), any(Offset.class))).thenReturn("ignored");
+        when(fileNamer.computePath(any(LocalDateTime.class), any(Long.class), any(Offset.class))).thenReturn("ignored");
         when(fsMock.rename(any(Path.class), any(Path.class))).thenReturn(false);
+        when(fsMock.globStatus(any(Path.class))).thenReturn(new FileStatus[]{});
         try {
             parquetWriter.close();
         }
