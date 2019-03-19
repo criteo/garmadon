@@ -1,9 +1,12 @@
 package com.criteo.hadoop.garmadon.hdfs.writer;
 
+import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
+import com.criteo.hadoop.garmadon.hdfs.EventsWithHeader;
 import com.criteo.hadoop.garmadon.hdfs.FixedOffsetComputer;
 import com.criteo.hadoop.garmadon.hdfs.offset.HdfsOffsetComputer;
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
+import com.criteo.hadoop.garmadon.protobuf.ProtoConcatenator;
 import com.criteo.hadoop.garmadon.reader.Offset;
 import com.criteo.hadoop.garmadon.reader.TopicPartitionOffset;
 import com.google.protobuf.Message;
@@ -12,6 +15,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
 import org.apache.parquet.hadoop.ParquetReader;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.parquet.proto.ProtoParquetReader;
 import org.apache.parquet.proto.ProtoParquetWriter;
 import org.junit.Assert;
@@ -27,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 
@@ -35,6 +40,8 @@ public class ProtoParquetWriterWithOffsetTest {
     private static final String FINAL_FILE_NAME = "finalFile";
     private static final LocalDateTime UTC_EPOCH = LocalDateTime.ofInstant(Instant.EPOCH, ZoneId.of("UTC"));
     private static final String TOPIC = "topic";
+    private static final LocalDateTime TODAY = LocalDateTime.now();
+
 
     @Test
     public void closeWithSomeEvents() throws IOException {
@@ -62,6 +69,7 @@ public class ProtoParquetWriterWithOffsetTest {
 
         consumer.close();
 
+        verify(fsMock, times(1)).getDefaultBlockSize(eq(finalPath));
         verify(fsMock, times(1)).rename(tmpPath, new Path(finalPath, FINAL_FILE_NAME));
         verify(fsMock, times(1)).globStatus(new Path(finalPath, FINAL_FILE_NAME + "*"));
         verify(fsMock, times(1)).exists(eq(finalPath));
@@ -77,6 +85,7 @@ public class ProtoParquetWriterWithOffsetTest {
         final Path finalPath = new Path("final");
         final FileSystem fsMock = mock(FileSystem.class);
         final FileStatus fileStatusMock = mock(FileStatus.class);
+        final FsStatus fsStatusMock = mock(FsStatus.class);
         final Path path = new Path(finalPath, today.format(DateTimeFormatter.ISO_DATE) + "/1.index=1");
         final Path pathRes = new Path(finalPath, today.format(DateTimeFormatter.ISO_DATE) + "/1.index=2");
         final Message firstMessageMock = mock(Message.class);
@@ -94,6 +103,10 @@ public class ProtoParquetWriterWithOffsetTest {
         when(fsMock.rename(any(Path.class), any(Path.class))).thenReturn(true);
         when(fsMock.globStatus(any(Path.class))).thenReturn(new FileStatus[]{fileStatusMock});
 
+        when(fsMock.getStatus(any(Path.class))).thenReturn(fsStatusMock);
+
+        when(fsStatusMock.getUsed()).thenReturn(Long.MAX_VALUE);
+
         when(fileStatusMock.getPath()).thenReturn(path);
 
         consumer.close();
@@ -104,8 +117,10 @@ public class ProtoParquetWriterWithOffsetTest {
     @Test(expected = IOException.class)
     public void closeWithNoEvent() throws IOException {
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
+        final FileSystem fsMock = mock(FileSystem.class);
+
         final ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
-                new Path("tmp"), new Path("final"), null, null, LocalDateTime.MIN, "ignored");
+                new Path("tmp"), new Path("final"), fsMock, null, LocalDateTime.MIN, "ignored");
 
         parquetWriter.close();
     }
@@ -164,6 +179,111 @@ public class ProtoParquetWriterWithOffsetTest {
         Assert.assertEquals(2, headers.size());
         Assert.assertEquals("1", headers.get(0).getAttemptId());
         Assert.assertEquals("2", headers.get(1).getAttemptId());
+    }
+
+    @Test
+    public void noFinalFileMoveTempOne() throws IOException {
+        final java.nio.file.Path tmpDir = Files.createTempDirectory("hdfs-reader-test-");
+        final Path rootPath = new Path(tmpDir.toString());
+        final Path basePath = new Path(rootPath, "embedded");
+        final FileSystem localFs = FileSystem.getLocal(new Configuration());
+
+        final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, basePath, 2);
+
+        localFs.mkdirs(rootPath);
+        localFs.mkdirs(basePath);
+
+        ProtoParquetWriterWithOffset parquetWriter = writeParquetFile(
+                localFs,
+                basePath,
+                new Path(basePath, "tmp/" + hdfsOffsetComputer.computePath(TODAY, 0L, new TopicPartitionOffset(TOPIC, 1, 2))),
+                hdfsOffsetComputer);
+
+        parquetWriter.close();
+        verify(parquetWriter, times(1)).moveToFinalPath(any(Path.class), any(Path.class));
+        verify(parquetWriter, times(0)).mergeToFinalPath(any(Path.class), any(Path.class));
+
+    }
+
+    @Test
+    public void finalFileTooBigToBeMerged() throws IOException {
+        final java.nio.file.Path tmpDir = Files.createTempDirectory("hdfs-reader-test-");
+        final Path rootPath = new Path(tmpDir.toString());
+        final Path basePath = new Path(rootPath, "embedded");
+        final FileSystem localFs = spy(FileSystem.getLocal(new Configuration()));
+
+        doReturn(1L).when(localFs).getDefaultBlockSize(any());
+
+        final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, basePath, 2);
+
+        localFs.mkdirs(rootPath);
+        localFs.mkdirs(basePath);
+
+        writeParquetFile(
+                localFs,
+                basePath,
+                new Path(basePath, "tmp/" + hdfsOffsetComputer.computePath(TODAY, 0L, new TopicPartitionOffset(TOPIC, 1, 2))),
+                hdfsOffsetComputer).close();
+
+        ProtoParquetWriterWithOffset parquetWriter = writeParquetFile(
+                localFs,
+                basePath,
+                new Path(basePath, "tmp/" + hdfsOffsetComputer.computePath(TODAY, 1L, new TopicPartitionOffset(TOPIC, 1, 2))),
+                hdfsOffsetComputer);
+
+        parquetWriter.close();
+        verify(parquetWriter, times(1)).moveToFinalPath(any(Path.class), any(Path.class));
+        verify(parquetWriter, times(0)).mergeToFinalPath(any(Path.class), any(Path.class));
+    }
+
+    @Test
+    public void finalFileAndTempFilesMerged() throws IOException {
+        final java.nio.file.Path tmpDir = Files.createTempDirectory("hdfs-reader-test-");
+        final Path rootPath = new Path(tmpDir.toString());
+        final Path basePath = new Path(rootPath, "embedded");
+        final FileSystem localFs = spy(FileSystem.getLocal(new Configuration()));
+
+        doReturn(Long.MAX_VALUE).when(localFs).getDefaultBlockSize(any());
+
+        final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, basePath, 2);
+
+        localFs.mkdirs(rootPath);
+        localFs.mkdirs(basePath);
+
+        writeParquetFile(
+                localFs,
+                basePath,
+                new Path(basePath, "tmp/" + hdfsOffsetComputer.computePath(TODAY, 0L, new TopicPartitionOffset(TOPIC, 1, 2))),
+                hdfsOffsetComputer).close();
+
+        ProtoParquetWriterWithOffset parquetWriter = writeParquetFile(
+                localFs,
+                basePath,
+                new Path(basePath, "tmp/" + hdfsOffsetComputer.computePath(TODAY, 1L, new TopicPartitionOffset(TOPIC, 1, 2))),
+                hdfsOffsetComputer);
+
+        parquetWriter.close();
+        verify(parquetWriter, times(1)).moveToFinalPath(any(Path.class), any(Path.class));
+        verify(parquetWriter, times(1)).mergeToFinalPath(any(Path.class), any(Path.class));
+
+    }
+
+    private ProtoParquetWriterWithOffset writeParquetFile(FileSystem localFs, Path basePath, Path fileName, HdfsOffsetComputer hdfsOffsetComputer) throws IOException {
+        ProtoParquetWriter<Message> writer = new ProtoParquetWriter<>(fileName, EventsWithHeader.FsEvent.class, CompressionCodecName.SNAPPY,
+                1_024 * 1_024, 1_024 * 1_024);
+
+        final ProtoParquetWriterWithOffset parquetWriter = spy(new ProtoParquetWriterWithOffset<>(writer,
+                fileName, new Path(basePath, "final"), localFs, hdfsOffsetComputer, TODAY, "ignored"));
+
+        EventHeaderProtos.Header emptyHeader = EventHeaderProtos.Header.newBuilder().build();
+
+        Message.Builder protoConcatenator = ProtoConcatenator
+                .concatToProtobuf(System.currentTimeMillis(), 1L, Arrays.asList(emptyHeader, DataAccessEventProtos.FsEvent.newBuilder().build()));
+
+        Message msg = protoConcatenator.build();
+        parquetWriter.write(msg, new TopicPartitionOffset(TOPIC, 1, 2));
+
+        return parquetWriter;
     }
 
     private List<EventHeaderProtos.Header> checkSingleFileWithFileSystem(

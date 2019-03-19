@@ -4,18 +4,20 @@ import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.reader.Offset;
 import com.google.protobuf.MessageOrBuilder;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.parquet.hadoop.ParquetFileReader;
+import org.apache.parquet.hadoop.ParquetFileWriter;
 import org.apache.parquet.proto.ProtoParquetWriter;
+import org.apache.parquet.schema.MessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Wrap an actual ProtoParquetWriter, renaming the output file properly when closing.
@@ -25,6 +27,7 @@ import java.util.Optional;
 public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         implements CloseableBiConsumer<MESSAGE_KIND, Offset> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtoParquetWriterWithOffset.class);
+    private static final Map<String, String> EMPTY_METADATA = new HashMap<>();
 
     private final Path temporaryHdfsPath;
     private final ProtoParquetWriter<MESSAGE_KIND> writer;
@@ -33,6 +36,7 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
     private final OffsetComputer fileNamer;
     private final LocalDateTime dayStartTime;
     private final String eventName;
+    private final long fsBlockSize;
 
     private Offset latestOffset = null;
     private boolean writerClosed = false;
@@ -56,6 +60,7 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         this.fileNamer = fileNamer;
         this.dayStartTime = dayStartTime;
         this.eventName = eventName;
+        this.fsBlockSize = fs.getDefaultBlockSize(finalHdfsDir);
     }
 
     @Override
@@ -74,25 +79,75 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
             writerClosed = true;
         }
 
-
         final Path topicGlobPath = new Path(finalHdfsDir, fileNamer.computeTopicGlob(dayStartTime, latestOffset));
-        final Optional<Long> lastIndex = Arrays.stream(fs.globStatus(topicGlobPath))
-                .map(file -> fileNamer.getIndex(file.getPath().getName()))
-                .reduce((index1, index2) -> index1 > index2 ? index1 : index2);
 
-        final Path finalPath = new Path(finalHdfsDir, fileNamer.computePath(dayStartTime, lastIndex.orElse(0L) + 1, latestOffset));
+        final Optional<Path> lastAvailableFinalPath = Arrays.stream(fs.globStatus(topicGlobPath))
+                .map(FileStatus::getPath)
+                .reduce((path1, path2) -> fileNamer.getIndex(path1.getName()) > fileNamer.getIndex(path2.getName()) ? path1 : path2);
+
+        long lastIndex = lastAvailableFinalPath.map(path -> fileNamer.getIndex(path.getName()) + 1).orElse(1L);
+
+        final Path finalPath = new Path(finalHdfsDir, fileNamer.computePath(dayStartTime, lastIndex, latestOffset));
 
         FileSystemUtils.ensureDirectoriesExist(Collections.singleton(finalPath.getParent()), fs);
 
-        if (!fs.rename(temporaryHdfsPath, finalPath)) {
-            throw new IOException(String.format("Failed to commit %s (from %s)",
-                    finalPath.toUri(), temporaryHdfsPath));
+        if (lastAvailableFinalPath.isPresent()) {
+            long blockSize = fs.getStatus(lastAvailableFinalPath.get()).getUsed();
+            if (blockSize > fsBlockSize) {
+                moveToFinalPath(temporaryHdfsPath, finalPath);
+            } else {
+                mergeToFinalPath(lastAvailableFinalPath.get(), finalPath);
+            }
+        } else {
+            moveToFinalPath(temporaryHdfsPath, finalPath);
         }
 
         LOGGER.info("Committed {} (from {})", finalPath.toUri(), temporaryHdfsPath);
 
         return finalPath;
     }
+
+    protected void moveToFinalPath(Path tempPath, Path finalPath) throws IOException {
+        if (!fs.rename(tempPath, finalPath)) {
+            throw new IOException(String.format("Failed to commit %s (from %s)",
+                    finalPath.toUri(), tempPath));
+        }
+    }
+
+    protected void mergeToFinalPath(Path lastAvailableFinalPath, Path finalPath) throws IOException {
+        MessageType schema = ParquetFileReader.open(fs.getConf(), lastAvailableFinalPath).getFileMetaData().getSchema();
+        if (!checkSchemaEquality(schema)) {
+            LOGGER.warn("Schema between last available final file ({}) and temp file ({}) are not identical. We can't merge them",
+                    lastAvailableFinalPath, temporaryHdfsPath);
+            moveToFinalPath(temporaryHdfsPath, finalPath);
+        } else {
+            Path mergedTempFile = new Path(temporaryHdfsPath.toString() + ".merged");
+
+            if (fs.isFile(mergedTempFile)) fs.delete(mergedTempFile, false);
+
+            ParquetFileWriter writerPF = new ParquetFileWriter(fs.getConf(), schema, mergedTempFile);
+            writerPF.start();
+            writerPF.appendFile(fs.getConf(), lastAvailableFinalPath);
+            writerPF.appendFile(fs.getConf(), temporaryHdfsPath);
+            writerPF.end(EMPTY_METADATA);
+
+            moveToFinalPath(mergedTempFile, lastAvailableFinalPath);
+            try {
+                fs.delete(temporaryHdfsPath, false);
+                // This file is in a temp folder that should be deleted at exit so we should not throw exception here
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
+    private Boolean checkSchemaEquality(MessageType schema) throws IOException {
+        MessageType schema2 = ParquetFileReader.open(fs.getConf(), temporaryHdfsPath).getFileMetaData().getSchema();
+
+        return schema.getColumns().size() == schema2.getColumns().size() &&
+                schema.getColumns().stream().allMatch(column -> schema2.getColumns().stream().anyMatch(column2 ->
+                        column.getPath()[0].equals(column2.getPath()[0]) && column.getType().equals(column2.getType())));
+    }
+
 
     @Override
     public void write(MESSAGE_KIND msg, Offset offset) throws IOException {
