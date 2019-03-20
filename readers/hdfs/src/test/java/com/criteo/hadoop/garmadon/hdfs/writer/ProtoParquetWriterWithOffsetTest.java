@@ -2,6 +2,7 @@ package com.criteo.hadoop.garmadon.hdfs.writer;
 
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 import com.criteo.hadoop.garmadon.hdfs.FixedOffsetComputer;
+import com.criteo.hadoop.garmadon.hdfs.offset.HdfsOffsetComputer;
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.reader.Offset;
 import com.criteo.hadoop.garmadon.reader.TopicPartitionOffset;
@@ -21,6 +22,7 @@ import java.nio.file.Files;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -67,6 +69,38 @@ public class ProtoParquetWriterWithOffsetTest {
         verifyNoMoreInteractions(fsMock);
     }
 
+    @Test
+    public void closeWithExistingIndexFile() throws IOException {
+        final LocalDateTime today = LocalDateTime.now();
+        final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
+        final Path tmpPath = new Path("tmp");
+        final Path finalPath = new Path("final");
+        final FileSystem fsMock = mock(FileSystem.class);
+        final FileStatus fileStatusMock = mock(FileStatus.class);
+        final Path path = new Path("final/" + today.format(DateTimeFormatter.ISO_DATE) + "/1.index=1.0");
+        final Path pathRes = new Path("final/" + today.format(DateTimeFormatter.ISO_DATE) + "/1.index=2.3");
+        final Message firstMessageMock = mock(Message.class);
+        final Message secondMessageMock = mock(Message.class);
+        final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writerMock, tmpPath,
+                finalPath, fsMock, new HdfsOffsetComputer(fsMock, finalPath, 2), today, "ignored");
+
+        consumer.write(firstMessageMock, new TopicPartitionOffset(TOPIC, 1, 2));
+        consumer.write(secondMessageMock, new TopicPartitionOffset(TOPIC, 1, 3));
+
+        // Directory doesn't exist and creation succeeds
+        when(fsMock.exists(any(Path.class))).thenReturn(false);
+        when(fsMock.mkdirs(any(Path.class))).thenReturn(true);
+
+        when(fsMock.rename(any(Path.class), any(Path.class))).thenReturn(true);
+        when(fsMock.globStatus(any(Path.class))).thenReturn(new FileStatus[]{fileStatusMock});
+
+        when(fileStatusMock.getPath()).thenReturn(path);
+
+        consumer.close();
+
+        verify(fsMock, times(1)).rename(tmpPath, pathRes);
+    }
+
     @Test(expected = IOException.class)
     public void closeWithNoEvent() throws IOException {
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
@@ -94,8 +128,7 @@ public class ProtoParquetWriterWithOffsetTest {
         when(fsMock.globStatus(any(Path.class))).thenReturn(new FileStatus[]{});
         try {
             parquetWriter.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             thrown = true;
         }
         // Writer is closed, but rename failed
@@ -105,8 +138,7 @@ public class ProtoParquetWriterWithOffsetTest {
         Assert.assertTrue(thrown);
         try {
             parquetWriter.close();
-        }
-        catch (IOException ignored) {
+        } catch (IOException ignored) {
         }
         // Writer already closed, so no more interaction
         verifyZeroInteractions(writerMock);
@@ -170,8 +202,7 @@ public class ProtoParquetWriterWithOffsetTest {
             }
 
             return headers;
-        }
-        finally {
+        } finally {
             FileUtils.deleteDirectory(tmpDir.toFile());
         }
     }

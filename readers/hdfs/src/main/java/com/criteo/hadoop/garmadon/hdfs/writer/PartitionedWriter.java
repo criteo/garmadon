@@ -38,22 +38,22 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     private final Map<Integer, Map<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>>> perPartitionDayWriters = new HashMap<>();
     private final HashMap<Integer, Long> perPartitionStartOffset = new HashMap<>();
     private final String eventName;
-    private final Message emptyMessage;
+    private final Message.Builder emptyMessageBuilder;
     private final EventHeaderProtos.Header emptyHeader = EventHeaderProtos.Header.newBuilder().build();
 
     /**
-     * @param writerBuilder  Builds an expiring writer based on a path.
-     * @param offsetComputer Computes the first offset which should not be ignored by the PartitionedWriter when
-     *                       consuming message.
-     * @param eventName      Event name used for logging &amp; monitoring.
-     * @param emptyMessage   Empty message used to write heartbeat
+     * @param writerBuilder       Builds an expiring writer based on a path.
+     * @param offsetComputer      Computes the first offset which should not be ignored by the PartitionedWriter when
+     *                            consuming message.
+     * @param eventName           Event name used for logging &amp; monitoring.
+     * @param emptyMessageBuilder Empty message builder used to write heartbeat
      */
     public PartitionedWriter(Function<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> writerBuilder,
-                             OffsetComputer offsetComputer, String eventName, Message emptyMessage) {
+                             OffsetComputer offsetComputer, String eventName, Message.Builder emptyMessageBuilder) {
         this.eventName = eventName;
         this.writerBuilder = writerBuilder;
         this.offsetComputer = offsetComputer;
-        this.emptyMessage = emptyMessage;
+        this.emptyMessageBuilder = emptyMessageBuilder;
     }
 
     /**
@@ -165,7 +165,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                 final ExpiringConsumer<MESSAGE_KIND> heartbeatWriter = writerBuilder.apply(LocalDateTime.now());
 
                 MESSAGE_KIND msg = (MESSAGE_KIND) ProtoConcatenator
-                        .concatToProtobuf(System.currentTimeMillis(), offset.getOffset(), Arrays.asList(emptyHeader, emptyMessage))
+                        .concatToProtobuf(System.currentTimeMillis(), offset.getOffset(), Arrays.asList(emptyHeader, emptyMessageBuilder.build()))
                         .build();
 
                 try {
