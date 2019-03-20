@@ -1,0 +1,2244 @@
+{
+  "dashboard": {
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": "-- Grafana --",
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
+        }
+      ]
+    },
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "id": null,
+    "iteration": null,
+    "links": [],
+    "panels": [
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "id": 12,
+        "panels": [],
+        "title": "JVM",
+        "type": "row"
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 1
+        },
+        "id": 3,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "%usage",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "cpu_%load",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "CPU",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "percent",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 0,
+          "y": 9
+        },
+        "id": 15,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 100,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "heap_used",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "max",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "heap_max",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "HEAP Usage",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "deckbytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 8,
+          "y": 9
+        },
+        "id": 24,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 60,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "nonheap_used",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "OFF-HEAP Usage",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "deckbytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 16,
+          "y": 9
+        },
+        "id": 40,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 60,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "metaspace_used",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Metadata Space Used",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "kbytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 17
+        },
+        "id": 27,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 200,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "ParNew",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(ParNew)_time",
+                "hide": true,
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              },
+              {
+                "field": "1",
+                "id": "3",
+                "meta": {},
+                "pipelineAgg": "1",
+                "settings": {},
+                "type": "derivative"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "G1 Young Generation",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(G1 Young Generation)_time",
+                "hide": true,
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              },
+              {
+                "field": "1",
+                "id": "3",
+                "meta": {},
+                "pipelineAgg": "1",
+                "settings": {},
+                "type": "derivative"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "ConcurrentMarkSweep",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "pid",
+                "id": "4",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "_count",
+                  "size": "1"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(ConcurrentMarkSweep)_time",
+                "hide": true,
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              },
+              {
+                "field": "1",
+                "id": "3",
+                "meta": {},
+                "pipelineAgg": "1",
+                "settings": {},
+                "type": "derivative"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "G1 Old Generation",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(G1 Old Generation)_time",
+                "hide": true,
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              },
+              {
+                "field": "1",
+                "id": "3",
+                "meta": {},
+                "pipelineAgg": "1",
+                "settings": {},
+                "type": "derivative"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "D",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "PS MarkSweep",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(PS MarkSweep)_time",
+                "hide": true,
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              },
+              {
+                "field": "1",
+                "id": "3",
+                "meta": {},
+                "pipelineAgg": "1",
+                "settings": {},
+                "type": "derivative"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "E",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "PS Scavenge",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(PS Scavenge)_time",
+                "hide": true,
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              },
+              {
+                "field": "1",
+                "id": "3",
+                "meta": {},
+                "pipelineAgg": "1",
+                "settings": {},
+                "type": "derivative"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "F",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "GC duration",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "ms",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 17
+        },
+        "id": 32,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 200,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "ConcurrentMarkSweep",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(ConcurrentMarkSweep)_count",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "G1 Old Generation",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(G1 Old Generation)_count",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "D",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "G1 Young Generation",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(G1 Young Generation)_time",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "PS MarkSweep",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(PS MarkSweep)_count",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "PS Scavenge",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(PS Scavenge)_count",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "E",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "ParNew",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(ParNew)_count",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "F",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "GC Count",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "columns": [
+          {
+            "text": "timestamp",
+            "value": "timestamp"
+          },
+          {
+            "text": "container_id",
+            "value": "container_id"
+          },
+          {
+            "text": "collector_name",
+            "value": "collector_name"
+          },
+          {
+            "text": "cause",
+            "value": "cause"
+          },
+          {
+            "text": "pause_time",
+            "value": "pause_time"
+          },
+          {
+            "text": "eden_before",
+            "value": "eden_before"
+          },
+          {
+            "text": "eden_after",
+            "value": "eden_after"
+          },
+          {
+            "text": "survivor_before",
+            "value": "survivor_before"
+          },
+          {
+            "text": "survivor_after",
+            "value": "survivor_after"
+          },
+          {
+            "text": "old_before",
+            "value": "old_before"
+          },
+          {
+            "text": "old_after",
+            "value": "old_after"
+          },
+          {
+            "text": "metaspace_before",
+            "value": "metaspace_before"
+          },
+          {
+            "text": "metaspace_after",
+            "value": "metaspace_after"
+          },
+          {
+            "text": "code_before",
+            "value": "code_before"
+          },
+          {
+            "text": "code_after",
+            "value": "code_after"
+          }
+        ],
+        "datasource": "garmadon",
+        "fontSize": "100%",
+        "gridPos": {
+          "h": 10,
+          "w": 24,
+          "x": 0,
+          "y": 25
+        },
+        "id": 49,
+        "links": [],
+        "pageSize": null,
+        "scroll": true,
+        "showHeader": true,
+        "sort": {
+          "col": 0,
+          "desc": true
+        },
+        "styles": [
+          {
+            "alias": "Time",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss.SSS",
+            "pattern": "timestamp",
+            "type": "date"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 0,
+            "mappingType": 1,
+            "pattern": "pause_time",
+            "thresholds": [],
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 2,
+            "mappingType": 1,
+            "pattern": "/.*after/",
+            "thresholds": [],
+            "type": "number",
+            "unit": "bytes"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 2,
+            "mappingType": 1,
+            "pattern": "/.*before/",
+            "thresholds": [],
+            "type": "number",
+            "unit": "bytes"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "decimals": 2,
+            "pattern": "/.*/",
+            "thresholds": [],
+            "type": "number",
+            "unit": "short"
+          }
+        ],
+        "targets": [
+          {
+            "bucketAggs": [],
+            "metrics": [
+              {
+                "field": "select field",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "size": 500
+                },
+                "type": "raw_document"
+              }
+            ],
+            "query": "event_type:GC_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "A",
+            "timeField": "timestamp"
+          }
+        ],
+        "title": "GC Events",
+        "transform": "json",
+        "transparent": true,
+        "type": "table"
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 35
+        },
+        "id": 26,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 100,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "#threads",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "threads_count",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "#Threads",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 35
+        },
+        "id": 29,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 120,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "#threads created",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "threads_total",
+                "hide": true,
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              },
+              {
+                "field": "1",
+                "id": "3",
+                "meta": {},
+                "pipelineAgg": "1",
+                "settings": {},
+                "type": "derivative"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "#Threads Created",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 43
+        },
+        "id": 31,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 120,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "#file descriptor",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1m",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "descriptors_open",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "#File Descriptors",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "collapsed": true,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 51
+        },
+        "id": 42,
+        "panels": [
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 9,
+              "x": 0,
+              "y": 42
+            },
+            "id": 44,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": null,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "nullPointMode": "connected",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "#compile",
+                "bucketAggs": [
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "1m",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "compile_count",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {},
+                    "type": "avg"
+                  }
+                ],
+                "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+                "refId": "B",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "Compile Count",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 8,
+              "x": 9,
+              "y": 42
+            },
+            "id": 39,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": null,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "nullPointMode": "connected",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "Compile duration",
+                "bucketAggs": [
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "1m",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "compile_time",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {},
+                    "type": "avg"
+                  }
+                ],
+                "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "Compile Time",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "ms",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 7,
+              "x": 17,
+              "y": 42
+            },
+            "id": 46,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": null,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "nullPointMode": "connected",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "#compile threads",
+                "bucketAggs": [
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "1m",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "compile_threads",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {},
+                    "type": "avg"
+                  }
+                ],
+                "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "Number of compile threads",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 50
+            },
+            "id": 43,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": null,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "nullPointMode": "connected",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "#safepoint",
+                "bucketAggs": [
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "1m",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "safepoints_count",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {},
+                    "type": "avg"
+                  }
+                ],
+                "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "Safepoint Count",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "decimals": null,
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 50
+            },
+            "id": 45,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 100,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "nullPointMode": "connected",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "synctime",
+                "bucketAggs": [
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "1m",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "safepoints_synctime",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {},
+                    "type": "avg"
+                  }
+                ],
+                "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              },
+              {
+                "alias": "totaltime",
+                "bucketAggs": [
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "1m",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "safepoints_totaltime",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {},
+                    "type": "avg"
+                  }
+                ],
+                "query": "event_type:JVMSTATS_EVENT AND tags:NODEMANAGER AND hostname:$hostname",
+                "refId": "B",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "Safepoint Time",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "ms",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          }
+        ],
+        "title": "JVM Advanced",
+        "type": "row"
+      }
+    ],
+    "refresh": false,
+    "schemaVersion": 16,
+    "style": "dark",
+    "tags": [
+      "git"
+    ],
+    "templating": {
+      "list": [
+        {
+          "current": {
+            "text": "garmadon",
+            "value": "garmadon"
+          },
+          "hide": 0,
+          "label": null,
+          "name": "datasource",
+          "options": [],
+          "query": "elasticsearch",
+          "refresh": 1,
+          "regex": "/garmadon*/",
+          "skipUrlSync": false,
+          "type": "datasource"
+        },
+        {
+          "allValue": "*",
+          "current": {
+            "text": "client",
+            "value": "client"
+          },
+          "datasource": "$datasource",
+          "definition": "",
+          "hide": 0,
+          "includeAll": true,
+          "label": null,
+          "multi": false,
+          "name": "hostname",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\": \"tags:NODEMANAGER\", \"size\": 5000}",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 1,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        }
+      ]
+    },
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {
+      "nowDelay": "",
+      "refresh_intervals": [
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ],
+      "time_options": [
+        "5m",
+        "15m",
+        "1h",
+        "6h",
+        "12h",
+        "24h",
+        "2d",
+        "7d",
+        "30d"
+      ]
+    },
+    "timezone": "",
+    "title": "Garmadon - Nodemanager JVM",
+    "uid": null,
+    "version": null
+  }
+}
