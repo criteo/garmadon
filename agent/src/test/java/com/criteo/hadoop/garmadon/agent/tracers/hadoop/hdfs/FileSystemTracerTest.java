@@ -255,7 +255,7 @@ public class FileSystemTracerTest {
 
     @Test
     @AgentAttachmentRule.Enforce
-    public void FileSystemTracer_should_indicate_if_event_is_success_or_failure() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void FileSystemTracer_should_indicate_if_event_is_failure() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method create = clazzFS.getMethod("create", Path.class,
                 FsPermission.class,
                 boolean.class,
