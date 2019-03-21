@@ -314,24 +314,27 @@ public class FileSystemTracer {
 
     private static Object executeMethod(@SuperCall Callable<?> zuper, String uri, String src, String dst, String fsAction, String username) throws Exception {
         long startTime = System.nanoTime();
+        DataAccessEventProtos.FsEvent.Status status = DataAccessEventProtos.FsEvent.Status.SUCCESS;
         try {
             return zuper.call();
         } catch (Exception e) {
+            status = DataAccessEventProtos.FsEvent.Status.FAILURE;
             throw e;
         } finally {
             long elapsedTime = (System.nanoTime() - startTime) / NANOSECONDS_PER_MILLISECOND;
-            sendFsEvent(uri, src, dst, fsAction, username, elapsedTime);
+            sendFsEvent(uri, src, dst, fsAction, username, elapsedTime, status);
         }
     }
 
-    private static void sendFsEvent(String uri, String src, String dst, String fsAction, String username, long durationMillis) {
+    private static void sendFsEvent(String uri, String src, String dst, String fsAction, String username, long durationMillis, DataAccessEventProtos.FsEvent.Status status) {
         DataAccessEventProtos.FsEvent.Builder eventBuilder = DataAccessEventProtos.FsEvent
                 .newBuilder();
 
         eventBuilder.setAction(fsAction)
                 .setDstPath(dst)
                 .setUri(uri)
-                .setMethodDurationMillis(durationMillis);
+                .setMethodDurationMillis(durationMillis)
+                .setStatus(status);
 
         if (username != null) {
             eventBuilder.setHdfsUser(username);

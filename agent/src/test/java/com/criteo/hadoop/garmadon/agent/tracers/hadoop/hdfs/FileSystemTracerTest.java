@@ -159,7 +159,11 @@ public class FileSystemTracerTest {
         hdfs_user = (String) getShortUserName.invoke(ugi);
     }
 
-    private void checkEvent(String action, Path path) throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException {
+    private void checkEvent(String action, Path path) {
+        checkEvent(action, path, DataAccessEventProtos.FsEvent.Status.SUCCESS);
+    }
+
+    private void checkEvent(String action, Path path, DataAccessEventProtos.FsEvent.Status status) {
         assertNotNull(eventHandler);
 
         verify(eventHandler, atLeastOnce()).accept(any(Long.class), argument.capture());
@@ -171,6 +175,8 @@ public class FileSystemTracerTest {
         assertEquals(path.toString(), eventTmp.getDstPath());
 
         assertEquals(hdfs_user, eventTmp.getHdfsUser());
+
+        assertEquals(status, eventTmp.getStatus());
     }
 
     @Test
@@ -245,6 +251,28 @@ public class FileSystemTracerTest {
         rename.invoke(dfs, pathSrc, pathDst);
 
         checkEvent(FsAction.RENAME.name(), pathDst);
+    }
+
+    @Test
+    @AgentAttachmentRule.Enforce
+    public void FileSystemTracer_should_indicate_if_event_is_success_or_failure() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method create = clazzFS.getMethod("create", Path.class,
+                FsPermission.class,
+                boolean.class,
+                int.class,
+                short.class,
+                long.class,
+                Progressable.class);
+
+
+        //Using a uri path with a wrong scheme will force an exception
+        try {
+            create.invoke(dfs, new Path("ssss://not_a_path"), FsPermission.getDefault(), false, 1024, (short) 1, 1048576, null);
+        } catch (Exception ignore){}
+
+        checkEvent(FsAction.WRITE.name(), new Path("ssss://not_a_path"), DataAccessEventProtos.FsEvent.Status.FAILURE);
+
+
     }
 
 }
