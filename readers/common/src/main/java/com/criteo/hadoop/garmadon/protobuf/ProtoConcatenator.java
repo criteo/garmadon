@@ -1,6 +1,7 @@
 package com.criteo.hadoop.garmadon.protobuf;
 
 import com.github.os72.protobuf.dynamic.DynamicSchema;
+import com.github.os72.protobuf.dynamic.EnumDefinition;
 import com.github.os72.protobuf.dynamic.MessageDefinition;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
@@ -80,14 +81,14 @@ public class ProtoConcatenator {
                     Map<String, Object> concatMap = new HashMap<>(keys.size());
                     if (includeDefaultValueFields) {
                         for (Descriptors.FieldDescriptor fieldDescriptor : keys) {
-                            concatMap.put(fieldDescriptor.getName(), fieldDescriptor.getDefaultValue());
+                            concatMap.put(fieldDescriptor.getName(), getRealFieldValue(fieldDescriptor.getDefaultValue()));
                         }
                     }
                     concatMap.put(TIMESTAMP_FIELD_NAME, timestampMillis);
                     return concatMap;
                 },
                 (entry, eventMap) -> {
-                    eventMap.put(entry.getKey().getName(), entry.getValue());
+                    eventMap.put(entry.getKey().getName(), getRealFieldValue(entry.getValue()));
                 });
     }
 
@@ -104,6 +105,18 @@ public class ProtoConcatenator {
             throws Descriptors.DescriptorValidationException {
         final MessageDefinition.Builder msgDef = MessageDefinition.newBuilder(msgName);
 
+        //Add Enum definitions before adding fields
+        fields
+                .stream()
+                .filter(fd -> Descriptors.FieldDescriptor.Type.ENUM.equals(fd.getType()))
+                .map(Descriptors.FieldDescriptor::getEnumType)
+                .distinct()
+                .forEach(enumDescriptor -> {
+                    EnumDefinition.Builder enumDefinitionBuilder = EnumDefinition.newBuilder(enumDescriptor.getName());
+                    enumDescriptor.getValues().forEach(desc -> enumDefinitionBuilder.addValue(desc.getName(), desc.getNumber()));
+                    msgDef.addEnumDefinition(enumDefinitionBuilder.build());
+                });
+
         int currentIndex = 1;
 
         for (Descriptors.FieldDescriptor fieldDescriptor : fields) {
@@ -113,8 +126,18 @@ public class ProtoConcatenator {
                 label = "repeated";
             } else label = (fieldDescriptor.isRequired()) ? "required" : "optional";
 
-            msgDef.addField(label,
-                    fieldDescriptor.getType().toString().toLowerCase(), fieldDescriptor.getName(), currentIndex++);
+
+            String typeName;
+            switch (fieldDescriptor.getType()) {
+                case ENUM:
+                    typeName = fieldDescriptor.getEnumType().getName();
+                    break;
+                default:
+                    typeName = fieldDescriptor.getType().toString().toLowerCase();
+            }
+
+            msgDef.addField(label, typeName, fieldDescriptor.getName(), currentIndex++);
+
         }
 
         msgDef.addField("optional", "int64", TIMESTAMP_FIELD_NAME, currentIndex++);
@@ -141,13 +164,12 @@ public class ProtoConcatenator {
     private static <MESSAGE_TYPE> MESSAGE_TYPE concatInner(Collection<Message> messages,
                                                            Function<Collection<Descriptors.FieldDescriptor>, MESSAGE_TYPE> messageBuilder,
                                                            BiConsumer<Map.Entry<Descriptors.FieldDescriptor, Object>, MESSAGE_TYPE> contentsConsumer) {
+
         final Collection<Map.Entry<Descriptors.FieldDescriptor, Object>> allFields = new HashSet<>();
+        final Collection<Descriptors.FieldDescriptor> allKeys = new ArrayList<>();
+
         for (Message message : messages) {
             allFields.addAll(message.getAllFields().entrySet());
-        }
-
-        final Collection<Descriptors.FieldDescriptor> allKeys = new ArrayList<>();
-        for (Message message : messages) {
             allKeys.addAll(message.getDescriptorForType().getFields());
         }
 
@@ -164,6 +186,14 @@ public class ProtoConcatenator {
 
         for (Object value : values) {
             builder.addRepeatedField(dstFieldDescriptor, value);
+        }
+    }
+
+    private static Object getRealFieldValue(Object valueObject) {
+        if (valueObject instanceof Descriptors.EnumValueDescriptor) {
+            return ((Descriptors.EnumValueDescriptor) valueObject).getName();
+        } else {
+            return valueObject;
         }
     }
 }

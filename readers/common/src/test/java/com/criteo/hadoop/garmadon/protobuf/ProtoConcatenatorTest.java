@@ -1,6 +1,7 @@
 package com.criteo.hadoop.garmadon.protobuf;
 
 import com.github.os72.protobuf.dynamic.DynamicSchema;
+import com.github.os72.protobuf.dynamic.EnumDefinition;
 import com.github.os72.protobuf.dynamic.MessageDefinition;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors;
@@ -176,6 +177,25 @@ public class ProtoConcatenatorTest {
         testAllOutTypesWith(0L, Arrays.asList(msg, createEmptyMessage()), expectedValues);
     }
 
+    @Test
+    public void concatenateMessageWithEnumAndRegularFields() throws Descriptors.DescriptorValidationException {
+        DynamicMessage.Builder messageWithEnumBuilder = createMessageWithEnumsAndRegularFields();
+        Descriptors.Descriptor msgDesc = messageWithEnumBuilder.getDescriptorForType();
+
+        Message msg = messageWithEnumBuilder
+                .setField(msgDesc.findFieldByName("the_enum_1"), msgDesc.findEnumTypeByName("Enum1").findValueByName("TEST_1"))
+                .setField(msgDesc.findFieldByName("regular_field"), "value")
+                .build();
+
+        Map<String, Object> expectedValues = new HashMap<>();
+        expectedValues.put("regular_field", "value");
+        expectedValues.put("the_enum_1", "TEST_1");
+        expectedValues.put("the_enum_2", "DEFAULT");
+        expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+
+        testAllOutTypesWith(0L, Collections.singletonList(msg), expectedValues);
+    }
+
     /**
      * Test input with all ProtoConcatenator methods/flavors
      *
@@ -186,7 +206,7 @@ public class ProtoConcatenatorTest {
         Message outProtoMessage = ProtoConcatenator.concatToProtobuf(timestampMillis, inputMessages).build();
 
         Assert.assertNotNull(outProtoMessage);
-        Assert.assertEquals(expectedValues.size(), outProtoMessage.getAllFields().size());
+        Assert.assertEquals(expectedValues.size(), outProtoMessage.getDescriptorForType().getFields().size());
         for (Map.Entry<String, Object> v : expectedValues.entrySet()) {
             Assert.assertEquals(v.getValue(), getProtoFieldValueByName(outProtoMessage, v.getKey()));
         }
@@ -212,7 +232,12 @@ public class ProtoConcatenatorTest {
     }
 
     private static Object getProtoFieldValueByName(Message message, String fieldName) {
-        return message.getField(message.getDescriptorForType().findFieldByName(fieldName));
+        Object field = message.getField(message.getDescriptorForType().findFieldByName(fieldName));
+        if(field instanceof Descriptors.EnumValueDescriptor){
+            return ((Descriptors.EnumValueDescriptor) field).getName();
+        } else {
+            return field;
+        }
     }
 
     private static final List<Object> ALL_PROTOBUF_DEFAULT_VALUES = Arrays.asList(0d, 0f, 0, 0L, 0, 0L, 0, 0L, 0, 0L, 0,
@@ -311,5 +336,34 @@ public class ProtoConcatenatorTest {
         DynamicSchema schema = schemaBuilder.build();
 
         return schema.newMessageBuilder("Repeated");
+    }
+
+    private static DynamicMessage.Builder createMessageWithEnumsAndRegularFields() throws Descriptors.DescriptorValidationException {
+        DynamicSchema.Builder schemaBuilder = DynamicSchema.newBuilder();
+
+        EnumDefinition enumDefinition_1 = EnumDefinition
+                .newBuilder("Enum1")
+                .addValue("DEFAULT", 0)
+                .addValue("TEST_1", 1)
+                .build();
+
+        EnumDefinition enumDefinition_2 = EnumDefinition
+                .newBuilder("Enum2")
+                .addValue("DEFAULT", 0)
+                .addValue("TEST_2", 1)
+                .build();
+
+        MessageDefinition msgDef = MessageDefinition.newBuilder("EnumsAndRegularFields")
+                .addEnumDefinition(enumDefinition_1)
+                .addEnumDefinition(enumDefinition_2)
+                .addField("required", "Enum1", "the_enum_1", 1)
+                .addField("optional", "Enum2", "the_enum_2", 2)
+                .addField("required", "string", "regular_field", 3)
+                .build();
+
+        schemaBuilder.addMessageDefinition(msgDef);
+        DynamicSchema schema = schemaBuilder.build();
+
+        return schema.newMessageBuilder("EnumsAndRegularFields");
     }
 }

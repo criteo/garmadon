@@ -215,6 +215,7 @@ public class ElasticSearchReaderTest {
         eventMap.put("uri", "hdfs://data-preprod-pa4");
         eventMap.put("method_duration_millis", 100);
         eventMap.put("hdfs_user", "lakeprobes");
+        eventMap.put("status", "UNKNOWN");
 
         writeGarmadonMessage(type, event, 0L);
         verify(bulkProcessor, times(1)).add(argument.capture(), any(CommittableOffset.class));
