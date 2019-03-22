@@ -88,7 +88,6 @@ public class HdfsExporter {
         final String baseTemporaryHdfsDir = config.getHdfs().getBaseTemporaryDir();
         final Path finalHdfsDir = new Path(config.getHdfs().getFinalDir());
 
-
         FileSystem fs = null;
         try {
             fs = finalHdfsDir.getFileSystem(HDFS_CONF);
@@ -122,6 +121,7 @@ public class HdfsExporter {
             LOGGER.error("Couldn't ensure base directories exist, exiting", e);
             return;
         }
+        fs.deleteOnExit(temporaryHdfsDir);
 
         LOGGER.info("Temporary HDFS dir: {}", temporaryHdfsDir.toUri());
         LOGGER.info("Final HDFS dir: {}", finalHdfsDir.toUri());
