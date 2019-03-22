@@ -326,7 +326,8 @@ public class FileSystemTracer {
         }
     }
 
-    private static void sendFsEvent(String uri, String src, String dst, String fsAction, String username, long durationMillis, DataAccessEventProtos.FsEvent.Status status) {
+    private static void sendFsEvent(String uri, String src, String dst, String fsAction, String username, long durationMillis,
+                                    DataAccessEventProtos.FsEvent.Status status) {
         DataAccessEventProtos.FsEvent.Builder eventBuilder = DataAccessEventProtos.FsEvent
                 .newBuilder();
 
