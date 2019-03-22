@@ -316,7 +316,11 @@ public class FileSystemTracer {
         long startTime = System.nanoTime();
         DataAccessEventProtos.FsEvent.Status status = DataAccessEventProtos.FsEvent.Status.SUCCESS;
         try {
-            return zuper.call();
+            Object result = zuper.call();
+            if(Boolean.FALSE.equals(result)){
+                status = DataAccessEventProtos.FsEvent.Status.FAILURE;
+            }
+            return result;
         } catch (Exception e) {
             status = DataAccessEventProtos.FsEvent.Status.FAILURE;
             throw e;
