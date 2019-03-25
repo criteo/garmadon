@@ -13,12 +13,14 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 
 /**
  * Wrap an actual ProtoParquetWriter, renaming the output file properly when closing.
  *
- * @param <MESSAGE_KIND>     The message to be written in Proto + Parquet
+ * @param <MESSAGE_KIND> The message to be written in Proto + Parquet
  */
 public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         implements CloseableBiConsumer<MESSAGE_KIND, Offset> {
@@ -72,7 +74,13 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
             writerClosed = true;
         }
 
-        final Path finalPath = new Path(finalHdfsDir, fileNamer.computePath(dayStartTime, latestOffset));
+
+        final Path topicGlobPath = new Path(finalHdfsDir, fileNamer.computeTopicGlob(dayStartTime, latestOffset));
+        final Optional<Long> lastIndex = Arrays.stream(fs.globStatus(topicGlobPath))
+                .map(file -> fileNamer.getIndex(file.getPath().getName()))
+                .reduce((index1, index2) -> index1 > index2 ? index1 : index2);
+
+        final Path finalPath = new Path(finalHdfsDir, fileNamer.computePath(dayStartTime, lastIndex.orElse(0L) + 1, latestOffset));
 
         FileSystemUtils.ensureDirectoriesExist(Collections.singleton(finalPath.getParent()), fs);
 

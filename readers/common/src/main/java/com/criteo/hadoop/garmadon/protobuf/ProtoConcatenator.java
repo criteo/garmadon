@@ -16,6 +16,8 @@ public class ProtoConcatenator {
     // timestamp in millisecond
     public static final String TIMESTAMP_FIELD_NAME = "timestamp";
 
+    public static final String KAFKA_OFFSET = "kafka_offset";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtoConcatenator.class);
 
     protected ProtoConcatenator() {
@@ -30,7 +32,7 @@ public class ProtoConcatenator {
      * @return A single, one-level Protobuf objects holding fields and values from all input messages.
      * Null if an error occurred (shouldn't happen).
      */
-    public static Message.Builder concatToProtobuf(long timestampMillis, Collection<Message> messages) {
+    public static Message.Builder concatToProtobuf(long timestampMillis, long kafkaOffset, Collection<Message> messages) {
         try {
             final DynamicMessage.Builder messageBuilder = concatInner(messages,
                     keys -> {
@@ -58,6 +60,7 @@ public class ProtoConcatenator {
                     });
 
             messageBuilder.setField(messageBuilder.getDescriptorForType().findFieldByName(TIMESTAMP_FIELD_NAME), timestampMillis);
+            messageBuilder.setField(messageBuilder.getDescriptorForType().findFieldByName(KAFKA_OFFSET), kafkaOffset);
             return messageBuilder;
         } catch (IllegalArgumentException e) {
             LOGGER.error("Could not flatten Protobuf event", e);
@@ -118,6 +121,8 @@ public class ProtoConcatenator {
         }
 
         msgDef.addField("optional", "int64", TIMESTAMP_FIELD_NAME, currentIndex++);
+
+        msgDef.addField("optional", "int64", KAFKA_OFFSET, currentIndex++);
 
         final DynamicSchema.Builder schemaBuilder = DynamicSchema.newBuilder();
         schemaBuilder.addMessageDefinition(msgDef.build());
