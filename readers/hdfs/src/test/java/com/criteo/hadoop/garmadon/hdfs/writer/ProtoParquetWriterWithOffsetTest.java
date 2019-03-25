@@ -77,8 +77,8 @@ public class ProtoParquetWriterWithOffsetTest {
         final Path finalPath = new Path("final");
         final FileSystem fsMock = mock(FileSystem.class);
         final FileStatus fileStatusMock = mock(FileStatus.class);
-        final Path path = new Path("final/" + today.format(DateTimeFormatter.ISO_DATE) + "/1.index=1.0");
-        final Path pathRes = new Path("final/" + today.format(DateTimeFormatter.ISO_DATE) + "/1.index=2.3");
+        final Path path = new Path(finalPath, today.format(DateTimeFormatter.ISO_DATE) + "/1.index=1.0");
+        final Path pathRes = new Path(finalPath, today.format(DateTimeFormatter.ISO_DATE) + "/1.index=2.3");
         final Message firstMessageMock = mock(Message.class);
         final Message secondMessageMock = mock(Message.class);
         final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writerMock, tmpPath,
