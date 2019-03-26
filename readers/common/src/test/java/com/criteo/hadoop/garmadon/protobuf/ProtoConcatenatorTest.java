@@ -15,14 +15,17 @@ import java.util.*;
 public class ProtoConcatenatorTest {
     @Test
     public void concatenateEmptyList() {
+        long kafkaOffset = 0L;
         HashMap<String, Object> expectedValues = new HashMap<>();
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, kafkaOffset);
 
-        testAllOutTypesWith(0L, Collections.emptyList(), expectedValues);
+        testAllOutTypesWith(0L, Collections.emptyList(), expectedValues, kafkaOffset);
     }
 
     @Test
     public void concatenateSingleMessage() throws Descriptors.DescriptorValidationException {
+        long kafkaOffset = 21L;
         DynamicMessage.Builder inMsg = createBodyBuilder();
         Descriptors.Descriptor inMsgDesc = inMsg.getDescriptorForType();
 
@@ -33,8 +36,9 @@ public class ProtoConcatenatorTest {
         expectedValues.put("bodyInt", 1);
         expectedValues.put("bodyString", "one");
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 21L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, kafkaOffset);
 
-        testAllOutTypesWith(21L, Collections.singletonList(inMsg.build()), expectedValues);
+        testAllOutTypesWith(21L, Collections.singletonList(inMsg.build()), expectedValues, kafkaOffset);
     }
 
     @Test
@@ -58,6 +62,7 @@ public class ProtoConcatenatorTest {
 
     @Test
     public void concatenateDifferentMessages() throws Descriptors.DescriptorValidationException {
+        long kafkaOffset = 0L;
         DynamicMessage.Builder headerMessageBuilder = createHeaderMessageBuilder();
         Descriptors.Descriptor headerMsgDesc = headerMessageBuilder.getDescriptorForType();
 
@@ -76,12 +81,14 @@ public class ProtoConcatenatorTest {
         expectedValues.put("bodyInt", 2);
         expectedValues.put("bodyString", "two");
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, kafkaOffset);
 
-        testAllOutTypesWith(0L, Arrays.asList(headerMessageBuilder.build(), bodyMessageBuilder.build()), expectedValues);
+        testAllOutTypesWith(0L, Arrays.asList(headerMessageBuilder.build(), bodyMessageBuilder.build()), expectedValues, kafkaOffset);
     }
 
     @Test
     public void concatenateMessageWithItself() throws Descriptors.DescriptorValidationException {
+        long kafkaOffset = 0L;
         DynamicMessage.Builder headerMessageBuilder = createHeaderMessageBuilder();
         Descriptors.Descriptor headerMsgDesc = headerMessageBuilder.getDescriptorForType();
 
@@ -92,14 +99,16 @@ public class ProtoConcatenatorTest {
         expectedValues.put("id", 1);
         expectedValues.put("name", "one");
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, kafkaOffset);
 
         // As of proto3, two fields cannot have the same name (even if they have a different id)
-        Assert.assertNull(ProtoConcatenator.concatToProtobuf(0,
+        Assert.assertNull(ProtoConcatenator.concatToProtobuf(0, 0,
                 Arrays.asList(headerMessageBuilder.build(), headerMessageBuilder.build())));
     }
 
     @Test
     public void concatenateMessageWithEmpty() throws Descriptors.DescriptorValidationException {
+        long kafkaOffset = 0L;
         DynamicMessage.Builder headerMessageBuilder = createHeaderMessageBuilder();
         Descriptors.Descriptor headerMsgDesc = headerMessageBuilder.getDescriptorForType();
 
@@ -110,20 +119,24 @@ public class ProtoConcatenatorTest {
         expectedValues.put("id", 1);
         expectedValues.put("name", "one");
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, kafkaOffset);
 
-        testAllOutTypesWith(0L, Arrays.asList(headerMessageBuilder.build(), createEmptyMessage()), expectedValues);
+        testAllOutTypesWith(0L, Arrays.asList(headerMessageBuilder.build(), createEmptyMessage()), expectedValues, kafkaOffset);
     }
 
     @Test
     public void concatenateEmptyWithEmpty() throws Descriptors.DescriptorValidationException {
+        long kafkaOffset = 0L;
         HashMap<String, Object> expectedValues = new HashMap<>();
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, kafkaOffset);
 
-        testAllOutTypesWith(0L, Arrays.asList(createEmptyMessage(), createEmptyMessage()), expectedValues);
+        testAllOutTypesWith(0L, Arrays.asList(createEmptyMessage(), createEmptyMessage()), expectedValues, kafkaOffset);
     }
 
     @Test
     public void concatenateMessagesWithClashingNamesAndIds() throws Descriptors.DescriptorValidationException {
+        long kafkaOffset = 0L;
         DynamicMessage.Builder headerMessageBuilder = createHeaderMessageBuilder();
         Descriptors.Descriptor headerMsgDesc = headerMessageBuilder.getDescriptorForType();
 
@@ -142,12 +155,14 @@ public class ProtoConcatenatorTest {
         expectedValues.put("otherId", 2);
         expectedValues.put("otherName", "two");
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, kafkaOffset);
 
-        testAllOutTypesWith(0L, Arrays.asList(headerMessageBuilder.build(), bodyMessageBuilder.build()), expectedValues);
+        testAllOutTypesWith(0L, Arrays.asList(headerMessageBuilder.build(), bodyMessageBuilder.build()), expectedValues, kafkaOffset);
     }
 
     @Test
     public void concatenateMessageWithAllTypesWithEmpty() throws Descriptors.DescriptorValidationException {
+        long kafkaOffset = 0L;
         DynamicMessage allTypesMessage = createMessageWithAllProtoTypes();
 
         Map<String, Object> expectedValues = new HashMap<>();
@@ -155,12 +170,14 @@ public class ProtoConcatenatorTest {
             expectedValues.put(ALL_PROTOBUF_TYPES.get(i), ALL_PROTOBUF_DEFAULT_VALUES.get(i));
         }
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, kafkaOffset);
 
-        testAllOutTypesWith(0L, Arrays.asList(allTypesMessage, createEmptyMessage()), expectedValues);
+        testAllOutTypesWith(0L, Arrays.asList(allTypesMessage, createEmptyMessage()), expectedValues, kafkaOffset);
     }
 
     @Test
     public void concatenateMessageWithRepeatedFieldWithEmpty() throws Descriptors.DescriptorValidationException {
+        long kafkaOffset = 0L;
         DynamicMessage.Builder messageWithRepeatedFieldBuilder = createMessageWithRepeatedField();
         Descriptors.Descriptor msgDesc = messageWithRepeatedFieldBuilder.getDescriptorForType();
 
@@ -173,8 +190,9 @@ public class ProtoConcatenatorTest {
         ArrayList<Object> ints = new ArrayList<>(Arrays.asList(1, 2));
         expectedValues.put("repeated_field", ints);
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, kafkaOffset);
 
-        testAllOutTypesWith(0L, Arrays.asList(msg, createEmptyMessage()), expectedValues);
+        testAllOutTypesWith(0L, Arrays.asList(msg, createEmptyMessage()), expectedValues, kafkaOffset);
     }
 
     @Test
@@ -202,8 +220,8 @@ public class ProtoConcatenatorTest {
      * @param inputMessages  Input Protobuf messages
      * @param expectedValues Strictly-expected values (must be equal in size and values to the output)
      */
-    private void testAllOutTypesWith(long timestampMillis, Collection<Message> inputMessages, Map<String, Object> expectedValues) {
-        Message outProtoMessage = ProtoConcatenator.concatToProtobuf(timestampMillis, inputMessages).build();
+    private void testAllOutTypesWith(long timestampMillis, Collection<Message> inputMessages, Map<String, Object> expectedValues, long kafkaOffset) {
+        Message outProtoMessage = ProtoConcatenator.concatToProtobuf(timestampMillis, kafkaOffset, inputMessages).build();
 
         Assert.assertNotNull(outProtoMessage);
         Assert.assertEquals(expectedValues.size(), outProtoMessage.getDescriptorForType().getFields().size());
@@ -211,6 +229,7 @@ public class ProtoConcatenatorTest {
             Assert.assertEquals(v.getValue(), getProtoFieldValueByName(outProtoMessage, v.getKey()));
         }
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.remove(ProtoConcatenator.KAFKA_OFFSET);
 
         testToMapOutTypesWith(0L, inputMessages, expectedValues);
     }

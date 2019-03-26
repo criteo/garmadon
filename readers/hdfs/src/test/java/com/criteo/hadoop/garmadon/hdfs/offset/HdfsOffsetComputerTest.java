@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -22,14 +23,28 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class HdfsOffsetComputerTest {
+    private HdfsOffsetComputer offsetComputer;
+
+    @Before
+    public void setup() throws IOException {
+        offsetComputer = new HdfsOffsetComputer(buildFileSystem(
+                Arrays.asList("456.12", "123.abc", "456.24")),
+                new Path("Fake path"), 2);
+    }
+
     @Test
     public void fullyMatchingFileName() throws IOException {
         performSinglePartitionTest(Collections.singletonList("123.12"), 123, 12);
     }
 
     @Test
+    public void fullyMatchingIndexFileName() throws IOException {
+        performSinglePartitionTest(Collections.singletonList("123.index=1.12"), 123, 12);
+    }
+
+    @Test
     public void nonMatchingPartition() throws IOException {
-        performSinglePartitionTest(Collections.singletonList("345.12"),  123, OffsetComputer.NO_OFFSET);
+        performSinglePartitionTest(Collections.singletonList("345.12"), 123, OffsetComputer.NO_OFFSET);
     }
 
     @Test
@@ -50,11 +65,21 @@ public class HdfsOffsetComputerTest {
     @Test
     public void nonNumericOffset() throws IOException {
         performSinglePartitionTest(Collections.singletonList("abc"), 123, OffsetComputer.NO_OFFSET);
-   }
+    }
 
     @Test
     public void matchingAndNotMaching() throws IOException {
         performSinglePartitionTest(Arrays.asList("abc", "123.12", "12e"), 123, 12);
+    }
+
+    @Test
+    public void getIndexReturnFileIndex() throws IOException {
+        Assert.assertEquals(1, offsetComputer.getIndex("123.index=1.12"));
+    }
+
+    @Test
+    public void getIndexReturn0IfNoIndex() throws IOException {
+        Assert.assertEquals(0, offsetComputer.getIndex("123.12"));
     }
 
     @Test
@@ -77,10 +102,6 @@ public class HdfsOffsetComputerTest {
 
     @Test
     public void noMatchForPartition() throws IOException {
-        final HdfsOffsetComputer offsetComputer = new HdfsOffsetComputer(buildFileSystem(
-                Arrays.asList("456.12", "123.abc", "456.24")),
-                new Path("Fake path"), 2);
-
         Assert.assertEquals(OffsetComputer.NO_OFFSET, offsetComputer.computeOffsets(Collections.singleton(123)).get(123).longValue());
     }
 
@@ -104,29 +125,28 @@ public class HdfsOffsetComputerTest {
                 /tmp/hdfs-reader-test-1234
                 └── embedded
                     ├── <today>
-                    │   ├── 1.1
-                    │   └── 2.12
+                    │   ├── 1.index=0
+                    │   └── 2.index=0
                     └── <yesterday>
-                    │   ├── 1.2
-                    │   └── 1.3
+                    │   ├── 1.index=0
+                    │   └── 1.index=1
                     └── <2 days ago> # Should be ignored
-                        └── 1.42
+                        └── 1.index=0
              */
             localFs.mkdirs(rootPath);
             localFs.mkdirs(basePath);
-            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(today, buildOffset(1, 1))));
-            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(today, buildOffset(2, 12))));
-            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(yesterday, buildOffset(1, 2))));
-            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(yesterday, buildOffset(1, 3))));
-            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(twoDaysAgo, buildOffset(1, 42))));
+            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(today, 0L, buildOffset(1, 1))));
+            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(today, 0L, buildOffset(2, 12))));
+            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(yesterday, 0L, buildOffset(1, 2))));
+            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(yesterday, 1L, buildOffset(1, 3))));
+            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(twoDaysAgo, 0L, buildOffset(1, 42))));
 
             Map<Integer, Long> offsets = hdfsOffsetComputer.computeOffsets(Arrays.asList(1, 2, 3));
 
             Assert.assertEquals(3, offsets.get(1).longValue());
             Assert.assertEquals(12, offsets.get(2).longValue());
             Assert.assertEquals(-1, offsets.get(3).longValue());
-        }
-        finally {
+        } finally {
             FileUtils.deleteDirectory(tmpDir.toFile());
         }
     }

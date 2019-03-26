@@ -32,11 +32,11 @@ public class HdfsOffsetComputer implements OffsetComputer {
     }
 
     /**
-     * @param fs            Filesystem for said files
-     * @param basePath      Root directory to look in for offsets filenames
-     * @param kafkaCluster  Name of corresponding kafka cluster
-     * @param backlogDays   How many days to look for offsets for in the past (earlier directories will be ignored),
-     *                      eg. 2 =&lt; today and tomorrow
+     * @param fs           Filesystem for said files
+     * @param basePath     Root directory to look in for offsets filenames
+     * @param kafkaCluster Name of corresponding kafka cluster
+     * @param backlogDays  How many days to look for offsets for in the past (earlier directories will be ignored),
+     *                     eg. 2 =&lt; today and tomorrow
      */
     public HdfsOffsetComputer(FileSystem fs, Path basePath, @Nullable String kafkaCluster, int backlogDays) {
         this.fs = fs;
@@ -45,11 +45,12 @@ public class HdfsOffsetComputer implements OffsetComputer {
         this.dirRenamePattern = "%s";
 
         if (kafkaCluster == null) {
-            this.offsetFilePatternGenerator = Pattern.compile("^(\\d+)\\.(\\d+)$");
-            this.fileRenamePattern = "%d.%d";
+            this.offsetFilePatternGenerator = Pattern.compile("^(?<partitionId>\\d+)(?>\\.index=(?<index>\\d+))*\\.(?<offset>\\d+)$");
+            this.fileRenamePattern = "%d.index=%d.%d";
         } else {
-            this.offsetFilePatternGenerator = Pattern.compile(String.format("^(\\d+)\\.cluster=%s\\.(\\d+)$", kafkaCluster));
-            this.fileRenamePattern = String.format("%%d.cluster=%s.%%d", kafkaCluster);
+            this.offsetFilePatternGenerator = Pattern.compile(String.format("^(?<partitionId>\\d+)\\.cluster=%s(?>\\.index=(?<index>\\d+))*\\.(?<offset>\\d+)$",
+                    kafkaCluster));
+            this.fileRenamePattern = String.format("%%d.cluster=%s.index=%%d.%%d", kafkaCluster);
         }
     }
 
@@ -60,13 +61,13 @@ public class HdfsOffsetComputer implements OffsetComputer {
         String dirsPattern = String.format("%s/**", computeDirNamesPattern(LocalDateTime.now(), backlogDays));
         FileStatus[] fileStatuses = fs.globStatus(new Path(basePath, dirsPattern));
 
-        for (FileStatus status: fileStatuses) {
+        for (FileStatus status : fileStatuses) {
             String fileName = status.getPath().getName();
             Matcher matcher = offsetFilePatternGenerator.matcher(fileName);
             if (matcher.matches()) {
                 try {
-                    int partitionId = Integer.parseInt(matcher.group(1));
-                    Long offset = Long.parseLong(matcher.group(2));
+                    int partitionId = Integer.parseInt(matcher.group("partitionId"));
+                    Long offset = Long.parseLong(matcher.group("offset"));
                     if (partitionIdsSet.contains(partitionId)) {
                         result.merge(partitionId, offset, Long::max);
                     }
@@ -96,7 +97,25 @@ public class HdfsOffsetComputer implements OffsetComputer {
     }
 
     @Override
-    public String computePath(LocalDateTime time, Offset offset) {
-        return computeDirName(time) + "/" + String.format(fileRenamePattern, offset.getPartition(), offset.getOffset());
+    public long getIndex(String fileName) {
+        Matcher matcher = offsetFilePatternGenerator.matcher(fileName);
+        if (matcher.matches()) {
+            try {
+                return Long.parseLong(matcher.group("index"));
+            } catch (NumberFormatException e) {
+                LOGGER.info("Couldn't deviate a valid index from '{}'", fileName);
+            }
+        }
+        return 0L;
+    }
+
+    @Override
+    public String computeTopicGlob(LocalDateTime time, Offset offset) {
+        return computeDirName(time) + "/" + offset.getPartition() + ".*";
+    }
+
+    @Override
+    public String computePath(LocalDateTime time, long index, Offset offset) {
+        return computeDirName(time) + "/" + String.format(fileRenamePattern, offset.getPartition(), index, offset.getOffset());
     }
 }

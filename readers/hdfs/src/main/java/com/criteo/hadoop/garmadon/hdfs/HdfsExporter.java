@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.hdfs;
 
+import com.criteo.hadoop.garmadon.event.proto.*;
 import com.criteo.hadoop.garmadon.hdfs.configurations.HdfsConfiguration;
 import com.criteo.hadoop.garmadon.hdfs.configurations.HdfsReaderConfiguration;
 import com.criteo.hadoop.garmadon.hdfs.kafka.OffsetResetter;
@@ -72,12 +73,11 @@ public class HdfsExporter {
     }
 
     /**
-     * @param args:
-     * args[0]: Kafka connection string
-     * args[1]: Kafka group
-     * args[2]: Temporary HDFS directory
-     * args[3]: Final HDFS directory
-     * args[4]: Prometheus port
+     * @param args: args[0]: Kafka connection string
+     *              args[1]: Kafka group
+     *              args[2]: Temporary HDFS directory
+     *              args[3]: Final HDFS directory
+     *              args[4]: Prometheus port
      * @throws IOException in case of error during config loading
      */
     public static void main(String[] args) throws IOException {
@@ -87,7 +87,6 @@ public class HdfsExporter {
 
         final String baseTemporaryHdfsDir = config.getHdfs().getBaseTemporaryDir();
         final Path finalHdfsDir = new Path(config.getHdfs().getFinalDir());
-
 
         FileSystem fs = null;
         try {
@@ -112,7 +111,7 @@ public class HdfsExporter {
         final Collection<PartitionedWriter<Message>> writers = new ArrayList<>();
         final PartitionedWriter.Expirer expirer = new PartitionedWriter.Expirer<>(writers, expirerPeriod);
         final HeartbeatConsumer heartbeat = new HeartbeatConsumer<>(writers, heartbeatPeriod);
-        final Map<Integer, Map.Entry<String, Class<? extends Message>>> typeToDirAndClass = getTypeToDirAndClass();
+        final Map<Integer, GarmadonEventDescriptor> typeToDirAndClass = getTypeToEventDescriptor();
         final Path temporaryHdfsDir = new Path(baseTemporaryHdfsDir, UUID.randomUUID().toString());
         final PrometheusHttpConsumerMetrics prometheusServer = new PrometheusHttpConsumerMetrics(config.getPrometheus().getPort());
 
@@ -122,16 +121,18 @@ public class HdfsExporter {
             LOGGER.error("Couldn't ensure base directories exist, exiting", e);
             return;
         }
+        fs.deleteOnExit(temporaryHdfsDir);
 
         LOGGER.info("Temporary HDFS dir: {}", temporaryHdfsDir.toUri());
         LOGGER.info("Final HDFS dir: {}", finalHdfsDir.toUri());
 
         final PartitionsPauseStateHandler pauser = new PartitionsPauseStateHandler(kafkaConsumer);
 
-        for (Map.Entry<Integer, Map.Entry<String, Class<? extends Message>>> out : typeToDirAndClass.entrySet()) {
+        for (Map.Entry<Integer, GarmadonEventDescriptor> out : typeToDirAndClass.entrySet()) {
             final Integer eventType = out.getKey();
-            final String eventName = out.getValue().getKey();
-            final Class<? extends Message> clazz = out.getValue().getValue();
+            final String eventName = out.getValue().getPath();
+            final Class<? extends Message> clazz = out.getValue().getClazz();
+            final Message.Builder emptyMessageBuilder = out.getValue().getEmptyMessageBuilder();
             final Function<LocalDateTime, ExpiringConsumer<Message>> consumerBuilder;
             final Path finalEventDir = new Path(finalHdfsDir, eventName);
             final OffsetComputer offsetComputer = new HdfsOffsetComputer(fs, finalEventDir,
@@ -141,7 +142,7 @@ public class HdfsExporter {
                     finalEventDir, clazz, offsetComputer, pauser, eventName);
 
             final PartitionedWriter<Message> writer = new PartitionedWriter<>(
-                    consumerBuilder, offsetComputer, eventName);
+                    consumerBuilder, offsetComputer, eventName, emptyMessageBuilder);
 
             readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(writer, eventName));
 
@@ -282,31 +283,33 @@ public class HdfsExporter {
         };
     }
 
-    private static Map<Integer, Map.Entry<String, Class<? extends Message>>> getTypeToDirAndClass() {
-        final Map<Integer, Map.Entry<String, Class<? extends Message>>> out = new HashMap<>();
+    private static Map<Integer, GarmadonEventDescriptor> getTypeToEventDescriptor() {
+        final Map<Integer, GarmadonEventDescriptor> out = new HashMap<>();
 
-        addTypeMapping(out, GarmadonSerialization.TypeMarker.FS_EVENT, "fs", EventsWithHeader.FsEvent.class);
-        addTypeMapping(out, GarmadonSerialization.TypeMarker.GC_EVENT, "gc", EventsWithHeader.GCStatisticsData.class);
+        addTypeMapping(out, GarmadonSerialization.TypeMarker.FS_EVENT, "fs", EventsWithHeader.FsEvent.class,
+                DataAccessEventProtos.FsEvent.newBuilder());
+        addTypeMapping(out, GarmadonSerialization.TypeMarker.GC_EVENT, "gc", EventsWithHeader.GCStatisticsData.class,
+                JVMStatisticsEventsProtos.GCStatisticsData.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.CONTAINER_MONITORING_EVENT, "container",
-                EventsWithHeader.ContainerEvent.class);
+                EventsWithHeader.ContainerEvent.class, ContainerEventProtos.ContainerResourceEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.SPARK_STAGE_EVENT, "spark_stage",
-                EventsWithHeader.SparkStageEvent.class);
+                EventsWithHeader.SparkStageEvent.class, SparkEventProtos.StageEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.SPARK_STAGE_STATE_EVENT, "spark_stage_state",
-                EventsWithHeader.SparkStageStateEvent.class);
+                EventsWithHeader.SparkStageStateEvent.class, SparkEventProtos.StageStateEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.SPARK_EXECUTOR_STATE_EVENT, "spark_executor",
-                EventsWithHeader.SparkExecutorStateEvent.class);
+                EventsWithHeader.SparkExecutorStateEvent.class, SparkEventProtos.ExecutorStateEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.SPARK_TASK_EVENT, "spark_task",
-                EventsWithHeader.SparkTaskEvent.class);
+                EventsWithHeader.SparkTaskEvent.class, SparkEventProtos.TaskEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.APPLICATION_EVENT, "application_event",
-                EventsWithHeader.ApplicationEvent.class);
+                EventsWithHeader.ApplicationEvent.class, ResourceManagerEventProtos.ApplicationEvent.newBuilder());
 
         // TODO: handle JVM events
 
         return out;
     }
 
-    private static void addTypeMapping(Map<Integer, Map.Entry<String, Class<? extends Message>>> out,
-                                       Integer type, String path, Class<? extends Message> clazz) {
-        out.put(type, new AbstractMap.SimpleEntry<>(path, clazz));
+    private static void addTypeMapping(Map<Integer, GarmadonEventDescriptor> out,
+                                       Integer type, String path, Class<? extends Message> clazz, Message.Builder emptyMessageBuilder) {
+        out.put(type, new GarmadonEventDescriptor(path, clazz, emptyMessageBuilder));
     }
 }
