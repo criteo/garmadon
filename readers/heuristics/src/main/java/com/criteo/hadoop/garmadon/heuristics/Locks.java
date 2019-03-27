@@ -18,7 +18,7 @@ public class Locks implements JVMStatsHeuristic {
         for (JVMStatisticsEventsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             if ("synclocks".equals(section.getName())) {
                 Map<String, LockCounters> containerCounters = appCounters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId),
-                        s -> new HashMap<>());
+                    s -> new HashMap<>());
                 LockCounters lockCounters = containerCounters.computeIfAbsent(containerId, s -> new LockCounters());
                 for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     if ("contendedlockattempts".equals(property.getName())) {
@@ -58,7 +58,7 @@ public class Locks implements JVMStatsHeuristic {
     @Override
     public void onAppCompleted(String applicationId, String attemptId) {
         HeuristicHelper.createCounterHeuristic(applicationId, attemptId, appCounters, heuristicsResultDB, Locks.class,
-                counter -> "Max contention/s: " + counter.ratio);
+            counter -> "Max contention/s: " + counter.ratio);
     }
 
     @Override

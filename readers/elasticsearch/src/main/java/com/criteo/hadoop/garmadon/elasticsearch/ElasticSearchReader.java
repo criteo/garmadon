@@ -69,8 +69,8 @@ public final class ElasticSearchReader {
                         String esIndexPrefix,
                         PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics) {
         this.reader = builderReader
-                .intercept(GarmadonMessageFilter.ANY.INSTANCE, this::writeToES)
-                .build();
+            .intercept(GarmadonMessageFilter.ANY.INSTANCE, this::writeToES)
+            .build();
 
         this.bulkProcessor = bulkProcessorMain;
 
@@ -91,15 +91,15 @@ public final class ElasticSearchReader {
 
     private CompletableFuture<Void> stop() {
         return reader
-                .stopReading()
-                .whenComplete((vd, ex) -> {
-                    try {
-                        bulkProcessor.awaitClose(10L, TimeUnit.SECONDS);
-                        prometheusHttpConsumerMetrics.terminate();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                });
+            .stopReading()
+            .whenComplete((vd, ex) -> {
+                try {
+                    bulkProcessor.awaitClose(10L, TimeUnit.SECONDS);
+                    prometheusHttpConsumerMetrics.terminate();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
     }
 
     void writeToES(GarmadonMessage msg) {
@@ -127,7 +127,7 @@ public final class ElasticSearchReader {
 
         String dailyIndex = esIndexPrefix + "-" + FORMATTER.format(timestampMillis);
         IndexRequest req = new IndexRequest(dailyIndex, ES_TYPE)
-                .source(eventMap);
+            .source(eventMap);
         bulkProcessor.add(req, committableOffset);
     }
 
@@ -154,17 +154,17 @@ public final class ElasticSearchReader {
     }
 
     private static void putGarmadonTemplate(RestHighLevelClient esClient, ElasticsearchConfiguration elasticsearch)
-            throws IOException, GarmadonEsException {
+        throws IOException, GarmadonEsException {
         PutIndexTemplateRequest indexRequest = new PutIndexTemplateRequest("garmadon");
         indexRequest.patterns(Collections.singletonList(elasticsearch.getIndexPrefix() + "*"));
 
         // Create template settings with mandatory one
         Settings.Builder templateSettings = Settings.builder()
-                .put("sort.field", "timestamp")
-                .put("sort.order", "desc")
-                .put("analysis.analyzer.path_analyzer.tokenizer", "path_tokenizer")
-                .put("analysis.tokenizer.path_tokenizer.type", "path_hierarchy")
-                .put("analysis.tokenizer.path_tokenizer.delimiter", "/");
+            .put("sort.field", "timestamp")
+            .put("sort.order", "desc")
+            .put("analysis.analyzer.path_analyzer.tokenizer", "path_tokenizer")
+            .put("analysis.tokenizer.path_tokenizer.type", "path_hierarchy")
+            .put("analysis.tokenizer.path_tokenizer.delimiter", "/");
 
         // Add settings from config
         elasticsearch.getSettings().forEach((key, value) -> templateSettings.put(key, value));
@@ -172,7 +172,7 @@ public final class ElasticSearchReader {
         indexRequest.settings(templateSettings);
 
         String template = IOUtils.toString(Objects.requireNonNull(ElasticSearchReader.class.getClassLoader()
-                .getResourceAsStream("template.json")), "UTF-8");
+            .getResourceAsStream("template.json")), "UTF-8");
 
         indexRequest.mapping(ES_TYPE, template, XContentType.JSON);
 
@@ -186,22 +186,22 @@ public final class ElasticSearchReader {
 
         LogFailureListener sniffOnFailureListener = new LogFailureListener();
         RestClientBuilder restClientBuilder = RestClient.builder(
-                new HttpHost(elasticsearch.getHost(), elasticsearch.getPort(), "http")
+            new HttpHost(elasticsearch.getHost(), elasticsearch.getPort(), "http")
         )
-                .setFailureListener(sniffOnFailureListener)
-                .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
-                        .setConnectTimeout(CONNECTION_TIMEOUT_MS)
-                        .setSocketTimeout(SOCKET_TIMEOUT_MS)
-                        .setContentCompressionEnabled(true))
-                .setMaxRetryTimeoutMillis(2 * SOCKET_TIMEOUT_MS);
+            .setFailureListener(sniffOnFailureListener)
+            .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
+                .setConnectTimeout(CONNECTION_TIMEOUT_MS)
+                .setSocketTimeout(SOCKET_TIMEOUT_MS)
+                .setContentCompressionEnabled(true))
+            .setMaxRetryTimeoutMillis(2 * SOCKET_TIMEOUT_MS);
 
         if (elasticsearch.getUser() != null) {
             credentialsProvider.setCredentials(AuthScope.ANY,
-                    new UsernamePasswordCredentials(elasticsearch.getUser(), elasticsearch.getPassword()));
+                new UsernamePasswordCredentials(elasticsearch.getUser(), elasticsearch.getPassword()));
 
             restClientBuilder
-                    .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
-                            .setDefaultCredentialsProvider(credentialsProvider));
+                .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
+                    .setDefaultCredentialsProvider(credentialsProvider));
         }
 
         //setup es client
@@ -213,17 +213,17 @@ public final class ElasticSearchReader {
         sniffOnFailureListener.setSniffer(sniffer);
 
         BiConsumer<BulkRequest, ActionListener<BulkResponse>> bulkConsumer =
-                (request, bulkListener) -> esClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener);
+            (request, bulkListener) -> esClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener);
 
         return BulkProcessor.builder(bulkConsumer, new ElasticSearchListener())
-                .setBulkActions(elasticsearch.getBulkActions())
-                .setBulkSize(new ByteSizeValue(elasticsearch.getBulkSizeMB(), ByteSizeUnit.MB))
-                .setFlushInterval(TimeValue.timeValueSeconds(elasticsearch.getBulkFlushIntervalSec()))
-                .setConcurrentRequests(elasticsearch.getBulkConcurrent())
-                .setBackoffPolicy(
-                        BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), NB_RETRIES)
-                )
-                .build();
+            .setBulkActions(elasticsearch.getBulkActions())
+            .setBulkSize(new ByteSizeValue(elasticsearch.getBulkSizeMB(), ByteSizeUnit.MB))
+            .setFlushInterval(TimeValue.timeValueSeconds(elasticsearch.getBulkFlushIntervalSec()))
+            .setConcurrentRequests(elasticsearch.getBulkConcurrent())
+            .setBackoffPolicy(
+                BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), NB_RETRIES)
+            )
+            .build();
     }
 
     public static void main(String[] args) throws IOException, GarmadonEsException {
@@ -233,7 +233,7 @@ public final class ElasticSearchReader {
         BulkProcessor bulkProcessorMain = setUpBulkProcessor(config.getElasticsearch());
 
         ElasticSearchReader reader = new ElasticSearchReader(builderReader, bulkProcessorMain,
-                config.getElasticsearch().getIndexPrefix(), new PrometheusHttpConsumerMetrics(config.getPrometheus().getPort()));
+            config.getElasticsearch().getIndexPrefix(), new PrometheusHttpConsumerMetrics(config.getPrometheus().getPort()));
 
         reader.startReading().join();
 

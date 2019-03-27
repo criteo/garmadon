@@ -110,12 +110,12 @@ public class GarmadonFlinkReporter implements MetricReporter, Scheduled {
 
     private String getMetricName(String metricIdentifier) {
         return metricIdentifier.replaceFirst(host + ".", "")        // Remove the host from the metric name
-                               .replaceFirst("jobmanager.", "");    // Remove "jobmanager" from the metric name
+            .replaceFirst("jobmanager.", "");    // Remove "jobmanager" from the metric name
     }
 
     private boolean isMetricInWhiteList(String metricName) {
         return JOB_MANAGER_WHITE_LIST.stream().anyMatch(metricName::endsWith) ||
-          JOB_WHITE_LIST.stream().anyMatch(metricName::endsWith);
+            JOB_WHITE_LIST.stream().anyMatch(metricName::endsWith);
     }
 
     @Override
@@ -152,9 +152,9 @@ public class GarmadonFlinkReporter implements MetricReporter, Scheduled {
 
             try {
                 Property property = Property.newBuilder()
-                  .setName(jobMetricName)
-                  .setValue(gauge.getValue().longValue())
-                  .build();
+                    .setName(jobMetricName)
+                    .setValue(gauge.getValue().longValue())
+                    .build();
                 properties.add(property);
 
             } catch (RuntimeException e) {
@@ -171,8 +171,8 @@ public class GarmadonFlinkReporter implements MetricReporter, Scheduled {
 
     private void reportJobMetrics(long currentTimeMillis, JobIdentifier jobIdentifier) {
         List<Property> metrics = createProperties(
-          JOB_WHITE_LIST,
-          metricName -> jobIdentifier.getJobName() + "." + metricName);
+            JOB_WHITE_LIST,
+            metricName -> jobIdentifier.getJobName() + "." + metricName);
 
         JobEvent.Builder builder = JobEvent.newBuilder();
         builder.addAllMetrics(metrics);
