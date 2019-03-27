@@ -210,8 +210,9 @@ public class ProtoConcatenatorTest {
         expectedValues.put("the_enum_1", "TEST_1");
         expectedValues.put("the_enum_2", "DEFAULT");
         expectedValues.put(ProtoConcatenator.TIMESTAMP_FIELD_NAME, 0L);
+        expectedValues.put(ProtoConcatenator.KAFKA_OFFSET, 0L);
 
-        testAllOutTypesWith(0L, Collections.singletonList(msg), expectedValues);
+        testAllOutTypesWith(0L, Collections.singletonList(msg), expectedValues, 0L);
     }
 
     /**
