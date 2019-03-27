@@ -18,7 +18,7 @@ public class CodeCacheUsage implements JVMStatsHeuristic {
         for (JVMStatisticsEventsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             if ("code".equals(section.getName())) {
                 Map<String, CodeCacheCounters> containerCounters = appCounters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId),
-                        s -> new HashMap<>());
+                    s -> new HashMap<>());
                 CodeCacheCounters codeCacheCounters = containerCounters.computeIfAbsent(containerId, s -> new CodeCacheCounters());
                 for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     if ("max".equals(property.getName())) {
@@ -51,7 +51,7 @@ public class CodeCacheUsage implements JVMStatsHeuristic {
     @Override
     public void onAppCompleted(String applicationId, String attemptId) {
         HeuristicHelper.createCounterHeuristic(applicationId, attemptId, appCounters, heuristicsResultDB, CodeCacheUsage.class,
-                counter -> "max: " + counter.max + "kB, peak: " + counter.peak + "kB");
+            counter -> "max: " + counter.max + "kB, peak: " + counter.peak + "kB");
     }
 
     @Override

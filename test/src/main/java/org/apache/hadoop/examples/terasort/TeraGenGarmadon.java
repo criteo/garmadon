@@ -18,37 +18,25 @@
 
 package org.apache.hadoop.examples.terasort;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.Checksum;
-
 import com.criteo.hadoop.garmadon.tool.TinySampler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.NullWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableUtils;
-import org.apache.hadoop.mapreduce.Counter;
-import org.apache.hadoop.mapreduce.InputFormat;
-import org.apache.hadoop.mapreduce.InputSplit;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.JobContext;
-import org.apache.hadoop.mapreduce.MRJobConfig;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.RecordReader;
-import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.PureJavaCrc32;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.Checksum;
 
 /**
  * Generate the official GraySort input data set.
@@ -76,7 +64,7 @@ public class TeraGenGarmadon extends Configured implements Tool {
      * An input format that assigns ranges of longs to each mapper.
      */
     static class RangeInputFormat
-            extends InputFormat<LongWritable, NullWritable> {
+        extends InputFormat<LongWritable, NullWritable> {
 
         /**
          * An input split consisting of a range on numbers.
@@ -98,7 +86,7 @@ public class TeraGenGarmadon extends Configured implements Tool {
             }
 
             public String[] getLocations() throws IOException {
-                return new String[]{};
+                return new String[] {};
             }
 
             public void readFields(DataInput in) throws IOException {
@@ -116,7 +104,7 @@ public class TeraGenGarmadon extends Configured implements Tool {
          * A record reader that will generate a range of numbers.
          */
         static class RangeRecordReader
-                extends RecordReader<LongWritable, NullWritable> {
+            extends RecordReader<LongWritable, NullWritable> {
             private long startRow;
             private long finishedRows;
             private long totalRows;
@@ -126,7 +114,7 @@ public class TeraGenGarmadon extends Configured implements Tool {
             }
 
             public void initialize(InputSplit split, TaskAttemptContext context)
-                    throws IOException, InterruptedException {
+                throws IOException, InterruptedException {
                 startRow = ((RangeInputSplit) split).firstRow;
                 finishedRows = 0;
                 totalRows = ((RangeInputSplit) split).rowCount;
@@ -163,9 +151,7 @@ public class TeraGenGarmadon extends Configured implements Tool {
 
         }
 
-        public RecordReader<LongWritable, NullWritable>
-        createRecordReader(InputSplit split, TaskAttemptContext context)
-                throws IOException {
+        public RecordReader<LongWritable, NullWritable> createRecordReader(InputSplit split, TaskAttemptContext context) {
             return new RangeRecordReader();
         }
 
@@ -181,7 +167,7 @@ public class TeraGenGarmadon extends Configured implements Tool {
             long currentRow = 0;
             for (int split = 0; split < numSplits; ++split) {
                 long goal =
-                        (long) Math.ceil(totalRows * (double) (split + 1) / numSplits);
+                    (long) Math.ceil(totalRows * (double) (split + 1) / numSplits);
                 splits.add(new RangeInputSplit(currentRow, goal - currentRow));
                 currentRow = goal;
             }
@@ -203,7 +189,7 @@ public class TeraGenGarmadon extends Configured implements Tool {
      * output line.
      */
     public static class SortGenMapper
-            extends Mapper<LongWritable, NullWritable, Text, Text> {
+        extends Mapper<LongWritable, NullWritable, Text, Text> {
 
         private static final Unsigned16 ONE = new Unsigned16(1);
 
@@ -215,7 +201,7 @@ public class TeraGenGarmadon extends Configured implements Tool {
         private Checksum crc32 = new PureJavaCrc32();
         private Unsigned16 total = new Unsigned16();
         private byte[] buffer = new byte[TeraInputFormat.KEY_LENGTH +
-                TeraInputFormat.VALUE_LENGTH];
+            TeraInputFormat.VALUE_LENGTH];
         private Counter checksumCounter;
         private TinySampler sampler;
 
@@ -237,11 +223,11 @@ public class TeraGenGarmadon extends Configured implements Tool {
             GenSort.generateRecord(buffer, rand, rowId);
             key.set(buffer, 0, TeraInputFormat.KEY_LENGTH);
             value.set(buffer, TeraInputFormat.KEY_LENGTH,
-                    TeraInputFormat.VALUE_LENGTH);
+                TeraInputFormat.VALUE_LENGTH);
             context.write(key, value);
             crc32.reset();
             crc32.update(buffer, 0,
-                    TeraInputFormat.KEY_LENGTH + TeraInputFormat.VALUE_LENGTH);
+                TeraInputFormat.KEY_LENGTH + TeraInputFormat.VALUE_LENGTH);
             checksum.set(crc32.getValue());
             total.add(checksum);
             rowId.add(ONE);
@@ -298,7 +284,7 @@ public class TeraGenGarmadon extends Configured implements Tool {
      * @param args the cli arguments
      */
     public int run(String[] args)
-            throws IOException, InterruptedException, ClassNotFoundException {
+        throws IOException, InterruptedException, ClassNotFoundException {
         Job job = Job.getInstance(getConf());
         if (args.length != 2) {
             usage();
@@ -308,7 +294,7 @@ public class TeraGenGarmadon extends Configured implements Tool {
         Path outputDir = new Path(args[1]);
         if (outputDir.getFileSystem(getConf()).exists(outputDir)) {
             throw new IOException("Output directory " + outputDir +
-                    " already exists.");
+                " already exists.");
         }
         FileOutputFormat.setOutputPath(job, outputDir);
         job.setJobName("TeraGen");

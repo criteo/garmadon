@@ -35,29 +35,29 @@ public class ProtoConcatenator {
     public static Message.Builder concatToProtobuf(long timestampMillis, long kafkaOffset, Collection<Message> messages) {
         try {
             final DynamicMessage.Builder messageBuilder = concatInner(messages,
-                    keys -> {
-                        try {
-                            return buildMessageBuilder("GeneratedObject", keys);
-                        } catch (Descriptors.DescriptorValidationException e) {
-                            LOGGER.error("Couldn't build concatenated Protobuf", e);
-                            throw new IllegalArgumentException(e);
-                        }
-                    },
-                    (entry, builder) -> {
-                        String fieldName = entry.getKey().getName();
-                        Descriptors.Descriptor descriptorForType = builder.getDescriptorForType();
-                        Descriptors.FieldDescriptor dstFieldDescriptor = descriptorForType.findFieldByName(fieldName);
+                keys -> {
+                    try {
+                        return buildMessageBuilder("GeneratedObject", keys);
+                    } catch (Descriptors.DescriptorValidationException e) {
+                        LOGGER.error("Couldn't build concatenated Protobuf", e);
+                        throw new IllegalArgumentException(e);
+                    }
+                },
+                (entry, builder) -> {
+                    String fieldName = entry.getKey().getName();
+                    Descriptors.Descriptor descriptorForType = builder.getDescriptorForType();
+                    Descriptors.FieldDescriptor dstFieldDescriptor = descriptorForType.findFieldByName(fieldName);
 
-                        if (dstFieldDescriptor == null) {
-                            throw new IllegalArgumentException("Tried to fill a non-existing field: " + fieldName);
-                        }
+                    if (dstFieldDescriptor == null) {
+                        throw new IllegalArgumentException("Tried to fill a non-existing field: " + fieldName);
+                    }
 
-                        if (dstFieldDescriptor.isRepeated()) {
-                            setRepeatedField(builder, dstFieldDescriptor, entry);
-                        } else {
-                            builder.setField(dstFieldDescriptor, entry.getValue());
-                        }
-                    });
+                    if (dstFieldDescriptor.isRepeated()) {
+                        setRepeatedField(builder, dstFieldDescriptor, entry);
+                    } else {
+                        builder.setField(dstFieldDescriptor, entry.getValue());
+                    }
+                });
 
             messageBuilder.setField(messageBuilder.getDescriptorForType().findFieldByName(TIMESTAMP_FIELD_NAME), timestampMillis);
             messageBuilder.setField(messageBuilder.getDescriptorForType().findFieldByName(KAFKA_OFFSET), kafkaOffset);
@@ -72,26 +72,26 @@ public class ProtoConcatenator {
      * Concatenate Protobuf messages into a single (String, Object) map.
      * /!\ Doesn't handle embedded objects /!\
      *
-     * @param messages Messages to be concatenated
+     * @param messages                  Messages to be concatenated
      * @param includeDefaultValueFields Boolean indicating if empty fields must be added with their default
      * @return A single, one-level (String, Object) map holding fields and values from all input messages.
      * Null if an error occurred (shouldn't happen).
      */
     public static Map<String, Object> concatToMap(long timestampMillis, Collection<Message> messages, boolean includeDefaultValueFields) {
         return concatInner(messages,
-                keys -> {
-                    Map<String, Object> concatMap = new HashMap<>(keys.size());
-                    if (includeDefaultValueFields) {
-                        for (Descriptors.FieldDescriptor fieldDescriptor : keys) {
-                            concatMap.put(fieldDescriptor.getName(), fieldDescriptor.getDefaultValue());
-                        }
+            keys -> {
+                Map<String, Object> concatMap = new HashMap<>(keys.size());
+                if (includeDefaultValueFields) {
+                    for (Descriptors.FieldDescriptor fieldDescriptor : keys) {
+                        concatMap.put(fieldDescriptor.getName(), fieldDescriptor.getDefaultValue());
                     }
-                    concatMap.put(TIMESTAMP_FIELD_NAME, timestampMillis);
-                    return concatMap;
-                },
-                (entry, eventMap) -> {
-                    eventMap.put(entry.getKey().getName(), entry.getValue());
-                });
+                }
+                concatMap.put(TIMESTAMP_FIELD_NAME, timestampMillis);
+                return concatMap;
+            },
+            (entry, eventMap) -> {
+                eventMap.put(entry.getKey().getName(), entry.getValue());
+            });
     }
 
     /**
@@ -104,7 +104,7 @@ public class ProtoConcatenator {
      * @throws Descriptors.DescriptorValidationException In case of a bug (shouldn't happen)
      */
     public static DynamicMessage.Builder buildMessageBuilder(String msgName, Collection<Descriptors.FieldDescriptor> fields)
-            throws Descriptors.DescriptorValidationException {
+        throws Descriptors.DescriptorValidationException {
         final MessageDefinition.Builder msgDef = MessageDefinition.newBuilder(msgName);
 
         int currentIndex = 1;
@@ -114,10 +114,12 @@ public class ProtoConcatenator {
 
             if (fieldDescriptor.isRepeated()) {
                 label = "repeated";
-            } else label = (fieldDescriptor.isRequired()) ? "required" : "optional";
+            } else {
+                label = (fieldDescriptor.isRequired()) ? "required" : "optional";
+            }
 
             msgDef.addField(label,
-                    fieldDescriptor.getType().toString().toLowerCase(), fieldDescriptor.getName(), currentIndex++);
+                fieldDescriptor.getType().toString().toLowerCase(), fieldDescriptor.getName(), currentIndex++);
         }
 
         msgDef.addField("optional", "int64", TIMESTAMP_FIELD_NAME, currentIndex++);

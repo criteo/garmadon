@@ -18,7 +18,7 @@ public class Threads implements JVMStatsHeuristic {
         for (JVMStatisticsEventsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             if ("threads".equals(section.getName())) {
                 Map<String, ThreadCounters> containerCounters = appCounters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId),
-                        s -> new HashMap<>());
+                    s -> new HashMap<>());
                 ThreadCounters threadCounters = containerCounters.computeIfAbsent(containerId, s -> new ThreadCounters());
                 for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
                     if ("count".equals(property.getName())) {
@@ -59,7 +59,7 @@ public class Threads implements JVMStatsHeuristic {
     @Override
     public void onAppCompleted(String applicationId, String attemptId) {
         HeuristicHelper.createCounterHeuristic(applicationId, attemptId, appCounters, heuristicsResultDB, Threads.class,
-                counter -> "Max count threads: " + counter.maxCount + ", Total threads: " + counter.total);
+            counter -> "Max count threads: " + counter.maxCount + ", Total threads: " + counter.total);
     }
 
     @Override

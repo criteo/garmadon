@@ -104,7 +104,8 @@
         </module>
         <module name="IllegalInstantiation"/>
         <module name="IllegalType">
-            <property name="tokens" value="ANNOTATION_FIELD_DEF,CLASS_DEF,INTERFACE_DEF,METHOD_CALL,METHOD_DEF,METHOD_REF,PARAMETER_DEF"/>
+            <property name="tokens"
+                      value="ANNOTATION_FIELD_DEF,CLASS_DEF,INTERFACE_DEF,METHOD_CALL,METHOD_DEF,METHOD_REF,PARAMETER_DEF"/>
         </module>
         <module name="InnerAssignment"/>
         <module name="MissingSwitchDefault"/>
@@ -139,6 +140,28 @@
          -->
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
+
+        <!-- Checks for miscellaneaous. -->
+        <!--
+        <module name="DescendantToken"/>
+        <module name="FinalParameters"/>
+         -->
+        <module name="ArrayTypeStyle"/>
+        <module name="AvoidEscapedUnicodeCharacters">
+            <property name="allowEscapesForControlCharacters" value="true"/>
+            <property name="allowByTailComment" value="true"/>
+            <property name="allowNonPrintableEscapes" value="true"/>
+        </module>
+        <module name="CommentsIndentation"/>
+        <module name="Indentation">
+            <property name="basicOffset" value="4"/>
+            <property name="braceAdjustment" value="0"/>
+            <property name="caseIndent" value="4"/>
+            <property name="throwsIndent" value="4"/>
+            <property name="arrayInitIndent" value="2"/>
+            <property name="lineWrappingIndentation" value="4"/>
+        </module>
+        <module name="OuterTypeFilename"/>
 
         <!-- Modifier Checks. -->
         <!--

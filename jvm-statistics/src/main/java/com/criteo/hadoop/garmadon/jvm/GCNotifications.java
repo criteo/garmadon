@@ -16,7 +16,7 @@ public class GCNotifications {
     private final NotificationListener listener;
 
     public GCNotifications(NotificationListener listener) {
-         this.listener = listener;
+        this.listener = listener;
     }
 
     public void subscribe(BiConsumer<Long, ?> printer) {
