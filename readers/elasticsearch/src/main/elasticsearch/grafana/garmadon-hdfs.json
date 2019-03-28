@@ -832,6 +832,7 @@
         "cacheTimeout": null,
         "dashLength": 10,
         "dashes": false,
+        "datasource": "$datasource",
         "fill": 7,
         "gridPos": {
           "h": 6,
