@@ -80,19 +80,19 @@ public class ProtoConcatenator {
      */
     public static Map<String, Object> concatToMap(long timestampMillis, Collection<Message> messages, boolean includeDefaultValueFields) {
         return concatInner(messages,
-                keys -> {
-                    Map<String, Object> concatMap = new HashMap<>(keys.size());
-                    if (includeDefaultValueFields) {
-                        for (Descriptors.FieldDescriptor fieldDescriptor : keys) {
-                            concatMap.put(fieldDescriptor.getName(), getRealFieldValue(fieldDescriptor.getDefaultValue()));
-                        }
+            keys -> {
+                Map<String, Object> concatMap = new HashMap<>(keys.size());
+                if (includeDefaultValueFields) {
+                    for (Descriptors.FieldDescriptor fieldDescriptor : keys) {
+                        concatMap.put(fieldDescriptor.getName(), getRealFieldValue(fieldDescriptor.getDefaultValue()));
                     }
-                    concatMap.put(TIMESTAMP_FIELD_NAME, timestampMillis);
-                    return concatMap;
-                },
-                (entry, eventMap) -> {
-                    eventMap.put(entry.getKey().getName(), getRealFieldValue(entry.getValue()));
-                });
+                }
+                concatMap.put(TIMESTAMP_FIELD_NAME, timestampMillis);
+                return concatMap;
+            },
+            (entry, eventMap) -> {
+                eventMap.put(entry.getKey().getName(), getRealFieldValue(entry.getValue()));
+            });
     }
 
     /**
@@ -110,15 +110,15 @@ public class ProtoConcatenator {
 
         //Add Enum definitions before adding fields
         fields
-                .stream()
-                .filter(fd -> Descriptors.FieldDescriptor.Type.ENUM.equals(fd.getType()))
-                .map(Descriptors.FieldDescriptor::getEnumType)
-                .distinct()
-                .forEach(enumDescriptor -> {
-                    EnumDefinition.Builder enumDefinitionBuilder = EnumDefinition.newBuilder(enumDescriptor.getName());
-                    enumDescriptor.getValues().forEach(desc -> enumDefinitionBuilder.addValue(desc.getName(), desc.getNumber()));
-                    msgDef.addEnumDefinition(enumDefinitionBuilder.build());
-                });
+            .stream()
+            .filter(fd -> Descriptors.FieldDescriptor.Type.ENUM.equals(fd.getType()))
+            .map(Descriptors.FieldDescriptor::getEnumType)
+            .distinct()
+            .forEach(enumDescriptor -> {
+                EnumDefinition.Builder enumDefinitionBuilder = EnumDefinition.newBuilder(enumDescriptor.getName());
+                enumDescriptor.getValues().forEach(desc -> enumDefinitionBuilder.addValue(desc.getName(), desc.getNumber()));
+                msgDef.addEnumDefinition(enumDefinitionBuilder.build());
+            });
 
         int currentIndex = 1;
 
