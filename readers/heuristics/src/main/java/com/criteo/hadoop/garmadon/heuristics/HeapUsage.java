@@ -21,7 +21,7 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
     @Override
     public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsEventsProtos.JVMStatisticsData jvmStats) {
         Map<String, HeapCounters> containerCounters = appCounters.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId),
-                s -> new HashMap<>());
+            s -> new HashMap<>());
         HeapCounters heapCounters = containerCounters.computeIfAbsent(containerId, s -> new HeapCounters());
         for (JVMStatisticsEventsProtos.JVMStatisticsData.Section section : jvmStats.getSectionList()) {
             String sectionName = section.getName();
@@ -37,10 +37,10 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
             }
             if (sectionName.startsWith("gc(")) {
                 long count = section.getPropertyList().stream()
-                        .filter(property -> property.getName().equals("count"))
-                        .map(JVMStatisticsEventsProtos.JVMStatisticsData.Property::getValue)
-                        .mapToLong(Long::parseLong)
-                        .findFirst().orElse(0);
+                    .filter(property -> property.getName().equals("count"))
+                    .map(JVMStatisticsEventsProtos.JVMStatisticsData.Property::getValue)
+                    .mapToLong(Long::parseLong)
+                    .findFirst().orElse(0);
                 Matcher matcher = GC_NAME_PATTERN.matcher(sectionName);
                 if (matcher.find()) {
                     String gcName = matcher.group(1);
@@ -91,7 +91,7 @@ public class HeapUsage implements JVMStatsHeuristic, GCStatsHeuristic {
     @Override
     public void onAppCompleted(String applicationId, String attemptId) {
         HeuristicHelper.createCounterHeuristic(applicationId, attemptId, appCounters, heuristicsResultDB, HeapUsage.class,
-                counter -> "unused memory %: " + counter.ratio);
+            counter -> "unused memory %: " + counter.ratio);
     }
 
     @Override

@@ -70,9 +70,9 @@ public class GarmadonSerialization {
 
         // Flink events
         register(FlinkEventProtos.JobManagerEvent.class, TypeMarker.FLINK_JOB_MANAGER_EVENT, "FLINK_JOB_MANAGER_EVENT",
-          FlinkEventProtos.JobManagerEvent::toByteArray, FlinkEventProtos.JobManagerEvent::parseFrom);
+            FlinkEventProtos.JobManagerEvent::toByteArray, FlinkEventProtos.JobManagerEvent::parseFrom);
         register(FlinkEventProtos.JobEvent.class, TypeMarker.FLINK_JOB_EVENT, "FLINK_JOB_EVENT",
-          FlinkEventProtos.JobEvent::toByteArray, FlinkEventProtos.JobEvent::parseFrom);
+            FlinkEventProtos.JobEvent::toByteArray, FlinkEventProtos.JobEvent::parseFrom);
 
         // resourcemanager events
         register(ResourceManagerEventProtos.ApplicationEvent.class, TypeMarker.APPLICATION_EVENT, "APPLICATION_EVENT",

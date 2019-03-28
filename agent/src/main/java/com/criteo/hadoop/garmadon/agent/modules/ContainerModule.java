@@ -20,22 +20,22 @@ public class ContainerModule implements GarmadonAgentModule {
         ExecutorService executorService = Executors.newFixedThreadPool(5);
         // JVM/GC metrics/events
         executorService.submit(() -> JVMStatisticsTracer.setup((timestamp, event) ->
-                eventProcessor.offer(timestamp, ContainerHeader.getInstance().getHeader(), event)));
+            eventProcessor.offer(timestamp, ContainerHeader.getInstance().getHeader(), event)));
 
         // Byte code instrumentation
         executorService.submit(() -> FileSystemTracer.setup(instrumentation,
-                (timestamp, event) -> eventProcessor.offer(timestamp, ContainerHeader.getInstance().getHeader(), event)));
+            (timestamp, event) -> eventProcessor.offer(timestamp, ContainerHeader.getInstance().getHeader(), event)));
 
         // Set SPARK Listener
         executorService.submit(() -> {
             SparkListenerTracer.setup(ContainerHeader.getInstance().getHeader(),
-                    (timestamp, header, event) -> eventProcessor.offer(timestamp, header, event));
+                (timestamp, header, event) -> eventProcessor.offer(timestamp, header, event));
         });
 
         // Set FLINK Listener
         executorService.submit(() -> {
             FlinkReporterTracer.setup(StandaloneHeader.getInstance().getHeader(),
-              (timestamp, header, event) -> eventProcessor.offer(timestamp, header, event));
+                (timestamp, header, event) -> eventProcessor.offer(timestamp, header, event));
         });
 
         executorService.shutdown();
