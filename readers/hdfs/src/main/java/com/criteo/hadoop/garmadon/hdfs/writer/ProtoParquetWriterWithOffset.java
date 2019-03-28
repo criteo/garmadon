@@ -83,7 +83,7 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
 
         final Optional<Path> lastAvailableFinalPath = Arrays.stream(fs.globStatus(topicGlobPath))
                 .map(FileStatus::getPath)
-                .reduce((path1, path2) -> fileNamer.getIndex(path1.getName()) > fileNamer.getIndex(path2.getName()) ? path1 : path2);
+                .max(Comparator.comparingLong(path -> fileNamer.getIndex(path.getName())));
 
         long lastIndex = lastAvailableFinalPath.map(path -> fileNamer.getIndex(path.getName()) + 1).orElse(1L);
 
@@ -140,12 +140,10 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         }
     }
 
-    private Boolean checkSchemaEquality(MessageType schema) throws IOException {
+    private boolean checkSchemaEquality(MessageType schema) throws IOException {
         MessageType schema2 = ParquetFileReader.open(fs.getConf(), temporaryHdfsPath).getFileMetaData().getSchema();
 
-        return schema.getColumns().size() == schema2.getColumns().size() &&
-                schema.getColumns().stream().allMatch(column -> schema2.getColumns().stream().anyMatch(column2 ->
-                        column.getPath()[0].equals(column2.getPath()[0]) && column.getType().equals(column2.getType())));
+        return schema.equals(schema2);
     }
 
 

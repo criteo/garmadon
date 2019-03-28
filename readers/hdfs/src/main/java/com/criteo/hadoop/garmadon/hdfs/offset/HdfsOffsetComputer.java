@@ -1,7 +1,9 @@
 package com.criteo.hadoop.garmadon.hdfs.offset;
 
 import com.criteo.hadoop.garmadon.reader.Offset;
-import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.parquet.column.statistics.LongStatistics;
 import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.metadata.ColumnChunkMetaData;
@@ -77,14 +79,13 @@ public class HdfsOffsetComputer implements OffsetComputer {
                 if (matcher.matches()) {
                     try {
                         int partitionId = Integer.parseInt(matcher.group("partitionId"));
-                        Long index = Long.parseLong(matcher.group("index"));
-                        if (partitionIdsSet.contains(partitionId) &&
-                                (!resultFile.containsKey(partitionId) || !resultFile.get(partitionId).containsKey(listedDay) ||
-                                        index > resultFile.get(partitionId).get(listedDay).getIndex())) {
+                        long index = Long.parseLong(matcher.group("index"));
+                        if (isPartitionComputedByThisReader(partitionId, partitionIdsSet) &&
+                            chekCurrentFileIndexBiggerTheOneInHashPartitionDay(partitionId, listedDay, index, resultFile)) {
                             HashMap<String, FinalEventPartitionFile> dateFinalEventPartitionFile =
-                                    (HashMap<String, FinalEventPartitionFile>) resultFile.computeIfAbsent(partitionId, s -> new HashMap<>());
+                                (HashMap<String, FinalEventPartitionFile>) resultFile.computeIfAbsent(partitionId, HashMap::new);
                             dateFinalEventPartitionFile.put(listedDay,
-                                    new FinalEventPartitionFile(index, status.getPath()));
+                                new FinalEventPartitionFile(index, status.getPath()));
                             resultFile.put(partitionId, dateFinalEventPartitionFile);
                         }
                     } catch (NumberFormatException e) {
@@ -95,25 +96,45 @@ public class HdfsOffsetComputer implements OffsetComputer {
         }
 
         // Get last offset
-        for (int partitionId : resultFile.keySet()) {
-            result.put(partitionId, getMaxOffset(resultFile.get(partitionId)));
+        for (Map.Entry<Integer, Map<String, FinalEventPartitionFile>> partitionIdDateFile : resultFile.entrySet()) {
+            result.put(partitionIdDateFile.getKey(), getMaxOffset(partitionIdDateFile.getValue()));
         }
 
         return result;
     }
 
-    protected Long getMaxOffset(Map<String, FinalEventPartitionFile> dateFinalEventPartitionFile) throws IOException {
-        List<Long> maxOffsets = new ArrayList<>();
-        for (FinalEventPartitionFile finalEventPartitionFile : dateFinalEventPartitionFile.values()) {
-            // Read parquet file
-            ParquetFileReader pFR = ParquetFileReader.open(fs.getConf(), finalEventPartitionFile.getFilePath());
+    private boolean isPartitionComputedByThisReader(int partitionId, Set<Integer> partitionIdsSet) {
+        return partitionIdsSet.contains(partitionId);
+    }
 
-            // Get max value from all blocks
-            long maxValue = pFR.getFooter().getBlocks().stream()
+    private boolean chekCurrentFileIndexBiggerTheOneInHashPartitionDay(int partitionId, String listedDay, long index, Map<Integer,
+        Map<String, FinalEventPartitionFile>> resultFile) {
+        return isPartitionDayNotAlreadyInHashPartitionDay(partitionId, listedDay, resultFile) || index > resultFile.get(partitionId).get(listedDay).getIndex();
+    }
+
+    private boolean isPartitionDayNotAlreadyInHashPartitionDay(int partitionId, String listedDay, Map<Integer,
+        Map<String, FinalEventPartitionFile>> resultFile) {
+        return !(resultFile.containsKey(partitionId) && resultFile.get(partitionId).containsKey(listedDay));
+    }
+
+    protected Long getMaxOffset(Map<String, FinalEventPartitionFile> dateFinalEventPartitionFile) {
+        List<Long> maxOffsets = new ArrayList<>();
+        dateFinalEventPartitionFile.values().stream()
+            .forEach(finalEventPartitionFile -> {
+                // Read parquet file
+                ParquetFileReader pFR;
+                try {
+                    pFR = ParquetFileReader.open(fs.getConf(), finalEventPartitionFile.getFilePath());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                // Get max value from all blocks
+                long maxValue = pFR.getFooter().getBlocks().stream()
                     .map(b -> {
                         Optional<ColumnChunkMetaData> columnChunkMetaData1 = b.getColumns().stream()
-                                .filter(column -> Arrays.stream(column.getPath().toArray()).allMatch(path -> path.equals("kafka_offset")))
-                                .findFirst();
+                            .filter(column -> Arrays.stream(column.getPath().toArray()).allMatch(path -> path.equals("kafka_offset")))
+                            .findFirst();
 
                         if (columnChunkMetaData1.isPresent()) {
                             return ((LongStatistics) columnChunkMetaData1.get().getStatistics()).genericGetMax();
@@ -124,11 +145,12 @@ public class HdfsOffsetComputer implements OffsetComputer {
                     })
                     .reduce(NO_OFFSET, (max1, max2) -> max1 > max2 ? max1 : max2);
 
-            maxOffsets.add(maxValue);
-        }
+                maxOffsets.add(maxValue);
+            });
 
         // Get max offset from all files for a partition
-        return maxOffsets.stream().reduce(NO_OFFSET, (max1, max2) -> max1 > max2 ? max1 : max2);
+        return maxOffsets.stream().mapToLong(Long::longValue).max().orElse(NO_OFFSET);
+
     }
 
     private String computeDirName(LocalDateTime time) {
