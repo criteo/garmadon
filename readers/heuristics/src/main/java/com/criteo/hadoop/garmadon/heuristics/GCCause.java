@@ -22,7 +22,7 @@ public class GCCause implements GCStatsHeuristic {
     public void process(Long timestamp, String applicationId, String attemptId, String containerId, JVMStatisticsEventsProtos.GCStatisticsData gcStats) {
         if (METADATA_THRESHOLD.equals(gcStats.getCause()) || ERGONOMICS.equals(gcStats.getCause())) {
             Map<String, GCCauseStats> containerStats = appStats.computeIfAbsent(HeuristicHelper.getAppAttemptId(applicationId, attemptId),
-                    s -> new HashMap<>());
+                s -> new HashMap<>());
             GCCauseStats stats = containerStats.computeIfAbsent(containerId, s -> new GCCauseStats());
             if (METADATA_THRESHOLD.equals(gcStats.getCause())) stats.metadataThreshold++;
             if (ERGONOMICS.equals(gcStats.getCause())) stats.ergonomics++;
@@ -39,10 +39,10 @@ public class GCCause implements GCStatsHeuristic {
         Map<String, GCCauseStats> containerStats = appStats.remove(HeuristicHelper.getAppAttemptId(applicationId, attemptId));
         if (containerStats == null) return;
         HeuristicResult result = new HeuristicResult(applicationId, attemptId, GCCause.class, HeuristicsResultDB.Severity.MODERATE,
-                HeuristicsResultDB.Severity.MODERATE);
+            HeuristicsResultDB.Severity.MODERATE);
         if (containerStats.size() <= MAX_CONTAINERS_PER_HEURISTIC) {
             containerStats.forEach((key, value) -> result.addDetail(key, METADATA_THRESHOLD + ": " + value.metadataThreshold + ", " + ERGONOMICS
-                    + ": " + value.ergonomics));
+                + ": " + value.ergonomics));
         } else {
             int metadataThresholdCount = containerStats.values().stream().mapToInt(stats -> stats.metadataThreshold).sum();
             int ergonomicsCount = containerStats.values().stream().mapToInt(stats -> stats.ergonomics).sum();

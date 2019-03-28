@@ -31,7 +31,7 @@ public class FileSystemTracer {
     private static BiConsumer<Long, Object> eventHandler;
 
     private static TypeDescription pathTD =
-            new TypeDescription.Latent("org.apache.hadoop.fs.Path", Opcodes.ACC_PUBLIC, TypeDescription.Generic.OBJECT);
+        new TypeDescription.Latent("org.apache.hadoop.fs.Path", Opcodes.ACC_PUBLIC, TypeDescription.Generic.OBJECT);
 
     protected FileSystemTracer() {
         throw new UnsupportedOperationException();
@@ -61,14 +61,14 @@ public class FileSystemTracer {
 
     public static Method getMethod(ClassLoader classLoader, String clazz, String method, Class<?>... parameterTypes) {
         return (Method) getMethodCache().computeIfAbsent(classLoader + clazz + method,
-                k -> {
-                    try {
-                        Class classzz = classLoader.loadClass(clazz);
-                        return classzz.getMethod(method, parameterTypes);
-                    } catch (NoSuchMethodException | ClassNotFoundException ignored) {
-                        return null;
-                    }
-                });
+            k -> {
+                try {
+                    Class classzz = classLoader.loadClass(clazz);
+                    return classzz.getMethod(method, parameterTypes);
+                } catch (NoSuchMethodException | ClassNotFoundException ignored) {
+                    return null;
+                }
+            });
     }
 
     public static Field getField(ClassLoader classLoader, String clazz, String field) {
@@ -108,9 +108,9 @@ public class FileSystemTracer {
 
         @RuntimeType
         public static Object intercept(
-                @SuperCall Callable<?> zuper,
-                @This Object o,
-                @Argument(0) Object dst) throws Exception {
+            @SuperCall Callable<?> zuper,
+            @This Object o,
+            @Argument(0) Object dst) throws Exception {
             return callDistributedFileSystem(zuper, o, null, dst.toString(), FsAction.DELETE.name());
         }
     }
@@ -133,9 +133,9 @@ public class FileSystemTracer {
 
         @RuntimeType
         public static Object intercept(
-                @SuperCall Callable<?> zuper,
-                @This Object o,
-                @Argument(0) Object dst) throws Exception {
+            @SuperCall Callable<?> zuper,
+            @This Object o,
+            @Argument(0) Object dst) throws Exception {
             return callDistributedFileSystem(zuper, o, null, dst.toString(), FsAction.READ.name());
         }
     }
@@ -158,10 +158,10 @@ public class FileSystemTracer {
 
         @RuntimeType
         public static Object intercept(
-                @SuperCall Callable<?> zuper,
-                @This Object o,
-                @Argument(0) Object src,
-                @Argument(1) Object dst) throws Exception {
+            @SuperCall Callable<?> zuper,
+            @This Object o,
+            @Argument(0) Object src,
+            @Argument(1) Object dst) throws Exception {
             return callDistributedFileSystem(zuper, o, src.toString(), dst.toString(), FsAction.RENAME.name());
         }
     }
@@ -184,9 +184,9 @@ public class FileSystemTracer {
 
         @RuntimeType
         public static Object intercept(
-                @SuperCall Callable<?> zuper,
-                @This Object o,
-                @Argument(0) Object dst) throws Exception {
+            @SuperCall Callable<?> zuper,
+            @This Object o,
+            @Argument(0) Object dst) throws Exception {
             return callDistributedFileSystem(zuper, o, null, dst.toString(), FsAction.WRITE.name());
         }
     }
@@ -209,9 +209,9 @@ public class FileSystemTracer {
 
         @RuntimeType
         public static Object intercept(
-                @SuperCall Callable<?> zuper,
-                @This Object o,
-                @Argument(0) Object dst) throws Exception {
+            @SuperCall Callable<?> zuper,
+            @This Object o,
+            @Argument(0) Object dst) throws Exception {
             return callDistributedFileSystem(zuper, o, null, dst.toString(), FsAction.APPEND.name());
         }
     }
@@ -225,7 +225,7 @@ public class FileSystemTracer {
         @Override
         protected ElementMatcher<? super MethodDescription> methodMatcher() {
             return named("listStatus").and(
-                    takesArguments(pathTD)
+                takesArguments(pathTD)
             );
         }
 
@@ -236,9 +236,9 @@ public class FileSystemTracer {
 
         @RuntimeType
         public static Object intercept(
-                @SuperCall Callable<?> zuper,
-                @This Object o,
-                @Argument(0) Object dst) throws Exception {
+            @SuperCall Callable<?> zuper,
+            @This Object o,
+            @Argument(0) Object dst) throws Exception {
             return callDistributedFileSystem(zuper, o, null, dst.toString(), FsAction.LIST_STATUS.name());
         }
     }
@@ -261,9 +261,9 @@ public class FileSystemTracer {
 
         @RuntimeType
         public static Object intercept(
-                @SuperCall Callable<?> zuper,
-                @This Object o,
-                @Argument(0) Object dst) throws Exception {
+            @SuperCall Callable<?> zuper,
+            @This Object o,
+            @Argument(0) Object dst) throws Exception {
             return callDistributedFileSystem(zuper, o, null, dst.toString(), FsAction.GET_CONTENT_SUMMARY.name());
         }
     }
@@ -286,9 +286,9 @@ public class FileSystemTracer {
 
         @RuntimeType
         public static Object intercept(
-                @SuperCall Callable<?> zuper,
-                @This Object o,
-                @Argument(0) String dst) throws Exception {
+            @SuperCall Callable<?> zuper,
+            @This Object o,
+            @Argument(0) String dst) throws Exception {
 
             ClassLoader classLoader = o.getClass().getClassLoader();
             Field field = getField(classLoader, "org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolTranslatorPB", "rpcProxy");
@@ -297,7 +297,7 @@ public class FileSystemTracer {
             Method getServerAddress = getMethod(classLoader, "org.apache.hadoop.ipc.RPC", "getServerAddress", Object.class);
             InetSocketAddress inetSocketAddress = (InetSocketAddress) getServerAddress.invoke(o, rpcProxy);
             return executeMethod(zuper, "hdfs://" + inetSocketAddress.getHostString() + ":" + inetSocketAddress.getPort(),
-                    null, dst, FsAction.ADD_BLOCK.name(), null);
+                null, dst, FsAction.ADD_BLOCK.name(), null);
         }
     }
 
@@ -333,13 +333,13 @@ public class FileSystemTracer {
     private static void sendFsEvent(String uri, String src, String dst, String fsAction, String username, long durationMillis,
                                     DataAccessEventProtos.FsEvent.Status status) {
         DataAccessEventProtos.FsEvent.Builder eventBuilder = DataAccessEventProtos.FsEvent
-                .newBuilder();
+            .newBuilder();
 
         eventBuilder.setAction(fsAction)
-                .setDstPath(dst)
-                .setUri(uri)
-                .setMethodDurationMillis(durationMillis)
-                .setStatus(status);
+            .setDstPath(dst)
+            .setUri(uri)
+            .setMethodDurationMillis(durationMillis)
+            .setStatus(status);
 
         if (username != null) {
             eventBuilder.setHdfsUser(username);
