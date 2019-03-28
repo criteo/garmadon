@@ -906,7 +906,7 @@
                 "type": "date_histogram"
               }
             ],
-            "hide": true,
+            "hide": false,
             "metrics": [
               {
                 "field": "select field",
@@ -932,7 +932,7 @@
                 "type": "date_histogram"
               }
             ],
-            "hide": true,
+            "hide": false,
             "metrics": [
               {
                 "field": "select field",
