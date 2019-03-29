@@ -343,7 +343,7 @@
       },
       {
         "aliasColors": {},
-        "bars": false,
+        "bars": true,
         "dashLength": 10,
         "dashes": false,
         "datasource": "$datasource",
@@ -370,17 +370,18 @@
           "total": false,
           "values": false
         },
-        "lines": true,
+        "lines": false,
         "linewidth": 1,
         "links": [],
         "nullPointMode": "null",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 1,
         "points": true,
         "renderer": "flot",
         "seriesOverrides": [],
         "spaceLength": 10,
-        "stack": true,
+        "stack": false,
         "steppedLine": false,
         "targets": [
           {
@@ -466,1972 +467,2297 @@
         }
       },
       {
-        "collapsed": true,
+        "aliasColors": {},
+        "bars": true,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 0,
         "gridPos": {
-          "h": 1,
+          "h": 8,
           "w": 24,
           "x": 0,
           "y": 19
         },
-        "id": 55,
-        "panels": [
+        "id": 83,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "hideEmpty": false,
+          "hideZero": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 120,
+          "total": false,
+          "values": false
+        },
+        "lines": false,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 0.5,
+        "points": true,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
           {
-            "content": "Executor: CPU Time the executors spends actually running all tasks of the stage (including fetching shuffle data).\n\nExecutor deserialize: CPU Time taken on the executors to deserialize all tasks of the stage",
-            "gridPos": {
-              "h": 3,
-              "w": 24,
-              "x": 0,
-              "y": 28
-            },
-            "id": 76,
-            "links": [],
-            "mode": "markdown",
-            "title": "",
-            "transparent": true,
-            "type": "text"
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 9,
-              "w": 24,
-              "x": 0,
-              "y": 31
-            },
-            "id": 62,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 150,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "minSpan": 12,
-            "nullPointMode": "null",
-            "percentage": false,
-            "pointradius": 1,
-            "points": true,
-            "renderer": "flot",
-            "repeatDirection": "h",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": true,
-            "steppedLine": false,
-            "targets": [
+            "alias": "",
+            "bucketAggs": [
               {
-                "alias": "executor",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "executor_cpu_time",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
+                "fake": true,
+                "field": "locality",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "_term",
+                  "size": "10"
+                },
+                "type": "terms"
               },
               {
-                "alias": "executor deserialize",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "executor_deserialize_cpu_time",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": null
+                },
+                "type": "date_histogram"
               }
             ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "CPU Time",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
+            "metrics": [
               {
-                "format": "ns",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
+                "field": "num_tasks",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "count"
               }
             ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "content": "Executor run time: Time the executors spends actually running all tasks of the stage (including fetching shuffle data)\n\nJvm gc time: Amount of time the JVM spent in garbage collection while executing the stage \n\nExecutor deserialize time: Time taken on the executors to deserialize all tasks of the stage\n\nResult serialization time: Amount of time spent serializing all tasks of the stage result",
-            "gridPos": {
-              "h": 5,
-              "w": 24,
-              "x": 0,
-              "y": 40
-            },
-            "id": 77,
-            "links": [],
-            "mode": "markdown",
-            "title": "",
-            "transparent": true,
-            "type": "text"
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 9,
-              "w": 24,
-              "x": 0,
-              "y": 45
-            },
-            "id": 74,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 150,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "minSpan": 12,
-            "nullPointMode": "null",
-            "percentage": false,
-            "pointradius": 1,
-            "points": true,
-            "renderer": "flot",
-            "repeatDirection": "h",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": true,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "executor run time",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "executor_run_time",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "jvm gc time",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "jvm_gc_time",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "executor deserialize time",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "executor_deserialize_time",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "C",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "result serialization time",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "result_serialization_time",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "D",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "CPU Time spends actually running the stage (including fetching shuffle data)",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "ms",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
+            "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
           }
         ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Tasks locality",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 27
+        },
+        "id": 55,
+        "panels": [],
         "title": "DURATION",
         "type": "row"
       },
       {
-        "collapsed": true,
+        "content": "Executor run time: Time the executors spends actually running all tasks of the stage (including fetching shuffle data)\n\nJvm gc time: Amount of time the JVM spent in garbage collection while executing the stage \n\nExecutor deserialize time: Time taken on the executors to deserialize all tasks of the stage\n\nResult serialization time: Amount of time spent serializing all tasks of the stage result",
+        "gridPos": {
+          "h": 5,
+          "w": 24,
+          "x": 0,
+          "y": 28
+        },
+        "id": 77,
+        "links": [],
+        "mode": "markdown",
+        "title": "",
+        "transparent": true,
+        "type": "text"
+      },
+      {
+        "aliasColors": {},
+        "bars": true,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 2,
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 0,
+          "y": 33
+        },
+        "id": 74,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 150,
+          "total": false,
+          "values": false
+        },
+        "lines": false,
+        "linewidth": 1,
+        "links": [],
+        "maxPerRow": 2,
+        "nullPointMode": "null",
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "repeatDirection": "h",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": true,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "executor run time",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "executor_run_time",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "jvm gc time",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "jvm_gc_time",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "executor deserialize time",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "executor_deserialize_time",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "result serialization time",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "result_serialization_time",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "D",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "blocked fetching shuffle data",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "shuffle_read_fetch_wait_time",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "E",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "blocked writting shuffle data",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "hide": false,
+            "metrics": [
+              {
+                "field": "shuffle_write_shuffle_time",
+                "id": "1",
+                "inlineScript": "_value / 1000000",
+                "meta": {},
+                "settings": {
+                  "script": {
+                    "inline": "_value / 1000000"
+                  }
+                },
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "F",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Stage runtime",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "ms",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": 0,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": true,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 2,
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 12,
+          "y": 33
+        },
+        "id": 84,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 150,
+          "total": false,
+          "values": false
+        },
+        "lines": false,
+        "linewidth": 1,
+        "links": [],
+        "maxPerRow": 2,
+        "nullPointMode": "null",
+        "paceLength": 10,
+        "percentage": true,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "repeatDirection": "h",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": true,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "executor run time",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "executor_run_time",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "jvm gc time",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "jvm_gc_time",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "executor deserialize time",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "executor_deserialize_time",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "result serialization time",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "result_serialization_time",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "D",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "blocked fetching shuffle data",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "shuffle_read_fetch_wait_time",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "E",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "blocked writting shuffle data",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "hide": false,
+            "metrics": [
+              {
+                "field": "shuffle_write_shuffle_time",
+                "id": "1",
+                "inlineScript": "_value / 1000000",
+                "meta": {},
+                "settings": {
+                  "script": {
+                    "inline": "_value / 1000000"
+                  }
+                },
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "F",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Stage runtime proportions",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "ms",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": 0,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "collapsed": false,
         "gridPos": {
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 20
+          "y": 42
         },
         "id": 44,
-        "panels": [
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 9,
-              "w": 12,
-              "x": 0,
-              "y": 29
-            },
-            "id": 45,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 150,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "minSpan": 12,
-            "nullPointMode": "null",
-            "percentage": false,
-            "pointradius": 1,
-            "points": true,
-            "renderer": "flot",
-            "repeatDirection": "h",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "#shuffle read records",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "shuffle_read_records",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Number of records read from the shuffle",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "decimals": null,
-            "description": "This only includes the time blocking on shuffle input data. For instance if block B is being fetched while the task is still not finished processing block A, it is not considered to be blocking on block B.",
-            "fill": 1,
-            "gridPos": {
-              "h": 9,
-              "w": 12,
-              "x": 12,
-              "y": 29
-            },
-            "id": 47,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 150,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "minSpan": 12,
-            "nullPointMode": "null",
-            "percentage": false,
-            "pointradius": 1,
-            "points": true,
-            "renderer": "flot",
-            "repeatDirection": "h",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "shuffle fetch wait time",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "shuffle_read_fetch_wait_time",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Time the task spent waiting for remote shuffle blocks",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "ms",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 9,
-              "w": 12,
-              "x": 0,
-              "y": 38
-            },
-            "id": 46,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 150,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "minSpan": 12,
-            "nullPointMode": "connected",
-            "percentage": false,
-            "pointradius": 1,
-            "points": true,
-            "renderer": "flot",
-            "repeatDirection": "h",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "shuffle read local bytes",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "shuffle_read_local_bytes",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "shuffle read remote bytes",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "shuffle_read_remote_bytes",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "shuffle read total bytes",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "hide": true,
-                "metrics": [
-                  {
-                    "field": "shuffle_read_total_bytes",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "C",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Bytes fetched in the shuffle",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "bytes",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 9,
-              "w": 12,
-              "x": 12,
-              "y": 38
-            },
-            "id": 48,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 160,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "minSpan": 12,
-            "nullPointMode": "null",
-            "percentage": false,
-            "pointradius": 1,
-            "points": true,
-            "renderer": "flot",
-            "repeatDirection": "h",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "shuffle read local blocks",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "shuffle_read_local_blocks_fetched",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "shuffle read remote blocks",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "shuffle_read_remote_blocks_fetched",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "shuffle read total blocks",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "hide": true,
-                "metrics": [
-                  {
-                    "field": "shuffle_read_total_blocks_fetched",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "C",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Number of blocks fetched in this shuffle",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          }
-        ],
+        "panels": [],
         "title": "SHUFFLE READ",
         "type": "row"
       },
       {
-        "collapsed": true,
+        "aliasColors": {},
+        "bars": true,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 1,
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 0,
+          "y": 43
+        },
+        "id": 45,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 150,
+          "total": false,
+          "values": false
+        },
+        "lines": false,
+        "linewidth": 1,
+        "links": [],
+        "maxPerRow": 2,
+        "nullPointMode": "null",
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "repeatDirection": "h",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "#shuffle read records",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "executor_id",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "_term",
+                  "size": "10"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "hide": false,
+            "metrics": [
+              {
+                "field": "shuffle_read_records",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Number of records read from the shuffle",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": true,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "description": "This only includes the time blocking on shuffle input data. For instance if block B is being fetched while the task is still not finished processing block A, it is not considered to be blocking on block B.",
+        "fill": 1,
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 12,
+          "y": 43
+        },
+        "id": 47,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 150,
+          "total": false,
+          "values": false
+        },
+        "lines": false,
+        "linewidth": 1,
+        "links": [],
+        "maxPerRow": 2,
+        "nullPointMode": "null",
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "repeatDirection": "h",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "shuffle fetch wait time",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "shuffle_read_fetch_wait_time",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Time the task spent waiting for remote shuffle blocks",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "ms",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": true,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 3,
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 0,
+          "y": 52
+        },
+        "id": 46,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 150,
+          "total": false,
+          "values": false
+        },
+        "lines": false,
+        "linewidth": 1,
+        "links": [],
+        "maxPerRow": 2,
+        "nullPointMode": "connected",
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "repeatDirection": "h",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "shuffle read local bytes",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "shuffle_read_local_bytes",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "shuffle read remote bytes",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "shuffle_read_remote_bytes",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "shuffle read total bytes",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "hide": true,
+            "metrics": [
+              {
+                "field": "shuffle_read_total_bytes",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Bytes fetched in the shuffle",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": true,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 2,
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 12,
+          "y": 52
+        },
+        "id": 48,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 160,
+          "total": false,
+          "values": false
+        },
+        "lines": false,
+        "linewidth": 1,
+        "links": [],
+        "maxPerRow": 2,
+        "nullPointMode": "null",
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "repeatDirection": "h",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "shuffle read local blocks",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "shuffle_read_local_blocks_fetched",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "shuffle read remote blocks",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "shuffle_read_remote_blocks_fetched",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "shuffle read total blocks",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "hide": true,
+            "metrics": [
+              {
+                "field": "shuffle_read_total_blocks_fetched",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Number of blocks fetched in this shuffle",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "collapsed": false,
         "gridPos": {
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 21
+          "y": 61
         },
         "id": 39,
-        "panels": [
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 9,
-              "w": 12,
-              "x": 0,
-              "y": 30
-            },
-            "id": 40,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 150,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "minSpan": 12,
-            "nullPointMode": "null",
-            "percentage": false,
-            "pointradius": 1,
-            "points": true,
-            "renderer": "flot",
-            "repeatDirection": "h",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "#shuffle write records",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "shuffle_write_shuffle_records",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Total number of records written to the shuffle",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 9,
-              "w": 12,
-              "x": 12,
-              "y": 30
-            },
-            "id": 41,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 130,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "minSpan": 12,
-            "nullPointMode": "null",
-            "percentage": false,
-            "pointradius": 1,
-            "points": true,
-            "renderer": "flot",
-            "repeatDirection": "h",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "shuffle write bytes",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "shuffle_write_shuffle_bytes",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Number of bytes written for the shuffle",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "bytes",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 9,
-              "w": 12,
-              "x": 0,
-              "y": 39
-            },
-            "id": 42,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 130,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "minSpan": 12,
-            "nullPointMode": "null",
-            "percentage": false,
-            "pointradius": 1,
-            "points": true,
-            "renderer": "flot",
-            "repeatDirection": "h",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "shuffle write time",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "shuffle_write_shuffle_time",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Time spent blocking on writes to disk or buffer cache",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "ns",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          }
-        ],
+        "panels": [],
         "title": "SHUFFLE WRITE",
         "type": "row"
       },
       {
-        "collapsed": true,
+        "aliasColors": {},
+        "bars": true,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 1,
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 0,
+          "y": 62
+        },
+        "id": 40,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 150,
+          "total": false,
+          "values": false
+        },
+        "lines": false,
+        "linewidth": 1,
+        "links": [],
+        "maxPerRow": 2,
+        "nullPointMode": "null",
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "repeatDirection": "h",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "shuffle write records",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "shuffle_write_shuffle_records",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Total number of records written to the shuffle",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": true,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 1,
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 12,
+          "y": 62
+        },
+        "id": 42,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 130,
+          "total": false,
+          "values": false
+        },
+        "lines": false,
+        "linewidth": 1,
+        "links": [],
+        "maxPerRow": 2,
+        "nullPointMode": "null",
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "repeatDirection": "h",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "shuffle write time",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "shuffle_write_shuffle_time",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Time spent blocking on writes to disk or buffer cache",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "ns",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": true,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 1,
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 0,
+          "y": 71
+        },
+        "id": 41,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 130,
+          "total": false,
+          "values": false
+        },
+        "lines": false,
+        "linewidth": 1,
+        "links": [],
+        "maxPerRow": 2,
+        "nullPointMode": "null",
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "repeatDirection": "h",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "shuffle write bytes",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "shuffle_write_shuffle_bytes",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Number of bytes written for the shuffle",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "collapsed": false,
         "gridPos": {
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 22
+          "y": 80
         },
         "id": 9,
-        "panels": [
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 9,
-              "w": 12,
-              "x": 0,
-              "y": 31
-            },
-            "id": 2,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 110,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "minSpan": 12,
-            "nullPointMode": "null",
-            "percentage": false,
-            "pointradius": 1,
-            "points": true,
-            "renderer": "flot",
-            "repeat": null,
-            "repeatDirection": "h",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "#input records",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "input_records",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "#output records",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "output_records",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Records",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 9,
-              "w": 12,
-              "x": 12,
-              "y": 31
-            },
-            "id": 37,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 100,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "minSpan": 12,
-            "nullPointMode": "null",
-            "percentage": false,
-            "pointradius": 1,
-            "points": true,
-            "renderer": "flot",
-            "repeatDirection": "h",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "input bytes",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "input_bytes",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "output bytes",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "output_bytes",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Bytes",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "bytes",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          }
-        ],
+        "panels": [],
         "title": "INPUT/OUTPUT",
         "type": "row"
       },
       {
-        "collapsed": true,
+        "aliasColors": {},
+        "bars": true,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 1,
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 0,
+          "y": 81
+        },
+        "id": 2,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 110,
+          "total": false,
+          "values": false
+        },
+        "lines": false,
+        "linewidth": 1,
+        "links": [],
+        "maxPerRow": 2,
+        "nullPointMode": "null",
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "repeat": null,
+        "repeatDirection": "h",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "#input records",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "input_records",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "#output records",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "output_records",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Records",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": true,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 1,
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 12,
+          "y": 81
+        },
+        "id": 37,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 100,
+          "total": false,
+          "values": false
+        },
+        "lines": false,
+        "linewidth": 1,
+        "links": [],
+        "maxPerRow": 2,
+        "nullPointMode": "null",
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "repeatDirection": "h",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "input bytes",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "input_bytes",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "output bytes",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "output_bytes",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Bytes",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "collapsed": false,
         "gridPos": {
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 23
+          "y": 90
         },
         "id": 67,
-        "panels": [
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "decimals": null,
-            "description": "The value of this accumulator should be approximately the sum of the peak sizes across all such data structures created in this task. For SQL jobs, this only tracks all unsafe operators and ExternalSort",
-            "fill": 2,
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 0,
-              "y": 32
-            },
-            "id": 65,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "hideEmpty": false,
-              "hideZero": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 150,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "connected",
-            "percentage": false,
-            "pointradius": 1,
-            "points": true,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "peak execution memory",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": null
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "peak_execution_memory",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Peak memory used by internal data structures created during shuffles, aggregations and joins",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "transparent": false,
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "bytes",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 12,
-              "y": 32
-            },
-            "id": 64,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "hideEmpty": false,
-              "hideZero": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 100,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "connected",
-            "percentage": false,
-            "pointradius": 1,
-            "points": true,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "result size",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": null
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "result_size",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "The number of bytes transmitted back to the driver as the TaskResult",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "bytes",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 0,
-              "y": 40
-            },
-            "id": 51,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "sideWidth": 100,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "minSpan": 12,
-            "nullPointMode": "null",
-            "percentage": false,
-            "pointradius": 1,
-            "points": true,
-            "renderer": "flot",
-            "repeatDirection": "h",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "in-memory",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "memory_bytes_spilled",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "on-disk",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 1,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "disk_bytes_spilled",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Number of in-memory/on-disk bytes spilled",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "bytes",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          }
-        ],
+        "panels": [],
         "title": "OTHER",
         "type": "row"
+      },
+      {
+        "aliasColors": {},
+        "bars": true,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "description": "The value of this accumulator should be approximately the sum of the peak sizes across all such data structures created in this task. For SQL jobs, this only tracks all unsafe operators and ExternalSort",
+        "fill": 2,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 91
+        },
+        "id": 65,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "hideEmpty": false,
+          "hideZero": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 150,
+          "total": false,
+          "values": false
+        },
+        "lines": false,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "peak execution memory",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": null
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "peak_execution_memory",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Peak memory used by internal data structures created during shuffles, aggregations and joins",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": true,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 91
+        },
+        "id": 64,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "hideEmpty": false,
+          "hideZero": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 100,
+          "total": false,
+          "values": false
+        },
+        "lines": false,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "result size",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": null
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "result_size",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "The number of bytes transmitted back to the driver as the TaskResult",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": true,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 99
+        },
+        "id": 51,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 100,
+          "total": false,
+          "values": false
+        },
+        "lines": false,
+        "linewidth": 1,
+        "links": [],
+        "maxPerRow": 2,
+        "nullPointMode": "null",
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 1,
+        "points": true,
+        "renderer": "flot",
+        "repeatDirection": "h",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "in-memory",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "memory_bytes_spilled",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "on-disk",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 1,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "disk_bytes_spilled",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Number of in-memory/on-disk bytes spilled",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
       }
     ],
     "refresh": false,
