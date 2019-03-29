@@ -82,7 +82,6 @@ public class ProtoParquetWriterWithOffsetTest {
         final Path finalPath = new Path("final");
         final FileSystem fsMock = mock(FileSystem.class);
         final FileStatus fileStatusMock = mock(FileStatus.class);
-        final FsStatus fsStatusMock = mock(FsStatus.class);
         final Path path = new Path(finalPath, today.format(DateTimeFormatter.ISO_DATE) + "/1.index=1");
         final Path pathRes = new Path(finalPath, today.format(DateTimeFormatter.ISO_DATE) + "/1.index=2");
         final Message firstMessageMock = mock(Message.class);
@@ -100,9 +99,9 @@ public class ProtoParquetWriterWithOffsetTest {
         when(fsMock.rename(any(Path.class), any(Path.class))).thenReturn(true);
         when(fsMock.globStatus(any(Path.class))).thenReturn(new FileStatus[] {fileStatusMock});
 
-        when(fsMock.getStatus(any(Path.class))).thenReturn(fsStatusMock);
+        when(fsMock.getFileStatus(any(Path.class))).thenReturn(fileStatusMock);
 
-        when(fsStatusMock.getUsed()).thenReturn(Long.MAX_VALUE);
+        when(fileStatusMock.getLen()).thenReturn(Long.MAX_VALUE);
 
         when(fileStatusMock.getPath()).thenReturn(path);
 

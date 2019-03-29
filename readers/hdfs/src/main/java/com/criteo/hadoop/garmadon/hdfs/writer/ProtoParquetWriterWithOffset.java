@@ -6,7 +6,9 @@ import com.criteo.hadoop.garmadon.reader.Offset;
 import com.google.protobuf.MessageOrBuilder;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Options;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.ParquetFileWriter;
 import org.apache.parquet.proto.ProtoParquetWriter;
@@ -25,7 +27,7 @@ import java.util.*;
  * @param <MESSAGE_KIND> The message to be written in Proto + Parquet
  */
 public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
-        implements CloseableBiConsumer<MESSAGE_KIND, Offset> {
+    implements CloseableBiConsumer<MESSAGE_KIND, Offset> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtoParquetWriterWithOffset.class);
     private static final Map<String, String> EMPTY_METADATA = new HashMap<>();
 
@@ -67,12 +69,12 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
     public Path close() throws IOException {
         if (latestOffset == null) {
             final String additionalInfo = String.format(" Date = %s, Temp file = %s",
-                    dayStartTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), temporaryHdfsPath.toUri());
+                dayStartTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), temporaryHdfsPath.toUri());
             throw new IOException(String.format("Trying to write a zero-sized file, please fix (%s)", additionalInfo));
         }
 
         PrometheusMetrics.buildGaugeChild(PrometheusMetrics.LATEST_COMMITTED_OFFSETS,
-                eventName, latestOffset.getPartition()).set(latestOffset.getOffset());
+            eventName, latestOffset.getPartition()).set(latestOffset.getOffset());
 
         if (!writerClosed) {
             writer.close();
@@ -82,8 +84,8 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         final Path topicGlobPath = new Path(finalHdfsDir, fileNamer.computeTopicGlob(dayStartTime, latestOffset));
 
         final Optional<Path> lastAvailableFinalPath = Arrays.stream(fs.globStatus(topicGlobPath))
-                .map(FileStatus::getPath)
-                .max(Comparator.comparingLong(path -> fileNamer.getIndex(path.getName())));
+            .map(FileStatus::getPath)
+            .max(Comparator.comparingLong(path -> fileNamer.getIndex(path.getName())));
 
         long lastIndex = lastAvailableFinalPath.map(path -> fileNamer.getIndex(path.getName()) + 1).orElse(1L);
 
@@ -92,7 +94,7 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         FileSystemUtils.ensureDirectoriesExist(Collections.singleton(finalPath.getParent()), fs);
 
         if (lastAvailableFinalPath.isPresent()) {
-            long blockSize = fs.getStatus(lastAvailableFinalPath.get()).getUsed();
+            long blockSize = fs.getFileStatus(lastAvailableFinalPath.get()).getLen();
             if (blockSize > fsBlockSize) {
                 moveToFinalPath(temporaryHdfsPath, finalPath);
             } else {
@@ -108,9 +110,13 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
     }
 
     protected void moveToFinalPath(Path tempPath, Path finalPath) throws IOException {
-        if (!fs.rename(tempPath, finalPath)) {
-            throw new IOException(String.format("Failed to commit %s (from %s)",
+        if (fs instanceof DistributedFileSystem) {
+            ((DistributedFileSystem) fs).rename(tempPath, finalPath, Options.Rename.OVERWRITE);
+        } else {
+            if (!fs.rename(tempPath, finalPath)) {
+                throw new IOException(String.format("Failed to commit %s (from %s)",
                     finalPath.toUri(), tempPath));
+            }
         }
     }
 
@@ -118,7 +124,7 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         MessageType schema = ParquetFileReader.open(fs.getConf(), lastAvailableFinalPath).getFileMetaData().getSchema();
         if (!checkSchemaEquality(schema)) {
             LOGGER.warn("Schema between last available final file ({}) and temp file ({}) are not identical. We can't merge them",
-                    lastAvailableFinalPath, temporaryHdfsPath);
+                lastAvailableFinalPath, temporaryHdfsPath);
             moveToFinalPath(temporaryHdfsPath, finalPath);
         } else {
             Path mergedTempFile = new Path(temporaryHdfsPath.toString() + ".merged");

@@ -6,11 +6,13 @@ import com.criteo.hadoop.garmadon.hdfs.configurations.HdfsReaderConfiguration;
 import com.criteo.hadoop.garmadon.hdfs.kafka.OffsetResetter;
 import com.criteo.hadoop.garmadon.hdfs.kafka.PartitionsPauseStateHandler;
 import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
-import com.criteo.hadoop.garmadon.hdfs.offset.*;
+import com.criteo.hadoop.garmadon.hdfs.offset.HdfsOffsetComputer;
+import com.criteo.hadoop.garmadon.hdfs.offset.HeartbeatConsumer;
+import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.hdfs.writer.ExpiringConsumer;
 import com.criteo.hadoop.garmadon.hdfs.writer.FileSystemUtils;
-import com.criteo.hadoop.garmadon.hdfs.writer.ProtoParquetWriterWithOffset;
 import com.criteo.hadoop.garmadon.hdfs.writer.PartitionedWriter;
+import com.criteo.hadoop.garmadon.hdfs.writer.ProtoParquetWriterWithOffset;
 import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.reader.configurations.ReaderConfiguration;
@@ -21,7 +23,9 @@ import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -55,8 +59,8 @@ public class HdfsExporter {
     static {
         // Configuration for underlying packages using JUL
         String path = HdfsExporter.class.getClassLoader()
-                .getResource("logging.properties")
-                .getFile();
+            .getResource("logging.properties")
+            .getFile();
         System.setProperty("java.util.logging.config.file", path);
     }
 
@@ -86,14 +90,21 @@ public class HdfsExporter {
         setupProperties(config.getHdfs());
 
         final String baseTemporaryHdfsDir = config.getHdfs().getBaseTemporaryDir();
-        final Path finalHdfsDir = new Path(config.getHdfs().getFinalDir());
+        Path finalHdfsDir = new Path(config.getHdfs().getFinalDir());
 
         FileSystem fs = null;
         try {
+            // Required if using ViewFs to resolve hdfs path and use DistributedFileSystem
+            FileSystem fsTmp = finalHdfsDir.getFileSystem(HDFS_CONF);
+            finalHdfsDir = fsTmp.resolvePath(finalHdfsDir);
             fs = finalHdfsDir.getFileSystem(HDFS_CONF);
         } catch (IOException e) {
             LOGGER.error("Could not initialize HDFS", e);
             exit(1);
+        }
+
+        if (!(fs instanceof DistributedFileSystem || fs instanceof LocalFileSystem)) {
+            throw new UnsupportedOperationException("Filesystem of type " + fs.getScheme() + " is not supported. Only hdfs and file ones are supported");
         }
 
         final Properties props = new Properties();
@@ -136,13 +147,13 @@ public class HdfsExporter {
             final Function<LocalDateTime, ExpiringConsumer<Message>> consumerBuilder;
             final Path finalEventDir = new Path(finalHdfsDir, eventName);
             final OffsetComputer offsetComputer = new HdfsOffsetComputer(fs, finalEventDir,
-                    config.getKafka().getCluster(), config.getHdfs().getBacklogDays());
+                config.getKafka().getCluster(), config.getHdfs().getBacklogDays());
 
             consumerBuilder = buildMessageConsumerBuilder(fs, new Path(temporaryHdfsDir, eventName),
-                    finalEventDir, clazz, offsetComputer, pauser, eventName);
+                finalEventDir, clazz, offsetComputer, pauser, eventName);
 
             final PartitionedWriter<Message> writer = new PartitionedWriter<>(
-                    consumerBuilder, offsetComputer, eventName, emptyMessageBuilder);
+                consumerBuilder, offsetComputer, eventName, emptyMessageBuilder);
 
             readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(writer, eventName));
 
@@ -150,21 +161,21 @@ public class HdfsExporter {
         }
 
         final List<ConsumerRebalanceListener> listeners = Arrays.asList(
-                new OffsetResetter<>(kafkaConsumer, heartbeat::dropPartition, writers), pauser);
+            new OffsetResetter<>(kafkaConsumer, heartbeat::dropPartition, writers), pauser);
 
         // We need to build a meta listener as only the last call to #subscribe wins
         kafkaConsumer.subscribe(Collections.singleton(GarmadonReader.GARMADON_TOPIC),
-                new ConsumerRebalanceListener() {
-                    @Override
-                    public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-                        listeners.forEach(listener -> listener.onPartitionsRevoked(partitions));
-                    }
+            new ConsumerRebalanceListener() {
+                @Override
+                public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+                    listeners.forEach(listener -> listener.onPartitionsRevoked(partitions));
+                }
 
-                    @Override
-                    public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-                        listeners.forEach(listener -> listener.onPartitionsAssigned(partitions));
-                    }
-                });
+                @Override
+                public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+                    listeners.forEach(listener -> listener.onPartitionsAssigned(partitions));
+                }
+            });
 
         readerBuilder.intercept(any(), msg -> {
             heartbeat.handle(msg);
@@ -172,7 +183,7 @@ public class HdfsExporter {
             CommittableOffset offset = msg.getCommittableOffset();
 
             Gauge.Child gauge = PrometheusMetrics.buildGaugeChild(PrometheusMetrics.CURRENT_RUNNING_OFFSETS,
-                    "global", offset.getPartition());
+                "global", offset.getPartition());
             gauge.set(offset.getOffset());
         });
 
@@ -210,17 +221,17 @@ public class HdfsExporter {
 
 
     private static Function<LocalDateTime, ExpiringConsumer<Message>> buildMessageConsumerBuilder(
-            FileSystem fs, Path temporaryHdfsDir, Path finalHdfsDir, Class<? extends Message> clazz,
-            OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser, String eventName) {
+        FileSystem fs, Path temporaryHdfsDir, Path finalHdfsDir, Class<? extends Message> clazz,
+        OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser, String eventName) {
         Counter.Child tmpFileOpenFailures = PrometheusMetrics.buildCounterChild(
-                PrometheusMetrics.TMP_FILE_OPEN_FAILURES, eventName);
+            PrometheusMetrics.TMP_FILE_OPEN_FAILURES, eventName);
         Counter.Child tmpFilesOpened = PrometheusMetrics.buildCounterChild(
-                PrometheusMetrics.TMP_FILES_OPENED, eventName);
+            PrometheusMetrics.TMP_FILES_OPENED, eventName);
 
         return dayStartTime -> {
             final String uniqueFileName = UUID.randomUUID().toString();
             final String additionalInfo = String.format("Date = %s, Event type = %s", dayStartTime,
-                    clazz.getSimpleName());
+                clazz.getSimpleName());
 
             for (int i = 0; i < maxTmpFileOpenRetries; ++i) {
                 final Path tmpFilePath = new Path(temporaryHdfsDir, uniqueFileName);
@@ -228,7 +239,7 @@ public class HdfsExporter {
 
                 try {
                     protoWriter = new ProtoParquetWriter<>(tmpFilePath, clazz, CompressionCodecName.SNAPPY,
-                            sizeBeforeFlushingTmp * 1_024 * 1_024, 1_024 * 1_024);
+                        sizeBeforeFlushingTmp * 1_024 * 1_024, 1_024 * 1_024);
                     tmpFilesOpened.inc();
                 } catch (IOException e) {
                     LOGGER.warn("Could not initialize writer ({})", additionalInfo, e);
@@ -247,14 +258,14 @@ public class HdfsExporter {
                 partitionsPauser.resume(clazz);
 
                 return new ExpiringConsumer<>(new ProtoParquetWriterWithOffset<>(
-                        protoWriter, tmpFilePath, finalHdfsDir, fs, offsetComputer, dayStartTime, eventName),
-                        writersExpirationDelay, messagesBeforeExpiringWriters);
+                    protoWriter, tmpFilePath, finalHdfsDir, fs, offsetComputer, dayStartTime, eventName),
+                    writersExpirationDelay, messagesBeforeExpiringWriters);
             }
 
             // There's definitely something wrong, potentially the whole instance, so stop trying
             throw new FileSystemNotFoundException(String.format(
-                    "Failed opening a temporary file after %d retries: %s",
-                    maxTmpFileOpenRetries, additionalInfo));
+                "Failed opening a temporary file after %d retries: %s",
+                maxTmpFileOpenRetries, additionalInfo));
         };
     }
 
@@ -263,12 +274,12 @@ public class HdfsExporter {
         return msg -> {
             final CommittableOffset offset = msg.getCommittableOffset();
             final Counter.Child messagesWritingFailures = PrometheusMetrics.buildCounterChild(
-                    PrometheusMetrics.MESSAGES_WRITING_FAILURES, eventName, offset.getPartition());
+                PrometheusMetrics.MESSAGES_WRITING_FAILURES, eventName, offset.getPartition());
             final Counter.Child messagesWritten = PrometheusMetrics.buildCounterChild(
-                    PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
+                PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
 
             Gauge.Child gauge = PrometheusMetrics.buildGaugeChild(PrometheusMetrics.CURRENT_RUNNING_OFFSETS,
-                    eventName, offset.getPartition());
+                eventName, offset.getPartition());
             gauge.set(offset.getOffset());
 
             try {
@@ -287,21 +298,21 @@ public class HdfsExporter {
         final Map<Integer, GarmadonEventDescriptor> out = new HashMap<>();
 
         addTypeMapping(out, GarmadonSerialization.TypeMarker.FS_EVENT, "fs", EventsWithHeader.FsEvent.class,
-                DataAccessEventProtos.FsEvent.newBuilder());
+            DataAccessEventProtos.FsEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.GC_EVENT, "gc", EventsWithHeader.GCStatisticsData.class,
-                JVMStatisticsEventsProtos.GCStatisticsData.newBuilder());
+            JVMStatisticsEventsProtos.GCStatisticsData.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.CONTAINER_MONITORING_EVENT, "container",
-                EventsWithHeader.ContainerEvent.class, ContainerEventProtos.ContainerResourceEvent.newBuilder());
+            EventsWithHeader.ContainerEvent.class, ContainerEventProtos.ContainerResourceEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.SPARK_STAGE_EVENT, "spark_stage",
-                EventsWithHeader.SparkStageEvent.class, SparkEventProtos.StageEvent.newBuilder());
+            EventsWithHeader.SparkStageEvent.class, SparkEventProtos.StageEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.SPARK_STAGE_STATE_EVENT, "spark_stage_state",
-                EventsWithHeader.SparkStageStateEvent.class, SparkEventProtos.StageStateEvent.newBuilder());
+            EventsWithHeader.SparkStageStateEvent.class, SparkEventProtos.StageStateEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.SPARK_EXECUTOR_STATE_EVENT, "spark_executor",
-                EventsWithHeader.SparkExecutorStateEvent.class, SparkEventProtos.ExecutorStateEvent.newBuilder());
+            EventsWithHeader.SparkExecutorStateEvent.class, SparkEventProtos.ExecutorStateEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.SPARK_TASK_EVENT, "spark_task",
-                EventsWithHeader.SparkTaskEvent.class, SparkEventProtos.TaskEvent.newBuilder());
+            EventsWithHeader.SparkTaskEvent.class, SparkEventProtos.TaskEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.APPLICATION_EVENT, "application_event",
-                EventsWithHeader.ApplicationEvent.class, ResourceManagerEventProtos.ApplicationEvent.newBuilder());
+            EventsWithHeader.ApplicationEvent.class, ResourceManagerEventProtos.ApplicationEvent.newBuilder());
 
         // TODO: handle JVM events
 

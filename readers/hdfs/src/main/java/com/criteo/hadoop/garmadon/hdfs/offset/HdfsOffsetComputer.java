@@ -4,7 +4,7 @@ import com.criteo.hadoop.garmadon.reader.Offset;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.parquet.column.statistics.LongStatistics;
+import org.apache.parquet.column.statistics.Statistics;
 import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.metadata.ColumnChunkMetaData;
 import org.slf4j.Logger;
@@ -81,7 +81,7 @@ public class HdfsOffsetComputer implements OffsetComputer {
                         int partitionId = Integer.parseInt(matcher.group("partitionId"));
                         long index = Long.parseLong(matcher.group("index"));
                         if (isPartitionComputedByThisReader(partitionId, partitionIdsSet) &&
-                            chekCurrentFileIndexBiggerTheOneInHashPartitionDay(partitionId, listedDay, index, resultFile)) {
+                            checkCurrentFileIndexBiggerTheOneInHashPartitionDay(partitionId, listedDay, index, resultFile)) {
                             HashMap<String, FinalEventPartitionFile> dateFinalEventPartitionFile =
                                 (HashMap<String, FinalEventPartitionFile>) resultFile.computeIfAbsent(partitionId, HashMap::new);
                             dateFinalEventPartitionFile.put(listedDay,
@@ -107,7 +107,7 @@ public class HdfsOffsetComputer implements OffsetComputer {
         return partitionIdsSet.contains(partitionId);
     }
 
-    private boolean chekCurrentFileIndexBiggerTheOneInHashPartitionDay(int partitionId, String listedDay, long index, Map<Integer,
+    private boolean checkCurrentFileIndexBiggerTheOneInHashPartitionDay(int partitionId, String listedDay, long index, Map<Integer,
         Map<String, FinalEventPartitionFile>> resultFile) {
         return isPartitionDayNotAlreadyInHashPartitionDay(partitionId, listedDay, resultFile) || index > resultFile.get(partitionId).get(listedDay).getIndex();
     }
@@ -118,39 +118,28 @@ public class HdfsOffsetComputer implements OffsetComputer {
     }
 
     protected Long getMaxOffset(Map<String, FinalEventPartitionFile> dateFinalEventPartitionFile) {
-        List<Long> maxOffsets = new ArrayList<>();
-        dateFinalEventPartitionFile.values().stream()
-            .forEach(finalEventPartitionFile -> {
-                // Read parquet file
-                ParquetFileReader pFR;
-                try {
-                    pFR = ParquetFileReader.open(fs.getConf(), finalEventPartitionFile.getFilePath());
+        // Get max offset from all files for a partition
+        return dateFinalEventPartitionFile
+            .values()
+            .stream()
+            .flatMap(finalEventPartitionFile -> {
+                try (ParquetFileReader pFR = ParquetFileReader.open(fs.getConf(), finalEventPartitionFile.getFilePath())) {
+                    return pFR.getFooter().getBlocks().stream();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
 
-                // Get max value from all blocks
-                long maxValue = pFR.getFooter().getBlocks().stream()
-                    .map(b -> {
-                        Optional<ColumnChunkMetaData> columnChunkMetaData1 = b.getColumns().stream()
-                            .filter(column -> Arrays.stream(column.getPath().toArray()).allMatch(path -> path.equals("kafka_offset")))
-                            .findFirst();
-
-                        if (columnChunkMetaData1.isPresent()) {
-                            return ((LongStatistics) columnChunkMetaData1.get().getStatistics()).genericGetMax();
-                        } else {
-                            return NO_OFFSET;
-                        }
-
-                    })
-                    .reduce(NO_OFFSET, (max1, max2) -> max1 > max2 ? max1 : max2);
-
-                maxOffsets.add(maxValue);
-            });
-
-        // Get max offset from all files for a partition
-        return maxOffsets.stream().mapToLong(Long::longValue).max().orElse(NO_OFFSET);
-
+            })
+            .map(b -> b.getColumns().stream()
+                .filter(column -> Arrays.stream(column.getPath().toArray()).allMatch(path -> path.equals("kafka_offset")))
+                .findFirst()
+                .map(ColumnChunkMetaData::getStatistics)
+                .map(Statistics::genericGetMax)
+                .map(Long.class::cast)
+                .orElse(NO_OFFSET))
+            .mapToLong(Long::longValue)
+            .max()
+            .orElse(NO_OFFSET);
     }
 
     private String computeDirName(LocalDateTime time) {
