@@ -12,6 +12,7 @@ import net.bytebuddy.dynamic.loading.ByteArrayClassLoader;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileUtil;
+import org.apache.hadoop.fs.Options;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.*;
@@ -159,7 +160,11 @@ public class FileSystemTracerTest {
         hdfs_user = (String) getShortUserName.invoke(ugi);
     }
 
-    private void checkEvent(String action, Path path) throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException {
+    private void checkEvent(String action, Path path) {
+        checkEvent(action, path, DataAccessEventProtos.FsEvent.Status.SUCCESS);
+    }
+
+    private void checkEvent(String action, Path path, DataAccessEventProtos.FsEvent.Status status) {
         assertNotNull(eventHandler);
 
         verify(eventHandler, atLeastOnce()).accept(any(Long.class), argument.capture());
@@ -171,6 +176,8 @@ public class FileSystemTracerTest {
         assertEquals(path.toString(), eventTmp.getDstPath());
 
         assertEquals(hdfs_user, eventTmp.getHdfsUser());
+
+        assertEquals(status, eventTmp.getStatus());
     }
 
     @Test
@@ -240,11 +247,49 @@ public class FileSystemTracerTest {
 
     @Test
     @AgentAttachmentRule.Enforce
-    public void FileSystemTracer_should_attach_to_rename() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, NoSuchFieldException, ClassNotFoundException {
+    public void FileSystemTracer_should_attach_to_rename_deprecated() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, NoSuchFieldException, ClassNotFoundException {
         Method rename = clazzFS.getMethod("rename", Path.class, Path.class);
         rename.invoke(dfs, pathSrc, pathDst);
 
         checkEvent(FsAction.RENAME.name(), pathDst);
     }
 
+    @Test
+    @AgentAttachmentRule.Enforce
+    public void FileSystemTracer_should_attach_to_rename() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, NoSuchFieldException, ClassNotFoundException {
+        Method rename = clazzFS.getMethod("rename", Path.class, Path.class, Options.Rename[].class);
+        rename.invoke(dfs, pathFolder, pathDst, new Options.Rename[0]);
+
+        checkEvent(FsAction.RENAME.name(), pathDst);
+    }
+
+    @Test
+    @AgentAttachmentRule.Enforce
+    public void FileSystemTracer_should_indicate_if_event_is_failure_via_exception() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method create = clazzFS.getMethod("create", Path.class,
+                FsPermission.class,
+                boolean.class,
+                int.class,
+                short.class,
+                long.class,
+                Progressable.class);
+
+
+        //Using a uri path with a wrong scheme will force an exception
+        try {
+            create.invoke(dfs, new Path("ssss://not_a_path"), FsPermission.getDefault(), false, 1024, (short) 1, 1048576, null);
+        } catch (Exception ignore){}
+
+        checkEvent(FsAction.WRITE.name(), new Path("ssss://not_a_path"), DataAccessEventProtos.FsEvent.Status.FAILURE);
+
+    }
+
+    @Test
+    @AgentAttachmentRule.Enforce
+    public void FileSystemTracer_should_indicate_failure_if_method_returns_boolean_false() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method rename = clazzFS.getMethod("rename", Path.class, Path.class);
+        rename.invoke(dfs, new Path("/not_existing"), pathDst);
+
+        checkEvent(FsAction.RENAME.name(), new Path("/test1"), DataAccessEventProtos.FsEvent.Status.FAILURE);
+    }
 }
