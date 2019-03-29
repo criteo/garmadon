@@ -17,6 +17,12 @@ message FsEvent {
     string uri = 4;
     uint64 method_duration_millis = 5;
     string hdfs_user = 6;
+    enum Status {
+        UNKNOWN = 0;
+        FAILURE = 1;
+        SUCCESS = 2;
+    };
+    Status status = 7;
 }
 
 message StateEvent {
