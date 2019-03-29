@@ -2566,7 +2566,7 @@
           "datasource": "$datasource",
           "definition": "",
           "hide": 0,
-          "includeAll": false,
+          "includeAll": true,
           "label": null,
           "multi": false,
           "name": "pid",
