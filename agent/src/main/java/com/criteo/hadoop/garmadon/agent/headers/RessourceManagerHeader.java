@@ -1,6 +1,7 @@
 package com.criteo.hadoop.garmadon.agent.headers;
 
 import com.criteo.hadoop.garmadon.schema.events.Header;
+import com.criteo.hadoop.garmadon.schema.events.HeaderUtils;
 
 public final class RessourceManagerHeader {
     private Header header;
@@ -11,9 +12,9 @@ public final class RessourceManagerHeader {
 
     private Header createCachedHeader() {
         return Header.newBuilder()
-                .withHostname(Utils.getHostname())
-                .withUser(Utils.getUser())
-                .withPid(Utils.getPid())
+                .withHostname(HeaderUtils.getHostname())
+                .withUser(HeaderUtils.getUser())
+                .withPid(HeaderUtils.getPid())
                 .addTag(Header.Tag.RESOURCEMANAGER.name())
                 .addTags(System.getProperty("garmadon.tags"))
                 .build();
