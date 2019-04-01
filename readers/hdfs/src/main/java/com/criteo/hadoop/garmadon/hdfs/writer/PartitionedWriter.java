@@ -161,14 +161,15 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                     PrometheusMetrics.HEARTBEATS_SENT, eventName, partition);
             PrometheusMetrics.buildCounterChild(PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
 
-            if (!perPartitionDayWriters.containsKey(partition) || perPartitionDayWriters.get(partition).isEmpty()) {
-                final ExpiringConsumer<MESSAGE_KIND> heartbeatWriter = writerBuilder.apply(LocalDateTime.now());
+            try {
+                if ((!perPartitionDayWriters.containsKey(partition) || perPartitionDayWriters.get(partition).isEmpty())
+                        && !shouldSkipOffset(offset.getOffset(), partition)) {
+                    final ExpiringConsumer<MESSAGE_KIND> heartbeatWriter = writerBuilder.apply(LocalDateTime.now());
 
-                MESSAGE_KIND msg = (MESSAGE_KIND) ProtoConcatenator
-                        .concatToProtobuf(System.currentTimeMillis(), offset.getOffset(), Arrays.asList(emptyHeader, emptyMessageBuilder.build()))
-                        .build();
+                    MESSAGE_KIND msg = (MESSAGE_KIND) ProtoConcatenator
+                            .concatToProtobuf(System.currentTimeMillis(), offset.getOffset(), Arrays.asList(emptyHeader, emptyMessageBuilder.build()))
+                            .build();
 
-                try {
                     heartbeatWriter.write(msg, offset);
 
                     final Path writtenFilePath = heartbeatWriter.close();
@@ -177,9 +178,9 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                         heartbeatsSent.inc();
                         LOGGER.info("Written heartbeat file {}", writtenFilePath.toUri().getPath());
                     }
-                } catch (IOException e) {
-                    LOGGER.warn("Could not write heartbeat", e);
                 }
+            } catch (IOException e) {
+                LOGGER.warn("Could not write heartbeat", e);
             }
         }
     }

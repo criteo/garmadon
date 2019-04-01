@@ -1,10 +1,17 @@
 package com.criteo.hadoop.garmadon.hdfs.offset;
 
+import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
+import com.criteo.hadoop.garmadon.hdfs.EventsWithHeader;
+import com.criteo.hadoop.garmadon.protobuf.ProtoConcatenator;
 import com.criteo.hadoop.garmadon.reader.Offset;
 import com.criteo.hadoop.garmadon.reader.TopicPartitionOffset;
+import com.google.protobuf.Message;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
+import org.apache.parquet.proto.ProtoParquetWriter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,14 +20,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.LongStream;
 
-import static com.criteo.hadoop.garmadon.hdfs.TestUtils.localDateTimeFromDate;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class HdfsOffsetComputerTest {
     private HdfsOffsetComputer offsetComputer;
@@ -34,11 +37,6 @@ public class HdfsOffsetComputerTest {
 
     @Test
     public void fullyMatchingFileName() throws IOException {
-        performSinglePartitionTest(Collections.singletonList("123.12"), 123, 12);
-    }
-
-    @Test
-    public void fullyMatchingIndexFileName() throws IOException {
         performSinglePartitionTest(Collections.singletonList("123.index=1.12"), 123, 12);
     }
 
@@ -54,7 +52,7 @@ public class HdfsOffsetComputerTest {
 
     @Test
     public void unorderedFiles() throws IOException {
-        performSinglePartitionTest(Arrays.asList("123.1", "123.12", "123.10"), 123, 12);
+        performSinglePartitionTest(Arrays.asList("123.index=1", "123.index=12", "123.index=10"), 123, 12);
     }
 
     @Test
@@ -69,33 +67,35 @@ public class HdfsOffsetComputerTest {
 
     @Test
     public void matchingAndNotMaching() throws IOException {
-        performSinglePartitionTest(Arrays.asList("abc", "123.12", "12e"), 123, 12);
+        performSinglePartitionTest(Arrays.asList("abc", "123.index=12", "12e"), 123, 12);
     }
 
     @Test
-    public void getIndexReturnFileIndex() throws IOException {
+    public void getIndexReturnFileIndex() {
         Assert.assertEquals(1, offsetComputer.getIndex("123.index=1.12"));
     }
 
     @Test
-    public void getIndexReturn0IfNoIndex() throws IOException {
+    public void getIndexReturn0IfNoIndex() {
         Assert.assertEquals(0, offsetComputer.getIndex("123.12"));
     }
 
     @Test
     public void migrationToClusterInfo() throws IOException {
-        performSinglePartitionTest(Arrays.asList("123.12", "123.cluster=pa4.13"), 123, 13, "pa4");
-        performSinglePartitionTest(Arrays.asList("123.12", "123.cluster=pa4.13"), 123, 12);
+        performSinglePartitionTest(Arrays.asList("123.index=12", "123.cluster=pa4.index=13"), 123, 13, "pa4");
+        performSinglePartitionTest(Arrays.asList("123.index=12", "123.cluster=pa4.index=13"), 123, 12);
 
-        performSinglePartitionTest(Arrays.asList("42.23", "42.cluster=pa4.22"), 42, 22, "pa4");
-        performSinglePartitionTest(Arrays.asList("42.23", "42.cluster=pa4.22"), 42, 23);
+        performSinglePartitionTest(Arrays.asList("42.index=23", "42.cluster=pa4.index=22"), 42, 22, "pa4");
+        performSinglePartitionTest(Arrays.asList("42.index=23", "42.cluster=pa4.index=22"), 42, 23);
     }
 
     @Test
     public void matchingPatternAmongMultiplePartitions() throws IOException {
-        final HdfsOffsetComputer offsetComputer = new HdfsOffsetComputer(buildFileSystem(
-                Arrays.asList("456.12", "123.12", "456.24")),
-                new Path("Fake path"), 2);
+        final HdfsOffsetComputer offsetComputer = spy(new HdfsOffsetComputer(buildFileSystem(
+                Arrays.asList("456.index=12", "123.index=12", "456.index=12")),
+                new Path("Fake path"), 2));
+
+        doReturn(12L).when(offsetComputer).getMaxOffset(any());
 
         Assert.assertEquals(12L, offsetComputer.computeOffsets(Collections.singleton(123)).get(123).longValue());
     }
@@ -135,11 +135,12 @@ public class HdfsOffsetComputerTest {
              */
             localFs.mkdirs(rootPath);
             localFs.mkdirs(basePath);
-            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(today, 0L, buildOffset(1, 1))));
-            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(today, 0L, buildOffset(2, 12))));
-            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(yesterday, 0L, buildOffset(1, 2))));
-            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(yesterday, 1L, buildOffset(1, 3))));
-            localFs.create(new Path(basePath, hdfsOffsetComputer.computePath(twoDaysAgo, 0L, buildOffset(1, 42))));
+
+            writeParquetFile(new Path(basePath, hdfsOffsetComputer.computePath(today, 0L, buildOffset(1, 1))), 1);
+            writeParquetFile(new Path(basePath, hdfsOffsetComputer.computePath(today, 0L, buildOffset(2, 12))), 12);
+            writeParquetFile(new Path(basePath, hdfsOffsetComputer.computePath(yesterday, 0L, buildOffset(1, 2))), 2);
+            writeParquetFile(new Path(basePath, hdfsOffsetComputer.computePath(yesterday, 1L, buildOffset(1, 3))), 3);
+            writeParquetFile(new Path(basePath, hdfsOffsetComputer.computePath(twoDaysAgo, 0L, buildOffset(1, 42))), 42);
 
             Map<Integer, Long> offsets = hdfsOffsetComputer.computeOffsets(Arrays.asList(1, 2, 3));
 
@@ -157,8 +158,10 @@ public class HdfsOffsetComputerTest {
 
     private void performSinglePartitionTest(List<String> fileNames, int partitionId, long expectedOffset, String kafkaCluster)
             throws IOException {
-        final HdfsOffsetComputer offsetComputer = new HdfsOffsetComputer(buildFileSystem(fileNames),
-                new Path("Fake path"), kafkaCluster, 2);
+        final HdfsOffsetComputer offsetComputer = spy(new HdfsOffsetComputer(buildFileSystem(fileNames),
+                new Path("Fake path"), kafkaCluster, 2));
+
+        doReturn(expectedOffset).when(offsetComputer).getMaxOffset(any());
 
         Assert.assertEquals(expectedOffset,
                 offsetComputer.computeOffsets(Collections.singleton(partitionId)).get(partitionId).longValue());
@@ -176,5 +179,25 @@ public class HdfsOffsetComputerTest {
         when(fs.globStatus(any(Path.class))).thenReturn(statuses);
 
         return fs;
+    }
+
+    private void writeParquetFile(Path fileName, long offset) throws IOException {
+        ProtoParquetWriter<Message> writer = new ProtoParquetWriter<>(fileName, EventsWithHeader.FsEvent.class, CompressionCodecName.SNAPPY,
+                1 * 1_024 * 1_024, 1_024 * 1_024);
+
+        EventHeaderProtos.Header emptyHeader = EventHeaderProtos.Header.newBuilder().build();
+
+        LongStream.range(0, offset).forEach(n -> {
+            Message msg = ProtoConcatenator
+                    .concatToProtobuf(System.currentTimeMillis(), offset, Arrays.asList(emptyHeader, DataAccessEventProtos.FsEvent.newBuilder().build()))
+                    .build();
+            try {
+                writer.write(msg);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        writer.close();
     }
 }
