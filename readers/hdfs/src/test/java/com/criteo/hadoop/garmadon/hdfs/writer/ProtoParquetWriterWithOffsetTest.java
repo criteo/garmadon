@@ -261,7 +261,7 @@ public class ProtoParquetWriterWithOffsetTest {
             hdfsOffsetComputer);
 
         parquetWriter.close();
-        verify(parquetWriter, times(1)).mergeToFinalPath(eq(new Path("file:" + tmpFile1.toString().replace("tmp", "final").replace("tmp", "final"))),
+        verify(parquetWriter, times(1)).mergeToFinalPath(eq(new Path("file:" + tmpFile1.toString().replace("embedded/tmp", "embedded/final"))),
             any(Path.class));
         verify(parquetWriter, times(1)).moveToFinalPath(eq(new Path(tmpFile2.toString() + ".merged")), any(Path.class));
 
@@ -295,7 +295,7 @@ public class ProtoParquetWriterWithOffsetTest {
             hdfsOffsetComputer);
 
         parquetWriter.close();
-        verify(parquetWriter, times(1)).mergeToFinalPath(eq(new Path("file:" + tmpFile.toString().replace("tmp", "final"))),
+        verify(parquetWriter, times(1)).mergeToFinalPath(eq(new Path("file:" + tmpFile.toString().replace("embedded/tmp", "embedded/final"))),
             any(Path.class));
         verify(parquetWriter, times(1)).moveToFinalPath(eq(tmpFile), any(Path.class));
 
