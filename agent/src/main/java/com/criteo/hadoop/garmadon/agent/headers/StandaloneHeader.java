@@ -19,7 +19,7 @@ public final class StandaloneHeader {
                 .withHostname(HeaderUtils.getHostname())
                 .withUser(HeaderUtils.getUser())
                 .withPid(HeaderUtils.getPid())
-                .withMainClass(HeaderUtils.getArrayJavaCommandLine()[0])
+                .withMainClass(HeaderUtils.getJavaMainClass())
                 .buildSerializedHeader();
     }
 

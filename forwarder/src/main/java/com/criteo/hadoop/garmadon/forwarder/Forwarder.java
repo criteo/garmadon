@@ -49,7 +49,7 @@ public class Forwarder {
                 .withHostname(hostname)
                 .withPid(HeaderUtils.getPid())
                 .withUser(HeaderUtils.getUser())
-                .withMainClass(HeaderUtils.getArrayJavaCommandLine()[0])
+                .withMainClass(HeaderUtils.getJavaMainClass())
                 .addTag(Header.Tag.FORWARDER.name());
 
         for (String tag : properties.getProperty("forwarder.tags", "").split(",")) {

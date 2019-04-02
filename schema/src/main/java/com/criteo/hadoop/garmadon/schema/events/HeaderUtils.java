@@ -41,4 +41,8 @@ public class HeaderUtils {
         return System.getProperty("sun.java.command", "empty_class").split(" ");
     }
 
+    public static String getJavaMainClass() {
+        return getArrayJavaCommandLine()[0];
+    }
+
 }

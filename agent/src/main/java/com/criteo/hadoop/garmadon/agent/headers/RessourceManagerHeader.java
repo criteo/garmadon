@@ -15,6 +15,7 @@ public final class RessourceManagerHeader {
                 .withHostname(HeaderUtils.getHostname())
                 .withUser(HeaderUtils.getUser())
                 .withPid(HeaderUtils.getPid())
+                .withMainClass(HeaderUtils.getJavaMainClass())
                 .addTag(Header.Tag.RESOURCEMANAGER.name())
                 .addTags(System.getProperty("garmadon.tags"))
                 .build();
