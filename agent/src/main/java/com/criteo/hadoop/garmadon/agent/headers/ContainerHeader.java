@@ -86,6 +86,10 @@ public final class ContainerHeader {
                 framework = Framework.FLINK;
                 component = Component.TASK_MANAGER;
                 break;
+            case "org.apache.flink.yarn.YarnTaskExecutorRunner":
+                framework = Framework.FLINK;
+                component = Component.TASK_MANAGER;
+                break;
             // YARN
             default:
                 break;
