@@ -248,8 +248,15 @@ public class PartitionedWriterTest {
         ArgumentCaptor<DynamicMessage> argument = ArgumentCaptor.forClass(DynamicMessage.class);
         final Offset offset = new TopicPartitionOffset("topic", partition, 123);
         final ExpiringConsumer<Message> consumer = mock(ExpiringConsumer.class);
+        final OffsetComputer offsetComputer = mock(OffsetComputer.class);
+
         final PartitionedWriter<Message> writer = new PartitionedWriter<>((ignored) -> consumer,
-                mock(OffsetComputer.class), "ignored", DataAccessEventProtos.FsEvent.newBuilder());
+                offsetComputer, "ignored", DataAccessEventProtos.FsEvent.newBuilder());
+
+        final HashMap<Integer, Long> partitionOffsets = new HashMap<>();
+        partitionOffsets.put(partition, 10L);
+
+        when(offsetComputer.computeOffsets(any())).thenReturn(partitionOffsets);
 
         writer.heartbeat(partition, offset);
 
