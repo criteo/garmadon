@@ -1,6 +1,7 @@
 package com.criteo.hadoop.garmadon.agent.headers;
 
 import com.criteo.hadoop.garmadon.schema.events.Header;
+import com.criteo.hadoop.garmadon.schema.events.HeaderUtils;
 
 public final class StandaloneHeader {
     private Header.SerializedHeader header;
@@ -12,13 +13,13 @@ public final class StandaloneHeader {
     private Header.SerializedHeader createCachedHeader() {
         //build the header for the whole application once
         return Header.newBuilder()
-                .withId(Utils.getStandaloneId())
+                .withId(HeaderUtils.getStandaloneId())
                 .addTag(Header.Tag.STANDALONE.name())
                 .addTags(System.getProperty("garmadon.tags"))
-                .withHostname(Utils.getHostname())
-                .withUser(Utils.getUser())
-                .withPid(Utils.getPid())
-                .withMainClass(Utils.getArrayJavaCommandLine()[0])
+                .withHostname(HeaderUtils.getHostname())
+                .withUser(HeaderUtils.getUser())
+                .withPid(HeaderUtils.getPid())
+                .withMainClass(HeaderUtils.getJavaMainClass())
                 .buildSerializedHeader();
     }
 
