@@ -104,8 +104,6 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
             moveToFinalPath(temporaryHdfsPath, finalPath);
         }
 
-        LOGGER.info("Committed {} (from {})", finalPath.toUri(), temporaryHdfsPath);
-
         return finalPath;
     }
 
@@ -118,6 +116,8 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
                     finalPath.toUri(), tempPath));
             }
         }
+
+        LOGGER.info("Committed {} to {}", temporaryHdfsPath, finalPath.toUri());
     }
 
     protected void mergeToFinalPath(Path lastAvailableFinalPath, Path finalPath) throws IOException {

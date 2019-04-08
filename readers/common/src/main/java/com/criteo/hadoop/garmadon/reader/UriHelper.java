@@ -15,7 +15,7 @@ public class UriHelper {
         try (InputStream streamPropFilePath = UriHelper.class.getResourceAsStream("/hdfs-mapping.properties")) {
             PROPERTIES.load(streamPropFilePath);
         } catch (IOException | NullPointerException e) {
-            LOGGER.warn("No hdfs-mapping.PROPERTIES file define");
+            LOGGER.warn("No hdfs-mapping.properties file define");
         }
     }
 
