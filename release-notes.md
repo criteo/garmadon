@@ -1,5 +1,7 @@
 Garmadon release notes
 ----------------------
+### v1.3.1 - 
+
 ### v1.3.0 - 2019-01-15
 - Add hdfs reader to docker test platform a86cecf (n.fraison)
 - Remove useless dependency and maven plugin 8b64e0b (n.fraison)
