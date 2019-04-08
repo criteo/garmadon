@@ -136,8 +136,8 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
             }
 
             return partitionsId.stream()
-                    .filter(perPartitionStartOffset::containsKey)
-                    .collect(Collectors.toMap(Function.identity(), perPartitionStartOffset::get));
+                .filter(perPartitionStartOffset::containsKey)
+                .collect(Collectors.toMap(Function.identity(), perPartitionStartOffset::get));
         }
     }
 
@@ -158,17 +158,17 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     public void heartbeat(int partition, Offset offset) {
         synchronized (perPartitionDayWriters) {
             final Counter.Child heartbeatsSent = PrometheusMetrics.buildCounterChild(
-                    PrometheusMetrics.HEARTBEATS_SENT, eventName, partition);
+                PrometheusMetrics.HEARTBEATS_SENT, eventName, partition);
             PrometheusMetrics.buildCounterChild(PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
 
             try {
                 if ((!perPartitionDayWriters.containsKey(partition) || perPartitionDayWriters.get(partition).isEmpty())
-                        && !shouldSkipOffset(offset.getOffset(), partition)) {
+                    && !shouldSkipOffset(offset.getOffset(), partition)) {
                     final ExpiringConsumer<MESSAGE_KIND> heartbeatWriter = writerBuilder.apply(LocalDateTime.now());
 
                     MESSAGE_KIND msg = (MESSAGE_KIND) ProtoConcatenator
-                            .concatToProtobuf(System.currentTimeMillis(), offset.getOffset(), Arrays.asList(emptyHeader, emptyMessageBuilder.build()))
-                            .build();
+                        .concatToProtobuf(System.currentTimeMillis(), offset.getOffset(), Arrays.asList(emptyHeader, emptyMessageBuilder.build()))
+                        .build();
 
                     heartbeatWriter.write(msg, offset);
 
@@ -188,43 +188,46 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     private void possiblyCloseConsumers(Predicate<ExpiringConsumer> shouldClose) {
         synchronized (perPartitionDayWriters) {
             perPartitionDayWriters.forEach((partitionId, dailyWriters) ->
-                    dailyWriters.entrySet().removeIf(entry -> {
-                        final ExpiringConsumer<MESSAGE_KIND> consumer = entry.getValue();
+                dailyWriters.entrySet().removeIf(entry -> {
+                    final ExpiringConsumer<MESSAGE_KIND> consumer = entry.getValue();
 
-                        if (shouldClose.test(consumer)) {
-                            if (tryExpireConsumer(consumer)) {
-                                final Counter.Child filesCommitted = PrometheusMetrics.buildCounterChild(
-                                        PrometheusMetrics.FILES_COMMITTED, eventName);
+                    if (shouldClose.test(consumer)) {
+                        if (tryExpireConsumer(consumer)) {
+                            final Counter.Child filesCommitted = PrometheusMetrics.buildCounterChild(
+                                PrometheusMetrics.FILES_COMMITTED, eventName);
 
-                                filesCommitted.inc();
-                                return true;
-                            } else {
-                                final Counter.Child filesCommitFailures = PrometheusMetrics.buildCounterChild(
-                                        PrometheusMetrics.FILE_COMMIT_FAILURES, eventName);
-
-                                filesCommitFailures.inc();
-                                return false;
-                            }
+                            filesCommitted.inc();
+                            return true;
                         }
+                    }
 
-                        return false;
-                    }));
+                    return false;
+                }));
         }
     }
 
     private boolean tryExpireConsumer(ExpiringConsumer<MESSAGE_KIND> consumer) {
-        final int maxAttempts = 3;
+        final int maxAttempts = 5;
 
         for (int retry = 1; retry <= maxAttempts; ++retry) {
             try {
                 consumer.close();
                 return true;
             } catch (IOException e) {
-                LOGGER.error(String.format("Couldn't close writer for %s (%d/%d)", eventName, retry, maxAttempts), e);
+                String exMsg = String.format("Couldn't close writer for %s (%d/%d)", eventName, retry, maxAttempts);
+                if (retry < maxAttempts) {
+                    LOGGER.warn(exMsg, e);
+                    try {
+                        Thread.sleep(1000 * retry);
+                    } catch (InterruptedException ignored) {
+                    }
+                } else {
+                    LOGGER.error(exMsg, e);
+                }
             }
         }
 
-        return false;
+        throw new RuntimeException(String.format("Couldn't close writer for %s", eventName));
     }
 
     /**

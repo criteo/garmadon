@@ -7,6 +7,7 @@ import com.criteo.hadoop.garmadon.reader.Offset;
 import com.criteo.hadoop.garmadon.reader.TopicPartitionOffset;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Message;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -17,8 +18,7 @@ import java.util.function.Function;
 
 import static com.criteo.hadoop.garmadon.hdfs.TestUtils.instantFromDate;
 import static com.criteo.hadoop.garmadon.hdfs.TestUtils.localDateTimeFromDate;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -137,14 +137,16 @@ public class PartitionedWriterTest {
     }
 
     @Test
-    public void closingExceptionalConsumerDoesNotThrow() throws IOException {
+    public void closingExceptionalConsumerThrowExceptionAfter5Retries() throws IOException {
         final Function<LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(Function.class);
         final PartitionedWriter<String> partitionedWriter = new PartitionedWriter<>(writerBuilder,
-                new FixedOffsetComputer("ignored", 0), "ignored", DataAccessEventProtos.FsEvent.newBuilder());
+            new FixedOffsetComputer("ignored", 0), "ignored", DataAccessEventProtos.FsEvent.newBuilder());
         final ExpiringConsumer<String> nonThrowingConsumer = mock(ExpiringConsumer.class);
         final ExpiringConsumer<String> throwingConsumer = mock(ExpiringConsumer.class);
         final Offset firstOffset = buildOffset(1, 101);
         final Offset secondOffset = buildOffset(1, 102);
+
+        boolean throwException = false;
 
         doThrow(new IOException("Cassé")).when(throwingConsumer).close();
 
@@ -154,12 +156,18 @@ public class PartitionedWriterTest {
         partitionedWriter.write(instantFromDate("1987-08-13 12:12:22"), firstOffset, "I don't care");
         partitionedWriter.write(instantFromDate("1984-05-21 02:22:22"), secondOffset, "Me neither");
 
-        // Should not throw
-        partitionedWriter.close();
+        try {
+            partitionedWriter.close();
+        } catch (RuntimeException re) {
+            throwException = true;
+            assertEquals("Couldn't close writer for ignored", re.getMessage());
+        }
+
+        assertEquals(throwException, true);
 
         // All consumers are closed
-        verify(throwingConsumer, atLeastOnce()).close();
-        verify(nonThrowingConsumer, atLeastOnce()).close();
+        verify(throwingConsumer, times(5)).close();
+        verify(nonThrowingConsumer, times(1)).close();
     }
 
     @Test
