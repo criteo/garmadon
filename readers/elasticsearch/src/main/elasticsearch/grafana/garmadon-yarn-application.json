@@ -194,6 +194,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -290,6 +291,7 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
         "title": "Vcore",
         "tooltip": {
@@ -357,6 +359,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -453,6 +456,7 @@
         ],
         "thresholds": [],
         "timeFrom": null,
+        "timeRegions": [],
         "timeShift": null,
         "title": "Memory",
         "tooltip": {
@@ -546,6 +550,7 @@
             "linewidth": 1,
             "links": [],
             "nullPointMode": "connected",
+            "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
             "points": false,
@@ -598,6 +603,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "CPU",
             "tooltip": {
@@ -666,6 +672,7 @@
             "linewidth": 1,
             "links": [],
             "nullPointMode": "connected",
+            "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
             "points": false,
@@ -746,6 +753,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "HEAP Usage",
             "tooltip": {
@@ -814,6 +822,7 @@
             "linewidth": 1,
             "links": [],
             "nullPointMode": "connected",
+            "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
             "points": false,
@@ -866,6 +875,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "OFF-HEAP Usage",
             "tooltip": {
@@ -934,6 +944,7 @@
             "linewidth": 1,
             "links": [],
             "nullPointMode": "connected",
+            "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
             "points": false,
@@ -986,6 +997,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "Metadata Space Used",
             "tooltip": {
@@ -1033,8 +1045,8 @@
             "decimals": null,
             "fill": 1,
             "gridPos": {
-              "h": 8,
-              "w": 12,
+              "h": 10,
+              "w": 24,
               "x": 0,
               "y": 31
             },
@@ -1055,6 +1067,130 @@
             "linewidth": 1,
             "links": [],
             "nullPointMode": "connected",
+            "paceLength": 10,
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "alias": "{{pid}}.ParNew",
+                "bucketAggs": [
+                  {
+                    "fake": true,
+                    "field": "pid",
+                    "id": "3",
+                    "settings": {
+                      "min_doc_count": 1,
+                      "order": "desc",
+                      "orderBy": "_term",
+                      "size": "10"
+                    },
+                    "type": "terms"
+                  },
+                  {
+                    "field": "timestamp",
+                    "id": "2",
+                    "settings": {
+                      "interval": "auto",
+                      "min_doc_count": 0,
+                      "trimEdges": 0
+                    },
+                    "type": "date_histogram"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "field": "pause_time",
+                    "id": "1",
+                    "meta": {},
+                    "settings": {},
+                    "type": "sum"
+                  }
+                ],
+                "query": "event_type:GC_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "refId": "A",
+                "target": "",
+                "timeField": "timestamp"
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "GC Pause duration",
+            "tooltip": {
+              "shared": true,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "format": "ms",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "$datasource",
+            "decimals": null,
+            "fill": 1,
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 41
+            },
+            "id": 53,
+            "legend": {
+              "alignAsTable": true,
+              "avg": false,
+              "current": false,
+              "max": false,
+              "min": false,
+              "rightSide": true,
+              "show": true,
+              "sideWidth": 200,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "links": [],
+            "nullPointMode": "connected",
+            "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
             "points": false,
@@ -1361,8 +1497,9 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
-            "title": "GC duration",
+            "title": "GC CPU time",
             "tooltip": {
               "shared": true,
               "sort": 0,
@@ -1410,7 +1547,7 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 31
+              "y": 41
             },
             "id": 32,
             "legend": {
@@ -1429,6 +1566,7 @@
             "linewidth": 1,
             "links": [],
             "nullPointMode": "connected",
+            "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
             "points": false,
@@ -1681,6 +1819,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "GC Count",
             "tooltip": {
@@ -1782,13 +1921,13 @@
                 "value": "code_after"
               }
             ],
-            "datasource": "garmadon",
+            "datasource": "$datasource",
             "fontSize": "100%",
             "gridPos": {
               "h": 10,
               "w": 24,
               "x": 0,
-              "y": 39
+              "y": 49
             },
             "id": 52,
             "links": [],
@@ -1904,7 +2043,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 49
+              "y": 59
             },
             "id": 26,
             "legend": {
@@ -1923,6 +2062,7 @@
             "linewidth": 1,
             "links": [],
             "nullPointMode": "connected",
+            "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
             "points": false,
@@ -1975,6 +2115,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "#Threads",
             "tooltip": {
@@ -2024,7 +2165,7 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 49
+              "y": 59
             },
             "id": 29,
             "legend": {
@@ -2043,6 +2184,7 @@
             "linewidth": 1,
             "links": [],
             "nullPointMode": "connected",
+            "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
             "points": false,
@@ -2104,6 +2246,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "#Threads Created",
             "tooltip": {
@@ -2153,7 +2296,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 57
+              "y": 67
             },
             "id": 31,
             "legend": {
@@ -2172,6 +2315,7 @@
             "linewidth": 1,
             "links": [],
             "nullPointMode": "connected",
+            "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
             "points": false,
@@ -2224,6 +2368,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "#File Descriptors",
             "tooltip": {
@@ -2959,7 +3104,7 @@
             "lines": true,
             "linewidth": 1,
             "links": [],
-            "minSpan": 12,
+            "maxPerRow": 2,
             "nullPointMode": "null",
             "percentage": false,
             "pointradius": 5,
@@ -3085,7 +3230,7 @@
             "lines": true,
             "linewidth": 1,
             "links": [],
-            "minSpan": 12,
+            "maxPerRow": 2,
             "nullPointMode": "null",
             "percentage": false,
             "pointradius": 5,
@@ -3196,7 +3341,7 @@
       }
     ],
     "refresh": false,
-    "schemaVersion": 16,
+    "schemaVersion": 18,
     "style": "dark",
     "tags": [
       "git"
@@ -3215,6 +3360,7 @@
           "query": "elasticsearch",
           "refresh": 1,
           "regex": "/garmadon*/",
+          "skipUrlSync": false,
           "type": "datasource"
         },
         {
@@ -3224,6 +3370,7 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -3233,6 +3380,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"username\", \"query\": \"event_type:APPLICATION_EVENT\", \"size\": 1000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
@@ -3247,6 +3395,7 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -3256,6 +3405,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"framework\",\"query\":\"event_type:APPLICATION_EVENT AND username:$username\"}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
@@ -3270,6 +3420,7 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -3279,6 +3430,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"event_type:APPLICATION_EVENT AND username:$username AND framework:$framework\"}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 2,
           "tagValuesQuery": "",
           "tags": [],
@@ -3289,10 +3441,12 @@
         {
           "allValue": "*",
           "current": {
-            "text": "application_1545239171688_0007",
-            "value": "application_1545239171688_0007"
+            "tags": [],
+            "text": "application_1554202097705_0007",
+            "value": "application_1554202097705_0007"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": false,
           "label": null,
@@ -3302,6 +3456,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:APPLICATION_EVENT AND username:$username AND framework:$framework AND application_name:$application_name\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 2,
           "tagValuesQuery": "",
           "tags": [],
@@ -3316,6 +3471,7 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -3325,6 +3481,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"component\",\"query\":\"application_id:$application_id\"}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
@@ -3339,6 +3496,7 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -3348,6 +3506,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"container_id\", \"query\": \"application_id:$application_id AND component:$component\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
@@ -3362,6 +3521,7 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -3371,6 +3531,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\": \"application_id:$application_id AND component:$component AND container_id:$container_id\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],
@@ -3385,6 +3546,7 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
+          "definition": "",
           "hide": 0,
           "includeAll": true,
           "label": null,
@@ -3394,6 +3556,7 @@
           "query": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"application_id:$application_id AND component:$component AND container_id:$container_id\"}",
           "refresh": 1,
           "regex": "",
+          "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
           "tags": [],

@@ -62,6 +62,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -171,6 +172,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -308,6 +310,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -417,6 +420,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -506,11 +510,122 @@
         "fill": 1,
         "gridPos": {
           "h": 8,
-          "w": 12,
+          "w": 24,
           "x": 0,
           "y": 17
         },
         "id": 27,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": false,
+          "sideWidth": 200,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "pause_time",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:GC_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "GC Pause duration",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "ms",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": false
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 25
+        },
+        "id": 50,
         "legend": {
           "alignAsTable": true,
           "avg": false,
@@ -527,6 +642,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -775,7 +891,7 @@
         "timeFrom": null,
         "timeRegions": [],
         "timeShift": null,
-        "title": "GC duration",
+        "title": "GC CPU time",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -823,7 +939,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 17
+          "y": 25
         },
         "id": 32,
         "legend": {
@@ -842,6 +958,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -1124,13 +1241,13 @@
             "value": "code_after"
           }
         ],
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "fontSize": "100%",
         "gridPos": {
           "h": 10,
           "w": 24,
           "x": 0,
-          "y": 25
+          "y": 33
         },
         "id": 49,
         "links": [],
@@ -1246,7 +1363,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 35
+          "y": 43
         },
         "id": 26,
         "legend": {
@@ -1265,6 +1382,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -1355,7 +1473,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 35
+          "y": 43
         },
         "id": 29,
         "legend": {
@@ -1374,6 +1492,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -1473,7 +1592,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 43
+          "y": 51
         },
         "id": 31,
         "legend": {
@@ -1492,6 +1611,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -1577,7 +1697,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 51
+          "y": 59
         },
         "id": 42,
         "panels": [
@@ -2165,7 +2285,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 52
+          "y": 60
         },
         "id": 9,
         "panels": [
@@ -2197,7 +2317,7 @@
             "lines": true,
             "linewidth": 1,
             "links": [],
-            "minSpan": 12,
+            "maxPerRow": 2,
             "nullPointMode": "null",
             "percentage": false,
             "pointradius": 5,
@@ -2324,7 +2444,7 @@
             "lines": true,
             "linewidth": 1,
             "links": [],
-            "minSpan": 12,
+            "maxPerRow": 2,
             "nullPointMode": "null",
             "percentage": false,
             "pointradius": 5,
@@ -2435,7 +2555,7 @@
       }
     ],
     "refresh": false,
-    "schemaVersion": 16,
+    "schemaVersion": 18,
     "style": "dark",
     "tags": [
       "git"
@@ -2560,8 +2680,8 @@
         {
           "allValue": "*",
           "current": {
-            "text": "9",
-            "value": "9"
+            "text": "7",
+            "value": "7"
           },
           "datasource": "$datasource",
           "definition": "",
