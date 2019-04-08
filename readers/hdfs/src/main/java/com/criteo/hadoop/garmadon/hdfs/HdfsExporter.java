@@ -96,6 +96,7 @@ public class HdfsExporter {
         try {
             // Required if using ViewFs to resolve hdfs path and use DistributedFileSystem
             FileSystem fsTmp = finalHdfsDir.getFileSystem(HDFS_CONF);
+            fsTmp.mkdirs(finalHdfsDir); // Create final folder if not exist before to resolve path
             finalHdfsDir = fsTmp.resolvePath(finalHdfsDir);
             fs = finalHdfsDir.getFileSystem(HDFS_CONF);
         } catch (IOException e) {
