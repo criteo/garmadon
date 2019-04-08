@@ -27,9 +27,6 @@ BASEDIR=$(dirname "$0")/..
 
 pushd ${BASEDIR}
 
-# Create/Switch to release branch locally
-git checkout release_$NEW_GARMADON_RELEASE || git checkout -b release_$NEW_GARMADON_RELEASE
-
 # Bump release
 mvn versions:set -DnewVersion=${NEW_GARMADON_RELEASE}
 find . -name pom.xml.versionsBackup -delete
@@ -42,9 +39,6 @@ fi
 # Commit release
 find . -name pom.xml | xargs git add
 git commit -m "[RELEASE] Create release ${NEW_GARMADON_RELEASE}"
-
-#  Create release tag
-git tag v${NEW_GARMADON_RELEASE}
 
 #  Create release-notes
 > release-notes.md
@@ -63,10 +57,10 @@ do
     #Consider only release tag
     if [ ! -z "$tag" ]
     then
-      write_release_note_between $from $tag 
+      write_release_note_between $from $tag
       from=${tag}
     fi
-  fi  
+  fi
 done
 
 #There is only the tag we created for this release left
@@ -78,5 +72,8 @@ write_at_begening "Garmadon release notes" release-notes.md
 #  Commit release-notes update
 git add release-notes.md
 git commit -m "[RELEASE] Update release note ${NEW_GARMADON_RELEASE}"
+
+#  Create release tag
+git tag v${NEW_GARMADON_RELEASE}
 
 popd
