@@ -161,7 +161,7 @@ public class HdfsExporter {
         final DelayedDailyPathComputer delayedPathComputer = new DelayedDailyPathComputer(Duration.ofHours(24 + 2));
         final Path immutableFinalHdfsDir = finalHdfsDir;
         final Checkpointer checkpointer = new FsBasedCheckpointer(fs,
-                instant -> new Path(immutableFinalHdfsDir, delayedPathComputer.apply(instant.atZone(ZoneId.of("UTC"))) + "-done"));
+            instant -> new Path(immutableFinalHdfsDir, delayedPathComputer.apply(instant.atZone(ZoneId.of("UTC"))) + "-done"));
 
         // We need to build a meta listener as only the last call to #subscribe wins
         kafkaConsumer.subscribe(Collections.singleton(GarmadonReader.GARMADON_TOPIC),

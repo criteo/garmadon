@@ -1,6 +1,5 @@
 package com.criteo.hadoop.garmadon.hdfs.writer;
 
-import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAmount;

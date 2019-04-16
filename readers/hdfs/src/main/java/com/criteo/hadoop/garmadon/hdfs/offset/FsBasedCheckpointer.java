@@ -16,10 +16,11 @@ import java.util.function.Function;
  * Write checkpoints on the filesystem.
  */
 public class FsBasedCheckpointer implements Checkpointer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FsBasedCheckpointer.class.getName());
+
     private final FileSystem fs;
     private final Map<Path, Boolean> checkpointsCache;
     private Function<Instant, Path> checkpointPathGenerator;
-    private static final Logger LOGGER = LoggerFactory.getLogger(FsBasedCheckpointer.class.getName());
 
     /**
      * @param fs                        The FS on which checkpoints are persisted
@@ -41,8 +42,7 @@ public class FsBasedCheckpointer implements Checkpointer {
                 checkpointsCache.put(path, true);
 
                 return true;
-            }
-            else {
+            } else {
                 checkpointsCache.put(path, true);
             }
         } catch (IOException e) {
