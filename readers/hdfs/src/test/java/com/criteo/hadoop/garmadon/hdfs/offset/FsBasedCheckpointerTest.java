@@ -38,11 +38,11 @@ public class FsBasedCheckpointerTest {
         when(fsMock.create(secondPath)).thenReturn(secondOsMock);
 
         Assert.assertTrue(cptr.tryCheckpoint(1, firstDateTime));
-        verify(fsMock, times(1)).exists(firstPath);
+        verify(fsMock, times(2)).exists(firstPath);
         verify(fsMock, times(1)).create(firstPath);
 
         Assert.assertTrue(cptr.tryCheckpoint(2, secondDateTime));
-        verify(fsMock, times(1)).exists(secondPath);
+        verify(fsMock, times(2)).exists(secondPath);
         verify(fsMock, times(1)).create(secondPath);
 
         verifyNoMoreInteractions(fsMock);

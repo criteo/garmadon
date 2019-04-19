@@ -146,12 +146,12 @@ public class HdfsExporter {
             // When it's day D + 2h, checkpoint for day D - 1m
             final DelayedDailyPathComputer delayedPathComputer = new DelayedDailyPathComputer(Duration.ofHours(24 + 2));
             final Checkpointer checkpointer = new FsBasedCheckpointer(fs,
-                    (partition, instant) -> {
-                        Path dayDir = new Path(finalEventDir,
-                                delayedPathComputer.apply(instant.atZone(ZoneId.of("UTC"))));
+                (partition, instant) -> {
+                    Path dayDir = new Path(finalEventDir,
+                            delayedPathComputer.apply(instant.atZone(ZoneId.of("UTC"))));
 
-                        return new Path(dayDir, partition.toString() + ".done");
-                    });
+                    return new Path(dayDir, partition.toString() + ".done");
+                });
 
             consumerBuilder = buildMessageConsumerBuilder(fs, new Path(temporaryHdfsDir, eventName),
                 finalEventDir, clazz, offsetComputer, pauser, eventName);

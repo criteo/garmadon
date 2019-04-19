@@ -1,15 +1,18 @@
 package com.criteo.hadoop.garmadon.hdfs.offset;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.function.BiFunction;
 
 /**
@@ -19,7 +22,7 @@ public class FsBasedCheckpointer implements Checkpointer {
     private static final Logger LOGGER = LoggerFactory.getLogger(FsBasedCheckpointer.class.getName());
 
     private final FileSystem fs;
-    private final Map<Path, Boolean> checkpointsCache;
+    private final LoadingCache<Path, Boolean> checkpointsCache;
     private BiFunction<Integer, Instant, Path> checkpointPathGenerator;
 
     /**
@@ -29,7 +32,13 @@ public class FsBasedCheckpointer implements Checkpointer {
     public FsBasedCheckpointer(FileSystem fs, BiFunction<Integer, Instant, Path> checkpointPathGenerator) {
         this.fs = fs;
         this.checkpointPathGenerator = checkpointPathGenerator;
-        this.checkpointsCache = new HashMap<>();
+        this.checkpointsCache = CacheBuilder.newBuilder().maximumSize(1000).build(new CacheLoader<Path, Boolean>() {
+            @ParametersAreNonnullByDefault
+            @Override
+            public Boolean load(Path path) throws Exception {
+                return fs.exists(path);
+            }
+        });
     }
 
     @Override
@@ -39,11 +48,11 @@ public class FsBasedCheckpointer implements Checkpointer {
         try {
             if (!checkpointed(path)) {
                 checkpoint(path);
-                checkpointsCache.put(path, true);
+                checkpointsCache.refresh(path);
 
                 return true;
             }
-        } catch (IOException e) {
+        } catch (IOException | ExecutionException e) {
             LOGGER.warn("Couldn't write checkpoint file: {}", e.getMessage());
         }
 
@@ -56,11 +65,7 @@ public class FsBasedCheckpointer implements Checkpointer {
         os.close();
     }
 
-    private boolean checkpointed(Path path) throws IOException {
-        if (!checkpointsCache.containsKey(path)) {
-            checkpointsCache.put(path, fs.exists(path));
-        }
-
+    private boolean checkpointed(Path path) throws ExecutionException {
         return checkpointsCache.get(path);
     }
 }
