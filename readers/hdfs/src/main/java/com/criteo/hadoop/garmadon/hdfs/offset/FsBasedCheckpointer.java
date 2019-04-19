@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 /**
  * Write checkpoints on the filesystem.
@@ -20,21 +20,21 @@ public class FsBasedCheckpointer implements Checkpointer {
 
     private final FileSystem fs;
     private final Map<Path, Boolean> checkpointsCache;
-    private Function<Instant, Path> checkpointPathGenerator;
+    private BiFunction<Integer, Instant, Path> checkpointPathGenerator;
 
     /**
      * @param fs                        The FS on which checkpoints are persisted
      * @param checkpointPathGenerator   Generate a path from a date.
      */
-    public FsBasedCheckpointer(FileSystem fs, Function<Instant, Path> checkpointPathGenerator) {
+    public FsBasedCheckpointer(FileSystem fs, BiFunction<Integer, Instant, Path> checkpointPathGenerator) {
         this.fs = fs;
         this.checkpointPathGenerator = checkpointPathGenerator;
         this.checkpointsCache = new HashMap<>();
     }
 
     @Override
-    public boolean tryCheckpoint(Instant when) {
-        Path path = checkpointPathGenerator.apply(when);
+    public boolean tryCheckpoint(int partitionId, Instant when) {
+        Path path = checkpointPathGenerator.apply(partitionId, when);
 
         try {
             if (!checkpointed(path)) {
@@ -42,8 +42,6 @@ public class FsBasedCheckpointer implements Checkpointer {
                 checkpointsCache.put(path, true);
 
                 return true;
-            } else {
-                checkpointsCache.put(path, true);
             }
         } catch (IOException e) {
             LOGGER.warn("Couldn't write checkpoint file: {}", e.getMessage());

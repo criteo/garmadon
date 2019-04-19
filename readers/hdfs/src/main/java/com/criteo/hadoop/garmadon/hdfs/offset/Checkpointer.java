@@ -6,8 +6,9 @@ public interface Checkpointer {
     /**
      * Try writing a checkpoint.
      *
-     * @param when  Which date this checkpoint is about.
-     * @return      True if the checkpoint was created, false otherwise.
+     * @param partitionId   Which date this checkpoint is about.
+     * @param when          Which partition this checkpoint is about.
+     * @return              True if the checkpoint was created, false otherwise.
      */
-    boolean tryCheckpoint(Instant when);
+    boolean tryCheckpoint(int partitionId, Instant when);
 }

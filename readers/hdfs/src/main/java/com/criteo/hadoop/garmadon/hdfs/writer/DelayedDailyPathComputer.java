@@ -19,6 +19,6 @@ public class DelayedDailyPathComputer implements Function<Temporal, String> {
     public String apply(Temporal localDateTime) {
         Temporal actualDayBucket = localDateTime.minus(graceDelay);
 
-        return DateTimeFormatter.ISO_DATE.format(actualDayBucket);
+        return DateTimeFormatter.ofPattern("YYYY-MM-dd").format(actualDayBucket);
     }
 }

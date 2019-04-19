@@ -143,11 +143,21 @@ public class HdfsExporter {
             final OffsetComputer offsetComputer = new HdfsOffsetComputer(fs, finalEventDir,
                 config.getKafka().getCluster(), config.getHdfs().getBacklogDays());
 
+            // When it's day D + 2h, checkpoint for day D - 1m
+            final DelayedDailyPathComputer delayedPathComputer = new DelayedDailyPathComputer(Duration.ofHours(24 + 2));
+            final Checkpointer checkpointer = new FsBasedCheckpointer(fs,
+                    (partition, instant) -> {
+                        Path dayDir = new Path(finalEventDir,
+                                delayedPathComputer.apply(instant.atZone(ZoneId.of("UTC"))));
+
+                        return new Path(dayDir, partition.toString() + ".done");
+                    });
+
             consumerBuilder = buildMessageConsumerBuilder(fs, new Path(temporaryHdfsDir, eventName),
                 finalEventDir, clazz, offsetComputer, pauser, eventName);
 
             final PartitionedWriter<Message> writer = new PartitionedWriter<>(
-                consumerBuilder, offsetComputer, eventName, emptyMessageBuilder);
+                consumerBuilder, offsetComputer, eventName, emptyMessageBuilder, checkpointer);
 
             readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(writer, eventName));
 
@@ -156,12 +166,6 @@ public class HdfsExporter {
 
         final List<ConsumerRebalanceListener> listeners = Arrays.asList(
             new OffsetResetter<>(kafkaConsumer, heartbeat::dropPartition, writers), pauser);
-
-        // When it's day D + 2h, checkpoint for day D - 1m
-        final DelayedDailyPathComputer delayedPathComputer = new DelayedDailyPathComputer(Duration.ofHours(24 + 2));
-        final Path immutableFinalHdfsDir = finalHdfsDir;
-        final Checkpointer checkpointer = new FsBasedCheckpointer(fs,
-            instant -> new Path(immutableFinalHdfsDir, delayedPathComputer.apply(instant.atZone(ZoneId.of("UTC"))) + "-done"));
 
         // We need to build a meta listener as only the last call to #subscribe wins
         kafkaConsumer.subscribe(Collections.singleton(GarmadonReader.GARMADON_TOPIC),
@@ -185,10 +189,6 @@ public class HdfsExporter {
             Gauge.Child gauge = PrometheusMetrics.buildGaugeChild(PrometheusMetrics.CURRENT_RUNNING_OFFSETS,
                 "global", offset.getPartition());
             gauge.set(offset.getOffset());
-
-            if (checkpointer.tryCheckpoint(Instant.ofEpochMilli(msg.getTimestamp()))) {
-                LOGGER.info("Checkpoint created for timestamp {}", msg.getTimestamp());
-            }
         });
 
         final GarmadonReader garmadonReader = readerBuilder.build(false);

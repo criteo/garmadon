@@ -2,6 +2,7 @@ package com.criteo.hadoop.garmadon.hdfs.writer;
 
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
+import com.criteo.hadoop.garmadon.hdfs.offset.Checkpointer;
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.protobuf.ProtoConcatenator;
 import com.criteo.hadoop.garmadon.reader.Offset;
@@ -40,6 +41,8 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     private final String eventName;
     private final Message.Builder emptyMessageBuilder;
     private final EventHeaderProtos.Header emptyHeader = EventHeaderProtos.Header.newBuilder().build();
+    private final Checkpointer checkpointer;
+    private Map<AbstractMap.SimpleEntry<Integer, LocalDateTime>, Instant> latestMessageTimeForPartitionAndDay;
 
     /**
      * @param writerBuilder       Builds an expiring writer based on a path.
@@ -49,11 +52,14 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      * @param emptyMessageBuilder Empty message builder used to write heartbeat
      */
     public PartitionedWriter(Function<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> writerBuilder,
-                             OffsetComputer offsetComputer, String eventName, Message.Builder emptyMessageBuilder) {
+                             OffsetComputer offsetComputer, String eventName, Message.Builder emptyMessageBuilder,
+                             Checkpointer checkpointer) {
         this.eventName = eventName;
         this.writerBuilder = writerBuilder;
         this.offsetComputer = offsetComputer;
         this.emptyMessageBuilder = emptyMessageBuilder;
+        this.checkpointer = checkpointer;
+        this.latestMessageTimeForPartitionAndDay = new HashMap<>();
     }
 
     /**
@@ -80,6 +86,13 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     public void write(Instant when, Offset offset, MESSAGE_KIND msg) throws IOException {
         final LocalDateTime dayStartTime = LocalDateTime.ofInstant(when.truncatedTo(ChronoUnit.DAYS), UTC_ZONE);
         final int partitionId = offset.getPartition();
+        final AbstractMap.SimpleEntry<Integer, LocalDateTime> dayAndPartition = new AbstractMap.SimpleEntry<>(
+                partitionId, dayStartTime);
+
+        if (!latestMessageTimeForPartitionAndDay.containsKey(dayAndPartition) ||
+                when.isAfter(latestMessageTimeForPartitionAndDay.get(dayAndPartition))) {
+            latestMessageTimeForPartitionAndDay.put(dayAndPartition, when);
+        }
 
         synchronized (perPartitionDayWriters) {
             if (shouldSkipOffset(offset.getOffset(), partitionId)) return;
@@ -190,6 +203,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
             perPartitionDayWriters.forEach((partitionId, dailyWriters) ->
                 dailyWriters.entrySet().removeIf(entry -> {
                     final ExpiringConsumer<MESSAGE_KIND> consumer = entry.getValue();
+                    final LocalDateTime day = entry.getKey();
 
                     if (shouldClose.test(consumer)) {
                         if (tryExpireConsumer(consumer)) {
@@ -197,6 +211,10 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                                 PrometheusMetrics.FILES_COMMITTED, eventName);
 
                             filesCommitted.inc();
+
+                            checkpointer.tryCheckpoint(partitionId, latestMessageTimeForPartitionAndDay.get(
+                                    new AbstractMap.SimpleEntry<>(partitionId, day)));
+
                             return true;
                         }
                     }
