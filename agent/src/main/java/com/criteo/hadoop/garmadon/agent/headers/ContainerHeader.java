@@ -55,6 +55,10 @@ public final class ContainerHeader {
                 framework = Framework.SPARK;
                 component = Component.APP_MASTER;
                 break;
+            case "org.apache.spark.deploy.yarn.ExecutorLauncher":
+                framework = Framework.SPARK;
+                component = Component.APP_MASTER;
+                break;
             case "org.apache.spark.executor.CoarseGrainedExecutorBackend":
                 framework = Framework.SPARK;
                 component = Component.EXECUTOR;

@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.elasticsearch;
 
+import com.criteo.hadoop.garmadon.elasticsearch.cache.ElasticSearchCacheManager;
 import com.criteo.hadoop.garmadon.elasticsearch.configurations.ElasticsearchConfiguration;
 import com.criteo.hadoop.garmadon.elasticsearch.configurations.EsReaderConfiguration;
 import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
@@ -62,12 +63,14 @@ public final class ElasticSearchReader {
     private final String esIndexPrefix;
     private final BulkProcessor bulkProcessor;
     private PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics;
+    private final ElasticSearchCacheManager elasticSearchCacheManager;
 
 
     ElasticSearchReader(GarmadonReader.Builder builderReader,
                         BulkProcessor bulkProcessorMain,
                         String esIndexPrefix,
-                        PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics) {
+                        PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics,
+                        ElasticSearchCacheManager elasticSearchCacheManager) {
         this.reader = builderReader
             .intercept(GarmadonMessageFilter.ANY.INSTANCE, this::writeToES)
             .build();
@@ -76,6 +79,7 @@ public final class ElasticSearchReader {
 
         this.esIndexPrefix = esIndexPrefix;
         this.prometheusHttpConsumerMetrics = prometheusHttpConsumerMetrics;
+        this.elasticSearchCacheManager = elasticSearchCacheManager;
     }
 
     private CompletableFuture<Void> startReading() {
@@ -105,6 +109,11 @@ public final class ElasticSearchReader {
     void writeToES(GarmadonMessage msg) {
         String msgType = GarmadonSerialization.getTypeName(msg.getType());
         long timestampMillis = msg.getTimestamp();
+
+        if (GarmadonSerialization.TypeMarker.APPLICATION_EVENT == msg.getType()) elasticSearchCacheManager.addAppEventInCache(msg);
+
+        elasticSearchCacheManager.addContainerComponentInCache(msg);
+
         if (GarmadonSerialization.TypeMarker.JVMSTATS_EVENT == msg.getType()) {
             Map<String, Object> jsonMap = msg.getHeaderMap(true);
 
@@ -124,6 +133,8 @@ public final class ElasticSearchReader {
 
     private void addEventToBulkProcessor(Map<String, Object> eventMap, long timestampMillis, CommittableOffset committableOffset) {
         eventMap.remove("id"); // field only used as kafka key
+
+        elasticSearchCacheManager.enrichEvent(eventMap);
 
         String dailyIndex = esIndexPrefix + "-" + FORMATTER.format(timestampMillis);
         IndexRequest req = new IndexRequest(dailyIndex, ES_TYPE)
@@ -167,7 +178,7 @@ public final class ElasticSearchReader {
             .put("analysis.tokenizer.path_tokenizer.delimiter", "/");
 
         // Add settings from config
-        elasticsearch.getSettings().forEach((key, value) -> templateSettings.put(key, value));
+        elasticsearch.getSettings().forEach(templateSettings::put);
 
         indexRequest.settings(templateSettings);
 
@@ -233,7 +244,8 @@ public final class ElasticSearchReader {
         BulkProcessor bulkProcessorMain = setUpBulkProcessor(config.getElasticsearch());
 
         ElasticSearchReader reader = new ElasticSearchReader(builderReader, bulkProcessorMain,
-            config.getElasticsearch().getIndexPrefix(), new PrometheusHttpConsumerMetrics(config.getPrometheus().getPort()));
+            config.getElasticsearch().getIndexPrefix(), new PrometheusHttpConsumerMetrics(config.getPrometheus().getPort()),
+            new ElasticSearchCacheManager());
 
         reader.startReading().join();
 

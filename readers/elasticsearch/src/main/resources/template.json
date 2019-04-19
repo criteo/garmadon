@@ -814,6 +814,11 @@
     "writesbytes": {
       "type": "long",
       "index": false
+    },
+    "yarn_tags": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs"
     }
   }
 }
