@@ -35,6 +35,7 @@ public interface OffsetComputer {
 
     /**
      * @param time      Time-window start time (eg. day start if daily)
+     * @param index     file index
      * @param offset    Kafka offset
      * @return          Path based on a time and offset
      */
