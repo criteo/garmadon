@@ -239,7 +239,7 @@ public class HdfsExporter {
                 final ProtoParquetWriter<Message> protoWriter;
 
                 try {
-                    protoWriter = new ProtoParquetWriter<>(tmpFilePath, clazz, CompressionCodecName.SNAPPY,
+                    protoWriter = new ProtoParquetWriter<>(tmpFilePath, clazz, CompressionCodecName.GZIP,
                         sizeBeforeFlushingTmp * 1_024 * 1_024, 1_024 * 1_024);
                     tmpFilesOpened.inc();
                 } catch (IOException e) {
