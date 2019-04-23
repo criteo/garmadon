@@ -4,7 +4,6 @@ import com.criteo.hadoop.garmadon.TriConsumer;
 import com.criteo.hadoop.garmadon.flink.GarmadonFlinkConf;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 
-import java.util.Properties;
 
 public class FlinkReporterTracer {
 
@@ -16,8 +15,5 @@ public class FlinkReporterTracer {
         GarmadonFlinkConf flinkConf = GarmadonFlinkConf.getInstance();
         flinkConf.setConsumer(eventConsumer);
         flinkConf.setHeader(header);
-        Properties props = System.getProperties();
-        props.setProperty("metrics.reporters", "garmadon");
-        props.setProperty("metrics.reporter.garmadon.class", "com.criteo.hadoop.garmadon.flink.GarmadonFlinkReporter");
     }
 }

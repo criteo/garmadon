@@ -45,11 +45,7 @@ public class FlinkCheckpointDuration implements FlinkHeuristic {
     public void process(Long timestamp, String applicationId, FlinkEventProtos.JobEvent event) {
         Map<String, DurationCounter> countersByJobKey = countersByAppId.computeIfAbsent(applicationId, s -> new HashMap<>());
 
-        long duration = event.getMetricsList().stream()
-            .filter(property -> PROPERTY_NAME.equals(property.getName()))
-            .mapToLong(FlinkEventProtos.Property::getValue)
-            .findFirst()
-            .orElse(0L);
+        long duration = event.getLastCheckpointDuration();
 
         String jobKey = event.getJobName();
         DurationCounter counter = countersByJobKey.computeIfAbsent(jobKey, s -> new DurationCounter(jobKey, duration));
@@ -70,11 +66,11 @@ public class FlinkCheckpointDuration implements FlinkHeuristic {
 
             countersByJobKey.values().forEach(counter -> {
                 HeuristicResult result = new HeuristicResult(
-                    applicationId,
-                    counter.jobKey, // AttemptID
-                    FlinkCheckpointDuration.class,
-                    counter.getSeverity(),
-                    counter.getSeverity());
+                        applicationId,
+                        counter.jobKey, // AttemptID
+                        FlinkCheckpointDuration.class,
+                        counter.getSeverity(),
+                        counter.getSeverity());
 
                 result.addDetail(PROPERTY_NAME, String.valueOf(counter.duration));
                 heuristicsResultDB.createHeuristicResult(result);
@@ -97,7 +93,7 @@ public class FlinkCheckpointDuration implements FlinkHeuristic {
             this.duration = duration;
         }
 
-        public void setDuration(long duration) {
+        void setDuration(long duration) {
             // Keep only bigger duration
             if (duration < this.duration) {
                 return;
