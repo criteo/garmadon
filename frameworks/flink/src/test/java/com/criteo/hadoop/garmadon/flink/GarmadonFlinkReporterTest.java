@@ -21,77 +21,103 @@ import static org.mockito.Mockito.*;
 
 public class GarmadonFlinkReporterTest {
 
-  private static final Random random = new Random();
+    private static final Random random = new Random();
 
-  private static final Header DUMMY_HEADER = new Header("id", "appId", "appAttemptId",
-    "appName", "user", "container", "hostname",
-    Collections.singletonList("tag"), "pid", "framework", "component",
-    "executorId", "mainClass");
+    private static final Header DUMMY_HEADER = new Header("id", "appId", "appAttemptId",
+            "appName", "user", "container", "hostname",
+            Collections.singletonList("tag"), "pid", "framework", "component",
+            "executorId", "mainClass");
 
-  private static final String HOST = "localhost";
-  private static final String JOB_ID = "SomeJobId";
-  private static final String JOB_NAME = "SomeJobName";
+    private static final String HOST = "localhost";
+    private static final String JOB_ID = "SomeJobId";
+    private static final String JOB_NAME = "SomeJobName";
+    private static final String TM_ID = "container_01";
+    private static final String TASK_ID = "SomeTaskId";
+    private static final String TASK_NAME = "SomeTaskName";
 
-  private TriConsumer<Long,Header, Object> handler = mock(TriConsumer.class);
+    private TriConsumer<Long, Header, Object> handler = mock(TriConsumer.class);
 
-  private final Map<String, String> jobManagerVariables = new HashMap<>();
-  private final Map<String, String> jobVariables = new HashMap<>();
+    private final Map<String, String> jobManagerVariables = new HashMap<>();
+    private final Map<String, String> jobVariables = new HashMap<>();
 
-  private GarmadonFlinkReporter reporter = new GarmadonFlinkReporter(handler, DUMMY_HEADER.toSerializeHeader());
+    private final Map<String, String> taskManagerVariables = new HashMap<>();
+    private final Map<String, String> taskVariables = new HashMap<>();
 
-  @Before
-  public void setUp() {
-    jobManagerVariables.put(HOST_VARIABLE, "localhost");
+    private GarmadonFlinkReporter reporter;
 
-    jobVariables.put(HOST_VARIABLE, HOST);
-    jobVariables.put(JOB_ID_VARIABLE, JOB_ID);
-    jobVariables.put(JOB_NAME_VARIABLE, JOB_NAME);
-  }
+    @Before
+    public void setUp() {
+        jobManagerVariables.put(HOST_VARIABLE, HOST);
+        jobManagerVariables.put("<other>", "jobmanager");
 
-  private List<FlinkEventProtos.Property> notifyOfAddedMetric(Map<String, String> variables, Set<String> metrics) {
-    MetricGroup metricGroup = new SimpleMetricGroup(variables);
+        jobVariables.putAll(jobManagerVariables);
+        jobVariables.put("<other>", "jobmanager");
+        jobVariables.put(JOB_ID_VARIABLE, JOB_ID);
+        jobVariables.put(JOB_NAME_VARIABLE, JOB_NAME);
 
-    return metrics.stream().map(metric -> {
-      String metricName = metric.replaceFirst(HOST + ".", "").replaceFirst("jobmanager.", "");
-      FlinkEventProtos.Property property = createProperty(metricName, random.nextLong());
-      Gauge gauge = new SimpleGauge(property.getValue());
-      reporter.notifyOfAddedMetric(gauge, metric, metricGroup);
-      return property;
-    }).collect(Collectors.toList());
-  }
+        taskManagerVariables.put(HOST_VARIABLE, HOST);
+        taskManagerVariables.put("<other>", "taskmanager");
+        taskManagerVariables.put(TASK_ID_VARIABLE, TM_ID);
 
-  private FlinkEventProtos.Property createProperty(String name, Long value) {
-    return FlinkEventProtos.Property.newBuilder()
-      .setName(name)
-      .setValue(value)
-      .build();
-  }
+        taskVariables.putAll(jobVariables);
+        taskVariables.putAll(taskManagerVariables);
+        taskVariables.put(TASK_ID_VARIABLE, TASK_ID);
+        taskVariables.put(TASK_NAME_VARIABLE, TASK_NAME);
+        taskVariables.put(TASK_ATTEMPT_NUM_VARIABLE, "0");
+        taskVariables.put(SUBTASK_INDEX_VARIABLE, "0");
 
-  @Test
-  public void testNotifyThenReport() {
-    // GIVEN: notifyOfAddedMetric for metrics
-    Set<String> jobManagerMetricNames = JOB_MANAGER_WHITE_LIST.stream().map(name -> HOST + ".jobmanager." + name).collect(toSet());
-    List<FlinkEventProtos.Property> jobManagerProperties = notifyOfAddedMetric(jobManagerVariables, jobManagerMetricNames);
+        reporter = new GarmadonFlinkReporter(handler, DUMMY_HEADER.toSerializeHeader());
+    }
 
-    Set<String> jobMetricNames = JOB_WHITE_LIST.stream().map(name -> HOST + ".jobmanager." + JOB_NAME + "." + name).collect(toSet());
-    List<FlinkEventProtos.Property> jobProperties = notifyOfAddedMetric(jobVariables, jobMetricNames);
+    private Long notifyOfAddedMetric(Map<String, String> variables, String metric) {
+        MetricGroup metricGroup = new SimpleMetricGroup(variables);
+        Long value = random.nextLong();
+        Gauge gauge = new SimpleGauge(value);
+        reporter.notifyOfAddedMetric(gauge, metric, metricGroup);
+        return value;
+    }
 
-    // WHEN: report
-    reporter.report();
+    @Test
+    public void testNotifyJobManagerThenReport() {
+        Long valueNumRegisteredTaskManagers = notifyOfAddedMetric(jobManagerVariables, HOST + ".jobmanager.numRegisteredTaskManagers");
+        Long valueNumberOfFailedCheckpoints = notifyOfAddedMetric(jobVariables, HOST + ".jobmanager." + JOB_NAME + ".numberOfFailedCheckpoints");
 
-    // THEN: handler is called twice
-    ArgumentCaptor<Object> eventArgumentCaptor = ArgumentCaptor.forClass(Object.class);
-    verify(handler, times(2)).accept(any(Long.class), any(Header.class), eventArgumentCaptor.capture());
+        // WHEN: report
+        reporter.report();
 
-    List<Object> capturedValues = eventArgumentCaptor.getAllValues();
-    assertThat(capturedValues).hasSize(2);
+        // THEN: handler is called twice
+        ArgumentCaptor<Object> eventArgumentCaptor = ArgumentCaptor.forClass(Object.class);
+        verify(handler, times(2)).accept(any(Long.class), any(Header.class), eventArgumentCaptor.capture());
 
-    // THEN: handler is called for JobManagerEvent with expected Metrics
-    FlinkEventProtos.JobManagerEvent jobManagerEvent = (FlinkEventProtos.JobManagerEvent) capturedValues.get(0);
-    assertThat(jobManagerEvent.getMetricsList()).containsAll(jobManagerProperties);
+        List<Object> capturedValues = eventArgumentCaptor.getAllValues();
+        assertThat(capturedValues).hasSize(2);
 
-    // THEN: handler is called for JobEvent with expected Metrics
-    FlinkEventProtos.JobEvent jobEvent = (FlinkEventProtos.JobEvent) capturedValues.get(1);
-    assertThat(jobEvent.getMetricsList()).containsAll(jobProperties);
-  }
+        FlinkEventProtos.JobManagerEvent jobManagerEvent = (FlinkEventProtos.JobManagerEvent) capturedValues.get(0);
+        assertThat(jobManagerEvent.getNumRegisteredTaskManagers() == valueNumRegisteredTaskManagers);
+
+        FlinkEventProtos.JobEvent jobEvent = (FlinkEventProtos.JobEvent) capturedValues.get(1);
+        assertThat(jobEvent.getNumberOfFailedCheckpoints() == valueNumberOfFailedCheckpoints);
+    }
+
+    @Test
+    public void testNotifyTaskManagerThenReport() {
+        Long valueNetworkTotalMemorySegments = notifyOfAddedMetric(taskManagerVariables, HOST + ".taskmanager." + TM_ID + ".Status.Network.TotalMemorySegments");
+        Long valueNumBytesOutPerSecond = notifyOfAddedMetric(taskVariables, HOST + ".taskmanager." + JOB_NAME + "." + TASK_NAME + ".0." + ".numBytesOutPerSecond");
+
+        // WHEN: report
+        reporter.report();
+
+        // THEN: handler is called twice
+        ArgumentCaptor<Object> eventArgumentCaptor = ArgumentCaptor.forClass(Object.class);
+        verify(handler, times(2)).accept(any(Long.class), any(Header.class), eventArgumentCaptor.capture());
+
+        List<Object> capturedValues = eventArgumentCaptor.getAllValues();
+        assertThat(capturedValues).hasSize(2);
+
+        FlinkEventProtos.TaskManagerEvent taskManagerEvent = (FlinkEventProtos.TaskManagerEvent) capturedValues.get(0);
+        assertThat(taskManagerEvent.getNetworkTotalMemorySegments() == valueNetworkTotalMemorySegments);
+
+        FlinkEventProtos.TaskEvent taskEvent = (FlinkEventProtos.TaskEvent) capturedValues.get(1);
+        assertThat(taskEvent.getNumBytesOutPerSecond() == valueNumBytesOutPerSecond);
+    }
 }

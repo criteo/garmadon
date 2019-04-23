@@ -15,9 +15,9 @@ import java.util.function.Function;
 
 public class ProtoConcatenator {
     // timestamp in millisecond
-    public static final String TIMESTAMP_FIELD_NAME = "timestamp";
+    static final String TIMESTAMP_FIELD_NAME = "timestamp";
 
-    public static final String KAFKA_OFFSET = "kafka_offset";
+    static final String KAFKA_OFFSET = "kafka_offset";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtoConcatenator.class);
 

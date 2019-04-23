@@ -39,7 +39,7 @@ public class FlinkCheckpointDurationTest {
   @Test
   public void exportHeuristicsResults_do_nothing_when_JobManagerEvent_received() {
     JobManagerEvent event = JobManagerEvent.newBuilder()
-      .addMetrics(Property.newBuilder().setName(PROPERTY_NAME).setValue(R.nextLong()).build())
+      .setTaskSlotsTotal(R.nextLong())
       .build();
     heuristic.process(R.nextLong(), UUID.randomUUID().toString(), event);
 
@@ -70,7 +70,7 @@ public class FlinkCheckpointDurationTest {
     return JobEvent.newBuilder()
       .setJobId(JOB_ID)
       .setJobName(JOB_NAME)
-      .addMetrics(Property.newBuilder().setName(PROPERTY_NAME).setValue(duration).build())
+      .setLastCheckpointDuration(duration)
       .build();
   }
 

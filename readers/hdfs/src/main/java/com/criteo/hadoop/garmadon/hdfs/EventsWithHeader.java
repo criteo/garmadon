@@ -62,6 +62,42 @@ final public class EventsWithHeader {
         }
     }
 
+    public static abstract class FlinkJobManagerEvent implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(FlinkEventProtos.JobManagerEvent.getDescriptor());
+        }
+    }
+
+    public static abstract class FlinkJobEvent implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(FlinkEventProtos.JobEvent.getDescriptor());
+        }
+    }
+
+    public static abstract class FlinkTaskManagerEvent implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(FlinkEventProtos.TaskManagerEvent.getDescriptor());
+        }
+    }
+
+    public static abstract class FlinkTaskEvent implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(FlinkEventProtos.TaskEvent.getDescriptor());
+        }
+    }
+
+    public static abstract class FlinkOperatorEvent implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(FlinkEventProtos.OperatorEvent.getDescriptor());
+        }
+    }
+
+    public static abstract class FlinkKafkaConsumerEvent implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(FlinkEventProtos.KafkaConsumerEvent.getDescriptor());
+        }
+    }
+
     private static Descriptors.Descriptor descriptorForTypeWithHeader(Descriptors.Descriptor classDescriptor)
             throws Descriptors.DescriptorValidationException {
         final Collection<Descriptors.FieldDescriptor> allFields = new ArrayList<>();

@@ -1,4 +1,4 @@
-package com.criteo.hadoop.garmadon.flink;
+package com.criteo.hadoop.garmadon.flink.identifier;
 
 import java.util.Objects;
 
