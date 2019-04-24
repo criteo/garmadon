@@ -3,6 +3,7 @@ package com.criteo.hadoop.garmadon.elasticsearch.cache;
 import com.criteo.hadoop.garmadon.event.proto.ResourceManagerEventProtos;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.schema.enums.Component;
+import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
@@ -18,9 +19,14 @@ public class ElasticSearchCacheManager {
         .expireAfterAccess(5, TimeUnit.MINUTES)
         .build();
 
+    public void cacheEnrichableData(GarmadonMessage msg) {
+        if (GarmadonSerialization.TypeMarker.APPLICATION_EVENT == msg.getType()) addAppEventInCache(msg);
+        addContainerComponentInCache(msg);
+    }
+
     // We cache some information from APPLICATION_EVENT to enrich all events from an app with
     // app_name, framework, am container, yarn tags
-    public void addAppEventInCache(GarmadonMessage msg) {
+    protected void addAppEventInCache(GarmadonMessage msg) {
         if (cacheAppEvent.getIfPresent(msg.getHeader().getApplicationId()) == null) {
             ResourceManagerEventProtos.ApplicationEvent body = (ResourceManagerEventProtos.ApplicationEvent) msg.getBody();
 
@@ -30,7 +36,7 @@ public class ElasticSearchCacheManager {
         }
     }
 
-    public void addContainerComponentInCache(GarmadonMessage msg) {
+    protected void addContainerComponentInCache(GarmadonMessage msg) {
         addContainerComponentInCache(msg.getHeader().getContainerId(), msg.getHeader().getComponent());
     }
 

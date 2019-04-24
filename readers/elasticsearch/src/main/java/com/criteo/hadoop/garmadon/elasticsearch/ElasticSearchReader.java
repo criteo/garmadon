@@ -110,9 +110,7 @@ public final class ElasticSearchReader {
         String msgType = GarmadonSerialization.getTypeName(msg.getType());
         long timestampMillis = msg.getTimestamp();
 
-        if (GarmadonSerialization.TypeMarker.APPLICATION_EVENT == msg.getType()) elasticSearchCacheManager.addAppEventInCache(msg);
-
-        elasticSearchCacheManager.addContainerComponentInCache(msg);
+        elasticSearchCacheManager.cacheEnrichableData(msg);
 
         if (GarmadonSerialization.TypeMarker.JVMSTATS_EVENT == msg.getType()) {
             Map<String, Object> jsonMap = msg.getHeaderMap(true);

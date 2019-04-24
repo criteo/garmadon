@@ -77,6 +77,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "null",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -114,7 +115,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -142,7 +143,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -218,6 +219,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "null",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -255,7 +257,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -283,7 +285,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -311,7 +313,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -339,7 +341,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "D",
             "target": "",
             "timeField": "timestamp"
@@ -415,6 +417,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "null",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -452,7 +455,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -480,7 +483,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -556,6 +559,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "null",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -593,7 +597,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -621,7 +625,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -710,6 +714,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "null",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -747,7 +752,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -775,7 +780,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -851,6 +856,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "null",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -888,7 +894,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -916,7 +922,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -944,7 +950,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -972,7 +978,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "D",
             "target": "",
             "timeField": "timestamp"
@@ -1048,6 +1054,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "null",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -1080,7 +1087,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -1108,7 +1115,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -1184,6 +1191,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "null",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -1216,7 +1224,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -1244,7 +1252,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
+            "query": "event_type:FLINK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -1380,7 +1388,7 @@
                 "type": "raw_document"
               }
             ],
-            "query": "event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
+            "query": "event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -1420,6 +1428,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "null",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -1457,7 +1466,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
+            "query": "event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -1485,7 +1494,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
+            "query": "event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -1561,6 +1570,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "null",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -1622,7 +1632,7 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:FLINK_KAFKA_CONSUMER_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
+            "query": "event_type:FLINK_KAFKA_CONSUMER_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -1698,6 +1708,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "null",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -1735,7 +1746,7 @@
                 "type": "avg"
               }
             ],
-            "query": "event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
+            "query": "event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -1763,7 +1774,7 @@
                 "type": "avg"
               }
             ],
-            "query": "event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
+            "query": "event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND operator_name.keyword:$operator_name",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -1811,7 +1822,7 @@
         }
       }
     ],
-    "schemaVersion": 16,
+    "schemaVersion": 18,
     "style": "dark",
     "tags": [],
     "templating": {
@@ -1867,8 +1878,8 @@
         {
           "allValue": "*",
           "current": {
-            "text": "n.fraison",
-            "value": "n.fraison"
+            "text": "All",
+            "value": "$__all"
           },
           "datasource": "$datasource",
           "definition": "{\"find\": \"terms\", \"field\": \"username\",\"query\": \"event_type:FLINK_JOB_MANAGER_EVENT\", \"size\": 1000}",
@@ -1892,8 +1903,9 @@
         {
           "allValue": "*",
           "current": {
-            "text": "Delight-Marmotini-Cluster",
-            "value": "Delight-Marmotini-Cluster"
+            "tags": [],
+            "text": "Flink session cluster",
+            "value": "Flink session cluster"
           },
           "datasource": "$datasource",
           "definition": "{\"find\": \"terms\", \"field\": \"application_name.keyword\", \"query\": \"event_type:APPLICATION_EVENT AND username:$username AND framework:\\\"APACHE FLINK\\\"\"}",
@@ -1917,18 +1929,18 @@
         {
           "allValue": "*",
           "current": {
-            "text": "application_1554802999854_94419",
-            "value": "application_1554802999854_94419"
+            "text": "All",
+            "value": "$__all"
           },
           "datasource": "$datasource",
-          "definition": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:APPLICATION_EVENT AND username:$username AND framework:\\\"APACHE FLINK\\\" AND application_name:$application_name\", \"size\": 5000}",
+          "definition": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:APPLICATION_EVENT AND username:$username AND framework:\\\"APACHE FLINK\\\" AND application_name.keyword:$application_name\", \"size\": 5000}",
           "hide": 0,
-          "includeAll": false,
+          "includeAll": true,
           "label": null,
           "multi": false,
           "name": "application_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:APPLICATION_EVENT AND username:$username AND framework:\\\"APACHE FLINK\\\" AND application_name:$application_name\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:APPLICATION_EVENT AND username:$username AND framework:\\\"APACHE FLINK\\\" AND application_name.keyword:$application_name\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,
@@ -1942,19 +1954,18 @@
         {
           "allValue": "*",
           "current": {
-            "tags": [],
-            "text": "overdisplayer_EU",
-            "value": "overdisplayer_EU"
+            "text": "Flink Java Job at Wed Apr 24 08:58:50 UTC 2019",
+            "value": "Flink Java Job at Wed Apr 24 08:58:50 UTC 2019"
           },
           "datasource": "$datasource",
-          "definition": "{\"find\": \"terms\", \"field\": \"job_name.keyword\", \"query\": \"event_type:FLINK_JOB_EVENT AND username:$username AND application_id:$application_id\", \"size\": 5000}",
+          "definition": "{\"find\": \"terms\", \"field\": \"job_name.keyword\", \"query\": \"event_type:FLINK_JOB_EVENT AND username:$username AND application_id:$application_id AND application_name.keyword:$application_name\", \"size\": 5000}",
           "hide": 0,
           "includeAll": false,
           "label": null,
           "multi": false,
           "name": "job_name",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"job_name.keyword\", \"query\": \"event_type:FLINK_JOB_EVENT AND username:$username AND application_id:$application_id\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"job_name.keyword\", \"query\": \"event_type:FLINK_JOB_EVENT AND username:$username AND application_id:$application_id AND application_name.keyword:$application_name\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,
@@ -1968,19 +1979,19 @@
         {
           "allValue": "*",
           "current": {
-            "tags": [],
-            "text": "Source: glup_billable_display_EU -> Filter -> Map -> tsAssigner -> watermarkFilter -> rowMapper -> from: (uid, arbitrage_id, ua_form_factor, ip3firstbytes, timestamp) -> where: (IsValidUid(uid)), select: (uid, DeviceType(ua_form_factor) AS $f1, timestamp) -> time attribute: (timestamp)",
-            "value": "Source: glup_billable_display_EU -> Filter -> Map -> tsAssigner -> watermarkFilter -> rowMapper -> from: (uid, arbitrage_id, ua_form_factor, ip3firstbytes, timestamp) -> where: (IsValidUid(uid)), select: (uid, DeviceType(ua_form_factor) AS $f1, timestamp) -> time attribute: (timestamp)"
+            "isNone": true,
+            "text": "None",
+            "value": ""
           },
           "datasource": "$datasource",
-          "definition": "{\"find\": \"terms\", \"field\": \"task_name.keyword\", \"query\": \"event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name\", \"size\": 5000}",
+          "definition": "{\"find\": \"terms\", \"field\": \"task_name.keyword\", \"query\": \"event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND application_name.keyword:$application_name\", \"size\": 5000}",
           "hide": 0,
           "includeAll": false,
           "label": null,
           "multi": false,
           "name": "task_name",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"task_name.keyword\", \"query\": \"event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"task_name.keyword\", \"query\": \"event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND application_name.keyword:$application_name\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,
@@ -1998,14 +2009,14 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
-          "definition": "{\"find\": \"terms\", \"field\": \"subtask_index\", \"query\": \"event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name\", \"size\": 5000}",
+          "definition": "{\"find\": \"terms\", \"field\": \"subtask_index\", \"query\": \"event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND application_name.keyword:$application_name\", \"size\": 5000}",
           "hide": 0,
           "includeAll": true,
           "label": null,
           "multi": false,
           "name": "subtask_index",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"subtask_index\", \"query\": \"event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"subtask_index\", \"query\": \"event_type:FLINK_TASK_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND application_name.keyword:$application_name\", \"size\": 5000}",
           "refresh": 2,
           "regex": "",
           "skipUrlSync": false,
@@ -2023,14 +2034,14 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
-          "definition": "{\"find\": \"terms\", \"field\": \"operator_name.keyword\", \"query\": \"event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index\", \"size\": 5000}",
+          "definition": "{\"find\": \"terms\", \"field\": \"operator_name.keyword\", \"query\": \"event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND application_name.keyword:$application_name\", \"size\": 5000}",
           "hide": 0,
           "includeAll": true,
           "label": null,
           "multi": false,
           "name": "operator_name",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"operator_name.keyword\", \"query\": \"event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"operator_name.keyword\", \"query\": \"event_type:FLINK_OPERATOR_EVENT AND application_id:$application_id AND job_name.keyword:$job_name AND task_name.keyword:$task_name AND subtask_index:$subtask_index AND application_name.keyword:$application_name\", \"size\": 5000}",
           "refresh": 2,
           "regex": "",
           "skipUrlSync": false,

@@ -9,6 +9,7 @@ import com.criteo.hadoop.garmadon.schema.enums.Component;
 import com.criteo.hadoop.garmadon.schema.enums.FsAction;
 import com.criteo.hadoop.garmadon.schema.enums.State;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
+import com.google.protobuf.Message;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,49 +32,20 @@ public class ElasticSearchCacheManagerTest {
     private final List<String> yarnTags = new ArrayList();
 
     private ElasticSearchCacheManager elasticSearchCacheManager;
-    private GarmadonMessage msgAppEvent;
-    private GarmadonMessage msgFsEvent;
-    private Map<String, Object> eventMap;
 
     @Before
     public void setUp() {
         elasticSearchCacheManager = new ElasticSearchCacheManager();
-        EventHeaderProtos.Header header = EventHeaderProtos.Header.newBuilder()
-            .setUsername(username)
-            .setApplicationId(applicationId)
-            .setApplicationName(applicationName)
-            .setAttemptId("attempt_id")
-            .setContainerId(containerId)
-            .setFramework(framework)
-            .setComponent(component)
-            .build();
+    }
 
-        ResourceManagerEventProtos.ApplicationEvent appEvent = ResourceManagerEventProtos.ApplicationEvent.newBuilder()
-            .setQueue("dev")
-            .setTrackingUrl("http:/garmadon/test")
-            .setAmContainerId(adminContainerId)
-            .addAllYarnTags(yarnTags)
-            .setState(State.NEW.name())
-            .build();
-
-        msgAppEvent = new GarmadonMessage(4000, 0L, header, appEvent, null);
-
-        DataAccessEventProtos.FsEvent fsEvent = DataAccessEventProtos.FsEvent.newBuilder()
-            .setAction(FsAction.WRITE.name())
-            .setDstPath("hdfs://data:8020/var/test/val.lz4")
-            .setUri("hdfs://data:8020")
-            .setHdfsUser("lakeprobes")
-            .setMethodDurationMillis(100L)
-            .build();
-        msgFsEvent = new GarmadonMessage(1, 0L, header, fsEvent, null);
-
-        eventMap = new HashMap<>();
+    private Map<String, Object> createJsonMap(String applicationId, String containerId, String component) {
+        Map<String, Object> eventMap = new HashMap<>();
         eventMap.put("pid", "");
         eventMap.put("main_class", "");
         eventMap.put("application_id", applicationId);
         eventMap.put("tags", new ArrayList<>());
         eventMap.put("hostname", "");
-        eventMap.put("component", "");
+        eventMap.put("component", component);
         eventMap.put("framework", "");
         eventMap.put("attempt_id", "attempt_id");
         eventMap.put("container_id", containerId);
@@ -86,30 +58,30 @@ public class ElasticSearchCacheManagerTest {
         eventMap.put("tracking_url", "http:/garmadon/test");
         eventMap.put("original_tracking_url", "");
         eventMap.put("am_container_id", "");
-
+        return eventMap;
     }
 
-    @Test
-    public void add_app_event_in_cache() {
-        ResourceManagerEventProtos.ApplicationEvent body = (ResourceManagerEventProtos.ApplicationEvent) msgAppEvent.getBody();
-        AppEventEnrichment appEvent = new AppEventEnrichment(msgAppEvent.getHeader().getApplicationName(), msgAppEvent.getHeader().getFramework(),
-            body.getAmContainerId(), msgAppEvent.getHeader().getUsername(), body.getYarnTagsList());
-
-        elasticSearchCacheManager.addAppEventInCache(msgAppEvent);
-
-        assertEquals(appEvent, elasticSearchCacheManager.cacheAppEvent.getIfPresent(applicationId));
-        assertNull(elasticSearchCacheManager.cacheAppEvent.getIfPresent(applicationId + "1"));
+    private ResourceManagerEventProtos.ApplicationEvent createApplicationEvent() {
+        return ResourceManagerEventProtos.ApplicationEvent.newBuilder()
+            .setQueue("dev")
+            .setTrackingUrl("http:/garmadon/test")
+            .setAmContainerId(adminContainerId)
+            .addAllYarnTags(yarnTags)
+            .setState(State.NEW.name())
+            .build();
     }
 
-    @Test
-    public void add_container_component_in_cache() {
-        elasticSearchCacheManager.addContainerComponentInCache(msgFsEvent);
-
-        assertEquals(component, elasticSearchCacheManager.cacheContainerComponent.getIfPresent(containerId));
+    private DataAccessEventProtos.FsEvent createFsEvent() {
+        return DataAccessEventProtos.FsEvent.newBuilder()
+            .setAction(FsAction.WRITE.name())
+            .setDstPath("hdfs://data:8020/var/test/val.lz4")
+            .setUri("hdfs://data:8020")
+            .setHdfsUser("lakeprobes")
+            .setMethodDurationMillis(100L)
+            .build();
     }
 
-    @Test
-    public void do_not_add_container_with_empty_component_in_cache() {
+    private GarmadonMessage generateGarmadonMessage(int type, String component, Message body) {
         EventHeaderProtos.Header header = EventHeaderProtos.Header.newBuilder()
             .setUsername(username)
             .setApplicationId(applicationId)
@@ -117,18 +89,51 @@ public class ElasticSearchCacheManagerTest {
             .setAttemptId("attempt_id")
             .setContainerId(containerId)
             .setFramework(framework)
-            .setComponent("")
+            .setComponent(component)
             .build();
 
-        DataAccessEventProtos.FsEvent fsEvent = DataAccessEventProtos.FsEvent.newBuilder()
-            .setAction(FsAction.WRITE.name())
-            .setDstPath("hdfs://data:8020/var/test/val.lz4")
-            .setUri("hdfs://data:8020")
-            .setHdfsUser("lakeprobes")
-            .setMethodDurationMillis(100L)
-            .build();
+        return new GarmadonMessage(type, 0L, header, body, null);
+    }
 
-        elasticSearchCacheManager.addContainerComponentInCache(new GarmadonMessage(1, 0L, header, fsEvent, null));
+    @Test
+    public void add_app_event_in_cache() {
+        ResourceManagerEventProtos.ApplicationEvent body = createApplicationEvent();
+        GarmadonMessage msgAppEvent = generateGarmadonMessage(4000, component, body);
+
+        AppEventEnrichment appEvent = new AppEventEnrichment(msgAppEvent.getHeader().getApplicationName(), msgAppEvent.getHeader().getFramework(),
+            body.getAmContainerId(), msgAppEvent.getHeader().getUsername(), body.getYarnTagsList());
+
+        // Check that applicationId is not in the cache
+        assertNull(elasticSearchCacheManager.cacheAppEvent.getIfPresent(applicationId));
+
+        elasticSearchCacheManager.cacheEnrichableData(msgAppEvent);
+
+        // Check that applicationId has well been inserted in the cache
+        assertEquals(appEvent, elasticSearchCacheManager.cacheAppEvent.getIfPresent(applicationId));
+        assertEquals(1, elasticSearchCacheManager.cacheAppEvent.size());
+    }
+
+    @Test
+    public void add_container_component_in_cache() {
+        DataAccessEventProtos.FsEvent body = createFsEvent();
+        GarmadonMessage msgFsEvent = generateGarmadonMessage(1, component, body);
+
+        // Check that containerId is not in the cache
+        assertNull(elasticSearchCacheManager.cacheContainerComponent.getIfPresent(containerId));
+
+        elasticSearchCacheManager.cacheEnrichableData(msgFsEvent);
+
+        // Check that containerId has well been inserted in the cache
+        assertEquals(component, elasticSearchCacheManager.cacheContainerComponent.getIfPresent(containerId));
+    }
+
+    @Test
+    public void do_not_add_container_with_empty_component_in_cache() {
+        DataAccessEventProtos.FsEvent body = createFsEvent();
+        GarmadonMessage msgFsEvent = generateGarmadonMessage(1, "", body);
+
+
+        elasticSearchCacheManager.cacheEnrichableData(msgFsEvent);
 
         assertNull(elasticSearchCacheManager.cacheContainerComponent.getIfPresent(containerId));
     }
@@ -143,7 +148,6 @@ public class ElasticSearchCacheManagerTest {
             .setContainerId(containerId)
             .setComponent(Component.UNKNOWN.name())
             .setFramework(framework)
-            .setComponent("")
             .build();
 
         DataAccessEventProtos.FsEvent fsEvent = DataAccessEventProtos.FsEvent.newBuilder()
@@ -154,15 +158,22 @@ public class ElasticSearchCacheManagerTest {
             .setMethodDurationMillis(100L)
             .build();
 
-        elasticSearchCacheManager.addContainerComponentInCache(new GarmadonMessage(1, 0L, header, fsEvent, null));
+        elasticSearchCacheManager.cacheEnrichableData(new GarmadonMessage(1, 0L, header, fsEvent, null));
 
         assertNull(elasticSearchCacheManager.cacheContainerComponent.getIfPresent(containerId));
     }
 
     @Test
     public void enrich_event_with_app_in_the_cache() {
-        elasticSearchCacheManager.addAppEventInCache(msgAppEvent);
-        elasticSearchCacheManager.addContainerComponentInCache(msgFsEvent);
+        ResourceManagerEventProtos.ApplicationEvent appEvent = createApplicationEvent();
+        GarmadonMessage msgAppEvent = generateGarmadonMessage(4000, component, appEvent);
+        DataAccessEventProtos.FsEvent fsEvent = createFsEvent();
+        GarmadonMessage msgFsEvent = generateGarmadonMessage(1, component, fsEvent);
+
+        elasticSearchCacheManager.cacheEnrichableData(msgAppEvent);
+        elasticSearchCacheManager.cacheEnrichableData(msgFsEvent);
+
+        Map<String, Object> eventMap = createJsonMap(applicationId, containerId, "");
 
         elasticSearchCacheManager.enrichEvent(eventMap);
 
@@ -175,12 +186,16 @@ public class ElasticSearchCacheManagerTest {
 
     @Test
     public void enrich_unknown_component_event_with_app_in_the_cache() {
-        String unknownContainerId = containerId + "_2";
-        eventMap.put("container_id", unknownContainerId);
-        eventMap.put("component", Component.UNKNOWN.name());
+        ResourceManagerEventProtos.ApplicationEvent appEvent = createApplicationEvent();
+        GarmadonMessage msgAppEvent = generateGarmadonMessage(4000, component, appEvent);
+        DataAccessEventProtos.FsEvent fsEvent = createFsEvent();
+        GarmadonMessage msgFsEvent = generateGarmadonMessage(1, component, fsEvent);
 
-        elasticSearchCacheManager.addAppEventInCache(msgAppEvent);
-        elasticSearchCacheManager.addContainerComponentInCache(msgFsEvent);
+        String unknownContainerId = containerId + "_2";
+        Map<String, Object> eventMap = createJsonMap(applicationId, unknownContainerId, Component.UNKNOWN.name());
+
+        elasticSearchCacheManager.cacheEnrichableData(msgAppEvent);
+        elasticSearchCacheManager.cacheEnrichableData(msgFsEvent);
 
         elasticSearchCacheManager.enrichEvent(eventMap);
 
@@ -193,11 +208,15 @@ public class ElasticSearchCacheManagerTest {
 
     @Test
     public void enrich_am_unknown_component_event_with_app_in_the_cache() {
-        eventMap.put("container_id", adminContainerId);
-        eventMap.put("component", Component.UNKNOWN.name());
+        ResourceManagerEventProtos.ApplicationEvent appEvent = createApplicationEvent();
+        GarmadonMessage msgAppEvent = generateGarmadonMessage(4000, component, appEvent);
+        DataAccessEventProtos.FsEvent fsEvent = createFsEvent();
+        GarmadonMessage msgFsEvent = generateGarmadonMessage(1, component, fsEvent);
 
-        elasticSearchCacheManager.addAppEventInCache(msgAppEvent);
-        elasticSearchCacheManager.addContainerComponentInCache(msgFsEvent);
+        Map<String, Object> eventMap = createJsonMap(applicationId, adminContainerId, Component.UNKNOWN.name());
+
+        elasticSearchCacheManager.cacheEnrichableData(msgAppEvent);
+        elasticSearchCacheManager.cacheEnrichableData(msgFsEvent);
 
         elasticSearchCacheManager.enrichEvent(eventMap);
 
@@ -210,9 +229,14 @@ public class ElasticSearchCacheManagerTest {
 
     @Test
     public void do_not_enrich_event_with_app_not_in_the_cache() {
-        eventMap.put("application_id", applicationId + "_1");
-        elasticSearchCacheManager.addAppEventInCache(msgAppEvent);
-        elasticSearchCacheManager.addContainerComponentInCache(msgFsEvent);
+        ResourceManagerEventProtos.ApplicationEvent appEvent = createApplicationEvent();
+        GarmadonMessage msgAppEvent = generateGarmadonMessage(4000, component, appEvent);
+        DataAccessEventProtos.FsEvent fsEvent = createFsEvent();
+        GarmadonMessage msgFsEvent = generateGarmadonMessage(1, component, fsEvent);
+
+        Map<String, Object> eventMap = createJsonMap(applicationId + "_1", containerId, "");
+        elasticSearchCacheManager.cacheEnrichableData(msgAppEvent);
+        elasticSearchCacheManager.cacheEnrichableData(msgFsEvent);
 
         elasticSearchCacheManager.enrichEvent(eventMap);
 
