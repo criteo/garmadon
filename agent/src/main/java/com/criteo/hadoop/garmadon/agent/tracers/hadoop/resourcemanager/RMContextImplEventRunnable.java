@@ -48,6 +48,8 @@ public class RMContextImplEventRunnable implements Runnable {
                         ResourceManagerEventProtos.ApplicationEvent.Builder eventBuilder = ResourceManagerEventProtos.ApplicationEvent.newBuilder()
                                 .setState(rmApp.getState().name())
                                 .setQueue(rmApp.getQueue())
+                                .addAllYarnTags(rmApp.getApplicationTags())
+                                .setAmContainerId(rmApp.getCurrentAppAttempt().getMasterContainer().getId().toString())
                                 .setTrackingUrl(normalizeTrackingUrl(rmApp.getTrackingUrl()));
 
                         if (!"N/A".equals(rmApp.getOriginalTrackingUrl())) {

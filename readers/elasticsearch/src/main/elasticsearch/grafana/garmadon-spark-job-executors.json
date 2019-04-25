@@ -96,7 +96,7 @@
     "links": [],
     "panels": [
       {
-        "content": "Select executor_id for which you want to see Container/JVM detailed merics and then click here: [Yarn Application Dashboard for $application_id - $container_id](dashboard/db/garmadon-yarn-application?orgId=1&var-datasource=$datasource&var-username=All&var-framework=All&var-application_name=All&var-application_id=$application_id&var-component=All&var-container_id=$container_id&var-hostname=All&var-uri=All)",
+        "content": "Select executor_id for which you want to see Container/JVM detailed merics and then click here: [Yarn Application Dashboard for $application_id - $container_id](/dashboard/db/garmadon-yarn-application?orgId=1&var-datasource=$datasource&var-username=All&var-framework=All&var-application_name=All&var-application_id=$application_id&var-component=All&var-container_id=$container_id&var-hostname=All&var-uri=All)",
         "gridPos": {
           "h": 2,
           "w": 24,

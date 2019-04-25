@@ -815,6 +815,11 @@
       "type": "long",
       "index": false
     },
+    "yarn_tags": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs"
+    },
     "num_registered_task_managers": {
       "type": "long",
       "index": false

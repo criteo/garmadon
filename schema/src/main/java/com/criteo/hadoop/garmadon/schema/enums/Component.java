@@ -3,9 +3,9 @@ package com.criteo.hadoop.garmadon.schema.enums;
 public enum Component {
     UNKNOWN,
     APP_MASTER,
+    APP_SLAVE,
     EXECUTOR,
     TASK_MANAGER,
-    CUTTLE_APP_MASTER,
     MAP,
     REDUCE,
     JOB_SETUP,

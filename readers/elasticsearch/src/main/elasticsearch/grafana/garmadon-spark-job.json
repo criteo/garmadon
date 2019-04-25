@@ -18,7 +18,7 @@
           "iconColor": "#508642",
           "limit": 100,
           "name": "Stage begin events",
-          "query": "event_type:SPARK_STAGE_STATE_EVENT AND state:BEGIN AND application_id:$application_id AND attempt_id:$attempt_id",
+          "query": "event_type:SPARK_STAGE_STATE_EVENT AND state:BEGIN AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
           "showIn": 0,
           "tags": [],
           "tagsField": "stage_id",
@@ -33,7 +33,7 @@
           "iconColor": "rgba(255, 96, 96, 1)",
           "limit": 100,
           "name": "Stage end events",
-          "query": "event_type:SPARK_STAGE_STATE_EVENT AND state:END AND application_id:$application_id AND attempt_id:$attempt_id",
+          "query": "event_type:SPARK_STAGE_STATE_EVENT AND state:END AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
           "showIn": 0,
           "tags": [],
           "tagsField": "stage_id",
@@ -48,7 +48,7 @@
           "iconColor": "#1f78c1",
           "limit": 100,
           "name": "Executor Added",
-          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND state:ADDED AND application_id:$application_id AND attempt_id:$attempt_id",
+          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND state:ADDED AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
           "showIn": 0,
           "tags": [],
           "tagsField": "state",
@@ -63,7 +63,7 @@
           "iconColor": "#e5ac0e",
           "limit": 100,
           "name": "Executor Removed",
-          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND state:REMOVED AND application_id:$application_id AND attempt_id:$attempt_id",
+          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND state:REMOVED AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
           "showIn": 0,
           "tags": [],
           "tagsField": "state",
@@ -78,7 +78,7 @@
           "iconColor": "#e0752d",
           "limit": 100,
           "name": "Executor Blacklisted/Unblacklisted",
-          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND NOT state:REMOVED AND NOT state:ADDED AND application_id:$application_id AND attempt_id:$attempt_id",
+          "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND NOT state:REMOVED AND NOT state:ADDED AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
           "showIn": 0,
           "tags": [],
           "tagsField": "state",
@@ -96,7 +96,7 @@
     "links": [],
     "panels": [
       {
-        "content": "Container metrics/JVM detailed metrics for this app available here: [Yarn Application Dashboard for $application_id](dashboard/db/garmadon-yarn-application?orgId=1&var-datasource=$datasource&var-username=All&var-framework=All&var-application_id=$application_id&var-component=All&var-container_id=All&var-hostname=All&var-uri=All)",
+        "content": "Container metrics/JVM detailed metrics for this app available here: [Yarn Application Dashboard for $application_id](/dashboard/db/garmadon-yarn-application?orgId=1&var-datasource=$datasource&var-username=All&var-framework=All&var-application_name=All&var-application_id=$application_id&var-component=All&var-container_id=All&var-hostname=All&var-uri=All)",
         "gridPos": {
           "h": 2,
           "w": 24,
@@ -223,7 +223,7 @@
                 "type": "raw_document"
               }
             ],
-            "query": "event_type:SPARK_STAGE_STATE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_STATE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "timeField": "timestamp"
           }
@@ -332,7 +332,7 @@
                 "type": "raw_document"
               }
             ],
-            "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_EXECUTOR_STATE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "timeField": "timestamp"
           }
@@ -419,7 +419,7 @@
                 "type": "count"
               }
             ],
-            "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -544,7 +544,7 @@
                 "type": "count"
               }
             ],
-            "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_TASK_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -685,7 +685,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -713,7 +713,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -741,7 +741,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -769,7 +769,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "D",
             "target": "",
             "timeField": "timestamp"
@@ -797,7 +797,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "E",
             "target": "",
             "timeField": "timestamp"
@@ -831,7 +831,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "F",
             "target": "",
             "timeField": "timestamp"
@@ -944,7 +944,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -972,7 +972,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -1000,7 +1000,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -1028,7 +1028,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "D",
             "target": "",
             "timeField": "timestamp"
@@ -1056,7 +1056,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "E",
             "target": "",
             "timeField": "timestamp"
@@ -1090,7 +1090,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "F",
             "target": "",
             "timeField": "timestamp"
@@ -1229,7 +1229,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -1343,7 +1343,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -1456,7 +1456,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -1484,7 +1484,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -1513,7 +1513,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -1626,7 +1626,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -1654,7 +1654,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -1683,7 +1683,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -1809,7 +1809,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -1922,7 +1922,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -2035,7 +2035,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -2162,7 +2162,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -2190,7 +2190,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -2303,7 +2303,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -2331,7 +2331,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -2458,7 +2458,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -2571,7 +2571,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -2684,7 +2684,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -2712,7 +2712,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND attempt_id:$attempt_id",
+            "query": "event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -2761,7 +2761,7 @@
       }
     ],
     "refresh": false,
-    "schemaVersion": 16,
+    "schemaVersion": 18,
     "style": "dark",
     "tags": [
       "git"
@@ -2770,7 +2770,6 @@
       "list": [
         {
           "current": {
-            "selected": false,
             "text": "garmadon",
             "value": "garmadon"
           },
@@ -2787,7 +2786,6 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -2813,9 +2811,9 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
-            "text": "All",
-            "value": "$__all"
+            "tags": [],
+            "text": "org.apache.spark.examples.sql.SparkSQLExample",
+            "value": "org.apache.spark.examples.sql.SparkSQLExample"
           },
           "datasource": "$datasource",
           "definition": "",
@@ -2839,14 +2837,14 @@
         {
           "allValue": "*",
           "current": {
-            "selected": false,
-            "text": "application_1548967731506_0005",
-            "value": "application_1548967731506_0005"
+            "tags": [],
+            "text": "All",
+            "value": "$__all"
           },
           "datasource": "$datasource",
-          "definition": "",
+          "definition": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:SPARK_STAGE_EVENT AND application_name.keyword:$application_name AND username:$username\", \"size\": 5000}",
           "hide": 0,
-          "includeAll": false,
+          "includeAll": true,
           "label": null,
           "multi": false,
           "name": "application_id",
@@ -2865,19 +2863,18 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
           "datasource": "$datasource",
-          "definition": "",
+          "definition": "{\"find\": \"terms\", \"field\": \"attempt_id\", \"query\": \"event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name\", \"size\": 5000}",
           "hide": 0,
           "includeAll": true,
           "label": null,
           "multi": false,
           "name": "attempt_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"attempt_id\", \"query\": \"event_type:SPARK_STAGE_EVENT AND application_id:$application_id\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"attempt_id\", \"query\": \"event_type:SPARK_STAGE_EVENT AND application_id:$application_id AND application_name.keyword:$application_name\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,
@@ -2891,19 +2888,18 @@
         {
           "allValue": "*",
           "current": {
-            "selected": true,
             "text": "All",
             "value": "$__all"
           },
           "datasource": "$datasource",
-          "definition": "",
+          "definition": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id\"}",
           "hide": 2,
           "includeAll": true,
           "label": null,
           "multi": false,
           "name": "uri",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"application_id:$application_id AND attempt_id:$attempt_id\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"application_id:$application_id AND application_name.keyword:$application_name AND attempt_id:$attempt_id\"}",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,
