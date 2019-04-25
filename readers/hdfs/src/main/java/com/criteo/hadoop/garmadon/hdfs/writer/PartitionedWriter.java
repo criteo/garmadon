@@ -1,8 +1,11 @@
 package com.criteo.hadoop.garmadon.hdfs.writer;
 
+import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
+import com.criteo.hadoop.garmadon.protobuf.ProtoConcatenator;
 import com.criteo.hadoop.garmadon.reader.Offset;
+import com.google.protobuf.Message;
 import io.prometheus.client.Counter;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
@@ -24,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  * Route messages to dedicated writers for a given MESSAGE_KIND: per day, per partition.
  *
- * @param <MESSAGE_KIND>     The type of messages which will ultimately get written.
+ * @param <MESSAGE_KIND> The type of messages which will ultimately get written.
  */
 public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     private static final ZoneId UTC_ZONE = ZoneId.of("UTC");
@@ -35,24 +38,28 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     private final Map<Integer, Map<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>>> perPartitionDayWriters = new HashMap<>();
     private final HashMap<Integer, Long> perPartitionStartOffset = new HashMap<>();
     private final String eventName;
+    private final Message.Builder emptyMessageBuilder;
+    private final EventHeaderProtos.Header emptyHeader = EventHeaderProtos.Header.newBuilder().build();
 
     /**
-     * @param writerBuilder     Builds an expiring writer based on a path.
-     * @param offsetComputer    Computes the first offset which should not be ignored by the PartitionedWriter when
-     *                          consuming message.
-     * @param eventName         Event name used for logging &amp; monitoring.
+     * @param writerBuilder       Builds an expiring writer based on a path.
+     * @param offsetComputer      Computes the first offset which should not be ignored by the PartitionedWriter when
+     *                            consuming message.
+     * @param eventName           Event name used for logging &amp; monitoring.
+     * @param emptyMessageBuilder Empty message builder used to write heartbeat
      */
     public PartitionedWriter(Function<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> writerBuilder,
-                             OffsetComputer offsetComputer, String eventName) {
+                             OffsetComputer offsetComputer, String eventName, Message.Builder emptyMessageBuilder) {
         this.eventName = eventName;
         this.writerBuilder = writerBuilder;
         this.offsetComputer = offsetComputer;
+        this.emptyMessageBuilder = emptyMessageBuilder;
     }
 
     /**
      * Stops processing events for a given partition.
      *
-     * @param partitionId   The partition for which to stop processing events.
+     * @param partitionId The partition for which to stop processing events.
      */
     public void dropPartition(int partitionId) {
         synchronized (perPartitionDayWriters) {
@@ -65,10 +72,10 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      * Write a message to a dedicated file
      * File path: day.partitionId.firstMessageOffset, eg. 1987-08-13.11.101
      *
-     * @param when          Message time, used to route to the correct file
-     * @param offset        Message offset, used to route to the correct file
-     * @param msg           Message to be written
-     * @throws IOException  If the offset computation failed
+     * @param when   Message time, used to route to the correct file
+     * @param offset Message offset, used to route to the correct file
+     * @param msg    Message to be written
+     * @throws IOException If the offset computation failed
      */
     public void write(Instant when, Offset offset, MESSAGE_KIND msg) throws IOException {
         final LocalDateTime dayStartTime = LocalDateTime.ofInstant(when.truncatedTo(ChronoUnit.DAYS), UTC_ZONE);
@@ -107,9 +114,9 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     /**
      * Get the starting offset for a given partition.
      *
-     * @param partitionsId  Id of the kafka partitions
-     * @return              Map with partition id =&gt; lowest offset
-     * @throws IOException  If the offset computation failed
+     * @param partitionsId Id of the kafka partitions
+     * @return Map with partition id =&gt; lowest offset
+     * @throws IOException If the offset computation failed
      */
     public Map<Integer, Long> getStartingOffsets(Collection<Integer> partitionsId) throws IOException {
         synchronized (perPartitionStartOffset) {
@@ -145,20 +152,25 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      * If a given partition has no open writer, write an empty heartbeat file. This will prevent resuming from the topic
      * beginning when a given event type has no entry.
      *
-     * @param partition     Partition to use for naming
-     * @param offset        Offset to use for naming
+     * @param partition Partition to use for naming
+     * @param offset    Offset to use for naming
      */
     public void heartbeat(int partition, Offset offset) {
         synchronized (perPartitionDayWriters) {
             final Counter.Child heartbeatsSent = PrometheusMetrics.buildCounterChild(
-                    PrometheusMetrics.HEARTBEATS_SENT, eventName, partition);
+                PrometheusMetrics.HEARTBEATS_SENT, eventName, partition);
             PrometheusMetrics.buildCounterChild(PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
 
-            if (!perPartitionDayWriters.containsKey(partition) || perPartitionDayWriters.get(partition).isEmpty()) {
-                final ExpiringConsumer<MESSAGE_KIND> heartbeatWriter = writerBuilder.apply(LocalDateTime.now());
+            try {
+                if ((!perPartitionDayWriters.containsKey(partition) || perPartitionDayWriters.get(partition).isEmpty())
+                    && !shouldSkipOffset(offset.getOffset(), partition)) {
+                    final ExpiringConsumer<MESSAGE_KIND> heartbeatWriter = writerBuilder.apply(LocalDateTime.now());
 
-                try {
-                    heartbeatWriter.write(null, offset);
+                    MESSAGE_KIND msg = (MESSAGE_KIND) ProtoConcatenator
+                        .concatToProtobuf(System.currentTimeMillis(), offset.getOffset(), Arrays.asList(emptyHeader, emptyMessageBuilder.build()))
+                        .build();
+
+                    heartbeatWriter.write(msg, offset);
 
                     final Path writtenFilePath = heartbeatWriter.close();
 
@@ -166,11 +178,73 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                         heartbeatsSent.inc();
                         LOGGER.info("Written heartbeat file {}", writtenFilePath.toUri().getPath());
                     }
-                } catch (IOException e) {
-                    LOGGER.warn("Could not write heartbeat", e);
+                }
+            } catch (IOException e) {
+                LOGGER.warn("Could not write heartbeat", e);
+            }
+        }
+    }
+
+    private void possiblyCloseConsumers(Predicate<ExpiringConsumer> shouldClose) {
+        synchronized (perPartitionDayWriters) {
+            perPartitionDayWriters.forEach((partitionId, dailyWriters) ->
+                dailyWriters.entrySet().removeIf(entry -> {
+                    final ExpiringConsumer<MESSAGE_KIND> consumer = entry.getValue();
+
+                    if (shouldClose.test(consumer)) {
+                        if (tryExpireConsumer(consumer)) {
+                            final Counter.Child filesCommitted = PrometheusMetrics.buildCounterChild(
+                                PrometheusMetrics.FILES_COMMITTED, eventName);
+
+                            filesCommitted.inc();
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }));
+        }
+    }
+
+    private boolean tryExpireConsumer(ExpiringConsumer<MESSAGE_KIND> consumer) {
+        final int maxAttempts = 5;
+
+        for (int retry = 1; retry <= maxAttempts; ++retry) {
+            try {
+                consumer.close();
+                return true;
+            } catch (IOException e) {
+                String exMsg = String.format("Couldn't close writer for %s (%d/%d)", eventName, retry, maxAttempts);
+                if (retry < maxAttempts) {
+                    LOGGER.warn(exMsg, e);
+                    try {
+                        Thread.sleep(1000 * retry);
+                    } catch (InterruptedException ignored) {
+                    }
+                } else {
+                    LOGGER.error(exMsg, e);
                 }
             }
         }
+
+        throw new RuntimeException(String.format("Couldn't close writer for %s", eventName));
+    }
+
+    /**
+     * Make sure there's a writer available to write a given message and returns it.
+     * <p>
+     * /!\ Not thread-safe
+     *
+     * @param dayStartTime Time-window start time (eg. day start if daily)
+     * @param partitionId  Origin partition id
+     * @return Existing or just-created consumer
+     */
+    private ExpiringConsumer<MESSAGE_KIND> getWriter(LocalDateTime dayStartTime, int partitionId) {
+        perPartitionDayWriters.computeIfAbsent(partitionId, ignored -> new HashMap<>());
+
+        final Map<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> partitionMap = perPartitionDayWriters.get(partitionId);
+
+        return partitionMap.computeIfAbsent(dayStartTime, writerBuilder);
     }
 
     /**
@@ -184,8 +258,8 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
         private volatile Thread runningThread;
 
         /**
-         * @param writers   Writers to watch for
-         * @param period    How often the Expirer should try to expire writers
+         * @param writers Writers to watch for
+         * @param period  How often the Expirer should try to expire writers
          */
         public Expirer(Collection<PartitionedWriter<MESSAGE_KIND>> writers, TemporalAmount period) {
             this.writers = writers;
@@ -213,7 +287,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
         /**
          * Notify the main loop to stop running (still need to wait for the run to finish) and close all writers
          *
-         * @return  A completable future which will complete once the expirer is properly stopped
+         * @return A completable future which will complete once the expirer is properly stopped
          */
         public CompletableFuture<Void> stop() {
             if (runningThread != null && runningThread.isAlive()) {
@@ -232,64 +306,5 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
 
             return CompletableFuture.completedFuture(null);
         }
-    }
-
-    private void possiblyCloseConsumers(Predicate<ExpiringConsumer> shouldClose) {
-        synchronized (perPartitionDayWriters) {
-            perPartitionDayWriters.forEach((partitionId, dailyWriters) ->
-                dailyWriters.entrySet().removeIf(entry -> {
-                    final ExpiringConsumer<MESSAGE_KIND> consumer = entry.getValue();
-
-                    if (shouldClose.test(consumer)) {
-                         if (tryExpireConsumer(consumer)) {
-                            final Counter.Child filesCommitted = PrometheusMetrics.buildCounterChild(
-                                    PrometheusMetrics.FILES_COMMITTED, eventName);
-
-                            filesCommitted.inc();
-                            return true;
-                         } else {
-                             final Counter.Child filesCommitFailures = PrometheusMetrics.buildCounterChild(
-                                     PrometheusMetrics.FILE_COMMIT_FAILURES, eventName);
-
-                             filesCommitFailures.inc();
-                             return false;
-                         }
-                    }
-
-                    return false;
-                }));
-        }
-    }
-
-    private boolean tryExpireConsumer(ExpiringConsumer<MESSAGE_KIND> consumer) {
-        final int maxAttempts = 3;
-
-        for (int retry = 1; retry <= maxAttempts; ++retry) {
-            try {
-                consumer.close();
-                return true;
-            } catch (IOException e) {
-                LOGGER.error("Couldn't close writer for {} ({}/{})", eventName, retry, maxAttempts, e);
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Make sure there's a writer available to write a given message and returns it.
-     *
-     * /!\ Not thread-safe
-     *
-     * @param dayStartTime      Time-window start time (eg. day start if daily)
-     * @param partitionId       Origin partition id
-     * @return                  Existing or just-created consumer
-     */
-    private ExpiringConsumer<MESSAGE_KIND> getWriter(LocalDateTime dayStartTime, int partitionId) {
-        perPartitionDayWriters.computeIfAbsent(partitionId, ignored -> new HashMap<>());
-
-        final Map<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> partitionMap = perPartitionDayWriters.get(partitionId);
-
-        return partitionMap.computeIfAbsent(dayStartTime, writerBuilder);
     }
 }

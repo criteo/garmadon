@@ -32,18 +32,18 @@ public final class Extractor {
         props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConnectString);
 
         reader = GarmadonReader.Builder
-                .stream(new KafkaConsumer<>(props))
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)),
-                        msg -> getStats(msg).gcStatCount++)
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)),
-                        msg -> getStats(msg).jvmStatCount++)
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)),
-                        msg -> System.out.println(getStats(msg)))
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.FLINK_JOB_MANAGER_EVENT)),
-                        this::processFlinkJobManagerEvent)
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.FLINK_JOB_EVENT)),
-                        this::processFlinkJobEvent)
-                .build();
+            .stream(new KafkaConsumer<>(props))
+            .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)),
+                msg -> getStats(msg).gcStatCount++)
+            .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)),
+                msg -> getStats(msg).jvmStatCount++)
+            .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)),
+                msg -> System.out.println(getStats(msg)))
+            .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.FLINK_JOB_MANAGER_EVENT)),
+                this::processFlinkJobManagerEvent)
+            .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.FLINK_JOB_EVENT)),
+                this::processFlinkJobEvent)
+            .build();
     }
 
     private Extractor(String kafkaConnectString, String containerId) {
@@ -53,19 +53,19 @@ public final class Extractor {
         props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConnectString);
 
         reader = GarmadonReader.Builder.stream(new KafkaConsumer<>(props))
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)),
-                        this::processGcEvent)
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)),
-                        this::processJvmStatEvent)
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)),
-                        this::processStateEvent)
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId))
+            .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)),
+                this::processGcEvent)
+            .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)),
+                this::processJvmStatEvent)
+            .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId)).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)),
+                this::processStateEvent)
+            .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId))
                     .and(hasType(GarmadonSerialization.TypeMarker.FLINK_JOB_MANAGER_EVENT)),
-                        this::processFlinkJobManagerEvent)
-                .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId))
+                this::processFlinkJobManagerEvent)
+            .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId))
                     .and(hasType(GarmadonSerialization.TypeMarker.FLINK_JOB_EVENT)),
-                        this::processFlinkJobEvent)
-                .build();
+                this::processFlinkJobEvent)
+            .build();
     }
 
     private void start() {
@@ -126,9 +126,8 @@ public final class Extractor {
         String timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(msg.getTimestamp()));
         sb.append(timestamp).append(" ");
         sb.append("Host[").append(msg.getHeader().getHostname()).append("] ");
-        for (FlinkEventProtos.Property property : event.getMetricsList()) {
-            sb.append("[").append(property.getName()).append("=").append(property.getValue()).append("] ");
-        }
+        sb.append("NumRunningJobs[").append(event.getNumRunningJobs()).append("] ");
+        sb.append(event.toString());
         System.out.println(sb.toString());
     }
 
@@ -140,9 +139,7 @@ public final class Extractor {
         sb.append("Host[").append(msg.getHeader().getHostname()).append("] ");
         sb.append("JobId[").append(event.getJobId()).append("] ");
         sb.append("JobName[").append(event.getJobName()).append("] ");
-        for (FlinkEventProtos.Property property : event.getMetricsList()) {
-            sb.append("[").append(property.getName()).append("=").append(property.getValue()).append("] ");
-        }
+        sb.append("UpTime[").append(event.getUptime()).append("] ");
         System.out.println(sb.toString());
     }
 
@@ -169,8 +166,11 @@ public final class Extractor {
         String kafkaConnectString = args[0];
         String containerId = args[1];
         Extractor extractor;
-        if ("stats".equals(containerId)) extractor = new Extractor(kafkaConnectString);
-        else extractor = new Extractor(kafkaConnectString, containerId);
+        if ("stats".equals(containerId)) {
+            extractor = new Extractor(kafkaConnectString);
+        } else {
+            extractor = new Extractor(kafkaConnectString, containerId);
+        }
         extractor.start();
         Runtime.getRuntime().addShutdownHook(new Thread(extractor::stop));
     }
@@ -196,7 +196,7 @@ public final class Extractor {
         @Override
         public String toString() {
             return " Framework: " + framework + "ApplicationId: " + applicationId + " ContainerId: " + containerId
-                    + " JVMStats: " + jvmStatCount + " GCStats: " + gcStatCount;
+                + " JVMStats: " + jvmStatCount + " GCStats: " + gcStatCount;
         }
     }
 }

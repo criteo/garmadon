@@ -1,6 +1,7 @@
 package com.criteo.hadoop.garmadon.agent.headers;
 
 import com.criteo.hadoop.garmadon.schema.events.Header;
+import com.criteo.hadoop.garmadon.schema.events.HeaderUtils;
 
 public final class NodemanagerHeader {
     private Header header;
@@ -11,12 +12,13 @@ public final class NodemanagerHeader {
 
     private Header createCachedHeader() {
         return Header.newBuilder()
-                .withHostname(Utils.getHostname())
-                .withUser(Utils.getUser())
-                .withPid(Utils.getPid())
-                .addTag(Header.Tag.NODEMANAGER.name())
-                .addTags(System.getProperty("garmadon.tags"))
-                .build();
+            .withHostname(HeaderUtils.getHostname())
+            .withUser(HeaderUtils.getUser())
+            .withPid(HeaderUtils.getPid())
+            .withMainClass(HeaderUtils.getJavaMainClass())
+            .addTag(Header.Tag.NODEMANAGER.name())
+            .addTags(System.getProperty("garmadon.tags"))
+            .build();
     }
 
     private static class SingletonHolder {

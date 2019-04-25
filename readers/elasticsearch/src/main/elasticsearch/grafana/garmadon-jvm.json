@@ -62,6 +62,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -94,7 +95,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -171,6 +172,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -203,7 +205,7 @@
                 "type": "avg"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -231,7 +233,7 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -308,6 +310,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -340,7 +343,7 @@
                 "type": "avg"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -417,6 +420,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -449,7 +453,7 @@
                 "type": "avg"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -506,11 +510,122 @@
         "fill": 1,
         "gridPos": {
           "h": 8,
-          "w": 12,
+          "w": 24,
           "x": 0,
           "y": 17
         },
         "id": 27,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": false,
+          "sideWidth": 200,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "pause_time",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "sum"
+              }
+            ],
+            "query": "event_type:GC_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "GC Pause duration",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "ms",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": false
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 25
+        },
+        "id": 50,
         "legend": {
           "alignAsTable": true,
           "avg": false,
@@ -527,6 +642,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -568,7 +684,7 @@
                 "type": "derivative"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -605,7 +721,7 @@
                 "type": "derivative"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -654,7 +770,7 @@
                 "type": "derivative"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -691,7 +807,7 @@
                 "type": "derivative"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "D",
             "target": "",
             "timeField": "timestamp"
@@ -728,7 +844,7 @@
                 "type": "derivative"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "E",
             "target": "",
             "timeField": "timestamp"
@@ -765,7 +881,7 @@
                 "type": "derivative"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "F",
             "target": "",
             "timeField": "timestamp"
@@ -775,7 +891,7 @@
         "timeFrom": null,
         "timeRegions": [],
         "timeShift": null,
-        "title": "GC duration",
+        "title": "GC CPU time",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -823,7 +939,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 17
+          "y": 25
         },
         "id": 32,
         "legend": {
@@ -842,6 +958,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -874,7 +991,7 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -902,7 +1019,7 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "D",
             "target": "",
             "timeField": "timestamp"
@@ -930,7 +1047,7 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -958,7 +1075,7 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -986,7 +1103,7 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "E",
             "target": "",
             "timeField": "timestamp"
@@ -1014,7 +1131,7 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "F",
             "target": "",
             "timeField": "timestamp"
@@ -1124,13 +1241,13 @@
             "value": "code_after"
           }
         ],
-        "datasource": "garmadon",
+        "datasource": "$datasource",
         "fontSize": "100%",
         "gridPos": {
           "h": 10,
           "w": 24,
           "x": 0,
-          "y": 25
+          "y": 33
         },
         "id": 49,
         "links": [],
@@ -1225,7 +1342,7 @@
                 "type": "raw_document"
               }
             ],
-            "query": "event_type:GC_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:GC_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "A",
             "timeField": "timestamp"
           }
@@ -1246,7 +1363,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 35
+          "y": 43
         },
         "id": 26,
         "legend": {
@@ -1265,6 +1382,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -1297,7 +1415,7 @@
                 "type": "avg"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -1355,7 +1473,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 35
+          "y": 43
         },
         "id": 29,
         "legend": {
@@ -1374,6 +1492,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -1415,7 +1534,7 @@
                 "type": "derivative"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -1473,7 +1592,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 43
+          "y": 51
         },
         "id": 31,
         "legend": {
@@ -1492,6 +1611,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "connected",
+        "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
         "points": false,
@@ -1524,7 +1644,7 @@
                 "type": "avg"
               }
             ],
-            "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+            "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -1577,7 +1697,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 51
+          "y": 59
         },
         "id": 42,
         "panels": [
@@ -1643,7 +1763,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+                "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -1752,7 +1872,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+                "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1861,7 +1981,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+                "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1970,7 +2090,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+                "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2080,7 +2200,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+                "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2108,7 +2228,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+                "query": "event_type:JVMSTATS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -2165,7 +2285,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 52
+          "y": 60
         },
         "id": 9,
         "panels": [
@@ -2197,7 +2317,7 @@
             "lines": true,
             "linewidth": 1,
             "links": [],
-            "minSpan": 12,
+            "maxPerRow": 2,
             "nullPointMode": "null",
             "percentage": false,
             "pointradius": 5,
@@ -2249,7 +2369,7 @@
                     "type": "count"
                   }
                 ],
-                "query": "event_type:FS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+                "query": "event_type:FS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2324,7 +2444,7 @@
             "lines": true,
             "linewidth": 1,
             "links": [],
-            "minSpan": 12,
+            "maxPerRow": 2,
             "nullPointMode": "null",
             "percentage": false,
             "pointradius": 5,
@@ -2382,7 +2502,7 @@
                     "type": "percentiles"
                   }
                 ],
-                "query": "event_type:FS_EVENT AND tags:STANDALONE AND username:$username AND pid:$pid AND hostname:$hostname",
+                "query": "event_type:FS_EVENT AND tags:$tag AND username:$username AND pid:$pid AND hostname:$hostname",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2435,7 +2555,7 @@
       }
     ],
     "refresh": false,
-    "schemaVersion": 16,
+    "schemaVersion": 18,
     "style": "dark",
     "tags": [
       "git"
@@ -2460,6 +2580,31 @@
         {
           "allValue": "*",
           "current": {
+            "text": "STANDALONE",
+            "value": "STANDALONE"
+          },
+          "datasource": "$datasource",
+          "definition": "{\"find\": \"terms\", \"field\": \"tags\"}",
+          "hide": 0,
+          "includeAll": false,
+          "label": null,
+          "multi": false,
+          "name": "tag",
+          "options": [],
+          "query": "{\"find\": \"terms\", \"field\": \"tags\"}",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 1,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "allValue": "*",
+          "current": {
             "text": "client",
             "value": "client"
           },
@@ -2471,7 +2616,7 @@
           "multi": false,
           "name": "hostname",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\": \"tags:STANDALONE\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\": \"tags:$tag\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,
@@ -2496,7 +2641,7 @@
           "multi": false,
           "name": "username",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"username\", \"query\": \"tags:STANDALONE AND hostname:$hostname\", \"size\": 1000}",
+          "query": "{\"find\": \"terms\", \"field\": \"username\", \"query\": \"tags:$tag AND hostname:$hostname\", \"size\": 1000}",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,
@@ -2521,7 +2666,7 @@
           "multi": false,
           "name": "main_class",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"main_class\", \"query\": \"tags:STANDALONE AND hostname:$hostname AND username:$username\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"main_class\", \"query\": \"tags:$tag AND hostname:$hostname AND username:$username\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,
@@ -2535,18 +2680,18 @@
         {
           "allValue": "*",
           "current": {
-            "text": "9",
-            "value": "9"
+            "text": "7",
+            "value": "7"
           },
           "datasource": "$datasource",
           "definition": "",
           "hide": 0,
-          "includeAll": false,
+          "includeAll": true,
           "label": null,
           "multi": false,
           "name": "pid",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"pid\", \"query\": \"tags:STANDALONE AND hostname:$hostname AND username:$username AND main_class:$main_class\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"pid\", \"query\": \"tags:$tag AND hostname:$hostname AND username:$username AND main_class:$main_class\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,
@@ -2571,7 +2716,7 @@
           "multi": false,
           "name": "uri",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"tags:STANDALONE AND hostname:$hostname AND pid:$pid AND main_class:$main_class\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"tags:$tag AND hostname:$hostname AND pid:$pid AND main_class:$main_class\"}",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,
@@ -2611,7 +2756,7 @@
       ]
     },
     "timezone": "",
-    "title": "Garmadon - StandAlone JVM",
+    "title": "Garmadon - JVM",
     "uid": null,
     "version": null
   }

@@ -6,6 +6,7 @@ import com.criteo.hadoop.garmadon.forwarder.metrics.ForwarderEventSender;
 import com.criteo.hadoop.garmadon.forwarder.metrics.HostStatistics;
 import com.criteo.hadoop.garmadon.forwarder.metrics.PrometheusHttpMetrics;
 import com.criteo.hadoop.garmadon.schema.events.Header;
+import com.criteo.hadoop.garmadon.schema.events.HeaderUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -18,8 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Properties;
 
 public class Forwarder {
@@ -31,15 +30,7 @@ public class Forwarder {
     private static final String DEFAULT_FORWARDER_PORT = "31000";
     private static final String DEFAULT_PROMETHEUS_PORT = "31001";
 
-    private static String hostname;
-
-    static {
-        try {
-            hostname = InetAddress.getLocalHost().getCanonicalHostName();
-        } catch (UnknownHostException e) {
-            LOGGER.error("", e);
-        }
-    }
+    private static String hostname = HeaderUtils.getHostname();
 
     private final Properties properties;
 
@@ -56,6 +47,9 @@ public class Forwarder {
 
         Header.Builder headerBuilder = Header.newBuilder()
                 .withHostname(hostname)
+                .withPid(HeaderUtils.getPid())
+                .withUser(HeaderUtils.getUser())
+                .withMainClass(HeaderUtils.getJavaMainClass())
                 .addTag(Header.Tag.FORWARDER.name());
 
         for (String tag : properties.getProperty("forwarder.tags", "").split(",")) {

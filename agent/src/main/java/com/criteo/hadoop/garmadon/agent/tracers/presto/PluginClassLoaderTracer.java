@@ -19,6 +19,9 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 public class PluginClassLoaderTracer {
 
+    public static final String PRESTOSQL_PLUGINCLASSLOADER = "io.prestosql.server.PluginClassLoader";
+    public static final String PRESTODB_PLUGINCLASSLOADER = "com.facebook.presto.server.PluginClassLoader";
+
     protected PluginClassLoaderTracer() {
         throw new UnsupportedOperationException();
     }
@@ -31,7 +34,7 @@ public class PluginClassLoaderTracer {
 
         @Override
         protected ElementMatcher<? super TypeDescription> typeMatcher() {
-            return named("com.facebook.presto.server.PluginClassLoader");
+            return named(PRESTOSQL_PLUGINCLASSLOADER).or(named(PRESTODB_PLUGINCLASSLOADER));
         }
 
         @Override
@@ -46,7 +49,7 @@ public class PluginClassLoaderTracer {
 
         @Advice.OnMethodExit
         public static void addGarmadonAgentPackage(@Advice.This Object o) throws Exception {
-            Class pluginClassLoaderZz = o.getClass().getClassLoader().loadClass("com.facebook.presto.server.PluginClassLoader");
+            Class pluginClassLoaderZz = o.getClass().getClassLoader().loadClass(o.getClass().getName());
             Field spiClassLoaderField = pluginClassLoaderZz.getDeclaredField("spiPackages");
             spiClassLoaderField.setAccessible(true);
 

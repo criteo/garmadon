@@ -65,11 +65,14 @@ public class TinySampler {
             final long end = System.nanoTime() + nanoDuration;
             long timeLeft = nanoDuration;
             do {
-                if (timeLeft > SLEEP_PRECISION) try {
-                    Thread.sleep(1);
-                } catch (InterruptedException ignored) {
+                if (timeLeft > SLEEP_PRECISION) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException ignored) {
+                    }
+                } else {
+                    Thread.yield();
                 }
-                else Thread.yield();
                 timeLeft = end - System.nanoTime();
             } while (timeLeft > 0);
         }

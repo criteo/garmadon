@@ -1,13 +1,13 @@
-package com.criteo.hadoop.garmadon.agent.headers;
+package com.criteo.hadoop.garmadon.schema.events;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class Utils {
+public class HeaderUtils {
 
-    protected Utils() {
+    protected HeaderUtils() {
         throw new UnsupportedOperationException();
     }
 
@@ -39,6 +39,10 @@ public class Utils {
 
     public static String[] getArrayJavaCommandLine() {
         return System.getProperty("sun.java.command", "empty_class").split(" ");
+    }
+
+    public static String getJavaMainClass() {
+        return getArrayJavaCommandLine()[0];
     }
 
 }

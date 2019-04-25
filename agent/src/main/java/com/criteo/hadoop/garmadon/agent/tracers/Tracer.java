@@ -20,26 +20,27 @@ public abstract class Tracer {
 
     Tracer() {
         this.agentBuilder = new AgentBuilder.Default()
-                .ignore(any(), isBootstrapClassLoader())
-                .ignore(any(), isSystemClassLoader())
-                .ignore(any(), isExtensionClassLoader())
-                .ignore(ignoredMatcher)
-                .with(
-                        new Filtering(BYTE_BUDDY_LOGGING_FILTER, AgentBuilder.Listener.StreamWriting.toSystemOut())
-                );
+            .ignore(any(), isBootstrapClassLoader())
+            .ignore(any(), isSystemClassLoader())
+            .ignore(any(), isExtensionClassLoader())
+            .ignore(ignoredMatcher)
+            .with(
+                new Filtering(BYTE_BUDDY_LOGGING_FILTER, AgentBuilder.Listener.StreamWriting.toSystemOut())
+            );
     }
 
     static {
         String[] predefWhitelist = {
-                "org.apache.flink.",
-                "org.apache.hadoop.",
-                "org.apache.spark.",
-                "com.facebook.presto.",
-                "com.criteo.",
+            "org.apache.flink.",
+            "org.apache.hadoop.",
+            "org.apache.spark.",
+            "com.facebook.presto.",
+            "io.prestosql.",
+            "com.criteo.",
         };
         String[] predefBlacklist = {
-                "com.criteo.hadoop.garmadon.",
-                "com.criteo.jvm.",
+            "com.criteo.hadoop.garmadon.",
+            "com.criteo.jvm.",
         };
         String runtimeWhitelist = System.getProperty("bytebuddy.whitelist.for.instrumentation");
         String runtimeBlacklist = System.getProperty("bytebuddy.blacklist.for.instrumentation");

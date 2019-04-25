@@ -43,10 +43,12 @@ curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Co
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-compute.json
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-hdfs.json
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-yarn-application.json
-curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-standalone-jvm.json
+curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-jvm.json
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-spark-job.json
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-spark-job-stages.json
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-spark-job-executors.json
+curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-flink-job.json
+curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-flink-job-tasks.json
 
 ## Run some test jobs
 block_until_website_available 'http://localhost:8088'
@@ -94,7 +96,9 @@ docker-compose exec client /opt/spark/bin/spark-submit \
     --class org.apache.spark.examples.sql.SparkSQLExample /opt/spark/examples/jars/spark-examples_2.11-${SPARK_VERSION}.jar
 
 # Flink wordcount job
-docker-compose exec client flink run -m yarn-cluster -yn 1  /opt/flink/examples/batch/WordCount.jar
+docker-compose exec client flink run -m yarn-cluster -yn 1  -yD metrics.reporters=garmadon \
+    -yD metrics.reporter.garmadon.class=com.criteo.hadoop.garmadon.flink.GarmadonFlinkReporter \
+    /opt/flink/examples/batch/WordCount.jar
 
 # Exemple to select data from hdfs reader parquet table
 # docker-compose exec -ti client /opt/spark/bin/spark-shell \

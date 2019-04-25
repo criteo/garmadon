@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -47,52 +48,55 @@ public class PluginClassLoaderTracerTest {
 
     @Test
     @AgentAttachmentRule.Enforce
-    public void RMAppTracer_should_not_failed_attaching_RMContextImpl_constructior_due_to_TriConsumer_visibility()
+    public void PluginClassLoaderTracer_GarmadonLoadScope_should_add_garmadon_agent_package_to_spiPackages_field()
             throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
             InstantiationException, MalformedURLException, NoSuchFieldException {
         assertThat(ByteBuddyAgent.install(), instanceOf(Instrumentation.class));
 
-
         ClassFileTransformer classFileTransformer = new PluginClassLoaderTracer.GarmadonLoadScope().installOnByteBuddyAgent();
 
         try {
-            Class<?> clazz = classLoader.loadClass("com.facebook.presto.server.PluginClassLoader");
+            for (String pluginClassLoaderClassName : Arrays.asList(
+                    PluginClassLoaderTracer.PRESTOSQL_PLUGINCLASSLOADER,
+                    PluginClassLoaderTracer.PRESTODB_PLUGINCLASSLOADER)
+            ) {
+                Class<?> clazz = classLoader.loadClass(pluginClassLoaderClassName);
 
-            Constructor<?> constructor = clazz.getDeclaredConstructor(List.class, ClassLoader.class, Iterable.class);
-            constructor.setAccessible(true);
+                Constructor<?> constructor = clazz.getDeclaredConstructor(List.class, ClassLoader.class, Iterable.class);
+                constructor.setAccessible(true);
 
-            List<URL> urls = new ArrayList();
-            urls.add(new URL("file:///test"));
+                List<URL> urls = new ArrayList();
+                urls.add(new URL("file:///test"));
 
-            ImmutableList<String> SPI_PACKAGES = ImmutableList.<String>builder()
-                    .add("com.facebook.presto.spi.")
-                    .add("com.fasterxml.jackson.annotation.")
-                    .add("io.airlift.slice.")
-                    .add("io.airlift.units.")
-                    .add("org.openjdk.jol.")
-                    .build();
+                ImmutableList<String> SPI_PACKAGES = ImmutableList.<String>builder()
+                        .add("com.facebook.presto.spi.")
+                        .add("com.fasterxml.jackson.annotation.")
+                        .add("io.airlift.slice.")
+                        .add("io.airlift.units.")
+                        .add("org.openjdk.jol.")
+                        .build();
 
-            Object pluginClassLoader = constructor.newInstance(urls,
-                    classLoader,
-                    SPI_PACKAGES);
+                Object pluginClassLoader = constructor.newInstance(urls,
+                        classLoader,
+                        SPI_PACKAGES);
 
-            Field field = clazz.getDeclaredField("spiPackages");
-            field.setAccessible(true);
-            List<String> spiPackages = (List) field.get(pluginClassLoader);
+                Field field = clazz.getDeclaredField("spiPackages");
+                field.setAccessible(true);
+                List<String> spiPackages = (List) field.get(pluginClassLoader);
 
-            assertEquals(ImmutableList.<String>builder()
-                    .add("com.facebook.presto.spi.")
-                    .add("com.fasterxml.jackson.annotation.")
-                    .add("io.airlift.slice.")
-                    .add("io.airlift.units.")
-                    .add("org.openjdk.jol.")
-                    .add("com.criteo.hadoop.garmadon.agent.")
-                    .build(), spiPackages);
+                assertEquals(ImmutableList.<String>builder()
+                        .add("com.facebook.presto.spi.")
+                        .add("com.fasterxml.jackson.annotation.")
+                        .add("io.airlift.slice.")
+                        .add("io.airlift.units.")
+                        .add("org.openjdk.jol.")
+                        .add("com.criteo.hadoop.garmadon.agent.")
+                        .build(), spiPackages);
 
-
-        } finally {
+            }
+        }
+        finally {
             ByteBuddyAgent.getInstrumentation().removeTransformer(classFileTransformer);
         }
     }
-
 }

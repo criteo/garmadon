@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
-** FIXME: These exist because ProtoParquetWriter requires a class to expose the final schema via a static getDescriptor
-** which we cannot provide easily
+ ** FIXME: These exist because ProtoParquetWriter requires a class to expose the final schema via a static getDescriptor
+ ** which we cannot provide easily
  */
-final class EventsWithHeader {
+final public class EventsWithHeader {
     public static abstract class GCStatisticsData implements Message {
         public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
             return descriptorForTypeWithHeader(JVMStatisticsEventsProtos.GCStatisticsData.getDescriptor());
@@ -62,8 +62,44 @@ final class EventsWithHeader {
         }
     }
 
+    public static abstract class FlinkJobManagerEvent implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(FlinkEventProtos.JobManagerEvent.getDescriptor());
+        }
+    }
+
+    public static abstract class FlinkJobEvent implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(FlinkEventProtos.JobEvent.getDescriptor());
+        }
+    }
+
+    public static abstract class FlinkTaskManagerEvent implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(FlinkEventProtos.TaskManagerEvent.getDescriptor());
+        }
+    }
+
+    public static abstract class FlinkTaskEvent implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(FlinkEventProtos.TaskEvent.getDescriptor());
+        }
+    }
+
+    public static abstract class FlinkOperatorEvent implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(FlinkEventProtos.OperatorEvent.getDescriptor());
+        }
+    }
+
+    public static abstract class FlinkKafkaConsumerEvent implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(FlinkEventProtos.KafkaConsumerEvent.getDescriptor());
+        }
+    }
+
     private static Descriptors.Descriptor descriptorForTypeWithHeader(Descriptors.Descriptor classDescriptor)
-                throws Descriptors.DescriptorValidationException {
+            throws Descriptors.DescriptorValidationException {
         final Collection<Descriptors.FieldDescriptor> allFields = new ArrayList<>();
 
         allFields.addAll(EventHeaderProtos.Header.getDescriptor().getFields());

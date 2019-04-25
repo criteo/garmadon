@@ -35,7 +35,17 @@ public class FixedOffsetComputer implements OffsetComputer {
     }
 
     @Override
-    public String computePath(LocalDateTime time, Offset offset) {
+    public long getIndex(String fileName) {
+        return 0;
+    }
+
+    @Override
+    public String computeTopicGlob(LocalDateTime time, Offset offset) {
+        return fileName + "*";
+    }
+
+    @Override
+    public String computePath(LocalDateTime time, long index, Offset offset) {
         return fileName;
     }
 }

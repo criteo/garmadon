@@ -31,6 +31,10 @@ public class GarmadonSerialization {
         int APPLICATION_EVENT = 4000;
         int FLINK_JOB_MANAGER_EVENT = 5000;
         int FLINK_JOB_EVENT = 5001;
+        int FLINK_TASK_MANAGER_EVENT = 5002;
+        int FLINK_TASK_EVENT = 5003;
+        int FLINK_OPERATOR_EVENT = 5004;
+        int FLINK_KAFKA_CONSUMER_EVENT = 5005;
     }
 
     private static HashMap<Integer, Deserializer> typeMarkerToDeserializer = new HashMap<>();
@@ -70,9 +74,17 @@ public class GarmadonSerialization {
 
         // Flink events
         register(FlinkEventProtos.JobManagerEvent.class, TypeMarker.FLINK_JOB_MANAGER_EVENT, "FLINK_JOB_MANAGER_EVENT",
-          FlinkEventProtos.JobManagerEvent::toByteArray, FlinkEventProtos.JobManagerEvent::parseFrom);
+            FlinkEventProtos.JobManagerEvent::toByteArray, FlinkEventProtos.JobManagerEvent::parseFrom);
         register(FlinkEventProtos.JobEvent.class, TypeMarker.FLINK_JOB_EVENT, "FLINK_JOB_EVENT",
-          FlinkEventProtos.JobEvent::toByteArray, FlinkEventProtos.JobEvent::parseFrom);
+            FlinkEventProtos.JobEvent::toByteArray, FlinkEventProtos.JobEvent::parseFrom);
+        register(FlinkEventProtos.TaskManagerEvent.class, TypeMarker.FLINK_TASK_MANAGER_EVENT, "FLINK_TASK_MANAGER_EVENT",
+                FlinkEventProtos.TaskManagerEvent::toByteArray, FlinkEventProtos.TaskManagerEvent::parseFrom);
+        register(FlinkEventProtos.TaskEvent.class, TypeMarker.FLINK_TASK_EVENT, "FLINK_TASK_EVENT",
+                FlinkEventProtos.TaskEvent::toByteArray, FlinkEventProtos.TaskEvent::parseFrom);
+        register(FlinkEventProtos.OperatorEvent.class, TypeMarker.FLINK_OPERATOR_EVENT, "FLINK_OPERATOR_EVENT",
+                FlinkEventProtos.OperatorEvent::toByteArray, FlinkEventProtos.OperatorEvent::parseFrom);
+        register(FlinkEventProtos.KafkaConsumerEvent.class, TypeMarker.FLINK_KAFKA_CONSUMER_EVENT, "FLINK_KAFKA_CONSUMER_EVENT",
+            FlinkEventProtos.KafkaConsumerEvent::toByteArray, FlinkEventProtos.KafkaConsumerEvent::parseFrom);
 
         // resourcemanager events
         register(ResourceManagerEventProtos.ApplicationEvent.class, TypeMarker.APPLICATION_EVENT, "APPLICATION_EVENT",

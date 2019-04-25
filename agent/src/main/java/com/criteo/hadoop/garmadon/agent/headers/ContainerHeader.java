@@ -3,6 +3,7 @@ package com.criteo.hadoop.garmadon.agent.headers;
 import com.criteo.hadoop.garmadon.schema.enums.Component;
 import com.criteo.hadoop.garmadon.schema.enums.Framework;
 import com.criteo.hadoop.garmadon.schema.events.Header;
+import com.criteo.hadoop.garmadon.schema.events.HeaderUtils;
 import org.apache.hadoop.mapred.TaskAttemptID;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
@@ -30,7 +31,7 @@ public final class ContainerHeader {
     }
 
     private void setFrameworkComponent() {
-        String[] commands = Utils.getArrayJavaCommandLine();
+        String[] commands = HeaderUtils.getArrayJavaCommandLine();
         mainClass = commands[0];
         switch (mainClass) {
             // MAP_REDUCE
@@ -85,6 +86,10 @@ public final class ContainerHeader {
                 framework = Framework.FLINK;
                 component = Component.TASK_MANAGER;
                 break;
+            case "org.apache.flink.yarn.YarnTaskExecutorRunner":
+                framework = Framework.FLINK;
+                component = Component.TASK_MANAGER;
+                break;
             // YARN
             default:
                 break;
@@ -111,7 +116,7 @@ public final class ContainerHeader {
                 .withAttemptID(appAttemptID.toString())
                 .withUser(user)
                 .withContainerID(containerIdString)
-                .withPid(Utils.getPid())
+                .withPid(HeaderUtils.getPid())
                 .withFramework(framework.name())
                 .withComponent(component.name())
                 .withExecutorId(executorId)
