@@ -28,33 +28,31 @@ public class FileHeuristic implements Heuristic {
     }
 
     public void compute(String applicationId, String attemptId, String containerId, DataAccessEventProtos.FsEvent fsEvent) {
-        FsAction action = FsAction.valueOf(fsEvent.getAction());
-        switch (action) {
-            case DELETE:
-                deleted.forApp(applicationId, attemptId).increment();
-                break;
-            case READ:
-                read.forApp(applicationId, attemptId).increment();
-                break;
-            case WRITE:
-                written.forApp(applicationId, attemptId).increment();
-                break;
-            case RENAME:
-                renamed.forApp(applicationId, attemptId).increment();
-                break;
-            case APPEND:
-                append.forApp(applicationId, attemptId).increment();
-                break;
-            case LIST_STATUS:
-                listStatus.forApp(applicationId, attemptId).increment();
-                break;
-            case ADD_BLOCK:
-                addBlock.forApp(applicationId, attemptId).increment();
-                break;
-            default:
-                if (LOGGER.isWarnEnabled()) {
-                    LOGGER.warn("received an unexpected FsEvent.Action {}", action);
-                }
+        try {
+            FsAction action = FsAction.valueOf(fsEvent.getAction());
+            switch (action) {
+                case DELETE:
+                    deleted.forApp(applicationId, attemptId).increment();
+                    break;
+                case READ:
+                    read.forApp(applicationId, attemptId).increment();
+                    break;
+                case WRITE:
+                    written.forApp(applicationId, attemptId).increment();
+                    break;
+                case RENAME:
+                    renamed.forApp(applicationId, attemptId).increment();
+                    break;
+                case APPEND:
+                    append.forApp(applicationId, attemptId).increment();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Received a non managed FsEvent.Action " + action.name());
+            }
+        } catch (IllegalArgumentException ex) {
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("received an unexpected FsEvent.Action {}", ex.getMessage());
+            }
         }
     }
 
