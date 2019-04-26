@@ -6,16 +6,98 @@ option java_package = "com.criteo.hadoop.garmadon.event.proto";
 option java_outer_classname = "FlinkEventProtos";
 
 message JobManagerEvent {
-    repeated Property metrics = 1;
+    int64 num_registered_task_managers = 1;
+    int64 num_running_jobs = 2;
+    int64 task_slots_available = 3;
+    int64 task_slots_total = 4;
 }
 
-message Property {
-    string name = 1;
-    int64 value = 2;
+message TaskManagerEvent {
+    int64 network_total_memory_segments = 1;
+    int64 network_available_memory_segments = 2;
 }
 
 message JobEvent {
     string job_id = 1;
     string job_name = 2;
-    repeated Property metrics = 3;
+    int64 uptime = 3;
+    int64 downtime = 4;
+    int64 restarting_time = 5;
+    int64 full_restarts = 6;
+    int64 total_number_of_checkpoints = 7;
+    int32 number_of_in_progress_checkpoints = 8;
+    int64 number_of_completed_checkpoints = 9;
+    int64 number_of_failed_checkpoints = 10;
+    int64 last_checkpoint_restore_timestamp = 11;
+    int64 last_checkpoint_size = 12;
+    int64 last_checkpoint_duration = 13;
+    int64 last_checkpoint_alignment_buffered = 14;
+    string last_checkpoint_external_path = 15;
+}
+
+message TaskEvent {
+    string job_id = 1;
+    string job_name = 2;
+    string task_id = 3;
+    string task_name = 4;
+    string task_attempt_num = 5;
+    int64 buffers_input_queue_length = 6;
+    int64 buffers_output_queue_length = 7;
+    int64 buffers_in_pool_usage = 8;
+    int64 buffers_out_pool_usage = 9;
+    int64 num_records_out = 10;
+    int64 num_records_in = 11;
+    int64 num_bytes_out = 12;
+    int64 num_bytes_in_local = 13;
+    int64 num_bytes_in_remote = 14;
+    int64 num_buffers_out = 15;
+    int64 num_buffers_in_local = 16;
+    int64 num_buffers_in_remote = 17;
+    double num_bytes_out_per_second = 18;
+    double num_bytes_in_local_per_second = 19;
+    double num_bytes_in_remote_per_second = 20;
+    double num_buffers_out_per_second = 21;
+    double num_buffers_in_local_per_second = 22;
+    double num_buffers_in_remote_per_second = 23;
+    double num_records_in_per_second = 24;
+    double num_records_out_per_second = 25;
+    string subtask_index = 26;
+    int64 current_input_watermark = 27;
+    int64 num_late_records_dropped = 28;
+}
+
+message OperatorEvent {
+    string job_id = 1;
+    string job_name = 2;
+    string task_id = 3;
+    string task_name = 4;
+    string operator_id = 5;
+    string operator_name = 6;
+    string subtask_index = 7;
+    int64 current_input_watermark = 8;
+    int64 num_late_records_dropped = 9;
+    int64 current_input_1_watermark = 10;
+    int64 current_input_2_watermark = 11;
+    int64 current_output_watermark = 12;
+    int64 num_splits_processed = 13;
+    int64 commits_succeeded = 14;
+    int64 commits_failed = 15;
+    double records_lag_max = 16;
+    double records_consumed_rate = 17;
+    double bytes_consumed_rate = 18;
+}
+
+
+message KafkaConsumerEvent {
+    string job_id = 1;
+    string job_name = 2;
+    string task_id = 3;
+    string task_name = 4;
+    string operator_id = 5;
+    string operator_name = 6;
+    string subtask_index = 7;
+    string topic = 8;
+    string partition = 9;
+    int64 current_offsets = 10;
+    int64 committed_offsets = 11;
 }

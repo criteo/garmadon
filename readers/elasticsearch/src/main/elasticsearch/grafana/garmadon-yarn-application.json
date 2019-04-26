@@ -18,7 +18,7 @@
           "iconColor": "rgba(255, 96, 96, 1)",
           "limit": 100,
           "name": "Container end events",
-          "query": "event_type:STATE_EVENT AND state:END AND application_id:$application_id AND container_id:$container_id AND framework:$framework AND component:$component",
+          "query": "event_type:STATE_EVENT AND state:END AND application_name:$application_name AND application_id:$application_id AND container_id:$container_id AND framework:$framework AND component:$component",
           "showIn": 0,
           "tags": [],
           "tagsField": "container_id",
@@ -155,7 +155,7 @@
                 "type": "raw_document"
               }
             ],
-            "query": "event_type:APPLICATION_EVENT AND application_id:$application_id",
+            "query": "event_type:APPLICATION_EVENT AND application_id:$application_id AND application_name.keyword:$application_name",
             "refId": "A",
             "timeField": "timestamp"
           }
@@ -193,7 +193,7 @@
         "lines": true,
         "linewidth": 1,
         "links": [],
-        "nullPointMode": "connected",
+        "nullPointMode": "null",
         "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
@@ -227,7 +227,7 @@
                 "type": "avg"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -255,7 +255,7 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -283,7 +283,7 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -358,7 +358,7 @@
         "lines": true,
         "linewidth": 1,
         "links": [],
-        "nullPointMode": "connected",
+        "nullPointMode": "null",
         "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
@@ -392,7 +392,7 @@
                 "type": "avg"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
             "refId": "A",
             "target": "",
             "timeField": "timestamp"
@@ -420,7 +420,7 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
             "refId": "C",
             "target": "",
             "timeField": "timestamp"
@@ -448,7 +448,7 @@
                 "type": "max"
               }
             ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname",
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
             "refId": "B",
             "target": "",
             "timeField": "timestamp"
@@ -595,7 +595,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -671,7 +671,7 @@
             "lines": true,
             "linewidth": 1,
             "links": [],
-            "nullPointMode": "connected",
+            "nullPointMode": "null",
             "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
@@ -717,7 +717,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -745,7 +745,7 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -867,7 +867,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -989,7 +989,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1112,7 +1112,7 @@
                     "type": "sum"
                   }
                 ],
-                "query": "event_type:GC_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:GC_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1244,7 +1244,7 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1293,7 +1293,7 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -1342,7 +1342,7 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "C",
                 "target": "",
                 "timeField": "timestamp"
@@ -1391,7 +1391,7 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "D",
                 "target": "",
                 "timeField": "timestamp"
@@ -1440,7 +1440,7 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "E",
                 "target": "",
                 "timeField": "timestamp"
@@ -1489,7 +1489,7 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "F",
                 "target": "",
                 "timeField": "timestamp"
@@ -1611,7 +1611,7 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "C",
                 "target": "",
                 "timeField": "timestamp"
@@ -1651,7 +1651,7 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "D",
                 "target": "",
                 "timeField": "timestamp"
@@ -1691,7 +1691,7 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -1731,7 +1731,7 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -1771,7 +1771,7 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "E",
                 "target": "",
                 "timeField": "timestamp"
@@ -1811,7 +1811,7 @@
                     "type": "max"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "F",
                 "target": "",
                 "timeField": "timestamp"
@@ -2022,7 +2022,7 @@
                     "type": "raw_document"
                   }
                 ],
-                "query": "event_type:GC_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:GC_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "timeField": "timestamp"
               }
@@ -2107,7 +2107,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2238,7 +2238,7 @@
                     "type": "derivative"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -2360,7 +2360,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2432,7 +2432,7 @@
               "h": 8,
               "w": 9,
               "x": 0,
-              "y": 11
+              "y": 14
             },
             "id": 44,
             "legend": {
@@ -2451,6 +2451,7 @@
             "linewidth": 1,
             "links": [],
             "nullPointMode": "connected",
+            "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
             "points": false,
@@ -2495,7 +2496,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -2503,6 +2504,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "Compile Count",
             "tooltip": {
@@ -2552,7 +2554,7 @@
               "h": 8,
               "w": 8,
               "x": 9,
-              "y": 11
+              "y": 14
             },
             "id": 39,
             "legend": {
@@ -2571,6 +2573,7 @@
             "linewidth": 1,
             "links": [],
             "nullPointMode": "connected",
+            "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
             "points": false,
@@ -2615,7 +2618,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2623,6 +2626,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "Compile Time",
             "tooltip": {
@@ -2672,7 +2676,7 @@
               "h": 8,
               "w": 7,
               "x": 17,
-              "y": 11
+              "y": 14
             },
             "id": 46,
             "legend": {
@@ -2691,6 +2695,7 @@
             "linewidth": 1,
             "links": [],
             "nullPointMode": "connected",
+            "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
             "points": false,
@@ -2735,7 +2740,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2743,6 +2748,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "Number of compile threads",
             "tooltip": {
@@ -2792,7 +2798,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 19
+              "y": 22
             },
             "id": 43,
             "legend": {
@@ -2811,6 +2817,7 @@
             "linewidth": 1,
             "links": [],
             "nullPointMode": "connected",
+            "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
             "points": false,
@@ -2855,7 +2862,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -2863,6 +2870,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "Safepoint Count",
             "tooltip": {
@@ -2913,7 +2921,7 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 19
+              "y": 22
             },
             "id": 45,
             "legend": {
@@ -2932,6 +2940,7 @@
             "linewidth": 1,
             "links": [],
             "nullPointMode": "connected",
+            "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
             "points": false,
@@ -2976,7 +2985,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -3016,7 +3025,7 @@
                     "type": "avg"
                   }
                 ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND component:$component",
+                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
                 "refId": "B",
                 "target": "",
                 "timeField": "timestamp"
@@ -3024,6 +3033,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "Safepoint Time",
             "tooltip": {
@@ -3106,6 +3116,7 @@
             "links": [],
             "maxPerRow": 2,
             "nullPointMode": "null",
+            "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
             "points": false,
@@ -3156,7 +3167,7 @@
                     "type": "count"
                   }
                 ],
-                "query": "event_type:FS_EVENT AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND uri:$uri AND component:$component",
+                "query": "event_type:FS_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND uri:$uri AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -3164,6 +3175,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS OPS action per App/Attempt/Container on $uri",
             "tooltip": {
@@ -3232,6 +3244,7 @@
             "links": [],
             "maxPerRow": 2,
             "nullPointMode": "null",
+            "paceLength": 10,
             "percentage": false,
             "pointradius": 5,
             "points": false,
@@ -3289,7 +3302,7 @@
                     "type": "percentiles"
                   }
                 ],
-                "query": "event_type:FS_EVENT AND application_id:$application_id AND container_id:$container_id AND hostname:$hostname AND uri:$uri AND component:$component",
+                "query": "event_type:FS_EVENT AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND uri:$uri AND component:$component",
                 "refId": "A",
                 "target": "",
                 "timeField": "timestamp"
@@ -3297,6 +3310,7 @@
             ],
             "thresholds": [],
             "timeFrom": null,
+            "timeRegions": [],
             "timeShift": null,
             "title": "FS Latency action per App/Attempt/Container on $uri",
             "tooltip": {
@@ -3416,8 +3430,8 @@
         {
           "allValue": "*",
           "current": {
-            "text": "All",
-            "value": "$__all"
+            "text": "org.apache.spark.examples.sql.SparkSQLExample",
+            "value": "org.apache.spark.examples.sql.SparkSQLExample"
           },
           "datasource": "$datasource",
           "definition": "",
@@ -3441,19 +3455,18 @@
         {
           "allValue": "*",
           "current": {
-            "tags": [],
-            "text": "application_1554202097705_0007",
-            "value": "application_1554202097705_0007"
+            "text": "All",
+            "value": "$__all"
           },
           "datasource": "$datasource",
           "definition": "",
           "hide": 0,
-          "includeAll": false,
+          "includeAll": true,
           "label": null,
           "multi": false,
           "name": "application_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:APPLICATION_EVENT AND username:$username AND framework:$framework AND application_name:$application_name\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"application_id\", \"query\": \"event_type:APPLICATION_EVENT AND username:$username AND framework:$framework AND application_name.keyword:$application_name\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,
@@ -3467,18 +3480,19 @@
         {
           "allValue": "*",
           "current": {
+            "tags": [],
             "text": "All",
             "value": "$__all"
           },
           "datasource": "$datasource",
-          "definition": "",
+          "definition": "{\"find\": \"terms\", \"field\": \"component\",\"query\":\"application_id:$application_id AND application_name.keyword:$application_name\"}",
           "hide": 0,
           "includeAll": true,
           "label": null,
           "multi": false,
           "name": "component",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"component\",\"query\":\"application_id:$application_id\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"component\",\"query\":\"application_id:$application_id AND application_name.keyword:$application_name\"}",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,
@@ -3496,14 +3510,14 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
-          "definition": "",
+          "definition": "{\"find\": \"terms\", \"field\": \"container_id\", \"query\": \"application_id:$application_id AND component:$component AND application_name.keyword:$application_name\", \"size\": 5000}",
           "hide": 0,
           "includeAll": true,
           "label": null,
           "multi": false,
           "name": "container_id",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"container_id\", \"query\": \"application_id:$application_id AND component:$component\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"container_id\", \"query\": \"application_id:$application_id AND component:$component AND application_name.keyword:$application_name\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,
@@ -3521,14 +3535,14 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
-          "definition": "",
+          "definition": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\": \"application_id:$application_id  AND application_name.keyword:$application_name AND component:$component AND container_id:$container_id\", \"size\": 5000}",
           "hide": 0,
           "includeAll": true,
           "label": null,
           "multi": false,
           "name": "hostname",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\": \"application_id:$application_id AND component:$component AND container_id:$container_id\", \"size\": 5000}",
+          "query": "{\"find\": \"terms\", \"field\": \"hostname\", \"query\": \"application_id:$application_id  AND application_name.keyword:$application_name AND component:$component AND container_id:$container_id\", \"size\": 5000}",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,
@@ -3546,14 +3560,14 @@
             "value": "$__all"
           },
           "datasource": "$datasource",
-          "definition": "",
+          "definition": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"application_id:$application_id AND application_name.keyword:$application_name AND component:$component AND container_id:$container_id\"}",
           "hide": 0,
           "includeAll": true,
           "label": null,
           "multi": false,
           "name": "uri",
           "options": [],
-          "query": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"application_id:$application_id AND component:$component AND container_id:$container_id\"}",
+          "query": "{\"find\": \"terms\", \"field\": \"uri\", \"query\": \"application_id:$application_id AND application_name.keyword:$application_name AND component:$component AND container_id:$container_id\"}",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,

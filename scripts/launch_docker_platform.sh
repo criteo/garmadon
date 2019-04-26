@@ -47,6 +47,8 @@ curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Co
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-spark-job.json
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-spark-job-stages.json
 curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-spark-job-executors.json
+curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-flink-job.json
+curl -u admin:secret -XPOST 'http://localhost:3000/api/dashboards/import' -H 'Content-Type: application/json' -d @${ES_FOLDER}/grafana/garmadon-flink-job-tasks.json
 
 ## Run some test jobs
 block_until_website_available 'http://localhost:8088'
@@ -60,26 +62,27 @@ docker-compose exec client java -Dgarmadon.tags=version,presto-server -version
 
 # MapRed Teragen
 docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce2/hadoop-mapreduce-examples-${HADOOP_VERSION}.jar \
-    teragen 1000000 /tmp/test/teragen
+    teragen -Dmapreduce.job.tags=garmadonJobTagTeragen 1000000 /tmp/test/teragen
 
 # MapRed Terasort
 docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce2/hadoop-mapreduce-examples-${HADOOP_VERSION}.jar \
-    terasort /tmp/test/teragen /tmp/test/terasort
+    terasort -Dmapreduce.job.tags=garmadonJobTagTeraSort /tmp/test/teragen /tmp/test/terasort
 
 # MapRed Pi
 docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce2/hadoop-mapreduce-examples-${HADOOP_VERSION}.jar \
-    pi 2 1000
+    pi -Dmapreduce.job.tags=garmadonJobTagPi 2 1000
 
 # SparkPi (Compute)
-docker-compose exec client /opt/spark/bin/spark-submit --class org.apache.spark.examples.SparkPi \
+docker-compose exec client /opt/spark/bin/spark-submit --conf spark.yarn.tags=garmadonJobTagSparkPi --class org.apache.spark.examples.SparkPi \
     /opt/spark/examples/jars/spark-examples_2.11-${SPARK_VERSION}.jar 100
 
 # Spark DFSReadWriteTest (Read/Write/Shuffle)
-docker-compose exec client /opt/spark/bin/spark-submit --class org.apache.spark.examples.DFSReadWriteTest \
+docker-compose exec client /opt/spark/bin/spark-submit --conf spark.yarn.tags=garmadonJobTagSparkDFSReadWriteTest --class org.apache.spark.examples.DFSReadWriteTest \
     /opt/spark/examples/jars/spark-examples_2.11-${SPARK_VERSION}.jar /opt/garmadon/conf-forwarder/server.properties /tmp
 
 # Spark SQL (Interact with HDFS and execute lots of stage)
 docker-compose exec client /opt/spark/bin/spark-submit \
+    --conf spark.yarn.tags=garmadonJobTagSparkSQLExample \
     --conf spark.shuffle.service.enabled=true --conf spark.dynamicAllocation.enabled=true \
     --conf spark.dynamicAllocation.minExecutors=1 --conf spark.dynamicAllocation.initialExecutors=4 \
     --conf spark.dynamicAllocation.maxExecutors=4 --conf spark.dynamicAllocation.executorIdleTimeout=1s \
@@ -88,13 +91,16 @@ docker-compose exec client /opt/spark/bin/spark-submit \
 # Spark yarn client
 docker-compose exec client /opt/spark/bin/spark-submit \
     --deploy-mode client \
+    --conf spark.yarn.tags=garmadonJobTagSparkSQLExampleClient \
     --conf spark.shuffle.service.enabled=true --conf spark.dynamicAllocation.enabled=true \
     --conf spark.dynamicAllocation.minExecutors=1 --conf spark.dynamicAllocation.initialExecutors=4 \
     --conf spark.dynamicAllocation.maxExecutors=4 --conf spark.dynamicAllocation.executorIdleTimeout=1s \
     --class org.apache.spark.examples.sql.SparkSQLExample /opt/spark/examples/jars/spark-examples_2.11-${SPARK_VERSION}.jar
 
 # Flink wordcount job
-docker-compose exec client flink run -m yarn-cluster -yn 1  /opt/flink/examples/batch/WordCount.jar
+docker-compose exec client flink run -m yarn-cluster -yn 1 -yD yarn.tags=garmadonJobFlink -yD metrics.reporters=garmadon \
+    -yD metrics.reporter.garmadon.class=com.criteo.hadoop.garmadon.flink.GarmadonFlinkReporter \
+    /opt/flink/examples/batch/WordCount.jar
 
 # Exemple to select data from hdfs reader parquet table
 # docker-compose exec -ti client /opt/spark/bin/spark-shell \

@@ -10,4 +10,6 @@ message ApplicationEvent {
     string queue = 2;
     string tracking_url = 3;
     string original_tracking_url = 4;
+    repeated string yarn_tags = 5;
+    string am_container_id = 6;
 }

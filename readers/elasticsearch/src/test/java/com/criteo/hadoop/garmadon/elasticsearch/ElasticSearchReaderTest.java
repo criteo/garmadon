@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.elasticsearch;
 
+import com.criteo.hadoop.garmadon.elasticsearch.cache.ElasticSearchCacheManager;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
@@ -34,6 +35,7 @@ public class ElasticSearchReaderTest {
     private GarmadonReader.Builder garmadonReaderBuilder;
     private BulkProcessor bulkProcessor;
     private PrometheusHttpConsumerMetrics prometheusHttpConsumerMetrics;
+    private ElasticSearchCacheManager elasticSearchCacheManager;
     private static EventHeaderProtos.Header header;
     Map<String, Object> headerMap = new HashMap<>();
     private static ElasticSearchReader elasticSearchReader;
@@ -55,9 +57,10 @@ public class ElasticSearchReaderTest {
 
         bulkProcessor = Mockito.mock(BulkProcessor.class);
         prometheusHttpConsumerMetrics = Mockito.mock(PrometheusHttpConsumerMetrics.class);
+        elasticSearchCacheManager = Mockito.mock(ElasticSearchCacheManager.class);
 
         elasticSearchReader = new ElasticSearchReader(garmadonReaderBuilder, bulkProcessor,
-                "garmadon-index", prometheusHttpConsumerMetrics);
+                "garmadon-index", prometheusHttpConsumerMetrics, elasticSearchCacheManager);
 
         header = EventHeaderProtos.Header.newBuilder()
                 .setUsername("user")
@@ -125,6 +128,8 @@ public class ElasticSearchReaderTest {
         eventMap.put("queue", "dev");
         eventMap.put("tracking_url", "http:/garmadon/test");
         eventMap.put("original_tracking_url", "");
+        eventMap.put("am_container_id", "");
+        eventMap.put("yarn_tags", new ArrayList<>());
 
         writeGarmadonMessage(type, event, 0L);
         verify(bulkProcessor, times(1)).add(argument.capture(), any(CommittableOffset.class));

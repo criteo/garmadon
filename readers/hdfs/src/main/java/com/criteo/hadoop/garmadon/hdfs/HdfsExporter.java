@@ -242,7 +242,7 @@ public class HdfsExporter {
                 final ProtoParquetWriter<Message> protoWriter;
 
                 try {
-                    protoWriter = new ProtoParquetWriter<>(tmpFilePath, clazz, CompressionCodecName.SNAPPY,
+                    protoWriter = new ProtoParquetWriter<>(tmpFilePath, clazz, CompressionCodecName.GZIP,
                         sizeBeforeFlushingTmp * 1_024 * 1_024, 1_024 * 1_024);
                     tmpFilesOpened.inc();
                 } catch (IOException e) {
@@ -317,6 +317,18 @@ public class HdfsExporter {
             EventsWithHeader.SparkTaskEvent.class, SparkEventProtos.TaskEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.APPLICATION_EVENT, "application_event",
             EventsWithHeader.ApplicationEvent.class, ResourceManagerEventProtos.ApplicationEvent.newBuilder());
+        addTypeMapping(out, GarmadonSerialization.TypeMarker.FLINK_JOB_MANAGER_EVENT, "flink_job_manager",
+            EventsWithHeader.FlinkJobManagerEvent.class, FlinkEventProtos.JobManagerEvent.newBuilder());
+        addTypeMapping(out, GarmadonSerialization.TypeMarker.FLINK_JOB_EVENT, "flink_job",
+            EventsWithHeader.FlinkJobEvent.class, FlinkEventProtos.JobEvent.newBuilder());
+        addTypeMapping(out, GarmadonSerialization.TypeMarker.FLINK_TASK_MANAGER_EVENT, "flink_task_manager",
+            EventsWithHeader.FlinkTaskManagerEvent.class, FlinkEventProtos.TaskManagerEvent.newBuilder());
+        addTypeMapping(out, GarmadonSerialization.TypeMarker.FLINK_TASK_EVENT, "flink_task",
+            EventsWithHeader.FlinkTaskEvent.class, FlinkEventProtos.TaskEvent.newBuilder());
+        addTypeMapping(out, GarmadonSerialization.TypeMarker.FLINK_OPERATOR_EVENT, "flink_operator",
+            EventsWithHeader.FlinkOperatorEvent.class, FlinkEventProtos.OperatorEvent.newBuilder());
+        addTypeMapping(out, GarmadonSerialization.TypeMarker.FLINK_KAFKA_CONSUMER_EVENT, "flink_kafka_consumer",
+            EventsWithHeader.FlinkKafkaConsumerEvent.class, FlinkEventProtos.KafkaConsumerEvent.newBuilder());
 
         // TODO: handle JVM events
 

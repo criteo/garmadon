@@ -490,7 +490,7 @@
                 "type": "sum"
               }
             ],
-            "query": "event_type:OS AND tags:FORWARDER AND tags:$tags AND hostname:$hostname AND disk:$disk",
+            "query": "event_type:OS AND tags:FORWARDER AND tags:$tags AND hostname:$hostname",
             "refId": "F",
             "target": "",
             "timeField": "timestamp"
