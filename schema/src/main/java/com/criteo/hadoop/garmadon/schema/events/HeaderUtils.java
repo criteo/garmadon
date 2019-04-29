@@ -33,7 +33,7 @@ public class HeaderUtils {
         return pid;
     }
 
-    public static String getStandaloneId() {
+    public static String getId() {
         return getHostname() + ":" + getUser() + ":" + getPid();
     }
 

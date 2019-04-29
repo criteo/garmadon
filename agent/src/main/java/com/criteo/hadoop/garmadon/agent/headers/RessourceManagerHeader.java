@@ -12,6 +12,7 @@ public final class RessourceManagerHeader {
 
     private Header createCachedHeader() {
         return Header.newBuilder()
+                .withId(HeaderUtils.getId())
                 .withHostname(HeaderUtils.getHostname())
                 .withUser(HeaderUtils.getUser())
                 .withPid(HeaderUtils.getPid())

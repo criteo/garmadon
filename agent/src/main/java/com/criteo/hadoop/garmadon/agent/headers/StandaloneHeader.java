@@ -13,7 +13,7 @@ public final class StandaloneHeader {
     private Header.SerializedHeader createCachedHeader() {
         //build the header for the whole application once
         return Header.newBuilder()
-                .withId(HeaderUtils.getStandaloneId())
+                .withId(HeaderUtils.getId())
                 .addTag(Header.Tag.STANDALONE.name())
                 .addTags(System.getProperty("garmadon.tags"))
                 .withHostname(HeaderUtils.getHostname())
