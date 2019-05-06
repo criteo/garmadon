@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.*;
@@ -209,11 +210,27 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                         if (tryExpireConsumer(consumer)) {
                             final Counter.Child filesCommitted = PrometheusMetrics.buildCounterChild(
                                 PrometheusMetrics.FILES_COMMITTED, eventName);
+                            final Counter.Child checkpointsFailures = PrometheusMetrics.buildCounterChild(
+                                PrometheusMetrics.CHECKPOINTS_FAILURES, eventName, partitionId);
+                            final Counter.Child checkpointsSuccesses = PrometheusMetrics.buildCounterChild(
+                                PrometheusMetrics.CHECKPOINTS_SUCCESSES, eventName, partitionId);
 
                             filesCommitted.inc();
 
-                            checkpointer.tryCheckpoint(partitionId, latestMessageTimeForPartitionAndDay.get(
-                                    new AbstractMap.SimpleEntry<>(partitionId, day)));
+                            try {
+                                checkpointer.tryCheckpoint(partitionId, latestMessageTimeForPartitionAndDay.get(
+                                        new AbstractMap.SimpleEntry<>(partitionId, day)));
+                            }
+                            catch (RuntimeException e) {
+                                String msg = String.format("Failed to checkpoint partition %d, date %s, event %s",
+                                        partitionId, day.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                                        eventName);
+
+                                LOGGER.warn(msg, e);
+                                checkpointsFailures.inc();
+                            }
+
+                            checkpointsSuccesses.inc();
 
                             return true;
                         }

@@ -192,6 +192,31 @@ public class PartitionedWriterTest {
     }
 
     @Test
+    public void checkpointFailureDoesNotFailExpiring() throws IOException {
+        final Function<LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(Function.class);
+        final Checkpointer throwingCheckpointer = mock(Checkpointer.class);
+        final PartitionedWriter<String> partitionedWriter = new PartitionedWriter<>(writerBuilder,
+                new FixedOffsetComputer("ignored", 0), "ignored",
+                DataAccessEventProtos.FsEvent.newBuilder(), throwingCheckpointer);
+        final ExpiringConsumer<String> closingConsumer = mock(ExpiringConsumer.class);
+        final Offset dummyOffset = buildOffset(1, 101);
+
+        when(writerBuilder.apply(eq(localDateTimeFromDate("1987-08-13 00:00:00")))).thenReturn(closingConsumer);
+        doReturn(true).when(closingConsumer).isExpired();
+
+        when(throwingCheckpointer.tryCheckpoint(anyInt(), any(Instant.class))).thenThrow(new RuntimeException("Logged exception"));
+
+        partitionedWriter.write(instantFromDate("1987-08-13 12:12:22"), dummyOffset, "I don't care");
+        partitionedWriter.expireConsumers();
+
+        verify(closingConsumer, times(1)).close();
+
+        // Even though the checkpointing mechanism threw an exception, the writer shouldn't get closed again
+        partitionedWriter.expireConsumers();
+        verify(closingConsumer, times(1)).close();
+    }
+
+    @Test
     public void skipMessagesBeforeLowestOffset() throws IOException {
         final Function<LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(Function.class);
         final Checkpointer mockCheckpointer = mock(Checkpointer.class);
