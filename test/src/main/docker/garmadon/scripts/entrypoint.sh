@@ -71,13 +71,24 @@ function historyserver {
     mapred historyserver
 }
 
-
 function sparkhistoryserver {
     check_resourcemanager_up
     spark-class org.apache.spark.deploy.history.HistoryServer
 }
 
+function init {
+    if [ "${HADOOP_RELEASE}" = "2" ]
+    then
+      HADOOP_VERSION=${HADOOP2_VERSION}
+    else
+      HADOOP_VERSION=${HADOOP3_VERSION}
+    fi
+    ln -s /opt/hadoop${HADOOP_RELEASE} /opt/hadoop
+    ln -s /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-${HADOOP_VERSION}.jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples.jar
+}
+
 ############# MAIN
+init
 case $1 in
     client)
         client
