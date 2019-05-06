@@ -220,8 +220,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                             try {
                                 checkpointer.tryCheckpoint(partitionId, latestMessageTimeForPartitionAndDay.get(
                                         new AbstractMap.SimpleEntry<>(partitionId, day)));
-                            }
-                            catch (RuntimeException e) {
+                            } catch (RuntimeException e) {
                                 String msg = String.format("Failed to checkpoint partition %d, date %s, event %s",
                                         partitionId, day.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                                         eventName);
