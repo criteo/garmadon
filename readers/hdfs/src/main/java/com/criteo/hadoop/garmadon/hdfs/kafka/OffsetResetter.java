@@ -41,7 +41,10 @@ public class OffsetResetter<K, V, MESSAGE_KIND> implements ConsumerRebalanceList
     @Override
     public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
         for (PartitionedWriter<MESSAGE_KIND> writer : writers) {
+            writer.close();
+
             for (TopicPartition partition : partitions) {
+                // Best case scenario, this should be no-op. If closing failed, we'll forget about this partition
                 writer.dropPartition(partition.partition());
                 partitionRevokedConsumer.accept(partition.partition());
             }

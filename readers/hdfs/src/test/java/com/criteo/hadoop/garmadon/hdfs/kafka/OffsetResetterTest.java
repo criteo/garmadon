@@ -93,6 +93,7 @@ public class OffsetResetterTest {
 
         offsetResetter.onPartitionsRevoked(Arrays.asList(new TopicPartition(TOPIC, 1),
                 new TopicPartition(TOPIC, 2)));
+        verify(writer, times(1)).close();
         verify(writer, times(1)).dropPartition(1);
         verify(writer, times(1)).dropPartition(2);
         verify(partitionsRevokedConsumer, times(1)).accept(1);
@@ -109,7 +110,7 @@ public class OffsetResetterTest {
                 Collections.singleton(writer));
 
         offsetResetter.onPartitionsRevoked(Collections.emptyList());
-        verifyZeroInteractions(writer);
+        verify(writer, times(1)).close();
         verifyZeroInteractions(partitionsRevokedConsumer);
     }
 
