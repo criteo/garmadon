@@ -34,13 +34,13 @@ public final class ContainerHeader {
         String[] commands = HeaderUtils.getArrayJavaCommandLine();
         mainClass = commands[0];
         switch (mainClass) {
-            // MAP_REDUCE
+            // MAPREDUCE
             case "org.apache.hadoop.mapreduce.v2.app.MRAppMaster":
-                framework = Framework.MAP_REDUCE;
+                framework = Framework.MAPREDUCE;
                 component = Component.APP_MASTER;
                 break;
             case "org.apache.hadoop.mapred.YarnChild":
-                framework = Framework.MAP_REDUCE;
+                framework = Framework.MAPREDUCE;
                 if (commands.length > 4) {
                     final TaskAttemptID firstTaskid = TaskAttemptID.forName(commands[3]);
                     try {

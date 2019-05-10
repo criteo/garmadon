@@ -57,14 +57,14 @@ public class Heuristics {
         this.reader = GarmadonReader.Builder
                 .stream(new KafkaConsumer<>(props))
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.GC_EVENT)
-                        .and(hasFramework(Framework.SPARK.name()).or(hasFramework(Framework.MAP_REDUCE.name())))), this::processGcEvent)
+                        .and(hasFramework(Framework.SPARK.name()).or(hasFramework(Framework.MAPREDUCE.name())))), this::processGcEvent)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.JVMSTATS_EVENT)
-                        .and(hasFramework(Framework.SPARK.name()).or(hasFramework(Framework.MAP_REDUCE.name())))), this::processJvmStatEvent)
+                        .and(hasFramework(Framework.SPARK.name()).or(hasFramework(Framework.MAPREDUCE.name())))), this::processJvmStatEvent)
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.STATE_EVENT)
-                        .and(hasFramework(Framework.SPARK.name()).or(hasFramework(Framework.MAP_REDUCE.name())))), this::processStateEvent)
+                        .and(hasFramework(Framework.SPARK.name()).or(hasFramework(Framework.MAPREDUCE.name())))), this::processStateEvent)
                 .intercept(
                         hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.FS_EVENT)
-                                .and(hasFramework(Framework.SPARK.name()).or(hasFramework(Framework.MAP_REDUCE.name())))),
+                                .and(hasFramework(Framework.SPARK.name()).or(hasFramework(Framework.MAPREDUCE.name())))),
                         msg -> fileHeuristic.compute(msg.getHeader().getApplicationId(), msg.getHeader().getAttemptId(),
                                 msg.getHeader().getContainerId(), (DataAccessEventProtos.FsEvent) msg.getBody())
                 )
