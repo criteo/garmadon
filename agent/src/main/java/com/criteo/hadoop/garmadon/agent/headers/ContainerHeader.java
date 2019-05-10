@@ -121,7 +121,7 @@ public final class ContainerHeader {
                 .withUser(user)
                 .withContainerID(containerIdString)
                 .withPid(HeaderUtils.getPid())
-                .withFramework(framework.name())
+                .withFramework(framework.toString())
                 .withComponent(component.name())
                 .withExecutorId(executorId)
                 .withMainClass(mainClass)
