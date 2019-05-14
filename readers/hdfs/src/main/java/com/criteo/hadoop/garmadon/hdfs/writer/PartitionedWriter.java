@@ -2,6 +2,7 @@ package com.criteo.hadoop.garmadon.hdfs.writer;
 
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
+import com.criteo.hadoop.garmadon.hdfs.offset.Checkpointer;
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.protobuf.ProtoConcatenator;
 import com.criteo.hadoop.garmadon.reader.Offset;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.*;
@@ -40,6 +42,8 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     private final String eventName;
     private final Message.Builder emptyMessageBuilder;
     private final EventHeaderProtos.Header emptyHeader = EventHeaderProtos.Header.newBuilder().build();
+    private final Checkpointer checkpointer;
+    private Map<AbstractMap.SimpleEntry<Integer, LocalDateTime>, Instant> latestMessageTimeForPartitionAndDay;
 
     /**
      * @param writerBuilder       Builds an expiring writer based on a path.
@@ -49,11 +53,14 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      * @param emptyMessageBuilder Empty message builder used to write heartbeat
      */
     public PartitionedWriter(Function<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> writerBuilder,
-                             OffsetComputer offsetComputer, String eventName, Message.Builder emptyMessageBuilder) {
+                             OffsetComputer offsetComputer, String eventName, Message.Builder emptyMessageBuilder,
+                             Checkpointer checkpointer) {
         this.eventName = eventName;
         this.writerBuilder = writerBuilder;
         this.offsetComputer = offsetComputer;
         this.emptyMessageBuilder = emptyMessageBuilder;
+        this.checkpointer = checkpointer;
+        this.latestMessageTimeForPartitionAndDay = new HashMap<>();
     }
 
     /**
@@ -80,6 +87,13 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     public void write(Instant when, Offset offset, MESSAGE_KIND msg) throws IOException {
         final LocalDateTime dayStartTime = LocalDateTime.ofInstant(when.truncatedTo(ChronoUnit.DAYS), UTC_ZONE);
         final int partitionId = offset.getPartition();
+        final AbstractMap.SimpleEntry<Integer, LocalDateTime> dayAndPartition = new AbstractMap.SimpleEntry<>(
+                partitionId, dayStartTime);
+
+        if (!latestMessageTimeForPartitionAndDay.containsKey(dayAndPartition) ||
+                when.isAfter(latestMessageTimeForPartitionAndDay.get(dayAndPartition))) {
+            latestMessageTimeForPartitionAndDay.put(dayAndPartition, when);
+        }
 
         synchronized (perPartitionDayWriters) {
             if (shouldSkipOffset(offset.getOffset(), partitionId)) return;
@@ -190,13 +204,33 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
             perPartitionDayWriters.forEach((partitionId, dailyWriters) ->
                 dailyWriters.entrySet().removeIf(entry -> {
                     final ExpiringConsumer<MESSAGE_KIND> consumer = entry.getValue();
+                    final LocalDateTime day = entry.getKey();
 
                     if (shouldClose.test(consumer)) {
                         if (tryExpireConsumer(consumer)) {
                             final Counter.Child filesCommitted = PrometheusMetrics.buildCounterChild(
                                 PrometheusMetrics.FILES_COMMITTED, eventName);
+                            final Counter.Child checkpointsFailures = PrometheusMetrics.buildCounterChild(
+                                PrometheusMetrics.CHECKPOINTS_FAILURES, eventName, partitionId);
+                            final Counter.Child checkpointsSuccesses = PrometheusMetrics.buildCounterChild(
+                                PrometheusMetrics.CHECKPOINTS_SUCCESSES, eventName, partitionId);
 
                             filesCommitted.inc();
+
+                            try {
+                                checkpointer.tryCheckpoint(partitionId, latestMessageTimeForPartitionAndDay.get(
+                                        new AbstractMap.SimpleEntry<>(partitionId, day)));
+                            } catch (RuntimeException e) {
+                                String msg = String.format("Failed to checkpoint partition %d, date %s, event %s",
+                                        partitionId, day.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                                        eventName);
+
+                                LOGGER.warn(msg, e);
+                                checkpointsFailures.inc();
+                            }
+
+                            checkpointsSuccesses.inc();
+
                             return true;
                         }
                     }
