@@ -46,6 +46,7 @@ public class Forwarder {
         this.properties = properties;
 
         Header.Builder headerBuilder = Header.newBuilder()
+                .withId(HeaderUtils.getId())
                 .withHostname(hostname)
                 .withPid(HeaderUtils.getPid())
                 .withUser(HeaderUtils.getUser())

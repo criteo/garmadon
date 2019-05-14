@@ -38,6 +38,7 @@ public class RMContextImplEventRunnable implements Runnable {
                 rmContext.getRMApps().forEach((applicationId, rmApp) -> {
                     if (cacheFinishedApp.getIfPresent(applicationId.toString()) == null) {
                         Header header = Header.newBuilder()
+                                .withId(applicationId.toString())
                                 .withApplicationID(applicationId.toString())
                                 .withUser(rmApp.getUser())
                                 .withApplicationName(rmApp.getName())
