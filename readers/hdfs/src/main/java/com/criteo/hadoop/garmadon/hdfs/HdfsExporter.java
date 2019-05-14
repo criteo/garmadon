@@ -6,13 +6,8 @@ import com.criteo.hadoop.garmadon.hdfs.configurations.HdfsReaderConfiguration;
 import com.criteo.hadoop.garmadon.hdfs.kafka.OffsetResetter;
 import com.criteo.hadoop.garmadon.hdfs.kafka.PartitionsPauseStateHandler;
 import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
-import com.criteo.hadoop.garmadon.hdfs.offset.HdfsOffsetComputer;
-import com.criteo.hadoop.garmadon.hdfs.offset.HeartbeatConsumer;
-import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
-import com.criteo.hadoop.garmadon.hdfs.writer.ExpiringConsumer;
-import com.criteo.hadoop.garmadon.hdfs.writer.FileSystemUtils;
-import com.criteo.hadoop.garmadon.hdfs.writer.PartitionedWriter;
-import com.criteo.hadoop.garmadon.hdfs.writer.ProtoParquetWriterWithOffset;
+import com.criteo.hadoop.garmadon.hdfs.offset.*;
+import com.criteo.hadoop.garmadon.hdfs.writer.*;
 import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.reader.configurations.ReaderConfiguration;
@@ -37,9 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.FileSystemNotFoundException;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -150,11 +143,21 @@ public class HdfsExporter {
             final OffsetComputer offsetComputer = new HdfsOffsetComputer(fs, finalEventDir,
                 config.getKafka().getCluster(), config.getHdfs().getBacklogDays());
 
+            // When it's day D + 2h, checkpoint for day D - 1m
+            final DelayedDailyPathComputer delayedPathComputer = new DelayedDailyPathComputer(Duration.ofHours(24 + 2));
+            final Checkpointer checkpointer = new FsBasedCheckpointer(fs,
+                (partition, instant) -> {
+                    Path dayDir = new Path(finalEventDir,
+                            delayedPathComputer.apply(instant.atZone(ZoneId.of("UTC"))));
+
+                    return new Path(dayDir, partition.toString() + ".done");
+                });
+
             consumerBuilder = buildMessageConsumerBuilder(fs, new Path(temporaryHdfsDir, eventName),
                 finalEventDir, clazz, offsetComputer, pauser, eventName);
 
             final PartitionedWriter<Message> writer = new PartitionedWriter<>(
-                consumerBuilder, offsetComputer, eventName, emptyMessageBuilder);
+                consumerBuilder, offsetComputer, eventName, emptyMessageBuilder, checkpointer);
 
             readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(writer, eventName));
 

@@ -21,6 +21,10 @@ public final class PrometheusMetrics {
             "Errors when writing messages to temporary files");
     public static final Counter HEARTBEATS_SENT = buildCounter("heartbeats_sent",
             "Number of heartbeats sent");
+    public static final Counter CHECKPOINTS_FAILURES = buildCounter("checkpoints_failures",
+            "Number of checkpointing failures");
+    public static final Counter CHECKPOINTS_SUCCESSES = buildCounter("checkpoints_successes",
+            "Number of checkpointing successes");
 
     // Input metrics
     public static final Gauge CURRENT_RUNNING_OFFSETS = buildGauge("current_running_offsets",
