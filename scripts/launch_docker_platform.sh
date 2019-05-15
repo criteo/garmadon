@@ -26,7 +26,6 @@ docker-compose down
 docker-compose up --build -d
 
 # Get spark and hadoop release
-HADOOP_VERSION=$(grep "ENV HADOOP_VERSION" garmadon/Dockerfile|cut -d= -f2)
 SPARK_VERSION=$(grep "ENV SPARK_VERSION" garmadon/Dockerfile|cut -d= -f2)
 popd
 
@@ -61,15 +60,15 @@ pushd ${DOCKER_COMPOSE_FOLDER}
 docker-compose exec client java -Dgarmadon.tags=version,presto-server -version
 
 # MapRed Teragen
-docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce2/hadoop-mapreduce-examples-${HADOOP_VERSION}.jar \
+docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples.jar \
     teragen -Dmapreduce.job.tags=garmadonJobTagTeragen 1000000 /tmp/test/teragen
 
 # MapRed Terasort
-docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce2/hadoop-mapreduce-examples-${HADOOP_VERSION}.jar \
+docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples.jar \
     terasort -Dmapreduce.job.tags=garmadonJobTagTeraSort /tmp/test/teragen /tmp/test/terasort
 
 # MapRed Pi
-docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce2/hadoop-mapreduce-examples-${HADOOP_VERSION}.jar \
+docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples.jar \
     pi -Dmapreduce.job.tags=garmadonJobTagPi 2 1000
 
 # SparkPi (Compute)

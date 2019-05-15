@@ -108,4 +108,9 @@
         <value>JAVA_TOOL_OPTIONS=-javaagent:/opt/garmadon/lib/garmadon-agent.jar=com.criteo.hadoop.garmadon.agent.modules.ContainerModule</value>
     </property>
 
+    <property>
+        <name>yarn.nodemanager.vmem-check-enabled</name>
+        <value>false</value>
+    </property>
+
 </configuration>
