@@ -150,7 +150,7 @@ public class HdfsExporter {
                     Path dayDir = new Path(finalEventDir,
                             delayedPathComputer.apply(instant.atZone(ZoneId.of("UTC"))));
 
-                    return new Path(dayDir, partition.toString() + ".done");
+                    return new Path(dayDir, "." + partition.toString() + ".done");
                 });
 
             consumerBuilder = buildMessageConsumerBuilder(fs, new Path(temporaryHdfsDir, eventName),
