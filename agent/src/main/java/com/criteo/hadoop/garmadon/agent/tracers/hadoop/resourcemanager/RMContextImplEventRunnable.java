@@ -49,19 +49,19 @@ public class RMContextImplEventRunnable implements Runnable {
                 .withApplicationName(rmApp.getName())
                 .withFramework(rmApp.getApplicationType().toUpperCase());
 
-            RMAppAttempt rmAppAttempt = rmApp.getCurrentAppAttempt();
-            if (rmAppAttempt != null) {
-                headerBuilder.withAttemptID(rmAppAttempt.getAppAttemptId().toString());
-            }
-
             ResourceManagerEventProtos.ApplicationEvent.Builder eventBuilder = ResourceManagerEventProtos.ApplicationEvent.newBuilder()
                 .setState(rmApp.getState().name())
                 .setQueue(rmApp.getQueue())
                 .addAllYarnTags(rmApp.getApplicationTags());
 
-            Container container = rmApp.getCurrentAppAttempt().getMasterContainer();
-            if (container != null) {
-                eventBuilder.setAmContainerId(container.getId().toString());
+            RMAppAttempt rmAppAttempt = rmApp.getCurrentAppAttempt();
+            if (rmAppAttempt != null) {
+                headerBuilder.withAttemptID(rmAppAttempt.getAppAttemptId().toString());
+
+                Container container = rmAppAttempt.getMasterContainer();
+                if (container != null) {
+                    eventBuilder.setAmContainerId(container.getId().toString());
+                }
             }
 
             if (rmApp.getTrackingUrl() != null) {
