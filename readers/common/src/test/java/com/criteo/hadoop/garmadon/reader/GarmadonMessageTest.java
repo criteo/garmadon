@@ -2,6 +2,7 @@ package com.criteo.hadoop.garmadon.reader;
 
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
+import com.criteo.hadoop.garmadon.event.proto.FlinkEventProtos;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import junit.framework.TestCase;
 import org.junit.Test;
@@ -69,5 +70,19 @@ public class GarmadonMessageTest {
         expected.put("timestamp", timestampMillis);
 
         TestCase.assertEquals(expected, map);
+    }
+
+    @Test
+    public void testToMapOnInfinityDoubleReturnMaxNegativeValue() {
+        long timestampMillis = System.currentTimeMillis();
+        EventHeaderProtos.Header header = EventHeaderProtos.Header.newBuilder().build();
+        FlinkEventProtos.OperatorEvent.Builder operatorEvent = FlinkEventProtos.OperatorEvent.newBuilder()
+            .setRecordsLagMax(Double.NEGATIVE_INFINITY);
+
+        GarmadonMessage message = new GarmadonMessage(GarmadonSerialization.TypeMarker.FLINK_OPERATOR_EVENT, timestampMillis, header, operatorEvent.build(), null);
+
+        Map<String, Object> map = message.toMap(true, true);
+
+        TestCase.assertEquals(-Double.MAX_VALUE, map.get("records_lag_max"));
     }
 }
