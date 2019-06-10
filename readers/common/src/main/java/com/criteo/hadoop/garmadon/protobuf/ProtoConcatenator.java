@@ -91,7 +91,13 @@ public class ProtoConcatenator {
                 return concatMap;
             },
             (entry, eventMap) -> {
-                eventMap.put(entry.getKey().getName(), getRealFieldValue(entry.getValue()));
+                Object value;
+                if ("DOUBLE".equals(entry.getKey().getType().name())) {
+                    value = Double.NEGATIVE_INFINITY == (Double) entry.getValue() ? -Double.MAX_VALUE : getRealFieldValue(entry.getValue());
+                } else {
+                    value = getRealFieldValue(entry.getValue());
+                }
+                eventMap.put(entry.getKey().getName(), value);
             });
     }
 
