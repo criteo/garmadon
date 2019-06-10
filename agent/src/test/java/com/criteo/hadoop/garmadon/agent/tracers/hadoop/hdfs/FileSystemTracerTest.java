@@ -209,7 +209,7 @@ public class FileSystemTracerTest {
         close.invoke(os);
     }
 
-    private void createSrcPatDistributedFilesystem(Path file) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ClassNotFoundException, IOException {
+    private void createSrcPathDistributedFilesystem(Path file) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ClassNotFoundException, IOException {
         Method create = clazzFS.getMethod("create", Path.class,
             FsPermission.class,
             boolean.class,
