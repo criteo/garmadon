@@ -237,7 +237,7 @@ public class FileSystemTracerTest {
     @AgentAttachmentRule.Enforce
     public void FileSystemTracer_should_attach_to_write_DistributedFileSystem() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, ClassNotFoundException {
         Path toWrite = new Path("/test/to_write_hdfs");
-        createSrcPatDistributedFilesystem(toWrite);
+        createSrcPathDistributedFilesystem(toWrite);
 
         checkEvent(FsAction.WRITE.name(), toWrite);
     }
@@ -259,7 +259,7 @@ public class FileSystemTracerTest {
     @AgentAttachmentRule.Enforce
     public void FileSystemTracer_should_attach_to_read_DistributedFileSystem() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, ClassNotFoundException {
         Path toRead = new Path("/test/to_read_dfs");
-        createSrcPatDistributedFilesystem(toRead);
+        createSrcPathDistributedFilesystem(toRead);
 
         Method open = clazzFS.getMethod("open", Path.class,
             int.class);
@@ -311,7 +311,7 @@ public class FileSystemTracerTest {
     @AgentAttachmentRule.Enforce
     public void FileSystemTracer_should_attach_to_delete_DistributedFileSystem() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, ClassNotFoundException {
         Path toDelete = new Path("/test/to_delete");
-        createSrcPatDistributedFilesystem(toDelete);
+        createSrcPathDistributedFilesystem(toDelete);
 
         Method delete = clazzFS.getMethod("delete", Path.class, boolean.class);
         delete.invoke(dfs, toDelete, true);
@@ -324,7 +324,7 @@ public class FileSystemTracerTest {
     public void FileSystemTracer_should_attach_to_rename_deprecated() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, ClassNotFoundException {
         Path toRename = new Path("/test/to_rename");
         Path dst = new Path("/test/to_rename_dst_deprecated");
-        createSrcPatDistributedFilesystem(toRename);
+        createSrcPathDistributedFilesystem(toRename);
         Method rename = clazzFS.getMethod("rename", Path.class, Path.class);
         rename.invoke(dfs, toRename, dst);
 
@@ -349,7 +349,7 @@ public class FileSystemTracerTest {
     public void FileSystemTracer_should_attach_to_rename() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, ClassNotFoundException {
         Path toRename = new Path("/test/to_rename");
         Path dst = new Path("/test/to_rename_dst");
-        createSrcPatDistributedFilesystem(toRename);
+        createSrcPathDistributedFilesystem(toRename);
         Method rename = clazzFS.getMethod("rename", Path.class, Path.class, Options.Rename[].class);
         rename.invoke(dfs, toRename, dst, new Options.Rename[0]);
 
