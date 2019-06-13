@@ -93,7 +93,7 @@ public class FileSystemTracer {
 
         @Override
         protected ElementMatcher<? super TypeDescription> typeMatcher() {
-            return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
+            return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem").or(nameStartsWith("org.apache.hadoop.fs.Hdfs"));
         }
 
         @Override
@@ -118,7 +118,7 @@ public class FileSystemTracer {
     public static class ReadTracer extends MethodTracer {
         @Override
         protected ElementMatcher<? super TypeDescription> typeMatcher() {
-            return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
+            return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem").or(nameStartsWith("org.apache.hadoop.fs.Hdfs"));
         }
 
         @Override
@@ -143,12 +143,12 @@ public class FileSystemTracer {
     public static class RenameTracer extends MethodTracer {
         @Override
         protected ElementMatcher<? super TypeDescription> typeMatcher() {
-            return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
+            return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem").or(nameStartsWith("org.apache.hadoop.fs.Hdfs"));
         }
 
         @Override
         protected ElementMatcher<? super MethodDescription> methodMatcher() {
-            return named("rename");
+            return named("rename").or(named("renameInternal"));
         }
 
         @Override
@@ -169,12 +169,13 @@ public class FileSystemTracer {
     public static class WriteTracer extends MethodTracer {
         @Override
         protected ElementMatcher<? super TypeDescription> typeMatcher() {
-            return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
+            return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem").or(nameStartsWith("org.apache.hadoop.fs.Hdfs"));
         }
 
         @Override
         protected ElementMatcher<? super MethodDescription> methodMatcher() {
-            return named("create").and(takesArguments(7)).and(takesArgument(0, pathTD));
+            return named("create").and(takesArguments(7)).and(takesArgument(0, pathTD))
+                .or(named("createInternal"));
         }
 
         @Override
@@ -219,7 +220,7 @@ public class FileSystemTracer {
     public static class ListStatusTracer extends MethodTracer {
         @Override
         protected ElementMatcher<? super TypeDescription> typeMatcher() {
-            return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem");
+            return nameStartsWith("org.apache.hadoop.hdfs.DistributedFileSystem").or(nameStartsWith("org.apache.hadoop.fs.Hdfs"));
         }
 
         @Override
@@ -303,12 +304,12 @@ public class FileSystemTracer {
 
     private static Object callDistributedFileSystem(@SuperCall Callable<?> zuper, @This Object o, String src, String dst, String fsAction) throws Exception {
         ClassLoader classLoader = o.getClass().getClassLoader();
-        Field dfsField = getField(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "dfs");
+        Field dfsField = getField(classLoader, o.getClass().getName(), "dfs");
         Object dfs = dfsField.get(o);
         Field ugiField = getField(classLoader, "org.apache.hadoop.hdfs.DFSClient", "ugi");
         Object ugi = ugiField.get(dfs);
         Method getShortUserName = getMethod(classLoader, "org.apache.hadoop.security.UserGroupInformation", "getShortUserName");
-        Method getUri = getMethod(classLoader, "org.apache.hadoop.hdfs.DistributedFileSystem", "getUri");
+        Method getUri = getMethod(classLoader, o.getClass().getName(), "getUri");
         return executeMethod(zuper, getUri.invoke(o).toString(), src, dst, fsAction, (String) getShortUserName.invoke(ugi));
     }
 

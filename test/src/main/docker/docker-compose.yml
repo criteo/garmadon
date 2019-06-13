@@ -14,6 +14,7 @@ services:
     volumes:
     - ../../../../agent/target/garmadon-agent-${GARMADON_RELEASE}.jar:/opt/garmadon/lib/garmadon-agent.jar
     - ../../../../forwarder/target/garmadon-forwarder-${GARMADON_RELEASE}.jar:/opt/garmadon/lib/garmadon-forwarder.jar
+    - ../../../../test/target/garmadon-test-${GARMADON_RELEASE}.jar:/opt/garmadon/lib/garmadon-test.jar
     env_file: .env
     depends_on:
       - namenode

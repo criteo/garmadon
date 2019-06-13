@@ -59,6 +59,9 @@ pushd ${DOCKER_COMPOSE_FOLDER}
 # We had issues due to NoClassDefFoundError
 docker-compose exec client java -Dgarmadon.tags=version,presto-server -version
 
+# Ensure call to FileContext using AbstractFileSystem are well intercepted by garmadon agent
+docker-compose exec client sh -c 'java -cp /opt/garmadon/lib/garmadon-test.jar:$(hadoop classpath) com.criteo.hadoop.garmadon.tool.FileContextIntegrationTest'
+
 # MapRed Teragen
 docker-compose exec client yarn jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples.jar \
     teragen -Dmapreduce.job.tags=garmadonJobTagTeragen 1000000 /tmp/test/teragen
