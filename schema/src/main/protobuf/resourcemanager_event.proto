@@ -12,4 +12,5 @@ message ApplicationEvent {
     string original_tracking_url = 4;
     repeated string yarn_tags = 5;
     string am_container_id = 6;
+    map<string, string> user_tags = 7;
 }

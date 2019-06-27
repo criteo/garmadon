@@ -15,6 +15,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -47,6 +50,7 @@ public class RMContextImplEventRunnableTest {
 
         rmAppAttempt = mock(RMAppAttempt.class);
         when(rmApp.getCurrentAppAttempt()).thenReturn(rmAppAttempt);
+        when(rmApp.getApplicationTags()).thenReturn(new HashSet<>(Arrays.asList("simpleTag", "key:value")));
 
         applicationAttemptId = mock(ApplicationAttemptId.class);
         when(rmAppAttempt.getAppAttemptId()).thenReturn(applicationAttemptId);

@@ -14,7 +14,11 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttempt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Array;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class RMContextImplEventRunnable implements Runnable {
 
@@ -51,8 +55,16 @@ public class RMContextImplEventRunnable implements Runnable {
 
             ResourceManagerEventProtos.ApplicationEvent.Builder eventBuilder = ResourceManagerEventProtos.ApplicationEvent.newBuilder()
                 .setState(rmApp.getState().name())
-                .setQueue(rmApp.getQueue())
-                .addAllYarnTags(rmApp.getApplicationTags());
+                .setQueue(rmApp.getQueue());
+
+            rmApp.getApplicationTags().stream()
+                    .filter(tag -> ! tag.contains(":"))
+                    .forEach(eventBuilder::addYarnTags);
+
+            rmApp.getApplicationTags().stream()
+                    .filter(tag -> tag.contains(":"))
+                    .map(tag -> tag.split(":"))
+                    .forEach(splitTag -> eventBuilder.putUserTags(splitTag[0], splitTag[1]));
 
             RMAppAttempt rmAppAttempt = rmApp.getCurrentAppAttempt();
             if (rmAppAttempt != null) {
