@@ -51,8 +51,21 @@ public class RMContextImplEventRunnable implements Runnable {
 
             ResourceManagerEventProtos.ApplicationEvent.Builder eventBuilder = ResourceManagerEventProtos.ApplicationEvent.newBuilder()
                 .setState(rmApp.getState().name())
-                .setQueue(rmApp.getQueue())
-                .addAllYarnTags(rmApp.getApplicationTags());
+                .setQueue(rmApp.getQueue());
+
+            rmApp.getApplicationTags().stream()
+                    .filter(tag -> !tag.contains(":"))
+                    .forEach(eventBuilder::addYarnTags);
+
+            rmApp.getApplicationTags().stream()
+                    .filter(tag -> tag.contains(":"))
+                    .map(tag -> {
+                        int idx = tag.indexOf(':');
+                        String key = tag.substring(0, idx);
+                        String value = tag.substring(idx + 1);
+                        return new String[]{key, value};
+                    })
+                    .forEach(splitTag -> eventBuilder.putUserTags(splitTag[0], splitTag[1]));
 
             RMAppAttempt rmAppAttempt = rmApp.getCurrentAppAttempt();
             if (rmAppAttempt != null) {

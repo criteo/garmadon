@@ -121,8 +121,7 @@ public class ElasticSearchReaderTest {
                 .setState(state)
                 .build();
 
-        Map<String, Object> eventMap = new HashMap<>();
-        eventMap.putAll(headerMap);
+        Map<String, Object> eventMap = new HashMap<>(headerMap);
         eventMap.put("event_type", GarmadonSerialization.getTypeName(type));
         eventMap.put("state", state);
         eventMap.put("queue", "dev");
@@ -130,6 +129,7 @@ public class ElasticSearchReaderTest {
         eventMap.put("original_tracking_url", "");
         eventMap.put("am_container_id", "");
         eventMap.put("yarn_tags", new ArrayList<>());
+        eventMap.put("user_tags", new HashMap<>());
 
         writeGarmadonMessage(type, event, 0L);
         verify(bulkProcessor, times(1)).add(argument.capture(), any(CommittableOffset.class));
