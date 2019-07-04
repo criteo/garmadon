@@ -43,6 +43,11 @@ public class PrometheusHttpConsumerMetrics {
                     GarmadonReader.getHostname(),
                     PrometheusHttpConsumerMetrics.RELEASE);
 
+    public static final Gauge GARMADON_READER_LAST_EVENT_TIMESTAMP = Gauge.build()
+            .name("garmadon_reader_last_event_timestamp").help("Garmadon reader last event timestamp")
+            .labelNames("name", "hostname", "release", "partition")
+            .register();
+
     public static final Counter.Child ISSUE_READING_PROTO_HEAD = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("issue_reading_proto_head",
             GarmadonReader.getHostname(),
             PrometheusHttpConsumerMetrics.RELEASE);

@@ -14,14 +14,16 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.BufferUnderflowException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static com.criteo.hadoop.garmadon.protocol.ProtocolConstants.FRAME_DELIMITER_SIZE;
+import static com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics.GARMADON_READER_LAST_EVENT_TIMESTAMP;
+import static com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics.RELEASE;
 
 public final class GarmadonReader {
     public static final String GARMADON_TOPIC = "garmadon";
@@ -60,8 +62,7 @@ public final class GarmadonReader {
     }
 
     /**
-     *
-     * @return  A future that completes when consuming is done
+     * @return A future that completes when consuming is done
      */
     public synchronized CompletableFuture<Void> startReading() {
         if (!reading) {
@@ -72,14 +73,15 @@ public final class GarmadonReader {
     }
 
     /**
-     *
-     * @return  A future that completes when consuming is done
+     * @return A future that completes when consuming is done
      */
     public synchronized CompletableFuture<Void> stopReading() {
         if (reading) {
             reader.stop();
             return cf;
-        } else return CompletableFuture.completedFuture(null);
+        } else {
+            return CompletableFuture.completedFuture(null);
+        }
     }
 
     protected static class Reader implements Runnable {
@@ -95,7 +97,7 @@ public final class GarmadonReader {
         private volatile boolean keepOnReading = true;
 
         Reader(Consumer<String, byte[]> consumer, List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter,
-                GarmadonMessageHandler> listeners, CompletableFuture<Void> cf) {
+            GarmadonMessageHandler> listeners, CompletableFuture<Void> cf) {
             this.consumer = SynchronizedConsumer.synchronize(consumer);
             this.beforeInterceptHandlers = beforeInterceptHandlers;
             this.listeners = listeners;
@@ -186,9 +188,13 @@ public final class GarmadonReader {
 
                             if (header != null && body != null) {
                                 CommittableOffset<String, byte[]> committableOffset = new CommittableOffset<>(consumer, record.topic(),
-                                        record.partition(), record.offset());
+                                    record.partition(), record.offset());
 
                                 GarmadonMessage msg = new GarmadonMessage(typeMarker, timestamp, header, body, committableOffset);
+
+                                GARMADON_READER_LAST_EVENT_TIMESTAMP
+                                    .labels("read", GarmadonReader.getHostname(), RELEASE, String.valueOf(committableOffset.getPartition()))
+                                    .set(timestamp);
 
                                 beforeInterceptHandlers.forEach(c -> c.handle(msg));
                                 listeners.get(filter).handle(msg);
