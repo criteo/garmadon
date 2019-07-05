@@ -803,6 +803,9 @@
       "index_options": "freqs",
       "eager_global_ordinals": true
     },
+    "user_tags": {
+      "type": "object"
+    },
     "value": {
       "type": "float",
       "index": false
