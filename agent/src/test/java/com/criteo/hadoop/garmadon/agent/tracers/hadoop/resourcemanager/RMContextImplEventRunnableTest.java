@@ -49,7 +49,7 @@ public class RMContextImplEventRunnableTest {
 
         rmAppAttempt = mock(RMAppAttempt.class);
         when(rmApp.getCurrentAppAttempt()).thenReturn(rmAppAttempt);
-        when(rmApp.getApplicationTags()).thenReturn(new HashSet<>(Arrays.asList("simpleTag", "key:value")));
+        when(rmApp.getApplicationTags()).thenReturn(new HashSet<>(Arrays.asList("simpleTag", "garmadon.project.name:project", "garmadon.workflow.name:workflow")));
 
         applicationAttemptId = mock(ApplicationAttemptId.class);
         when(rmAppAttempt.getAppAttemptId()).thenReturn(applicationAttemptId);
@@ -75,6 +75,7 @@ public class RMContextImplEventRunnableTest {
         assertThat(appEvent.getAmContainerId()).isEqualTo("container_id_001");
         assertThat(appEvent.getTrackingUrl()).isEqualTo("");
 
-        assertThat(appEvent.getUserTagsMap()).containsExactly(entry("key", "value"));
+        assertThat(appEvent.getProjectName()).isEqualTo("project");
+        assertThat(appEvent.getWorkflowName()).isEqualTo("workflow");
     }
 }

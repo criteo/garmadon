@@ -65,6 +65,18 @@
         }
       }
     },
+    "project_name": {
+      "type": "text",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "workflow_name": {
+      "type": "text",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
     "attempt_id": {
       "type": "keyword",
       "norms": false,
@@ -802,9 +814,6 @@
       "norms": false,
       "index_options": "freqs",
       "eager_global_ordinals": true
-    },
-    "user_tags": {
-      "type": "object"
     },
     "value": {
       "type": "float",

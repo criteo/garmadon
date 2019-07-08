@@ -1,7 +1,7 @@
 package com.criteo.hadoop.garmadon.agent.tracers.hadoop.resourcemanager;
 
 import com.criteo.hadoop.garmadon.TriConsumer;
-import com.criteo.hadoop.garmadon.event.proto.ResourceManagerEventProtos;
+import com.criteo.hadoop.garmadon.event.proto.ResourceManagerEventProtos.ApplicationEvent;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -14,11 +14,24 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttempt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 
 public class RMContextImplEventRunnable implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RMContextImplEventRunnable.class);
+
+    private static final Map<String, BiConsumer<String, ApplicationEvent.Builder>> BUILDERS;
+    private static final Set<String> YARN_TAGS_TO_EXTRACT;
+
+    static {
+        BUILDERS = new HashMap<>();
+        BUILDERS.put("garmadon.project.name", (value, builder) -> builder.setProjectName(value));
+        BUILDERS.put("garmadon.workflow.name", (value, builder) -> builder.setWorkflowName(value));
+
+        YARN_TAGS_TO_EXTRACT = BUILDERS.keySet();
+    }
 
     // Cache used to avoid sending FINISHED/KILLED state event multiple times
     // as we iterate on all apps referenced by RM even finished one until they are
@@ -29,7 +42,6 @@ public class RMContextImplEventRunnable implements Runnable {
 
     private final RMContextImpl rmContext;
     private final TriConsumer<Long, Header, Object> eventHandler;
-
 
     public RMContextImplEventRunnable(RMContextImpl rmContext, TriConsumer<Long, Header, Object> eventHandler) {
         this.rmContext = rmContext;
@@ -49,23 +61,23 @@ public class RMContextImplEventRunnable implements Runnable {
                 .withApplicationName(rmApp.getName())
                 .withFramework(rmApp.getApplicationType().toUpperCase());
 
-            ResourceManagerEventProtos.ApplicationEvent.Builder eventBuilder = ResourceManagerEventProtos.ApplicationEvent.newBuilder()
+            ApplicationEvent.Builder eventBuilder = ApplicationEvent.newBuilder()
                 .setState(rmApp.getState().name())
                 .setQueue(rmApp.getQueue());
 
             rmApp.getApplicationTags().stream()
-                    .filter(tag -> !tag.contains(":"))
+                    .filter(tag -> YARN_TAGS_TO_EXTRACT.stream().noneMatch(tag::startsWith))
                     .forEach(eventBuilder::addYarnTags);
 
             rmApp.getApplicationTags().stream()
-                    .filter(tag -> tag.contains(":"))
+                    .filter(tag -> YARN_TAGS_TO_EXTRACT.stream().anyMatch(tag::startsWith))
                     .map(tag -> {
                         int idx = tag.indexOf(':');
                         String key = tag.substring(0, idx);
                         String value = tag.substring(idx + 1);
                         return new String[]{key, value};
                     })
-                    .forEach(splitTag -> eventBuilder.putUserTags(splitTag[0], splitTag[1]));
+                    .forEach(splitTag -> BUILDERS.get(splitTag[0]).accept(splitTag[1], eventBuilder));
 
             RMAppAttempt rmAppAttempt = rmApp.getCurrentAppAttempt();
             if (rmAppAttempt != null) {
