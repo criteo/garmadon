@@ -14,10 +14,12 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttempt;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
-
+import static org.assertj.core.api.Assertions.*;
 
 public class RMContextImplEventRunnableTest {
     private RMContextImplEventRunnable rmContextImplEventRunnable;
@@ -47,6 +49,7 @@ public class RMContextImplEventRunnableTest {
 
         rmAppAttempt = mock(RMAppAttempt.class);
         when(rmApp.getCurrentAppAttempt()).thenReturn(rmAppAttempt);
+        when(rmApp.getApplicationTags()).thenReturn(new HashSet<>(Arrays.asList("simpleTag", "garmadon.project.name:project", "garmadon.workflow.name:workflow")));
 
         applicationAttemptId = mock(ApplicationAttemptId.class);
         when(rmAppAttempt.getAppAttemptId()).thenReturn(applicationAttemptId);
@@ -69,7 +72,10 @@ public class RMContextImplEventRunnableTest {
 
         ResourceManagerEventProtos.ApplicationEvent appEvent = argument.getValue();
 
-        assert ("container_id_001".equals(appEvent.getAmContainerId()));
-        assert ("".equals(appEvent.getTrackingUrl()));
+        assertThat(appEvent.getAmContainerId()).isEqualTo("container_id_001");
+        assertThat(appEvent.getTrackingUrl()).isEqualTo("");
+
+        assertThat(appEvent.getProjectName()).isEqualTo("project");
+        assertThat(appEvent.getWorkflowName()).isEqualTo("workflow");
     }
 }
