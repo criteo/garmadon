@@ -68,14 +68,24 @@
     "project_name": {
       "type": "text",
       "norms": false,
-      "index_options": "freqs",
-      "eager_global_ordinals": true
+      "index_options": "positions",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 1024
+        }
+      }
     },
     "workflow_name": {
       "type": "text",
       "norms": false,
-      "index_options": "freqs",
-      "eager_global_ordinals": true
+      "index_options": "positions",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 1024
+        }
+      }
     },
     "attempt_id": {
       "type": "keyword",

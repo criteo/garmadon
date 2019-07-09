@@ -66,11 +66,11 @@ public class RMContextImplEventRunnable implements Runnable {
                 .setQueue(rmApp.getQueue());
 
             rmApp.getApplicationTags().stream()
-                    .filter(tag -> YARN_TAGS_TO_EXTRACT.stream().noneMatch(tag::startsWith))
+                    .filter(tag -> YARN_TAGS_TO_EXTRACT.stream().noneMatch(tag::startsWith) && !tag.contains(":"))
                     .forEach(eventBuilder::addYarnTags);
 
             rmApp.getApplicationTags().stream()
-                    .filter(tag -> YARN_TAGS_TO_EXTRACT.stream().anyMatch(tag::startsWith))
+                    .filter(tag -> tag.contains(":") && YARN_TAGS_TO_EXTRACT.stream().anyMatch(tag::startsWith))
                     .map(tag -> {
                         int idx = tag.indexOf(':');
                         String key = tag.substring(0, idx);
