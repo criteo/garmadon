@@ -31,10 +31,12 @@ class EventHelper {
             } else {
                 Map<String, Object> eventMap = eventMaps.computeIfAbsent(type, s -> EventHelper.initEvent(type));
                 for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : section.getPropertyList()) {
-                    try {
-                        eventMap.put(section.getName() + "_" + property.getName(), Double.parseDouble(property.getValue()));
-                    } catch (NumberFormatException nfe) {
-                        eventMap.put(section.getName() + "_" + property.getName(), property.getValue());
+                    if (!property.getName().isEmpty()) { // Some section can contains empty property. Not indexing them to avoid adding polluting fields in ES
+                        try {
+                            eventMap.put(section.getName() + "_" + property.getName(), Double.parseDouble(property.getValue()));
+                        } catch (NumberFormatException nfe) {
+                            eventMap.put(section.getName() + "_" + property.getName(), property.getValue());
+                        }
                     }
                 }
             }
