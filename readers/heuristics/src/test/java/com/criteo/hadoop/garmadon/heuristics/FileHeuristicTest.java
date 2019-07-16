@@ -106,6 +106,7 @@ public class FileHeuristicTest {
         expectedResults.addDetail("Files appended", "1");
         expectedResults.addDetail("List status performed", "0");
         expectedResults.addDetail("Blocks added", "0");
+        expectedResults.addDetail("Content summary retrieved", "0");
 
         heuristic.onAppCompleted("app_1", "att_1");
         verify(db).createHeuristicResult(expectedResults);
@@ -130,6 +131,7 @@ public class FileHeuristicTest {
         expectedResults.addDetail("Files appended", "1");
         expectedResults.addDetail("List status performed", "0");
         expectedResults.addDetail("Blocks added", "0");
+        expectedResults.addDetail("Content summary retrieved", "0");
 
         heuristic.onAppCompleted("app_1", "att_1");
         verify(db).createHeuristicResult(expectedResults);
@@ -142,6 +144,7 @@ public class FileHeuristicTest {
         expectedResults.addDetail("Files appended", "0");
         expectedResults.addDetail("List status performed", "0");
         expectedResults.addDetail("Blocks added", "0");
+        expectedResults.addDetail("Content summary retrieved", "0");
 
         heuristic.onAppCompleted("app_1", "att_2");
         verify(db).createHeuristicResult(expectedResults);
