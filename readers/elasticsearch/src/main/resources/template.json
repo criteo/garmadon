@@ -337,6 +337,10 @@
       "type": "long",
       "index": false
     },
+    "gc_pause_ratio_1_min": {
+      "type": "float",
+      "index": false
+    },
     "hdfs_user": {
       "type": "keyword",
       "norms": false,

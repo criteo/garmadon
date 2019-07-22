@@ -831,7 +831,7 @@
         "renderer": "flot",
         "repeat": null,
         "repeatDirection": "v",
-        "repeatIteration": 1563796997313,
+        "repeatIteration": 1563803868238,
         "repeatPanelId": 25,
         "scopedVars": {
           "component": {
@@ -984,7 +984,7 @@
           "x": 12,
           "y": 20
         },
-        "id": 59,
+        "id": 60,
         "legend": {
           "alignAsTable": true,
           "avg": false,
@@ -1008,7 +1008,7 @@
         "renderer": "flot",
         "repeat": null,
         "repeatDirection": "v",
-        "repeatIteration": 1563796997313,
+        "repeatIteration": 1563803868238,
         "repeatPanelId": 47,
         "scopedVars": {
           "component": {
@@ -1186,7 +1186,7 @@
         "renderer": "flot",
         "repeat": null,
         "repeatDirection": "v",
-        "repeatIteration": 1563796997313,
+        "repeatIteration": 1563803868238,
         "repeatPanelId": 25,
         "scopedVars": {
           "component": {
@@ -1339,7 +1339,7 @@
           "x": 12,
           "y": 28
         },
-        "id": 60,
+        "id": 61,
         "legend": {
           "alignAsTable": true,
           "avg": false,
@@ -1363,7 +1363,7 @@
         "renderer": "flot",
         "repeat": null,
         "repeatDirection": "v",
-        "repeatIteration": 1563796997313,
+        "repeatIteration": 1563803868238,
         "repeatPanelId": 47,
         "scopedVars": {
           "component": {
@@ -1541,7 +1541,7 @@
         "renderer": "flot",
         "repeat": null,
         "repeatDirection": "v",
-        "repeatIteration": 1563796997313,
+        "repeatIteration": 1563803868238,
         "repeatPanelId": 25,
         "scopedVars": {
           "component": {
@@ -1694,7 +1694,7 @@
           "x": 12,
           "y": 36
         },
-        "id": 61,
+        "id": 62,
         "legend": {
           "alignAsTable": true,
           "avg": false,
@@ -1718,7 +1718,7 @@
         "renderer": "flot",
         "repeat": null,
         "repeatDirection": "v",
-        "repeatIteration": 1563796997313,
+        "repeatIteration": 1563803868238,
         "repeatPanelId": 47,
         "scopedVars": {
           "component": {
@@ -1859,1852 +1859,2211 @@
         }
       },
       {
-        "collapsed": true,
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 44
+        },
+        "id": 59,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "maxPerRow": 12,
+        "nullPointMode": "null",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1563803868238,
+        "repeatPanelId": 25,
+        "scopedVars": {
+          "component": {
+            "selected": false,
+            "text": "TASK_MANAGER",
+            "value": "TASK_MANAGER"
+          }
+        },
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "avg used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "max used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "requested",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "limit",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Vcore Per $component Container",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 44
+        },
+        "id": 63,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1563803868238,
+        "repeatPanelId": 47,
+        "scopedVars": {
+          "component": {
+            "selected": false,
+            "text": "TASK_MANAGER",
+            "value": "TASK_MANAGER"
+          }
+        },
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "avg used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "max used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "limit",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "limit",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Memory Per $component Container",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "collapsed": false,
         "gridPos": {
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 44
+          "y": 52
         },
         "id": 12,
-        "panels": [
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "fill": 1,
-            "gridPos": {
-              "h": 7,
-              "w": 24,
-              "x": 0,
-              "y": 45
-            },
-            "id": 48,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "connected",
-            "options": {},
-            "paceLength": 10,
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "{{container_id}}.%used",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "1",
-                      "size": "10"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "cpu_%load",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeRegions": [],
-            "timeShift": null,
-            "title": "CPU",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "percent",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "fill": 1,
-            "gridPos": {
-              "h": 8,
-              "w": 8,
-              "x": 0,
-              "y": 52
-            },
-            "id": 15,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "null",
-            "options": {},
-            "paceLength": 10,
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "{{container_id}}.used",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "1",
-                      "size": "10"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "heap_used",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "max",
-                "bucketAggs": [
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "heap_max",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeRegions": [],
-            "timeShift": null,
-            "title": "HEAP Usage",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "deckbytes",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "fill": 1,
-            "gridPos": {
-              "h": 8,
-              "w": 8,
-              "x": 8,
-              "y": 52
-            },
-            "id": 24,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "connected",
-            "options": {},
-            "paceLength": 10,
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "{{container_id}}",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "1",
-                      "size": "10"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "nonheap_used",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeRegions": [],
-            "timeShift": null,
-            "title": "OFF-HEAP Usage",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "deckbytes",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "fill": 1,
-            "gridPos": {
-              "h": 8,
-              "w": 8,
-              "x": 16,
-              "y": 52
-            },
-            "id": 40,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "connected",
-            "options": {},
-            "paceLength": 10,
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "{{container_id}}",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "1",
-                      "size": "10"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "metaspace_used",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeRegions": [],
-            "timeShift": null,
-            "title": "Metadata Space Used",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "kbytes",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 10,
-              "w": 24,
-              "x": 0,
-              "y": 60
-            },
-            "id": 27,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "connected",
-            "options": {},
-            "paceLength": 10,
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "{{container_id}}.ParNew",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "_term",
-                      "size": "10"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "auto",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "pause_time",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "sum"
-                  }
-                ],
-                "query": "event_type:GC_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeRegions": [],
-            "timeShift": null,
-            "title": "GC Pause duration",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "ms",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "decimals": null,
-            "fill": 1,
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 0,
-              "y": 70
-            },
-            "id": 53,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "connected",
-            "options": {},
-            "paceLength": 10,
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "{{container_id}}.ParNew",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "4",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "1",
-                      "size": "1"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(ParNew)_%cpu",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "{{container_id}}.G1 Young Generation",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "4",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "1",
-                      "size": "1"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(G1 Young Generation)_%cpu",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "{{container_id}}.ConcurrentMarkSweep",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "4",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "1",
-                      "size": "1"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(ConcurrentMarkSweep)_%cpu",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "C",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "{{container_id}}.G1 Old Generation",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "4",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "1",
-                      "size": "1"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(G1 Old Generation)_%cpu",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "D",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "{{container_id}}.PS MarkSweep",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "4",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "1",
-                      "size": "1"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(PS MarkSweep)_%cpu",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "E",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "{{container_id}}.PS Scavenge",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "4",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "1",
-                      "size": "1"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(PS Scavenge)_%cpu",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "F",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeRegions": [],
-            "timeShift": null,
-            "title": "GC CPU",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "percent",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "fill": 1,
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 12,
-              "y": 70
-            },
-            "id": 32,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "connected",
-            "options": {},
-            "paceLength": 10,
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "{{container_id}}.ConcurrentMarkSweep",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "_count",
-                      "size": "1"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(ConcurrentMarkSweep)_count",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "C",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "{{container_id}}.G1 Old Generation",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "_count",
-                      "size": "1"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(G1 Old Generation)_count",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "D",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "{{container_id}}.G1 Young Generation",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "_count",
-                      "size": "1"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(G1 Young Generation)_%cpu",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "{{container_id}}.PS MarkSweep",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "_count",
-                      "size": "1"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(PS MarkSweep)_count",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "{{container_id}}.PS Scavenge",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "_count",
-                      "size": "1"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(PS Scavenge)_count",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "E",
-                "target": "",
-                "timeField": "timestamp"
-              },
-              {
-                "alias": "{{container_id}}.ParNew",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "_count",
-                      "size": "1"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "gc(ParNew)_count",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "max"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "F",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeRegions": [],
-            "timeShift": null,
-            "title": "GC Count",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "columns": [
-              {
-                "text": "timestamp",
-                "value": "timestamp"
-              },
-              {
-                "text": "container_id",
-                "value": "container_id"
-              },
-              {
-                "text": "collector_name",
-                "value": "collector_name"
-              },
-              {
-                "text": "cause",
-                "value": "cause"
-              },
-              {
-                "text": "pause_time",
-                "value": "pause_time"
-              },
-              {
-                "text": "eden_before",
-                "value": "eden_before"
-              },
-              {
-                "text": "eden_after",
-                "value": "eden_after"
-              },
-              {
-                "text": "survivor_before",
-                "value": "survivor_before"
-              },
-              {
-                "text": "survivor_after",
-                "value": "survivor_after"
-              },
-              {
-                "text": "old_before",
-                "value": "old_before"
-              },
-              {
-                "text": "old_after",
-                "value": "old_after"
-              },
-              {
-                "text": "metaspace_before",
-                "value": "metaspace_before"
-              },
-              {
-                "text": "metaspace_after",
-                "value": "metaspace_after"
-              },
-              {
-                "text": "code_before",
-                "value": "code_before"
-              },
-              {
-                "text": "code_after",
-                "value": "code_after"
-              }
-            ],
-            "datasource": "$datasource",
-            "fontSize": "100%",
-            "gridPos": {
-              "h": 10,
-              "w": 24,
-              "x": 0,
-              "y": 78
-            },
-            "id": 52,
-            "links": [],
-            "options": {},
-            "pageSize": null,
-            "scroll": true,
-            "showHeader": true,
-            "sort": {
-              "col": 0,
-              "desc": true
-            },
-            "styles": [
-              {
-                "alias": "Time",
-                "dateFormat": "YYYY-MM-DD HH:mm:ss.SSS",
-                "pattern": "timestamp",
-                "type": "date"
-              },
-              {
-                "alias": "",
-                "colorMode": null,
-                "colors": [
-                  "rgba(245, 54, 54, 0.9)",
-                  "rgba(237, 129, 40, 0.89)",
-                  "rgba(50, 172, 45, 0.97)"
-                ],
-                "dateFormat": "YYYY-MM-DD HH:mm:ss",
-                "decimals": 0,
-                "mappingType": 1,
-                "pattern": "pause_time",
-                "thresholds": [],
-                "type": "number",
-                "unit": "ms"
-              },
-              {
-                "alias": "",
-                "colorMode": null,
-                "colors": [
-                  "rgba(245, 54, 54, 0.9)",
-                  "rgba(237, 129, 40, 0.89)",
-                  "rgba(50, 172, 45, 0.97)"
-                ],
-                "dateFormat": "YYYY-MM-DD HH:mm:ss",
-                "decimals": 2,
-                "mappingType": 1,
-                "pattern": "/.*after/",
-                "thresholds": [],
-                "type": "number",
-                "unit": "bytes"
-              },
-              {
-                "alias": "",
-                "colorMode": null,
-                "colors": [
-                  "rgba(245, 54, 54, 0.9)",
-                  "rgba(237, 129, 40, 0.89)",
-                  "rgba(50, 172, 45, 0.97)"
-                ],
-                "dateFormat": "YYYY-MM-DD HH:mm:ss",
-                "decimals": 2,
-                "mappingType": 1,
-                "pattern": "/.*before/",
-                "thresholds": [],
-                "type": "number",
-                "unit": "bytes"
-              },
-              {
-                "alias": "",
-                "colorMode": null,
-                "colors": [
-                  "rgba(245, 54, 54, 0.9)",
-                  "rgba(237, 129, 40, 0.89)",
-                  "rgba(50, 172, 45, 0.97)"
-                ],
-                "decimals": 2,
-                "pattern": "/.*/",
-                "thresholds": [],
-                "type": "number",
-                "unit": "short"
-              }
-            ],
-            "targets": [
-              {
-                "bucketAggs": [],
-                "metrics": [
-                  {
-                    "field": "select field",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {
-                      "size": 500
-                    },
-                    "type": "raw_document"
-                  }
-                ],
-                "query": "event_type:GC_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "A",
-                "timeField": "timestamp"
-              }
-            ],
-            "title": "GC Events",
-            "transform": "json",
-            "transparent": true,
-            "type": "table"
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "fill": 1,
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 0,
-              "y": 88
-            },
-            "id": 26,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "connected",
-            "options": {},
-            "paceLength": 10,
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "{{container_id}}",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "1",
-                      "size": "10"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "threads_count",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeRegions": [],
-            "timeShift": null,
-            "title": "#Threads",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "fill": 1,
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 12,
-              "y": 88
-            },
-            "id": 29,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "connected",
-            "options": {},
-            "paceLength": 10,
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "{{container_id}}",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "4",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "1",
-                      "size": "10"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "threads_total",
-                    "hide": true,
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  },
-                  {
-                    "field": "1",
-                    "id": "3",
-                    "meta": {},
-                    "pipelineAgg": "1",
-                    "settings": {},
-                    "type": "derivative"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "B",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeRegions": [],
-            "timeShift": null,
-            "title": "#Threads Created",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          },
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "$datasource",
-            "fill": 1,
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 0,
-              "y": 96
-            },
-            "id": 31,
-            "legend": {
-              "alignAsTable": true,
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "rightSide": true,
-              "show": true,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "links": [],
-            "nullPointMode": "connected",
-            "options": {},
-            "paceLength": 10,
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "alias": "{{container_id}}",
-                "bucketAggs": [
-                  {
-                    "fake": true,
-                    "field": "container_id",
-                    "id": "3",
-                    "settings": {
-                      "min_doc_count": 1,
-                      "order": "desc",
-                      "orderBy": "1",
-                      "size": "10"
-                    },
-                    "type": "terms"
-                  },
-                  {
-                    "field": "timestamp",
-                    "id": "2",
-                    "settings": {
-                      "interval": "10s",
-                      "min_doc_count": 0,
-                      "trimEdges": 0
-                    },
-                    "type": "date_histogram"
-                  }
-                ],
-                "metrics": [
-                  {
-                    "field": "descriptors_open",
-                    "id": "1",
-                    "meta": {},
-                    "settings": {},
-                    "type": "avg"
-                  }
-                ],
-                "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
-                "refId": "A",
-                "target": "",
-                "timeField": "timestamp"
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeRegions": [],
-            "timeShift": null,
-            "title": "#File Descriptors",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false,
-              "alignLevel": null
-            }
-          }
-        ],
+        "panels": [],
         "title": "JVM",
         "type": "row"
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 7,
+          "w": 24,
+          "x": 0,
+          "y": 53
+        },
+        "id": 48,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "{{container_id}}.%used",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "1",
+                  "size": "10"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "cpu_%load",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "CPU",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "percent",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 0,
+          "y": 60
+        },
+        "id": 15,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "{{container_id}}.used",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "1",
+                  "size": "10"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "heap_used",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "max",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "heap_max",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "HEAP Usage",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "deckbytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 8,
+          "y": 60
+        },
+        "id": 24,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "{{container_id}}",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "1",
+                  "size": "10"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "nonheap_used",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "OFF-HEAP Usage",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "deckbytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 16,
+          "y": 60
+        },
+        "id": 40,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "{{container_id}}",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "1",
+                  "size": "10"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "metaspace_used",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Metadata Space Used",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "kbytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "description": "Percent of time the JVM is paused doing a GC during a window of 1 minute",
+        "fill": 1,
+        "gridPos": {
+          "h": 10,
+          "w": 24,
+          "x": 0,
+          "y": 68
+        },
+        "id": 27,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "{{container_id}}",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "1",
+                  "size": "10"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "auto",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc_pause_ratio_1_min",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:GC_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "GC Pause Ratio (1 min window)",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "percent",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "decimals": null,
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 78
+        },
+        "id": 53,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "{{container_id}}.ParNew",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "4",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "1",
+                  "size": "1"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(ParNew)_%cpu",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "{{container_id}}.G1 Young Generation",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "4",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "1",
+                  "size": "1"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(G1 Young Generation)_%cpu",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "{{container_id}}.ConcurrentMarkSweep",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "4",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "1",
+                  "size": "1"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(ConcurrentMarkSweep)_%cpu",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "{{container_id}}.G1 Old Generation",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "4",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "1",
+                  "size": "1"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(G1 Old Generation)_%cpu",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "D",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "{{container_id}}.PS MarkSweep",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "4",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "1",
+                  "size": "1"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(PS MarkSweep)_%cpu",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "E",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "{{container_id}}.PS Scavenge",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "4",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "1",
+                  "size": "1"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(PS Scavenge)_%cpu",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "F",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "GC CPU",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "percent",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 78
+        },
+        "id": 32,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "{{container_id}}.ConcurrentMarkSweep",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "_count",
+                  "size": "1"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(ConcurrentMarkSweep)_count",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "{{container_id}}.G1 Old Generation",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "_count",
+                  "size": "1"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(G1 Old Generation)_count",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "D",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "{{container_id}}.G1 Young Generation",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "_count",
+                  "size": "1"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(G1 Young Generation)_%cpu",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "{{container_id}}.PS MarkSweep",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "_count",
+                  "size": "1"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(PS MarkSweep)_count",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "{{container_id}}.PS Scavenge",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "_count",
+                  "size": "1"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(PS Scavenge)_count",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "E",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "{{container_id}}.ParNew",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "_count",
+                  "size": "1"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "gc(ParNew)_count",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "F",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "GC Count",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "columns": [
+          {
+            "text": "timestamp",
+            "value": "timestamp"
+          },
+          {
+            "text": "container_id",
+            "value": "container_id"
+          },
+          {
+            "text": "collector_name",
+            "value": "collector_name"
+          },
+          {
+            "text": "cause",
+            "value": "cause"
+          },
+          {
+            "text": "gc_pause_ratio_1_min(%)",
+            "value": "gc_pause_ratio_1_min"
+          },
+          {
+            "text": "pause_time",
+            "value": "pause_time"
+          },
+          {
+            "text": "eden_before",
+            "value": "eden_before"
+          },
+          {
+            "text": "eden_after",
+            "value": "eden_after"
+          },
+          {
+            "text": "survivor_before",
+            "value": "survivor_before"
+          },
+          {
+            "text": "survivor_after",
+            "value": "survivor_after"
+          },
+          {
+            "text": "old_before",
+            "value": "old_before"
+          },
+          {
+            "text": "old_after",
+            "value": "old_after"
+          },
+          {
+            "text": "metaspace_before",
+            "value": "metaspace_before"
+          },
+          {
+            "text": "metaspace_after",
+            "value": "metaspace_after"
+          },
+          {
+            "text": "code_before",
+            "value": "code_before"
+          },
+          {
+            "text": "code_after",
+            "value": "code_after"
+          }
+        ],
+        "datasource": "$datasource",
+        "fontSize": "100%",
+        "gridPos": {
+          "h": 10,
+          "w": 24,
+          "x": 0,
+          "y": 86
+        },
+        "id": 52,
+        "links": [],
+        "options": {},
+        "pageSize": null,
+        "scroll": true,
+        "showHeader": true,
+        "sort": {
+          "col": 0,
+          "desc": true
+        },
+        "styles": [
+          {
+            "alias": "Time",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss.SSS",
+            "pattern": "timestamp",
+            "type": "date"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 0,
+            "mappingType": 1,
+            "pattern": "pause_time",
+            "thresholds": [],
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 2,
+            "mappingType": 1,
+            "pattern": "/.*after/",
+            "thresholds": [],
+            "type": "number",
+            "unit": "bytes"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 2,
+            "mappingType": 1,
+            "pattern": "/.*before/",
+            "thresholds": [],
+            "type": "number",
+            "unit": "bytes"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "decimals": 2,
+            "pattern": "/.*/",
+            "thresholds": [],
+            "type": "number",
+            "unit": "short"
+          }
+        ],
+        "targets": [
+          {
+            "bucketAggs": [],
+            "metrics": [
+              {
+                "field": "select field",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "size": 500
+                },
+                "type": "raw_document"
+              }
+            ],
+            "query": "event_type:GC_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "A",
+            "timeField": "timestamp"
+          }
+        ],
+        "title": "GC Events",
+        "transform": "json",
+        "transparent": true,
+        "type": "table"
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 96
+        },
+        "id": 26,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "{{container_id}}",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "1",
+                  "size": "10"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "threads_count",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "#Threads",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 96
+        },
+        "id": 29,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "{{container_id}}",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "4",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "1",
+                  "size": "10"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "threads_total",
+                "hide": true,
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              },
+              {
+                "field": "1",
+                "id": "3",
+                "meta": {},
+                "pipelineAgg": "1",
+                "settings": {},
+                "type": "derivative"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "#Threads Created",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 104
+        },
+        "id": 31,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "{{container_id}}",
+            "bucketAggs": [
+              {
+                "fake": true,
+                "field": "container_id",
+                "id": "3",
+                "settings": {
+                  "min_doc_count": 1,
+                  "order": "desc",
+                  "orderBy": "1",
+                  "size": "10"
+                },
+                "type": "terms"
+              },
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "descriptors_open",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "#File Descriptors",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
       },
       {
         "collapsed": true,
@@ -3712,7 +4071,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 45
+          "y": 112
         },
         "id": 42,
         "panels": [
@@ -4377,7 +4736,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 46
+          "y": 113
         },
         "id": 9,
         "panels": [
@@ -4804,6 +5163,7 @@
         {
           "allValue": "*",
           "current": {
+            "tags": [],
             "text": "All",
             "value": "$__all"
           },
