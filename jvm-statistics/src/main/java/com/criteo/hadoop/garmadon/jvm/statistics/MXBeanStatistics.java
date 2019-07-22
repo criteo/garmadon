@@ -13,6 +13,8 @@ public class MXBeanStatistics {
     protected static final String HEAP_HEADER = "heap";
     protected static final String NON_HEAP_HEADER = "nonheap";
 
+    private static final String OS_NAME = System.getProperty("os.name") != null ? System.getProperty("os.name") : "";
+
     private final Conf conf;
 
     public MXBeanStatistics(Conf conf) {
@@ -30,8 +32,10 @@ public class MXBeanStatistics {
 
     protected void addGCStatistics(StatisticCollector collector) {
         GarbageCollectorMXBean[] garbageCollectors = ManagementFactory.getGarbageCollectorMXBeans().toArray(new GarbageCollectorMXBean[0]);
+        java.lang.management.OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
+        int processors = Math.max(1, os.getAvailableProcessors());
         for (GarbageCollectorMXBean garbageCollector : garbageCollectors) {
-            collector.register(new GCStatistics(garbageCollector));
+            collector.register(new GCStatistics(garbageCollector, processors));
         }
     }
 

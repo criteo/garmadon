@@ -794,12 +794,1077 @@
         }
       },
       {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 20
+        },
+        "id": 56,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "maxPerRow": 12,
+        "nullPointMode": "null",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1563796997313,
+        "repeatPanelId": 25,
+        "scopedVars": {
+          "component": {
+            "selected": false,
+            "text": "EXECUTOR",
+            "value": "EXECUTOR"
+          }
+        },
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "avg used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "max used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "requested",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "limit",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Vcore Per $component Container",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 20
+        },
+        "id": 59,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1563796997313,
+        "repeatPanelId": 47,
+        "scopedVars": {
+          "component": {
+            "selected": false,
+            "text": "EXECUTOR",
+            "value": "EXECUTOR"
+          }
+        },
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "avg used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "max used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "limit",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "limit",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Memory Per $component Container",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 28
+        },
+        "id": 57,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "maxPerRow": 12,
+        "nullPointMode": "null",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1563796997313,
+        "repeatPanelId": 25,
+        "scopedVars": {
+          "component": {
+            "selected": false,
+            "text": "MAP",
+            "value": "MAP"
+          }
+        },
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "avg used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "max used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "requested",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "limit",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Vcore Per $component Container",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 28
+        },
+        "id": 60,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1563796997313,
+        "repeatPanelId": 47,
+        "scopedVars": {
+          "component": {
+            "selected": false,
+            "text": "MAP",
+            "value": "MAP"
+          }
+        },
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "avg used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "max used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "limit",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "limit",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Memory Per $component Container",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 36
+        },
+        "id": 58,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "maxPerRow": 12,
+        "nullPointMode": "null",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1563796997313,
+        "repeatPanelId": 25,
+        "scopedVars": {
+          "component": {
+            "selected": false,
+            "text": "REDUCE",
+            "value": "REDUCE"
+          }
+        },
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "avg used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "max used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "requested",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "limit",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Vcore Per $component Container",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 36
+        },
+        "id": 61,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "paceLength": 10,
+        "percentage": false,
+        "pointradius": 5,
+        "points": false,
+        "renderer": "flot",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1563796997313,
+        "repeatPanelId": 47,
+        "scopedVars": {
+          "component": {
+            "selected": false,
+            "text": "REDUCE",
+            "value": "REDUCE"
+          }
+        },
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "avg used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "A",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "max used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "value",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "C",
+            "target": "",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "limit",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "10s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "limit",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "max"
+              }
+            ],
+            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
+            "refId": "B",
+            "target": "",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Memory Per $component Container",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
         "collapsed": true,
         "gridPos": {
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 20
+          "y": 44
         },
         "id": 12,
         "panels": [
@@ -814,7 +1879,7 @@
               "h": 7,
               "w": 24,
               "x": 0,
-              "y": 21
+              "y": 45
             },
             "id": 48,
             "legend": {
@@ -936,7 +2001,7 @@
               "h": 8,
               "w": 8,
               "x": 0,
-              "y": 28
+              "y": 52
             },
             "id": 15,
             "legend": {
@@ -1086,7 +2151,7 @@
               "h": 8,
               "w": 8,
               "x": 8,
-              "y": 28
+              "y": 52
             },
             "id": 24,
             "legend": {
@@ -1208,7 +2273,7 @@
               "h": 8,
               "w": 8,
               "x": 16,
-              "y": 28
+              "y": 52
             },
             "id": 40,
             "legend": {
@@ -1331,7 +2396,7 @@
               "h": 10,
               "w": 24,
               "x": 0,
-              "y": 36
+              "y": 60
             },
             "id": 27,
             "legend": {
@@ -1454,7 +2519,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 46
+              "y": 70
             },
             "id": 53,
             "legend": {
@@ -1493,7 +2558,7 @@
                     "settings": {
                       "min_doc_count": 1,
                       "order": "desc",
-                      "orderBy": "_count",
+                      "orderBy": "1",
                       "size": "1"
                     },
                     "type": "terms"
@@ -1511,20 +2576,11 @@
                 ],
                 "metrics": [
                   {
-                    "field": "gc(ParNew)_time",
-                    "hide": true,
+                    "field": "gc(ParNew)_%cpu",
                     "id": "1",
                     "meta": {},
                     "settings": {},
-                    "type": "max"
-                  },
-                  {
-                    "field": "1",
-                    "id": "3",
-                    "meta": {},
-                    "pipelineAgg": "1",
-                    "settings": {},
-                    "type": "derivative"
+                    "type": "avg"
                   }
                 ],
                 "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
@@ -1542,7 +2598,7 @@
                     "settings": {
                       "min_doc_count": 1,
                       "order": "desc",
-                      "orderBy": "_count",
+                      "orderBy": "1",
                       "size": "1"
                     },
                     "type": "terms"
@@ -1560,20 +2616,11 @@
                 ],
                 "metrics": [
                   {
-                    "field": "gc(G1 Young Generation)_time",
-                    "hide": true,
+                    "field": "gc(G1 Young Generation)_%cpu",
                     "id": "1",
                     "meta": {},
                     "settings": {},
-                    "type": "max"
-                  },
-                  {
-                    "field": "1",
-                    "id": "3",
-                    "meta": {},
-                    "pipelineAgg": "1",
-                    "settings": {},
-                    "type": "derivative"
+                    "type": "avg"
                   }
                 ],
                 "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
@@ -1591,7 +2638,7 @@
                     "settings": {
                       "min_doc_count": 1,
                       "order": "desc",
-                      "orderBy": "_count",
+                      "orderBy": "1",
                       "size": "1"
                     },
                     "type": "terms"
@@ -1609,20 +2656,11 @@
                 ],
                 "metrics": [
                   {
-                    "field": "gc(ConcurrentMarkSweep)_time",
-                    "hide": true,
+                    "field": "gc(ConcurrentMarkSweep)_%cpu",
                     "id": "1",
                     "meta": {},
                     "settings": {},
-                    "type": "max"
-                  },
-                  {
-                    "field": "1",
-                    "id": "3",
-                    "meta": {},
-                    "pipelineAgg": "1",
-                    "settings": {},
-                    "type": "derivative"
+                    "type": "avg"
                   }
                 ],
                 "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
@@ -1640,7 +2678,7 @@
                     "settings": {
                       "min_doc_count": 1,
                       "order": "desc",
-                      "orderBy": "_count",
+                      "orderBy": "1",
                       "size": "1"
                     },
                     "type": "terms"
@@ -1658,20 +2696,11 @@
                 ],
                 "metrics": [
                   {
-                    "field": "gc(G1 Old Generation)_time",
-                    "hide": true,
+                    "field": "gc(G1 Old Generation)_%cpu",
                     "id": "1",
                     "meta": {},
                     "settings": {},
-                    "type": "max"
-                  },
-                  {
-                    "field": "1",
-                    "id": "3",
-                    "meta": {},
-                    "pipelineAgg": "1",
-                    "settings": {},
-                    "type": "derivative"
+                    "type": "avg"
                   }
                 ],
                 "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
@@ -1689,7 +2718,7 @@
                     "settings": {
                       "min_doc_count": 1,
                       "order": "desc",
-                      "orderBy": "_count",
+                      "orderBy": "1",
                       "size": "1"
                     },
                     "type": "terms"
@@ -1707,20 +2736,11 @@
                 ],
                 "metrics": [
                   {
-                    "field": "gc(PS MarkSweep)_time",
-                    "hide": true,
+                    "field": "gc(PS MarkSweep)_%cpu",
                     "id": "1",
                     "meta": {},
                     "settings": {},
-                    "type": "max"
-                  },
-                  {
-                    "field": "1",
-                    "id": "3",
-                    "meta": {},
-                    "pipelineAgg": "1",
-                    "settings": {},
-                    "type": "derivative"
+                    "type": "avg"
                   }
                 ],
                 "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
@@ -1738,7 +2758,7 @@
                     "settings": {
                       "min_doc_count": 1,
                       "order": "desc",
-                      "orderBy": "_count",
+                      "orderBy": "1",
                       "size": "1"
                     },
                     "type": "terms"
@@ -1756,20 +2776,11 @@
                 ],
                 "metrics": [
                   {
-                    "field": "gc(PS Scavenge)_time",
-                    "hide": true,
+                    "field": "gc(PS Scavenge)_%cpu",
                     "id": "1",
                     "meta": {},
                     "settings": {},
-                    "type": "max"
-                  },
-                  {
-                    "field": "1",
-                    "id": "3",
-                    "meta": {},
-                    "pipelineAgg": "1",
-                    "settings": {},
-                    "type": "derivative"
+                    "type": "avg"
                   }
                 ],
                 "query": "event_type:JVMSTATS_EVENT AND tags:YARN_APPLICATION AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component",
@@ -1782,7 +2793,7 @@
             "timeFrom": null,
             "timeRegions": [],
             "timeShift": null,
-            "title": "GC CPU time",
+            "title": "GC CPU",
             "tooltip": {
               "shared": true,
               "sort": 0,
@@ -1798,7 +2809,7 @@
             },
             "yaxes": [
               {
-                "format": "ms",
+                "format": "percent",
                 "label": null,
                 "logBase": 1,
                 "max": null,
@@ -1830,7 +2841,7 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 46
+              "y": 70
             },
             "id": 32,
             "legend": {
@@ -1967,7 +2978,7 @@
                 ],
                 "metrics": [
                   {
-                    "field": "gc(G1 Young Generation)_time",
+                    "field": "gc(G1 Young Generation)_%cpu",
                     "id": "1",
                     "meta": {},
                     "settings": {},
@@ -2210,7 +3221,7 @@
               "h": 10,
               "w": 24,
               "x": 0,
-              "y": 54
+              "y": 78
             },
             "id": 52,
             "links": [],
@@ -2327,7 +3338,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 64
+              "y": 88
             },
             "id": 26,
             "legend": {
@@ -2449,7 +3460,7 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 64
+              "y": 88
             },
             "id": 29,
             "legend": {
@@ -2580,7 +3591,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 72
+              "y": 96
             },
             "id": 31,
             "legend": {
@@ -2701,7 +3712,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 21
+          "y": 45
         },
         "id": 42,
         "panels": [
@@ -3366,7 +4377,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 22
+          "y": 46
         },
         "id": 9,
         "panels": [

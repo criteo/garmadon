@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 public class JVMStatisticsTest {
-    private static final Pattern JVMSTATS_PATTERN = Pattern.compile("gc\\(.*\\)\\[count=\\d+, time=\\d+\\], gc\\(.*\\)\\[count=\\d+, time=\\d+\\], " +
+    private static final Pattern JVMSTATS_PATTERN = Pattern.compile("gc\\(.*\\)\\[count=\\d+, %cpu=\\d+\\.\\d+\\], gc\\(.*\\)\\[count=\\d+, %cpu=\\d+\\.\\d+\\], " +
             "heap\\[used=\\d+, committed=\\d+, init=\\d+, max=\\d+\\], " +
             "nonheap\\[used=\\d+, committed=\\d+, init=\\d+, max=\\d+\\], " +
             "code\\[used=\\d+, committed=\\d+, init=\\d+, max=\\d+\\], " +
@@ -22,13 +22,13 @@ public class JVMStatisticsTest {
             "compile\\[count=\\d+, time=\\d+, invalidated=\\d+, failed=\\d+, threads=\\d+\\], " +
             "threads\\[count=\\d+, daemon=\\d+, total=\\d+, internal=\\d+\\], " +
             "class\\[loaded=\\d+, unloaded=\\d+, initialized=\\d+, loadtime=\\d+, inittime=\\d+, veriftime=\\d+\\], " +
-            "os\\[%loadavg=\\d+, physicalfree=\\d+, physicaltotal=\\d+, swapfree=\\d+, swaptotal=\\d+, virtual=\\d+\\], " +
-            "cpu\\[cores=\\d+, %load=\\d+\\], " +
-            "process\\[threads=\\d+, rss=\\d+, vsz=\\d+, %user=\\d+, %sys=\\d+, read=\\d+, written=\\d+.*\\], " +
+            "os\\[%loadavg=\\d+\\.\\d+, physicalfree=\\d+, physicaltotal=\\d+, swapfree=\\d+, swaptotal=\\d+, virtual=\\d+\\], " +
+            "cpu\\[cores=\\d+, %load=\\d+\\.\\d+\\], " +
+            "process\\[threads=\\d+, rss=\\d+, vsz=\\d+, %user=\\d+\\.\\d+, %sys=\\d+\\.\\d+, read=\\d+, written=\\d+.*\\], " +
             "safepoints\\[count=\\d+, synctime=\\d+, totaltime=\\d+\\], " +
             "synclocks\\[contendedlockattempts=\\d+, deflations=\\d+, futilewakeups=\\d+, inflations=\\d+, monextant=\\d+, notifications=\\d+, parks=\\d+\\].*");
     private static final Pattern GCSTATS_PATTERN = Pattern.compile(".* occurred at \\d+-\\d+-\\d+ \\d+:\\d+:\\d+.\\d+, took \\d+ms \\(System\\.gc\\(\\)\\)  (eden|survivor|old)\\[[-+]\\d+\\]\\(\\d+->\\d+\\) (eden|survivor|old)\\[[-+]\\d+\\]\\(\\d+->\\d+\\).*");
-    private static final Pattern MACHINESTATS_PATTERN = Pattern.compile("machinecpu\\[%user=\\d+, %nice=\\d+, %sys=\\d+, %idle=\\d+, %iowait=\\d+, %irq=\\d+, %softirq=\\d+, %core0=\\d+.*\\], memory\\[swap=\\d+, physical=\\d+\\], network\\[.*_rx=\\d+, .*_tx=\\d+, .*_pktrx=\\d+, .*_pkttx=\\d+, .*_errin=\\d+, .*_errout=\\d+.*\\], disk\\[.*_reads=\\d+, .*_readbytes=\\d+, .*_writes=\\d+, .*_writebytes=\\d+.*\\]");
+    private static final Pattern MACHINESTATS_PATTERN = Pattern.compile("machinecpu\\[%user=\\d+\\.\\d+, %nice=\\d+\\.\\d+, %sys=\\d+\\.\\d+, %idle=\\d+\\.\\d+, %iowait=\\d+\\.\\d+, %irq=\\d+\\.\\d+, %softirq=\\d+\\.\\d+, %core0=\\d+\\.\\d+.*\\], memory\\[swap=\\d+, physical=\\d+\\], network\\[.*_rx=\\d+, .*_tx=\\d+, .*_pktrx=\\d+, .*_pkttx=\\d+, .*_errin=\\d+, .*_errout=\\d+.*\\], disk\\[.*_reads=\\d+, .*_readbytes=\\d+, .*_writes=\\d+, .*_writebytes=\\d+.*\\]");
 
     private CountDownLatch latch = new CountDownLatch(1);
     private AtomicBoolean isMatches = new AtomicBoolean();
