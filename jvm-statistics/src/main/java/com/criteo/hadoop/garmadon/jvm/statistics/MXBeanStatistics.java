@@ -32,10 +32,8 @@ public class MXBeanStatistics {
 
     protected void addGCStatistics(StatisticCollector collector) {
         GarbageCollectorMXBean[] garbageCollectors = ManagementFactory.getGarbageCollectorMXBeans().toArray(new GarbageCollectorMXBean[0]);
-        java.lang.management.OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
-        int processors = Math.max(1, os.getAvailableProcessors());
         for (GarbageCollectorMXBean garbageCollector : garbageCollectors) {
-            collector.register(new GCStatistics(garbageCollector, processors));
+            collector.register(new GCStatistics(garbageCollector));
         }
     }
 

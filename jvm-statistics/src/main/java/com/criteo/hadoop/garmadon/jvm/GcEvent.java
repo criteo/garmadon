@@ -13,6 +13,10 @@ public class GcEvent {
         return endTime < maxEndTime;
     }
 
+    public long getEndTime() {
+        return endTime;
+    }
+
     public long getPauseDuration() {
         return endTime - startTime;
     }

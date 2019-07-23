@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 public class JVMStatisticsTest {
-    private static final Pattern JVMSTATS_PATTERN = Pattern.compile("gc\\(.*\\)\\[count=\\d+, %cpu=\\d+\\.\\d+\\], gc\\(.*\\)\\[count=\\d+, %cpu=\\d+\\.\\d+\\], " +
+    private static final Pattern JVMSTATS_PATTERN = Pattern.compile("gc\\(.*\\)\\[count=\\d+, time=\\d+\\], gc\\(.*\\)\\[count=\\d+, time=\\d+\\], " +
             "heap\\[used=\\d+, committed=\\d+, init=\\d+, max=\\d+\\], " +
             "nonheap\\[used=\\d+, committed=\\d+, init=\\d+, max=\\d+\\], " +
             "code\\[used=\\d+, committed=\\d+, init=\\d+, max=\\d+\\], " +
