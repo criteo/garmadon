@@ -10,11 +10,15 @@ import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.server.resourcemanager.RMContextImpl;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppState;
+import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.AggregateAppResourceUsage;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttempt;
+import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
@@ -66,22 +70,29 @@ public class RMContextImplEventRunnable implements Runnable {
                 .setQueue(rmApp.getQueue());
 
             rmApp.getApplicationTags().stream()
-                    .filter(tag -> YARN_TAGS_TO_EXTRACT.stream().noneMatch(tag::startsWith) && !tag.contains(":"))
-                    .forEach(eventBuilder::addYarnTags);
+                .filter(tag -> YARN_TAGS_TO_EXTRACT.stream().noneMatch(tag::startsWith) && !tag.contains(":"))
+                .forEach(eventBuilder::addYarnTags);
 
             rmApp.getApplicationTags().stream()
-                    .filter(tag -> tag.contains(":") && YARN_TAGS_TO_EXTRACT.stream().anyMatch(tag::startsWith))
-                    .map(tag -> {
-                        int idx = tag.indexOf(':');
-                        String key = tag.substring(0, idx);
-                        String value = tag.substring(idx + 1);
-                        return new String[]{key, value};
-                    })
-                    .forEach(splitTag -> BUILDERS.get(splitTag[0]).accept(splitTag[1], eventBuilder));
+                .filter(tag -> tag.contains(":") && YARN_TAGS_TO_EXTRACT.stream().anyMatch(tag::startsWith))
+                .map(tag -> {
+                    int idx = tag.indexOf(':');
+                    String key = tag.substring(0, idx);
+                    String value = tag.substring(idx + 1);
+                    return new String[] {key, value};
+                })
+                .forEach(splitTag -> BUILDERS.get(splitTag[0]).accept(splitTag[1], eventBuilder));
 
             RMAppAttempt rmAppAttempt = rmApp.getCurrentAppAttempt();
             if (rmAppAttempt != null) {
                 headerBuilder.withAttemptID(rmAppAttempt.getAppAttemptId().toString());
+
+                RMAppAttemptMetrics rmAppAttemptMetrics = rmApp.getCurrentAppAttempt().getRMAppAttemptMetrics();
+                if (rmAppAttemptMetrics != null) {
+                    AggregateAppResourceUsage aggregateAppResourceUsage = rmAppAttemptMetrics.getAggregateAppResourceUsage();
+                    eventBuilder.setMemorySeconds(aggregateAppResourceUsage.getMemorySeconds());
+                    eventBuilder.setVcoreSeconds(aggregateAppResourceUsage.getVcoreSeconds());
+                }
 
                 Container container = rmAppAttempt.getMasterContainer();
                 if (container != null) {

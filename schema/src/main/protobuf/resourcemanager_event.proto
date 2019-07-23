@@ -14,4 +14,6 @@ message ApplicationEvent {
     string am_container_id = 6;
     string project_name = 7;
     string workflow_name = 8;
+    int64 memory_seconds = 9;
+    int64 vcore_seconds = 10;
 }

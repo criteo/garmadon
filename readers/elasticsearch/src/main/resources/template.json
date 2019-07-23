@@ -409,6 +409,10 @@
       "type": "integer",
       "index": false
     },
+    "memory_seconds": {
+      "type": "long",
+      "index": false
+    },
     "memory_swap": {
       "type": "integer",
       "index": false
@@ -802,6 +806,10 @@
       "index_options": "freqs"
     },
     "tx": {
+      "type": "long",
+      "index": false
+    },
+    "vcore_seconds": {
       "type": "long",
       "index": false
     },
