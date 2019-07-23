@@ -72,6 +72,7 @@
         },
         "id": 50,
         "links": [],
+        "options": {},
         "pageSize": null,
         "scroll": true,
         "showHeader": true,
@@ -166,6 +167,147 @@
         "type": "table"
       },
       {
+        "columns": [
+          {
+            "text": "Time",
+            "value": "timestamp"
+          },
+          {
+            "text": "container_id",
+            "value": "container_id"
+          },
+          {
+            "text": "container event type",
+            "value": "type"
+          },
+          {
+            "text": "container state",
+            "value": "state"
+          },
+          {
+            "text": "container_hostname",
+            "value": "container_hostname"
+          },
+          {
+            "text": "container finished",
+            "value": "is_finished"
+          },
+          {
+            "text": "exit_status",
+            "value": "exit_status"
+          },
+          {
+            "text": "failure reason",
+            "value": "reason"
+          },
+          {
+            "text": "log_url",
+            "value": "log_url"
+          }
+        ],
+        "datasource": "$datasource",
+        "fontSize": "100%",
+        "gridPos": {
+          "h": 11,
+          "w": 24,
+          "x": 0,
+          "y": 4
+        },
+        "id": 55,
+        "links": [],
+        "options": {},
+        "pageSize": null,
+        "scroll": true,
+        "showHeader": true,
+        "sort": {
+          "col": 0,
+          "desc": true
+        },
+        "styles": [
+          {
+            "alias": "",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "pattern": "Time",
+            "type": "date"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 2,
+            "mappingType": 1,
+            "pattern": "exit_status",
+            "thresholds": [],
+            "type": "number",
+            "unit": "short"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 2,
+            "link": true,
+            "linkTargetBlank": true,
+            "linkTooltip": "${__cell:raw}",
+            "linkUrl": "${__cell:raw}",
+            "mappingType": 1,
+            "pattern": "log_url",
+            "sanitize": true,
+            "thresholds": [],
+            "type": "string",
+            "unit": "short"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "decimals": 2,
+            "pattern": "/.*/",
+            "thresholds": [],
+            "type": "string",
+            "unit": "short"
+          }
+        ],
+        "targets": [
+          {
+            "bucketAggs": [],
+            "metrics": [
+              {
+                "field": "select field",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "size": 500
+                },
+                "type": "raw_document"
+              }
+            ],
+            "query": "event_type:CONTAINER_EVENT AND tags:RESOURCEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND component:$component",
+            "refId": "A",
+            "timeField": "timestamp"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Container Events",
+        "transform": "json",
+        "type": "table"
+      },
+      {
         "aliasColors": {},
         "bars": false,
         "dashLength": 10,
@@ -176,7 +318,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 4
+          "y": 15
         },
         "id": 25,
         "legend": {
@@ -194,6 +336,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "null",
+        "options": {},
         "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
@@ -341,7 +484,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 4
+          "y": 15
         },
         "id": 47,
         "legend": {
@@ -359,6 +502,7 @@
         "linewidth": 1,
         "links": [],
         "nullPointMode": "null",
+        "options": {},
         "paceLength": 10,
         "percentage": false,
         "pointradius": 5,
@@ -501,7 +645,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 12
+          "y": 23
         },
         "id": 12,
         "panels": [
@@ -2417,7 +2561,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 13
+          "y": 24
         },
         "id": 42,
         "panels": [
@@ -3082,7 +3226,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 14
+          "y": 25
         },
         "id": 9,
         "panels": [
@@ -3368,7 +3512,9 @@
             "value": "garmadon"
           },
           "hide": 0,
+          "includeAll": false,
           "label": null,
+          "multi": false,
           "name": "datasource",
           "options": [],
           "query": "elasticsearch",
@@ -3430,8 +3576,9 @@
         {
           "allValue": "*",
           "current": {
-            "text": "org.apache.spark.examples.sql.SparkSQLExample",
-            "value": "org.apache.spark.examples.sql.SparkSQLExample"
+            "tags": [],
+            "text": "All",
+            "value": "$__all"
           },
           "datasource": "$datasource",
           "definition": "",
@@ -3455,6 +3602,7 @@
         {
           "allValue": "*",
           "current": {
+            "tags": [],
             "text": "All",
             "value": "$__all"
           },
@@ -3480,7 +3628,6 @@
         {
           "allValue": "*",
           "current": {
-            "tags": [],
             "text": "All",
             "value": "$__all"
           },
