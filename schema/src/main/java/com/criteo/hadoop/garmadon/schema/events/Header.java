@@ -50,6 +50,58 @@ public class Header {
         this.mainClass = mainClass;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public String getApplicationID() {
+        return applicationID;
+    }
+
+    public String getAttemptID() {
+        return attemptID;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public String getContainerID() {
+        return containerID;
+    }
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public String getPid() {
+        return pid;
+    }
+
+    public String getFramework() {
+        return framework;
+    }
+
+    public String getComponent() {
+        return component;
+    }
+
+    public String getExecutorId() {
+        return executorId;
+    }
+
+    public String getMainClass() {
+        return mainClass;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
     @Override
     public boolean equals(Object other) {
         if (!(other instanceof Header)) return false;
