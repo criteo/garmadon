@@ -1125,6 +1125,12 @@
     "bytes_consumed_rate": {
       "type": "double",
       "index": false
+    },
+    "rdd_name": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
     }
   }
 }
