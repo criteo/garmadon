@@ -30,14 +30,14 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
 
     //Global RDD storage
     private static class GarmadonRDDStorageInfo {
-        String name;
+        private String name;
 
-        long offHeapMemoryUsed = 0;
-        long memoryUsed = 0;
-        long diskUsed = 0;
+        private long offHeapMemoryUsed = 0;
+        private long memoryUsed = 0;
+        private long diskUsed = 0;
 
-        HashMap<String, GarmadonRDDStorageDistribution> distributions = new HashMap<>();
-        HashMap<String, RDDPartition> partitions = new HashMap<>();
+        private HashMap<String, GarmadonRDDStorageDistribution> distributions = new HashMap<>();
+        private HashMap<String, RDDPartition> partitions = new HashMap<>();
 
         GarmadonRDDStorageInfo(String name) {
             this.name = name;
@@ -46,11 +46,11 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
 
     //Per executor RDD storage
     private static class GarmadonRDDStorageDistribution {
-        String executorId;
+        private String executorId;
 
-        long offHeapMemoryUsed = 0;
-        long memoryUsed = 0;
-        long diskUsed = 0;
+        private long offHeapMemoryUsed = 0;
+        private long memoryUsed = 0;
+        private long diskUsed = 0;
 
         GarmadonRDDStorageDistribution(String executorId) {
             this.executorId = executorId;
@@ -58,26 +58,26 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
     }
 
     private static class RDDPartition {
-        HashSet<String> executors = new HashSet<>();
+        private HashSet<String> executors = new HashSet<>();
     }
 
     //Global executor storage
     private static class GarmadonExecutorStorageInfo {
-        String host;
+        private String host;
 
-        long rddOffHeapMemoryUsed = 0;
-        long rddMemoryUsed = 0;
-        long rddDiskUsed = 0;
+        private long rddOffHeapMemoryUsed = 0;
+        private long rddMemoryUsed = 0;
+        private long rddDiskUsed = 0;
 
-        long streamOffHeapMemoryUsed = 0;
-        long streamMemoryUsed = 0;
-        long streamDiskUsed = 0;
+        private long streamOffHeapMemoryUsed = 0;
+        private long streamMemoryUsed = 0;
+        private long streamDiskUsed = 0;
 
-        long broadcastOffHeapMemoryUsed = 0;
-        long broadcastMemoryUsed = 0;
-        long broadcastDiskUsed = 0;
+        private long broadcastOffHeapMemoryUsed = 0;
+        private long broadcastMemoryUsed = 0;
+        private long broadcastDiskUsed = 0;
 
-        int rddBlocks = 0;
+        private int rddBlocks = 0;
 
         GarmadonExecutorStorageInfo(String host) {
             this.host = host;
@@ -175,7 +175,8 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
         }
     }
 
-    private void updateRDDMemoryStatus(RDDBlockId blockId, StorageLevel storageLevel, String executorId, long diskDelta, long memoryDelta, long offHeapMemoryDelta) {
+    private void updateRDDMemoryStatus(RDDBlockId blockId, StorageLevel storageLevel, String executorId,
+                                       long diskDelta, long memoryDelta, long offHeapMemoryDelta) {
         GarmadonRDDStorageInfo rddInfo = liveRDDs.get(blockId.rddId());
         if (rddInfo != null) {
             //Global info

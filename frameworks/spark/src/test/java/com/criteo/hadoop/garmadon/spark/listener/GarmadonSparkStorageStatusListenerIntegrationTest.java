@@ -5,7 +5,6 @@ import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
-import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.broadcast.Broadcast;
@@ -14,13 +13,16 @@ import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import scala.Tuple2;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -34,18 +36,18 @@ public class GarmadonSparkStorageStatusListenerIntegrationTest {
     private GarmadonSparkStorageStatusListener sparkListener;
 
     private static class RDDInfo {
-        long offHeap;
-        long memory;
-        long disk;
+        private long offHeap;
+        private long memory;
+        private long disk;
     }
 
     private static class ExecutorInfo {
-        long rddOffHeap;
-        long rddMemory;
-        long rddDisk;
-        long broadcastOffHeap;
-        long broadcastMemory;
-        long broadcastDisk;
+        private long rddOffHeap;
+        private long rddMemory;
+        private long rddDisk;
+        private long broadcastOffHeap;
+        private long broadcastMemory;
+        private long broadcastDisk;
     }
 
     private HashMap<String, RDDInfo> rdds;
