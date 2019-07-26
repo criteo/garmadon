@@ -128,8 +128,6 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
                 });
             });
         }
-
-        fireEvents(System.currentTimeMillis());
     }
 
     @Override
@@ -143,24 +141,12 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
         liveRDDs.values().forEach(info -> info.distributions.remove(event.executorId()));
     }
 
-    /**
-     * onBlockUpdated would fire way too many events while giving a precision not needed so far
-     * onTaskEnd is used as the trigger to send events (one per rdd and one per executor)
-     * Doing so, we avoid a mechanism based on another thread firing events at a regular rate
-     * thus we avoid synchronization
-     */
-    @Override
-    public void onTaskEnd(SparkListenerTaskEnd taskEnd) {
-        fireEvents(taskEnd.taskInfo().finishTime());
-    }
-
     @Override
     public void onBlockUpdated(SparkListenerBlockUpdated event) {
         StorageLevel storageLevel = event.blockUpdatedInfo().storageLevel();
         long diskDelta = event.blockUpdatedInfo().diskSize() * (storageLevel.useDisk() ? 1 : -1);
         long memoryDelta = storageLevel.useOffHeap() ? 0 : event.blockUpdatedInfo().memSize() * (storageLevel.useMemory() ? 1 : -1);
         long offHeapMemoryDelta = storageLevel.useOffHeap() ? event.blockUpdatedInfo().memSize() * (storageLevel.useMemory() ? 1 : -1) : 0;
-
         BlockId blockId = event.blockUpdatedInfo().blockId();
         String executorId = event.blockUpdatedInfo().blockManagerId().executorId();
         if (blockId instanceof RDDBlockId) {
@@ -183,6 +169,8 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
             rddInfo.offHeapMemoryUsed = addDelta(rddInfo.offHeapMemoryUsed, offHeapMemoryDelta);
             rddInfo.memoryUsed = addDelta(rddInfo.memoryUsed, memoryDelta);
             rddInfo.diskUsed = addDelta(rddInfo.diskUsed, diskDelta);
+
+            sendRDDStorageStatusEvent(System.currentTimeMillis(), rddInfo);
 
             //partition update, one partition == one block
             RDDPartition partition = rddInfo.partitions.computeIfAbsent(blockId.name(), key -> new RDDPartition());
@@ -229,6 +217,8 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
             executorInfo.rddOffHeapMemoryUsed = addDelta(executorInfo.rddOffHeapMemoryUsed, offHeapMemoryDelta);
             executorInfo.rddMemoryUsed = addDelta(executorInfo.rddMemoryUsed, memoryDelta);
             executorInfo.rddDiskUsed = addDelta(executorInfo.rddDiskUsed, diskDelta);
+
+            sendExecutorStorageStatusEvent(System.currentTimeMillis(), executorId, executorInfo);
         }
     }
 
@@ -238,6 +228,8 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
             executorInfo.streamOffHeapMemoryUsed = addDelta(executorInfo.streamOffHeapMemoryUsed, offHeapMemoryDelta);
             executorInfo.streamMemoryUsed = addDelta(executorInfo.streamMemoryUsed, memoryDelta);
             executorInfo.streamDiskUsed = addDelta(executorInfo.streamDiskUsed, diskDelta);
+
+            sendExecutorStorageStatusEvent(System.currentTimeMillis(), executorId, executorInfo);
         }
     }
 
@@ -247,6 +239,8 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
             executorInfo.broadcastOffHeapMemoryUsed = addDelta(executorInfo.broadcastOffHeapMemoryUsed, offHeapMemoryDelta);
             executorInfo.broadcastMemoryUsed = addDelta(executorInfo.broadcastMemoryUsed, memoryDelta);
             executorInfo.broadcastDiskUsed = addDelta(executorInfo.broadcastDiskUsed, diskDelta);
+
+            sendExecutorStorageStatusEvent(System.currentTimeMillis(), executorId, executorInfo);
         }
     }
 
