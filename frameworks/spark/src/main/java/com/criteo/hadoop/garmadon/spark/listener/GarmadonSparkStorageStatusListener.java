@@ -10,6 +10,8 @@ import scala.collection.Iterator;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import static com.criteo.hadoop.garmadon.spark.listener.ScalaUtils.emptyStringSupplier;
+
 /**
  * There is a complexity due to the tracking of blocks per executor
  * Maybe it is not usefull as it seems to only remove object from structure
@@ -99,8 +101,8 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
     @Override
     public void onApplicationStart(SparkListenerApplicationStart applicationStart) {
         header = header.cloneAndOverride(Header.newBuilder()
-            .withApplicationID(applicationStart.appId().getOrElse(() -> ""))
-            .withAttemptID(applicationStart.appAttemptId().getOrElse(() -> ""))
+            .withApplicationID(applicationStart.appId().getOrElse(emptyStringSupplier))
+            .withAttemptID(applicationStart.appAttemptId().getOrElse(emptyStringSupplier))
             .withApplicationName(applicationStart.appName())
             .build())
             .toSerializeHeader();
