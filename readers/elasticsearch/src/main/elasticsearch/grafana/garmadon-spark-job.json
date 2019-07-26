@@ -648,15 +648,15 @@
         "repeatDirection": "v",
         "seriesOverrides": [
           {
-            "alias": "Average memory_used",
+            "alias": "memory_used",
             "color": "#96D98D"
           },
           {
-            "alias": "Average off_heap_memory_used",
+            "alias": "off_heap_memory_used",
             "color": "#37872D"
           },
           {
-            "alias": "Average disk_used",
+            "alias": "disk_used",
             "color": "#F2495C"
           }
         ],
