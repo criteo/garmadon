@@ -12,7 +12,7 @@ public interface StatisticsSink<T> {
 
     StatisticsSink<T> addSize(String property, long sizeInBytes);
 
-    StatisticsSink<T> addPercentage(String property, int percent);
+    StatisticsSink<T> addPercentage(String property, float percent);
 
     StatisticsSink<T> add(String property, String value);
 

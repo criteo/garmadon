@@ -31,7 +31,7 @@ public class ProtobufStatisticsSink implements StatisticsSink<JVMStatisticsEvent
     }
 
     @Override
-    public StatisticsSink<JVMStatisticsEventsProtos.JVMStatisticsData> addPercentage(String property, int percent) {
+    public StatisticsSink<JVMStatisticsEventsProtos.JVMStatisticsData> addPercentage(String property, float percent) {
         return add("%" + property, String.valueOf(percent));
     }
 

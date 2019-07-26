@@ -40,7 +40,7 @@ public class StatisticsLogTest {
         statisticsLog.addPercentage("percentageName", 100);
         statisticsLog.addSize("sizeName", 1025);
         statisticsLog.endSection();
-        Assert.assertEquals("section[strName=strValue, intName=2147483647, longName=9223372036854775807, durationName=42, %percentageName=100, sizeName=1]", statisticsLog.flush());
+        Assert.assertEquals("section[strName=strValue, intName=2147483647, longName=9223372036854775807, durationName=42, %percentageName=100.0, sizeName=1]", statisticsLog.flush());
         // flush should have call reset
         Assert.assertEquals("", statisticsLog.flush());
     }
