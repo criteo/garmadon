@@ -1,5 +1,7 @@
 package com.criteo.hadoop.garmadon.jvm;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import java.io.Closeable;
 
 /**
@@ -26,6 +28,11 @@ public abstract class AbstractStatistic implements Closeable {
 
     public void close() {
 
+    }
+
+    @VisibleForTesting
+    public static float computeCpuPercentage(long prevCpu, long currentCpu, int processors, long prevTimeStamp, long currentTimeStamp) {
+        return ((float) (currentCpu - prevCpu) / (currentTimeStamp - prevTimeStamp)) / processors * 100; // CPU percentage consumed during 2 collects
     }
 
     @Override

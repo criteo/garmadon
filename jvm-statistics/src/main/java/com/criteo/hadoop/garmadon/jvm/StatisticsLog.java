@@ -37,7 +37,7 @@ public class StatisticsLog implements StatisticsSink<String> {
     }
 
     @Override
-    public StatisticsLog addPercentage(String property, int percent) {
+    public StatisticsLog addPercentage(String property, float percent) {
         add("%" + property, String.valueOf(percent));
         return this;
     }

@@ -13,6 +13,8 @@ public class MXBeanStatistics {
     protected static final String HEAP_HEADER = "heap";
     protected static final String NON_HEAP_HEADER = "nonheap";
 
+    private static final String OS_NAME = System.getProperty("os.name") != null ? System.getProperty("os.name") : "";
+
     private final Conf conf;
 
     public MXBeanStatistics(Conf conf) {
