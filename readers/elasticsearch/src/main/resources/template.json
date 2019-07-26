@@ -14,7 +14,7 @@
       "percent": {
         "match": "*_%*",
         "mapping": {
-          "type": "short",
+          "type": "float",
           "index": false
         }
       }
@@ -335,6 +335,10 @@
     },
     "gc(PS Scavenge)_time": {
       "type": "long",
+      "index": false
+    },
+    "gc_pause_ratio_1_min": {
+      "type": "float",
       "index": false
     },
     "hdfs_user": {
