@@ -5,8 +5,6 @@ import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import org.apache.spark.scheduler.*;
 import org.apache.spark.storage.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import scala.collection.Iterator;
 
 import java.util.HashMap;
@@ -21,7 +19,7 @@ import java.util.HashSet;
 public class GarmadonSparkStorageStatusListener extends SparkListener {
 
     private final TriConsumer<Long, Header, Object> eventHandler;
-    private final Header.SerializedHeader header;
+    private Header.SerializedHeader header;
 
     private final HashMap<Integer, GarmadonRDDStorageInfo> liveRDDs = new HashMap<>();
     private final HashMap<String, GarmadonExecutorStorageInfo> liveExecutors = new HashMap<>();
@@ -94,6 +92,23 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
         liveExecutors.put("driver", new GarmadonExecutorStorageInfo(header.getHostname()));
     }
 
+
+    /**
+     * capture app info for the header when the driver is not in yarn cluster
+     */
+    @Override
+    public void onApplicationStart(SparkListenerApplicationStart applicationStart) {
+        header = header.cloneAndOverride(Header.newBuilder()
+            .withApplicationID(applicationStart.appId().getOrElse(() -> ""))
+            .withAttemptID(applicationStart.appAttemptId().getOrElse(() -> ""))
+            .withApplicationName(applicationStart.appName())
+            .build())
+            .toSerializeHeader();
+    }
+
+    /**
+     * capture new rdd information
+     */
     @Override
     public void onStageSubmitted(SparkListenerStageSubmitted event) {
         Iterator<RDDInfo> it = event.stageInfo().rddInfos().iterator();
@@ -106,7 +121,7 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
     }
 
     /**
-     * Unpersist can happen outside of a RDD computation, thus we fire events also at this moment
+     * capture rdd removed from persistence
      */
     @Override
     public void onUnpersistRDD(SparkListenerUnpersistRDD event) {
@@ -135,17 +150,27 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
         }
     }
 
+    /**
+     * capture new executor info
+     */
     @Override
     public void onExecutorAdded(SparkListenerExecutorAdded event) {
         liveExecutors.computeIfAbsent(event.executorId(), key -> new GarmadonExecutorStorageInfo(event.executorInfo().executorHost()));
     }
 
+    /**
+     * capture removal of executor
+     */
     @Override
     public void onExecutorRemoved(SparkListenerExecutorRemoved event) {
         liveExecutors.remove(event.executorId());
         liveRDDs.values().forEach(info -> info.distributions.remove(event.executorId()));
     }
 
+    /**
+     * capture persistence mutation. Different types of blocs can be updated,, they either concern RDD, in which case we update both rdd and executor info,
+     * or just executors (stream, broadcast, etc...)
+     */
     @Override
     public void onBlockUpdated(SparkListenerBlockUpdated event) {
         StorageLevel storageLevel = event.blockUpdatedInfo().storageLevel();
