@@ -84,7 +84,11 @@ public class ProtoConcatenator {
                 Map<String, Object> concatMap = new HashMap<>(keys.size());
                 if (includeDefaultValueFields) {
                     for (Descriptors.FieldDescriptor fieldDescriptor : keys) {
-                        concatMap.put(fieldDescriptor.getName(), getRealFieldValue(fieldDescriptor.getDefaultValue()));
+                        if (fieldDescriptor.isMapField()) {
+                            concatMap.put(fieldDescriptor.getName(), new HashMap<Object, Object>());
+                        } else {
+                            concatMap.put(fieldDescriptor.getName(), getRealFieldValue(fieldDescriptor.getDefaultValue()));
+                        }
                     }
                 }
                 concatMap.put(TIMESTAMP_FIELD_NAME, timestampMillis);
@@ -203,7 +207,7 @@ public class ProtoConcatenator {
     }
 
     private static Object getRealFieldValue(Object valueObject) {
-        if (valueObject instanceof Descriptors.EnumValueDescriptor) {
+        if (valueObject != null && valueObject instanceof Descriptors.EnumValueDescriptor) {
             return ((Descriptors.EnumValueDescriptor) valueObject).getName();
         } else {
             return valueObject;

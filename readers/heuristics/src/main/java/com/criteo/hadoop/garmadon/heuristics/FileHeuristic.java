@@ -18,6 +18,7 @@ public class FileHeuristic implements Heuristic {
     protected final Counters append = new Counters("Files appended");
     protected final Counters listStatus = new Counters("List status performed");
     protected final Counters addBlock = new Counters("Blocks added");
+    protected final Counters getContentSummary = new Counters("Content summary retrieved");
 
     private final HeuristicsResultDB db;
     private final int maxCreatedFiles;
@@ -45,6 +46,15 @@ public class FileHeuristic implements Heuristic {
                     break;
                 case APPEND:
                     append.forApp(applicationId, attemptId).increment();
+                    break;
+                case ADD_BLOCK:
+                    addBlock.forApp(applicationId, attemptId).increment();
+                    break;
+                case LIST_STATUS:
+                    listStatus.forApp(applicationId, attemptId).increment();
+                    break;
+                case GET_CONTENT_SUMMARY:
+                    getContentSummary.forApp(applicationId, attemptId).increment();
                     break;
                 default:
                     throw new IllegalArgumentException("Received a non managed FsEvent.Action " + action.name());
@@ -82,6 +92,7 @@ public class FileHeuristic implements Heuristic {
         addDetail(result, append, applicationId, attemptId);
         addDetail(result, listStatus, applicationId, attemptId);
         addDetail(result, addBlock, applicationId, attemptId);
+        addDetail(result, getContentSummary, applicationId, attemptId);
         db.createHeuristicResult(result);
     }
 
