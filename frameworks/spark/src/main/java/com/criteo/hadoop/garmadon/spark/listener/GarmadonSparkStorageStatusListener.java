@@ -20,8 +20,6 @@ import java.util.HashSet;
  */
 public class GarmadonSparkStorageStatusListener extends SparkListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonSparkStorageStatusListener.class);
-
     private final TriConsumer<Long, Header, Object> eventHandler;
     private final Header.SerializedHeader header;
 
@@ -127,6 +125,13 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
                     }
                 });
             });
+
+            //there will not be any blockUpdated event, so fire an event with size set to 0
+            info.diskUsed = 0;
+            info.memoryUsed = 0;
+            info.offHeapMemoryUsed = 0;
+
+            sendRDDStorageStatusEvent(System.currentTimeMillis(), info);
         }
     }
 
@@ -170,8 +175,6 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
             rddInfo.memoryUsed = addDelta(rddInfo.memoryUsed, memoryDelta);
             rddInfo.diskUsed = addDelta(rddInfo.diskUsed, diskDelta);
 
-            sendRDDStorageStatusEvent(System.currentTimeMillis(), rddInfo);
-
             //partition update, one partition == one block
             RDDPartition partition = rddInfo.partitions.computeIfAbsent(blockId.name(), key -> new RDDPartition());
 
@@ -208,6 +211,8 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
                 //update executor number of blocks
                 exec.rddBlocks += blockDelta;
             }
+
+            sendRDDStorageStatusEvent(System.currentTimeMillis(), rddInfo);
         }
     }
 
@@ -247,11 +252,6 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
     //Uses same mechanics as spark's AppStatusListener
     private long addDelta(long value, long delta) {
         return Math.max(0, value + delta);
-    }
-
-    private void fireEvents(Long timestamp) {
-        liveRDDs.forEach((id, rddInfo) -> sendRDDStorageStatusEvent(timestamp, rddInfo));
-        liveExecutors.forEach((id, executorInfo) -> sendExecutorStorageStatusEvent(timestamp, id, executorInfo));
     }
 
     private void sendRDDStorageStatusEvent(Long timestamp, GarmadonRDDStorageInfo rddInfo) {
