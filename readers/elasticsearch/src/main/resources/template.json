@@ -197,6 +197,12 @@
       "type": "long",
       "index": false
     },
+    "container_hostname": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
     "container_id": {
       "type": "keyword",
       "norms": false,
@@ -294,10 +300,17 @@
       "type": "long",
       "index": false
     },
+    "exit_status": {
+      "type": "integer",
+      "index": false
+    },
     "failure_reason": {
       "type": "text",
       "norms": false,
       "index_options": "freqs"
+    },
+    "finish_time": {
+      "type": "date"
     },
     "framework": {
       "type": "keyword",
@@ -377,6 +390,9 @@
       "type": "long",
       "index": false
     },
+    "is_finished": {
+      "type": "boolean"
+    },
     "jvm_gc_time": {
       "type": "long",
       "index": false
@@ -390,6 +406,10 @@
       "norms": false,
       "index_options": "freqs",
       "eager_global_ordinals": true
+    },
+    "log_url": {
+      "type": "text",
+      "norms": false
     },
     "machinecpu_ctxtswitches": {
       "type": "long",
@@ -411,6 +431,10 @@
     },
     "memory_physical": {
       "type": "integer",
+      "index": false
+    },
+    "memory_seconds": {
+      "type": "long",
       "index": false
     },
     "memory_swap": {
@@ -806,6 +830,10 @@
       "index_options": "freqs"
     },
     "tx": {
+      "type": "long",
+      "index": false
+    },
+    "vcore_seconds": {
       "type": "long",
       "index": false
     },

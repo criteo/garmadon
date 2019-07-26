@@ -29,6 +29,7 @@ public class GarmadonSerialization {
         int SPARK_EXECUTOR_STATE_EVENT = 3002;
         int SPARK_TASK_EVENT = 3003;
         int APPLICATION_EVENT = 4000;
+        int CONTAINER_EVENT = 4001;
         int FLINK_JOB_MANAGER_EVENT = 5000;
         int FLINK_JOB_EVENT = 5001;
         int FLINK_TASK_MANAGER_EVENT = 5002;
@@ -89,6 +90,8 @@ public class GarmadonSerialization {
         // resourcemanager events
         register(ResourceManagerEventProtos.ApplicationEvent.class, TypeMarker.APPLICATION_EVENT, "APPLICATION_EVENT",
                 ResourceManagerEventProtos.ApplicationEvent::toByteArray, ResourceManagerEventProtos.ApplicationEvent::parseFrom);
+        register(ResourceManagerEventProtos.ContainerEvent.class, TypeMarker.CONTAINER_EVENT, "CONTAINER_EVENT",
+            ResourceManagerEventProtos.ContainerEvent::toByteArray, ResourceManagerEventProtos.ContainerEvent::parseFrom);
     }
 
     protected GarmadonSerialization() {

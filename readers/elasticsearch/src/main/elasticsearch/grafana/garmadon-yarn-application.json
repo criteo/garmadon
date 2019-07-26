@@ -167,6 +167,147 @@
         "type": "table"
       },
       {
+        "columns": [
+          {
+            "text": "Time",
+            "value": "timestamp"
+          },
+          {
+            "text": "container_id",
+            "value": "container_id"
+          },
+          {
+            "text": "event type",
+            "value": "type"
+          },
+          {
+            "text": "state",
+            "value": "state"
+          },
+          {
+            "text": "container_hostname",
+            "value": "container_hostname"
+          },
+          {
+            "text": "container finished",
+            "value": "is_finished"
+          },
+          {
+            "text": "exit_status",
+            "value": "exit_status"
+          },
+          {
+            "text": "failure reason",
+            "value": "reason"
+          },
+          {
+            "text": "log_url",
+            "value": "log_url"
+          }
+        ],
+        "datasource": "$datasource",
+        "fontSize": "100%",
+        "gridPos": {
+          "h": 10,
+          "w": 24,
+          "x": 0,
+          "y": 4
+        },
+        "id": 59,
+        "links": [],
+        "options": {},
+        "pageSize": null,
+        "scroll": true,
+        "showHeader": true,
+        "sort": {
+          "col": 0,
+          "desc": true
+        },
+        "styles": [
+          {
+            "alias": "Time",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "pattern": "timestamp",
+            "type": "date"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 2,
+            "mappingType": 1,
+            "pattern": "exit_status",
+            "thresholds": [],
+            "type": "number",
+            "unit": "short"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "decimals": 2,
+            "link": true,
+            "linkTargetBlank": true,
+            "linkTooltip": "${__cell:raw}",
+            "linkUrl": "${__cell:raw}",
+            "mappingType": 1,
+            "pattern": "log_url",
+            "sanitize": true,
+            "thresholds": [],
+            "type": "string",
+            "unit": "short"
+          },
+          {
+            "alias": "",
+            "colorMode": null,
+            "colors": [
+              "rgba(245, 54, 54, 0.9)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(50, 172, 45, 0.97)"
+            ],
+            "decimals": 2,
+            "pattern": "/.*/",
+            "thresholds": [],
+            "type": "string",
+            "unit": "short"
+          }
+        ],
+        "targets": [
+          {
+            "bucketAggs": [],
+            "metrics": [
+              {
+                "field": "select field",
+                "id": "1",
+                "meta": {},
+                "settings": {
+                  "size": 500
+                },
+                "type": "raw_document"
+              }
+            ],
+            "query": "event_type:CONTAINER_EVENT AND tags:RESOURCEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND component:$component",
+            "refId": "A",
+            "timeField": "timestamp"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Container Events",
+        "transform": "json",
+        "type": "table"
+      },
+      {
         "aliasColors": {},
         "bars": false,
         "dashLength": 10,
@@ -177,7 +318,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 4
+          "y": 14
         },
         "id": 54,
         "legend": {
@@ -315,7 +456,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 4
+          "y": 14
         },
         "id": 55,
         "legend": {
@@ -453,7 +594,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 12
+          "y": 22
         },
         "id": 25,
         "legend": {
@@ -629,7 +770,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 12
+          "y": 22
         },
         "id": 47,
         "legend": {
@@ -804,7 +945,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 20
+          "y": 30
         },
         "id": 56,
         "legend": {
@@ -831,7 +972,7 @@
         "renderer": "flot",
         "repeat": null,
         "repeatDirection": "v",
-        "repeatIteration": 1563863456970,
+        "repeatIteration": 1564138075957,
         "repeatPanelId": 25,
         "scopedVars": {
           "component": {
@@ -982,184 +1123,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 20
-        },
-        "id": 58,
-        "legend": {
-          "alignAsTable": true,
-          "avg": false,
-          "current": false,
-          "max": false,
-          "min": false,
-          "rightSide": true,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "null",
-        "options": {},
-        "paceLength": 10,
-        "percentage": false,
-        "pointradius": 5,
-        "points": false,
-        "renderer": "flot",
-        "repeat": null,
-        "repeatDirection": "v",
-        "repeatIteration": 1563863456970,
-        "repeatPanelId": 47,
-        "scopedVars": {
-          "component": {
-            "selected": false,
-            "text": "MAP",
-            "value": "MAP"
-          }
-        },
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": false,
-        "targets": [
-          {
-            "alias": "avg used",
-            "bucketAggs": [
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "10s",
-                  "min_doc_count": 0,
-                  "trimEdges": 0
-                },
-                "type": "date_histogram"
-              }
-            ],
-            "metrics": [
-              {
-                "field": "value",
-                "id": "1",
-                "meta": {},
-                "settings": {},
-                "type": "avg"
-              }
-            ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
-            "refId": "A",
-            "target": "",
-            "timeField": "timestamp"
-          },
-          {
-            "alias": "max used",
-            "bucketAggs": [
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "10s",
-                  "min_doc_count": 0,
-                  "trimEdges": 0
-                },
-                "type": "date_histogram"
-              }
-            ],
-            "metrics": [
-              {
-                "field": "value",
-                "id": "1",
-                "meta": {},
-                "settings": {},
-                "type": "max"
-              }
-            ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
-            "refId": "C",
-            "target": "",
-            "timeField": "timestamp"
-          },
-          {
-            "alias": "limit",
-            "bucketAggs": [
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "10s",
-                  "min_doc_count": 0,
-                  "trimEdges": 0
-                },
-                "type": "date_histogram"
-              }
-            ],
-            "metrics": [
-              {
-                "field": "limit",
-                "id": "1",
-                "meta": {},
-                "settings": {},
-                "type": "max"
-              }
-            ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:MEMORY AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
-            "refId": "B",
-            "target": "",
-            "timeField": "timestamp"
-          }
-        ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeRegions": [],
-        "timeShift": null,
-        "title": "Memory Per $component Container",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "format": "bytes",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": "0",
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "datasource": "$datasource",
-        "fill": 1,
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 0,
-          "y": 28
+          "y": 30
         },
         "id": 57,
         "legend": {
@@ -1176,7 +1140,6 @@
         "lines": true,
         "linewidth": 1,
         "links": [],
-        "maxPerRow": 12,
         "nullPointMode": "null",
         "options": {},
         "paceLength": 10,
@@ -1186,190 +1149,13 @@
         "renderer": "flot",
         "repeat": null,
         "repeatDirection": "v",
-        "repeatIteration": 1563863456970,
-        "repeatPanelId": 25,
-        "scopedVars": {
-          "component": {
-            "selected": false,
-            "text": "REDUCE",
-            "value": "REDUCE"
-          }
-        },
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": false,
-        "targets": [
-          {
-            "alias": "avg used",
-            "bucketAggs": [
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "10s",
-                  "min_doc_count": 0,
-                  "trimEdges": 0
-                },
-                "type": "date_histogram"
-              }
-            ],
-            "metrics": [
-              {
-                "field": "value",
-                "id": "1",
-                "meta": {},
-                "settings": {},
-                "type": "avg"
-              }
-            ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
-            "refId": "A",
-            "target": "",
-            "timeField": "timestamp"
-          },
-          {
-            "alias": "max used",
-            "bucketAggs": [
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "10s",
-                  "min_doc_count": 0,
-                  "trimEdges": 0
-                },
-                "type": "date_histogram"
-              }
-            ],
-            "metrics": [
-              {
-                "field": "value",
-                "id": "1",
-                "meta": {},
-                "settings": {},
-                "type": "max"
-              }
-            ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
-            "refId": "C",
-            "target": "",
-            "timeField": "timestamp"
-          },
-          {
-            "alias": "requested",
-            "bucketAggs": [
-              {
-                "field": "timestamp",
-                "id": "2",
-                "settings": {
-                  "interval": "10s",
-                  "min_doc_count": 0,
-                  "trimEdges": 0
-                },
-                "type": "date_histogram"
-              }
-            ],
-            "metrics": [
-              {
-                "field": "limit",
-                "id": "1",
-                "meta": {},
-                "settings": {},
-                "type": "max"
-              }
-            ],
-            "query": "event_type:CONTAINER_MONITORING_EVENT AND type:VCORE AND tags:NODEMANAGER AND application_id:$application_id AND application_name.keyword:$application_name AND container_id:$container_id AND hostname:$hostname AND component:$component AND username:$username",
-            "refId": "B",
-            "target": "",
-            "timeField": "timestamp"
-          }
-        ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeRegions": [],
-        "timeShift": null,
-        "title": "Vcore Per $component Container",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": "0",
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "datasource": "$datasource",
-        "fill": 1,
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 12,
-          "y": 28
-        },
-        "id": 59,
-        "legend": {
-          "alignAsTable": true,
-          "avg": false,
-          "current": false,
-          "max": false,
-          "min": false,
-          "rightSide": true,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "null",
-        "options": {},
-        "paceLength": 10,
-        "percentage": false,
-        "pointradius": 5,
-        "points": false,
-        "renderer": "flot",
-        "repeat": null,
-        "repeatDirection": "v",
-        "repeatIteration": 1563863456970,
+        "repeatIteration": 1564138075957,
         "repeatPanelId": 47,
         "scopedVars": {
           "component": {
             "selected": false,
-            "text": "REDUCE",
-            "value": "REDUCE"
+            "text": "MAP",
+            "value": "MAP"
           }
         },
         "seriesOverrides": [],
@@ -1509,7 +1295,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 36
+          "y": 38
         },
         "id": 12,
         "panels": [
@@ -1524,7 +1310,7 @@
               "h": 7,
               "w": 24,
               "x": 0,
-              "y": 37
+              "y": 39
             },
             "id": 48,
             "legend": {
@@ -1646,7 +1432,7 @@
               "h": 8,
               "w": 8,
               "x": 0,
-              "y": 44
+              "y": 46
             },
             "id": 15,
             "legend": {
@@ -1796,7 +1582,7 @@
               "h": 8,
               "w": 8,
               "x": 8,
-              "y": 44
+              "y": 46
             },
             "id": 24,
             "legend": {
@@ -1918,7 +1704,7 @@
               "h": 8,
               "w": 8,
               "x": 16,
-              "y": 44
+              "y": 46
             },
             "id": 40,
             "legend": {
@@ -2042,7 +1828,7 @@
               "h": 10,
               "w": 24,
               "x": 0,
-              "y": 52
+              "y": 54
             },
             "id": 27,
             "legend": {
@@ -2165,7 +1951,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 62
+              "y": 64
             },
             "id": 53,
             "legend": {
@@ -2487,7 +2273,7 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 62
+              "y": 64
             },
             "id": 32,
             "legend": {
@@ -2871,7 +2657,7 @@
               "h": 10,
               "w": 24,
               "x": 0,
-              "y": 70
+              "y": 72
             },
             "id": 52,
             "links": [],
@@ -2988,7 +2774,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 80
+              "y": 82
             },
             "id": 26,
             "legend": {
@@ -3110,7 +2896,7 @@
               "h": 8,
               "w": 12,
               "x": 12,
-              "y": 80
+              "y": 82
             },
             "id": 29,
             "legend": {
@@ -3241,7 +3027,7 @@
               "h": 8,
               "w": 12,
               "x": 0,
-              "y": 88
+              "y": 90
             },
             "id": 31,
             "legend": {
@@ -3362,7 +3148,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 37
+          "y": 39
         },
         "id": 42,
         "panels": [
@@ -4027,7 +3813,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 38
+          "y": 40
         },
         "id": 9,
         "panels": [

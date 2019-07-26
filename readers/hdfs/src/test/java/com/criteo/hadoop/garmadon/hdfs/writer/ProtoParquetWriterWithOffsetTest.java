@@ -320,7 +320,7 @@ public class ProtoParquetWriterWithOffsetTest {
     }
 
     private ProtoParquetWriterWithOffset writeParquetFile2(FileSystem localFs, Path basePath, Path fileName, HdfsOffsetComputer hdfsOffsetComputer) throws IOException {
-        ProtoParquetWriter<Message> writer = new ProtoParquetWriter<>(fileName, EventsWithHeader.ContainerEvent.class, CompressionCodecName.SNAPPY,
+        ProtoParquetWriter<Message> writer = new ProtoParquetWriter<>(fileName, EventsWithHeader.ContainerResourceEvent.class, CompressionCodecName.SNAPPY,
             1_024 * 1_024, 1_024 * 1_024);
 
         final ProtoParquetWriterWithOffset parquetWriter = spy(new ProtoParquetWriterWithOffset<>(writer,

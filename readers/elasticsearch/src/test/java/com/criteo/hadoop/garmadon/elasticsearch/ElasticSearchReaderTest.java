@@ -131,6 +131,8 @@ public class ElasticSearchReaderTest {
         eventMap.put("yarn_tags", new ArrayList<>());
         eventMap.put("project_name", "");
         eventMap.put("workflow_name", "");
+        eventMap.put("memory_seconds", 0);
+        eventMap.put("vcore_seconds", 0);
 
         writeGarmadonMessage(type, event, 0L);
         verify(bulkProcessor, times(1)).add(argument.capture(), any(CommittableOffset.class));
