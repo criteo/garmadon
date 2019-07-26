@@ -637,7 +637,7 @@
         "lines": true,
         "linewidth": 1,
         "links": [],
-        "nullPointMode": "null",
+        "nullPointMode": "connected",
         "options": {},
         "paceLength": 10,
         "percentage": false,
@@ -769,7 +769,7 @@
         },
         "yaxes": [
           {
-            "format": "short",
+            "format": "decbytes",
             "label": null,
             "logBase": 1,
             "max": null,
