@@ -31,4 +31,5 @@ message GCStatisticsData {
     int64 code_after = 11;
     int64 metaspace_before = 12;
     int64 metaspace_after = 13;
+    float gc_pause_ratio_1_min = 14;
 }

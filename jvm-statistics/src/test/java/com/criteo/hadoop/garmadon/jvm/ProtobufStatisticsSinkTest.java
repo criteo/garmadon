@@ -89,7 +89,7 @@ public class ProtobufStatisticsSinkTest {
                 "  }\n" +
                 "  property \\{\n" +
                 "    name: \"%percentageName\"\n" +
-                "    value: \"100\"\n" +
+                "    value: \"100.0\"\n" +
                 "  }\n" +
                 "  property \\{\n" +
                 "    name: \"sizeName\"\n" +

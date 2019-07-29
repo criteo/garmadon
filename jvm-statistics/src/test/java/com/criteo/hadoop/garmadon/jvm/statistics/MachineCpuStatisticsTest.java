@@ -13,6 +13,6 @@ public class MachineCpuStatisticsTest {
         long[] ticks = new long[] {12, 34, 56, 78, 90, 21, 43, 65, 0};
         StatisticsLog sink = new StatisticsLog();
         MachineCpuStatistics.collectCpuTicks(ticks, prevTicks, sink);
-        Assert.assertEquals("%user=4, %nice=10, %sys=17, %idle=23, %iowait=27, %irq=6, %softirq=13", sink.toString());
+        Assert.assertEquals("%user=4.0, %nice=10.0, %sys=17.0, %idle=23.0, %iowait=27.0, %irq=6.0, %softirq=13.0", sink.toString());
     }
 }

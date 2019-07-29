@@ -306,7 +306,7 @@ public class HdfsExporter {
         addTypeMapping(out, GarmadonSerialization.TypeMarker.GC_EVENT, "gc", EventsWithHeader.GCStatisticsData.class,
             JVMStatisticsEventsProtos.GCStatisticsData.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.CONTAINER_MONITORING_EVENT, "container",
-            EventsWithHeader.ContainerEvent.class, ContainerEventProtos.ContainerResourceEvent.newBuilder());
+            EventsWithHeader.ContainerResourceEvent.class, ContainerEventProtos.ContainerResourceEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.SPARK_STAGE_EVENT, "spark_stage",
             EventsWithHeader.SparkStageEvent.class, SparkEventProtos.StageEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.SPARK_STAGE_STATE_EVENT, "spark_stage_state",
@@ -317,6 +317,8 @@ public class HdfsExporter {
             EventsWithHeader.SparkTaskEvent.class, SparkEventProtos.TaskEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.APPLICATION_EVENT, "application_event",
             EventsWithHeader.ApplicationEvent.class, ResourceManagerEventProtos.ApplicationEvent.newBuilder());
+        addTypeMapping(out, GarmadonSerialization.TypeMarker.CONTAINER_EVENT, "container_event",
+            EventsWithHeader.ContainerEvent.class, ResourceManagerEventProtos.ContainerEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.FLINK_JOB_MANAGER_EVENT, "flink_job_manager",
             EventsWithHeader.FlinkJobManagerEvent.class, FlinkEventProtos.JobManagerEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.FLINK_JOB_EVENT, "flink_job",

@@ -26,7 +26,7 @@ final public class EventsWithHeader {
         }
     }
 
-    public static abstract class ContainerEvent implements Message {
+    public static abstract class ContainerResourceEvent implements Message {
         public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
             return descriptorForTypeWithHeader(ContainerEventProtos.ContainerResourceEvent.getDescriptor());
         }
@@ -59,6 +59,12 @@ final public class EventsWithHeader {
     public static abstract class ApplicationEvent implements Message {
         public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
             return descriptorForTypeWithHeader(ResourceManagerEventProtos.ApplicationEvent.getDescriptor());
+        }
+    }
+
+    public static abstract class ContainerEvent implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(ResourceManagerEventProtos.ContainerEvent.getDescriptor());
         }
     }
 

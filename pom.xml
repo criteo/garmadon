@@ -83,17 +83,17 @@
     <properties>
         <garmadon.version>1.4.0</garmadon.version>
         <hadoop.version>2.6.0-cdh5.11.0</hadoop.version>
-        <netty-all.version>4.1.36.Final</netty-all.version>
-        <bytebuddy.version>1.9.13</bytebuddy.version>
-        <spark.version>2.4.1</spark.version>
-        <es.version>6.6.2</es.version>
+        <netty-all.version>4.1.37.Final</netty-all.version>
+        <bytebuddy.version>1.9.15</bytebuddy.version>
+        <spark.version>2.4.3</spark.version>
+        <es.version>6.8.1</es.version>
         <logback.version>1.2.3</logback.version>
         <prometheus.version>0.6.0</prometheus.version>
         <maria-java-client.version>2.2.6</maria-java-client.version>
-        <oshi.version>3.13.2</oshi.version>
+        <oshi.version>3.13.3</oshi.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
         <slf4j.version>1.7.26</slf4j.version>
-        <protobuf.version>3.7.1</protobuf.version>
+        <protobuf.version>3.9.0</protobuf.version>
         <kafka.version>2.0.1</kafka.version>
         <guava.version>20.0</guava.version>
         <parquet-protobuf.version>1.10.1</parquet-protobuf.version>
@@ -102,7 +102,7 @@
         <commons-io.version>2.6</commons-io.version>
         <flink.version>1.6.4</flink.version>
         <prestodb.version>0.217</prestodb.version>
-        <prestosql.version>304</prestosql.version>
+        <prestosql.version>315</prestosql.version>
         <assertj.version>3.11.1</assertj.version>
         <consul.version>1.4.2</consul.version>
 
