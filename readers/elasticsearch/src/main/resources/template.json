@@ -309,6 +309,12 @@
       "norms": false,
       "index_options": "freqs"
     },
+    "final_status": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
     "finish_time": {
       "type": "date"
     },

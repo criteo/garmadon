@@ -98,6 +98,8 @@ public class RMContextImplEventRunnable implements Runnable {
                 if (container != null) {
                     eventBuilder.setAmContainerId(container.getId().toString());
                 }
+
+                eventBuilder.setFinalStatus(rmAppAttempt.getFinalApplicationStatus().name());
             }
 
             if (rmApp.getTrackingUrl() != null) {
