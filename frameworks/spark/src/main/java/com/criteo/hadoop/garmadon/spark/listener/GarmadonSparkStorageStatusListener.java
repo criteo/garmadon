@@ -170,7 +170,7 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
     }
 
     /**
-     * capture persistence mutation. Different types of blocs can be updated,, they either concern RDD, in which case we update both rdd and executor info,
+     * capture persistence mutation. Different types of blocks can be updated, they either concern RDD, in which case we update both rdd and executor info,
      * or just executors (stream, broadcast, etc...)
      */
     @Override
