@@ -5,10 +5,13 @@ import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import org.apache.spark.scheduler.*;
 import org.apache.spark.storage.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.collection.Iterator;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.function.Consumer;
 
 import static com.criteo.hadoop.garmadon.spark.listener.ScalaUtils.emptyStringSupplier;
 
@@ -19,6 +22,8 @@ import static com.criteo.hadoop.garmadon.spark.listener.ScalaUtils.emptyStringSu
  * The class mimics AppStatusListener behavior, remove any code unnecessary for our purpose
  */
 public class GarmadonSparkStorageStatusListener extends SparkListener {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonSparkStorageStatusListener.class);
 
     private final TriConsumer<Long, Header, Object> eventHandler;
     private Header.SerializedHeader header;
@@ -195,84 +200,110 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
 
     private void updateRDDMemoryStatus(RDDBlockId blockId, StorageLevel storageLevel, String executorId,
                                        long diskDelta, long memoryDelta, long offHeapMemoryDelta) {
-        GarmadonRDDStorageInfo rddInfo = liveRDDs.get(blockId.rddId());
-        if (rddInfo != null) {
-            //Global info
-            rddInfo.offHeapMemoryUsed = addDelta(rddInfo.offHeapMemoryUsed, offHeapMemoryDelta);
-            rddInfo.memoryUsed = addDelta(rddInfo.memoryUsed, memoryDelta);
-            rddInfo.diskUsed = addDelta(rddInfo.diskUsed, diskDelta);
+        withLiveRDD(blockId.rddId(), rddInfo -> {
+                //Global info
+                rddInfo.offHeapMemoryUsed = addDelta(rddInfo.offHeapMemoryUsed, offHeapMemoryDelta);
+                rddInfo.memoryUsed = addDelta(rddInfo.memoryUsed, memoryDelta);
+                rddInfo.diskUsed = addDelta(rddInfo.diskUsed, diskDelta);
 
-            //partition update, one partition == one block
-            RDDPartition partition = rddInfo.partitions.computeIfAbsent(blockId.name(), key -> new RDDPartition());
+                //partition update, one partition == one block
+                RDDPartition partition = rddInfo.partitions.computeIfAbsent(blockId.name(), key -> new RDDPartition());
 
-            //compute block delta as number of block is used to remove or not a distribution from an RDD
-            int blockDelta = 0;
-            if (storageLevel.isValid()) {
-                if (!partition.executors.contains(executorId)) {
-                    blockDelta += 1;
-                    partition.executors.add(executorId);
-                }
-            } else {
-                blockDelta -= 1;
-                partition.executors.remove(executorId);
-            }
-
-            //remove a partition that leaves on no executor
-            if (partition.executors.isEmpty()) {
-                rddInfo.partitions.remove(blockId.name());
-            }
-
-            //update distribution over the executorId if relevant
-            GarmadonExecutorStorageInfo exec = liveExecutors.get(executorId);
-            if (exec != null) {
-                if (exec.rddBlocks + blockDelta > 0) {
-                    GarmadonRDDStorageDistribution distribution = rddInfo.distributions.computeIfAbsent(executorId, GarmadonRDDStorageDistribution::new);
-                    distribution.diskUsed = addDelta(distribution.diskUsed, diskDelta);
-                    distribution.memoryUsed = addDelta(distribution.memoryUsed, memoryDelta);
-                    distribution.offHeapMemoryUsed = addDelta(distribution.offHeapMemoryUsed, offHeapMemoryDelta);
+                //compute block delta as number of block is used to remove or not a distribution from an RDD
+                int blockDelta = 0;
+                if (storageLevel.isValid()) {
+                    if (!partition.executors.contains(executorId)) {
+                        blockDelta += 1;
+                        partition.executors.add(executorId);
+                    }
                 } else {
-                    //no block on the executor, we can remove the distribution
-                    rddInfo.distributions.remove(executorId);
+                    blockDelta -= 1;
+                    partition.executors.remove(executorId);
                 }
 
-                //update executor number of blocks
-                exec.rddBlocks += blockDelta;
-            }
+                //remove a partition that leaves on no executor
+                if (partition.executors.isEmpty()) {
+                    rddInfo.partitions.remove(blockId.name());
+                }
 
-            sendRDDStorageStatusEvent(System.currentTimeMillis(), rddInfo);
-        }
+                //update distribution over the executorId if relevant
+                GarmadonExecutorStorageInfo exec = liveExecutors.get(executorId);
+                if (exec != null) {
+                    if (exec.rddBlocks + blockDelta > 0) {
+                        GarmadonRDDStorageDistribution distribution = rddInfo.distributions.computeIfAbsent(executorId, GarmadonRDDStorageDistribution::new);
+                        distribution.diskUsed = addDelta(distribution.diskUsed, diskDelta);
+                        distribution.memoryUsed = addDelta(distribution.memoryUsed, memoryDelta);
+                        distribution.offHeapMemoryUsed = addDelta(distribution.offHeapMemoryUsed, offHeapMemoryDelta);
+                    } else {
+                        //no block on the executor, we can remove the distribution
+                        rddInfo.distributions.remove(executorId);
+                    }
+
+                    //update executor number of blocks
+                    exec.rddBlocks += blockDelta;
+                }
+
+                sendRDDStorageStatusEvent(System.currentTimeMillis(), rddInfo);
+            }
+        );
     }
 
     private void updateExecutorRDDMemoryStatus(String executorId, long diskDelta, long memoryDelta, long offHeapMemoryDelta) {
-        GarmadonExecutorStorageInfo executorInfo = liveExecutors.get(executorId);
-        if (executorInfo != null) {
-            executorInfo.rddOffHeapMemoryUsed = addDelta(executorInfo.rddOffHeapMemoryUsed, offHeapMemoryDelta);
-            executorInfo.rddMemoryUsed = addDelta(executorInfo.rddMemoryUsed, memoryDelta);
-            executorInfo.rddDiskUsed = addDelta(executorInfo.rddDiskUsed, diskDelta);
+        withLiveExecutor(executorId, executorInfo -> {
+                executorInfo.rddOffHeapMemoryUsed = addDelta(executorInfo.rddOffHeapMemoryUsed, offHeapMemoryDelta);
+                executorInfo.rddMemoryUsed = addDelta(executorInfo.rddMemoryUsed, memoryDelta);
+                executorInfo.rddDiskUsed = addDelta(executorInfo.rddDiskUsed, diskDelta);
 
-            sendExecutorStorageStatusEvent(System.currentTimeMillis(), executorId, executorInfo);
-        }
+                sendExecutorStorageStatusEvent(System.currentTimeMillis(), executorId, executorInfo);
+            }
+        );
     }
 
     private void updateExecutorStreamMemoryStatus(String executorId, long diskDelta, long memoryDelta, long offHeapMemoryDelta) {
-        GarmadonExecutorStorageInfo executorInfo = liveExecutors.get(executorId);
-        if (executorInfo != null) {
-            executorInfo.streamOffHeapMemoryUsed = addDelta(executorInfo.streamOffHeapMemoryUsed, offHeapMemoryDelta);
-            executorInfo.streamMemoryUsed = addDelta(executorInfo.streamMemoryUsed, memoryDelta);
-            executorInfo.streamDiskUsed = addDelta(executorInfo.streamDiskUsed, diskDelta);
+        withLiveExecutor(executorId, executorInfo -> {
+                executorInfo.streamOffHeapMemoryUsed = addDelta(executorInfo.streamOffHeapMemoryUsed, offHeapMemoryDelta);
+                executorInfo.streamMemoryUsed = addDelta(executorInfo.streamMemoryUsed, memoryDelta);
+                executorInfo.streamDiskUsed = addDelta(executorInfo.streamDiskUsed, diskDelta);
 
-            sendExecutorStorageStatusEvent(System.currentTimeMillis(), executorId, executorInfo);
-        }
+                sendExecutorStorageStatusEvent(System.currentTimeMillis(), executorId, executorInfo);
+            }
+        );
     }
 
     private void updateExecutorBroadcastMemoryStatus(String executorId, long diskDelta, long memoryDelta, long offHeapMemoryDelta) {
+        withLiveExecutor(executorId, executorInfo -> {
+                executorInfo.broadcastOffHeapMemoryUsed = addDelta(executorInfo.broadcastOffHeapMemoryUsed, offHeapMemoryDelta);
+                executorInfo.broadcastMemoryUsed = addDelta(executorInfo.broadcastMemoryUsed, memoryDelta);
+                executorInfo.broadcastDiskUsed = addDelta(executorInfo.broadcastDiskUsed, diskDelta);
+
+                sendExecutorStorageStatusEvent(System.currentTimeMillis(), executorId, executorInfo);
+            }
+        );
+    }
+
+    private void withLiveExecutor(String executorId, Consumer<GarmadonExecutorStorageInfo> consumer) {
         GarmadonExecutorStorageInfo executorInfo = liveExecutors.get(executorId);
         if (executorInfo != null) {
-            executorInfo.broadcastOffHeapMemoryUsed = addDelta(executorInfo.broadcastOffHeapMemoryUsed, offHeapMemoryDelta);
-            executorInfo.broadcastMemoryUsed = addDelta(executorInfo.broadcastMemoryUsed, memoryDelta);
-            executorInfo.broadcastDiskUsed = addDelta(executorInfo.broadcastDiskUsed, diskDelta);
+            consumer.accept(executorInfo);
+        } else {
+            LOGGER.warn(
+                "Received a block update for an Executor not yet accounted in liveExecutors. " +
+                    "Executors are tracked via onExecutorAdded and onExecutorAdded. " +
+                    "Please check if the implementation of those event handlers is correct and sufficient."
+            );
+        }
+    }
 
-            sendExecutorStorageStatusEvent(System.currentTimeMillis(), executorId, executorInfo);
+    private void withLiveRDD(int rddId, Consumer<GarmadonRDDStorageInfo> consumer) {
+        GarmadonRDDStorageInfo rddInfo = liveRDDs.get(rddId);
+        if (rddInfo != null) {
+            consumer.accept(rddInfo);
+        } else {
+            LOGGER.warn(
+                "Received a block update for an RDD not yet accounted in liveRDDs. " +
+                    "RDDs are tracked via onStageSubmitted and onUnpersistRDD. " +
+                    "Please check if the implementation of those event handlers is correct and sufficient."
+            );
         }
     }
 
