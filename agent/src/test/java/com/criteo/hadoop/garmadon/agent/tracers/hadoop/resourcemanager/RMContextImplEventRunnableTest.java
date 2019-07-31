@@ -47,7 +47,7 @@ public class RMContextImplEventRunnableTest {
         rmAppAttempt = mock(RMAppAttempt.class);
         when(rmApp.getCurrentAppAttempt()).thenReturn(rmAppAttempt);
         when(rmApp.getApplicationTags()).thenReturn(new HashSet<>(Arrays.asList("simpleTag", "garmadon.project.name:project", "garmadon.workflow.name:workflow")));
-        when(rmAppAttempt.getFinalApplicationStatus()).thenReturn(FinalApplicationStatus.SUCCEEDED);
+        when(rmApp.getFinalApplicationStatus()).thenReturn(FinalApplicationStatus.SUCCEEDED);
 
         applicationAttemptId = mock(ApplicationAttemptId.class);
         when(rmAppAttempt.getAppAttemptId()).thenReturn(applicationAttemptId);
