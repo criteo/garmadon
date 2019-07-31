@@ -58,7 +58,7 @@ public class RMContainerTracer {
                 try {
                     field = RMContainerImpl.class.getDeclaredField("finishedStatus");
                     field.setAccessible(true);
-                } catch (Exception ignored) {
+                } catch (Throwable ignored) {
                 }
             }
         }
@@ -120,7 +120,7 @@ public class RMContainerTracer {
                 }
 
                 eventHandler.accept(System.currentTimeMillis(), header, eventBuilder.build());
-            } catch (Exception ignored) {
+            } catch (Throwable ignored) {
             }
         }
     }
