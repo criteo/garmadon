@@ -98,6 +98,8 @@ public class RMContextImplEventRunnable implements Runnable {
                 if (container != null) {
                     eventBuilder.setAmContainerId(container.getId().toString());
                 }
+
+                eventBuilder.setFinalStatus(rmAppAttempt.getFinalApplicationStatus().name());
             }
 
             if (rmApp.getTrackingUrl() != null) {
@@ -110,7 +112,7 @@ public class RMContextImplEventRunnable implements Runnable {
 
             eventHandler.accept(System.currentTimeMillis(), headerBuilder.build(), eventBuilder.build());
 
-            if (rmApp.getState() == RMAppState.FINISHED || rmApp.getState() == RMAppState.KILLED) {
+            if (rmApp.getState() == RMAppState.FINISHED || rmApp.getState() == RMAppState.KILLED || rmApp.getState() == RMAppState.FAILED) {
                 cacheFinishedApp.put(applicationId.toString(), rmApp.getState().name());
             }
         }
