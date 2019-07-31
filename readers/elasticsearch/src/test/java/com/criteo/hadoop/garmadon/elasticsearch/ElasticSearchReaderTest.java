@@ -128,6 +128,7 @@ public class ElasticSearchReaderTest {
         eventMap.put("tracking_url", "http:/garmadon/test");
         eventMap.put("original_tracking_url", "");
         eventMap.put("am_container_id", "");
+        eventMap.put("final_status", "");
         eventMap.put("yarn_tags", new ArrayList<>());
         eventMap.put("project_name", "");
         eventMap.put("workflow_name", "");
