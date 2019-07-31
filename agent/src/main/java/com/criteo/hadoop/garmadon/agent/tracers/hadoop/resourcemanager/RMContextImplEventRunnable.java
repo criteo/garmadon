@@ -83,6 +83,9 @@ public class RMContextImplEventRunnable implements Runnable {
                 })
                 .forEach(splitTag -> BUILDERS.get(splitTag[0]).accept(splitTag[1], eventBuilder));
 
+            eventBuilder.setStartTime(rmApp.getStartTime());
+            eventBuilder.setFinishTime(rmApp.getFinishTime());
+
             RMAppAttempt rmAppAttempt = rmApp.getCurrentAppAttempt();
             if (rmAppAttempt != null) {
                 headerBuilder.withAttemptID(rmAppAttempt.getAppAttemptId().toString());

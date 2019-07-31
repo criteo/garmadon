@@ -17,6 +17,8 @@ message ApplicationEvent {
     int64 memory_seconds = 9;
     int64 vcore_seconds = 10;
     string final_status = 11;
+    int64 start_time = 12;
+    int64 finish_time =13;
 }
 
 message ContainerEvent {
