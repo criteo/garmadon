@@ -14,10 +14,12 @@ import net.bytebuddy.implementation.bind.annotation.This;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ContainerId;
+import org.apache.hadoop.yarn.api.records.ContainerStatus;
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainerEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainerImpl;
 
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Field;
 
 import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -48,6 +50,23 @@ public class RMContainerTracer {
     }
 
     public static class RMContainerImplTracer extends MethodTracer {
+
+        private static class SingletonHolder {
+            private static Field field;
+
+            static {
+                try {
+                    field = RMContainerImpl.class.getDeclaredField("finishedStatus");
+                    field.setAccessible(true);
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+
+        static Field getField() {
+            return RMContainerTracer.RMContainerImplTracer.SingletonHolder.field;
+        }
+
 
         @Override
         protected ElementMatcher<? super TypeDescription> typeMatcher() {
@@ -91,7 +110,8 @@ public class RMContainerTracer {
                     eventBuilder.setContainerHostname(rmc.getAllocatedNode().getHost());
                 }
 
-                if (rmc.getFinishedStatus() != null) {
+                ContainerStatus containerStatus = (ContainerStatus) getField().get(rmContainerImpl);
+                if (containerStatus != null) {
                     eventBuilder
                         .setIsFinished(true)
                         .setExitStatus(rmc.getContainerExitStatus())
@@ -100,7 +120,7 @@ public class RMContainerTracer {
                 }
 
                 eventHandler.accept(System.currentTimeMillis(), header, eventBuilder.build());
-            } catch (Exception ignored) {
+            } catch (Throwable ignored) {
             }
         }
     }
