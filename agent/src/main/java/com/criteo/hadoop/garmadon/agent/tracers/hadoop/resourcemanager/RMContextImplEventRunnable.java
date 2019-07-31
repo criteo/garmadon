@@ -129,7 +129,7 @@ public class RMContextImplEventRunnable implements Runnable {
                     }
                 });
             }
-        } catch (Exception ignored) {
+        } catch (Throwable ignored) {
         }
     }
 }

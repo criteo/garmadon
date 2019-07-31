@@ -109,7 +109,7 @@ public class RMAppTracer {
 
         public static void intercept(@Argument(0) ApplicationId applicationId, @Argument(3) String name,
                                      @Argument(4) String user, @Argument(5) String queue,
-                                     @Argument(9) long submitTime, @Argument(10) String applicationType) throws Exception {
+                                     @Argument(9) long submitTime, @Argument(10) String applicationType) {
             try {
                 Header header = Header.newBuilder()
                         .withApplicationID(applicationId.toString())
@@ -124,7 +124,7 @@ public class RMAppTracer {
                         .build();
 
                 eventHandler.accept(submitTime, header, event);
-            } catch (Exception ignored) {
+            } catch (Throwable ignored) {
             }
         }
     }
