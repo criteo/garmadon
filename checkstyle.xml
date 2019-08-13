@@ -68,9 +68,9 @@
         <module name="MutableException"/>
         <module name="OneTopLevelClass"/>
         <module name="ThrowsCount"/>
-        <!--<module name="VisibilityModifier">-->
-            <!--<property name="protectedAllowed" value="true"/>-->
-        <!--</module>-->
+        <module name="VisibilityModifier">
+            <property name="protectedAllowed" value="true"/>
+        </module>
 
         <!-- Checks for common coding problems. -->
         <!--
