@@ -7,9 +7,9 @@ import java.util.function.Supplier;
 
 public class ScalaUtils {
 
-    static final Function0<Long> zeroLongSupplier = function0(() -> 0L);
-    static final Function0<Long> currentTimeMillisSupplier = function0(System::currentTimeMillis);
-    static final Function0<String> emptyStringSupplier = function0(() -> "");
+    static final Function0<Long> ZERO_LONG_SUPPLIER = function0(() -> 0L);
+    static final Function0<Long> CURRENT_TIME_MILLIS_SUPPLIER = function0(System::currentTimeMillis);
+    static final Function0<String> EMPTY_STRING_SUPPLIER = function0(() -> "");
 
     protected ScalaUtils() {
         throw new UnsupportedOperationException();

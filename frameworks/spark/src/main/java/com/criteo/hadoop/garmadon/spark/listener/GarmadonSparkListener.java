@@ -81,8 +81,8 @@ public class GarmadonSparkListener extends SparkListener {
     public void onApplicationStart(SparkListenerApplicationStart applicationStart) {
         try {
             header = header.cloneAndOverride(Header.newBuilder()
-                    .withApplicationID(applicationStart.appId().getOrElse(emptyStringSupplier))
-                    .withAttemptID(applicationStart.appAttemptId().getOrElse(emptyStringSupplier))
+                    .withApplicationID(applicationStart.appId().getOrElse(EMPTY_STRING_SUPPLIER))
+                    .withAttemptID(applicationStart.appAttemptId().getOrElse(EMPTY_STRING_SUPPLIER))
                     .withApplicationName(applicationStart.appName())
                     .build())
                     .toSerializeHeader();
@@ -95,7 +95,7 @@ public class GarmadonSparkListener extends SparkListener {
     @Override
     public void onStageSubmitted(SparkListenerStageSubmitted stageSubmitted) {
         try {
-            long submissionTime = stageSubmitted.stageInfo().submissionTime().getOrElse(currentTimeMillisSupplier);
+            long submissionTime = stageSubmitted.stageInfo().submissionTime().getOrElse(CURRENT_TIME_MILLIS_SUPPLIER);
             String name = stageSubmitted.stageInfo().name();
             String stageId = String.valueOf(stageSubmitted.stageInfo().stageId());
             String attemptId = String.valueOf(stageSubmitted.stageInfo().attemptId());
@@ -110,8 +110,8 @@ public class GarmadonSparkListener extends SparkListener {
     @Override
     public void onStageCompleted(SparkListenerStageCompleted stageCompleted) {
         try {
-            long submissionTime = stageCompleted.stageInfo().submissionTime().getOrElse(zeroLongSupplier);
-            long completionTime = stageCompleted.stageInfo().completionTime().getOrElse(currentTimeMillisSupplier);
+            long submissionTime = stageCompleted.stageInfo().submissionTime().getOrElse(ZERO_LONG_SUPPLIER);
+            long completionTime = stageCompleted.stageInfo().completionTime().getOrElse(CURRENT_TIME_MILLIS_SUPPLIER);
             String name = stageCompleted.stageInfo().name();
             String stageId = String.valueOf(stageCompleted.stageInfo().stageId());
             String attemptId = String.valueOf(stageCompleted.stageInfo().attemptId());
@@ -161,7 +161,7 @@ public class GarmadonSparkListener extends SparkListener {
             tryToSet(() -> stageEventBuilder.setOutputBytes(stageCompleted.stageInfo().taskMetrics().outputMetrics().bytesWritten()));
 
             if (!"succeeded".equals(status)) {
-                tryToSet(() -> stageEventBuilder.setFailureReason(stageCompleted.stageInfo().failureReason().getOrElse(emptyStringSupplier)));
+                tryToSet(() -> stageEventBuilder.setFailureReason(stageCompleted.stageInfo().failureReason().getOrElse(EMPTY_STRING_SUPPLIER)));
             }
 
             this.eventHandler.accept(completionTime, header, stageEventBuilder.build());

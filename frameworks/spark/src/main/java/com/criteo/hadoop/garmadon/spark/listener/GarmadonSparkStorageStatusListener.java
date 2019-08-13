@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.function.Consumer;
 
-import static com.criteo.hadoop.garmadon.spark.listener.ScalaUtils.emptyStringSupplier;
+import static com.criteo.hadoop.garmadon.spark.listener.ScalaUtils.EMPTY_STRING_SUPPLIER;
 
 /**
  * There is a complexity due to the tracking of blocks per executor
@@ -106,8 +106,8 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
     @Override
     public void onApplicationStart(SparkListenerApplicationStart applicationStart) {
         header = header.cloneAndOverride(Header.newBuilder()
-            .withApplicationID(applicationStart.appId().getOrElse(emptyStringSupplier))
-            .withAttemptID(applicationStart.appAttemptId().getOrElse(emptyStringSupplier))
+            .withApplicationID(applicationStart.appId().getOrElse(EMPTY_STRING_SUPPLIER))
+            .withAttemptID(applicationStart.appAttemptId().getOrElse(EMPTY_STRING_SUPPLIER))
             .withApplicationName(applicationStart.appName())
             .build())
             .toSerializeHeader();
