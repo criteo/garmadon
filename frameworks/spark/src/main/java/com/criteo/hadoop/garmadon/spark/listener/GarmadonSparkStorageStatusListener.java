@@ -287,7 +287,7 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
             consumer.accept(executorInfo);
         } else {
             LOGGER.warn(
-                "Received a block update for executor " + executorId + "not yet accounted in liveExecutors. " +
+                "Received a block update for executor " + executorId + " not yet accounted in liveExecutors. " +
                     "Executors are tracked via onExecutorAdded and onExecutorAdded. " +
                     "Please check if the implementation of those event handlers is correct and sufficient."
             );
@@ -300,7 +300,7 @@ public class GarmadonSparkStorageStatusListener extends SparkListener {
             consumer.accept(rddInfo);
         } else {
             LOGGER.warn(
-                "Received a block update for RDD" + rddId + " not yet accounted in liveRDDs. " +
+                "Received a block update for RDD " + rddId + " not yet accounted in liveRDDs. " +
                     "RDDs are tracked via onStageSubmitted and onUnpersistRDD. " +
                     "Please check if the implementation of those event handlers is correct and sufficient."
             );
