@@ -1163,6 +1163,60 @@
     "bytes_consumed_rate": {
       "type": "double",
       "index": false
+    },
+    "rdd_name": {
+      "type": "keyword",
+      "norms": false,
+      "index_options": "freqs",
+      "eager_global_ordinals": true
+    },
+    "rdd_off_heap_memory_used": {
+      "type": "long",
+      "index": false
+    },
+    "rdd_memory_used": {
+      "type": "long",
+      "index": false
+    },
+    "rdd_disk_used": {
+      "type": "long",
+      "index": false
+    },
+    "stream_off_heap_memory_used": {
+      "type": "long",
+      "index": false
+    },
+    "stream_memory_used": {
+      "type": "long",
+      "index": false
+    },
+    "stream_disk_used": {
+      "type": "long",
+      "index": false
+    },
+    "broadcast_off_heap_memory_used": {
+      "type": "long",
+      "index": false
+    },
+    "broadcast_memory_used": {
+      "type": "long",
+      "index": false
+    },
+    "broadcast_disk_used": {
+      "type": "long",
+      "index": false
+    },
+    "off_heap_memory_used": {
+      "type": "long",
+      "index": false
+    },
+    "memory_used": {
+      "type": "long",
+      "index": false
+    },
+    "disk_used": {
+      "type": "long",
+      "index": false
     }
   }
 }

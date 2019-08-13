@@ -56,6 +56,18 @@ final public class EventsWithHeader {
         }
     }
 
+    public static abstract class SparkRddStorageStatus implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(SparkEventProtos.RDDStorageStatus.getDescriptor());
+        }
+    }
+
+    public static abstract class SparkExecutorStorageStatus implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(SparkEventProtos.ExecutorStorageStatus.getDescriptor());
+        }
+    }
+
     public static abstract class ApplicationEvent implements Message {
         public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
             return descriptorForTypeWithHeader(ResourceManagerEventProtos.ApplicationEvent.getDescriptor());

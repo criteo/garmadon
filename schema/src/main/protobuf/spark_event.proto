@@ -112,4 +112,26 @@ message TaskEvent {
 
 }
 
+message ExecutorStorageStatus {
+    string executor_hostname = 1;
 
+    int64 rdd_off_heap_memory_used = 2;
+    int64 rdd_memory_used = 3;
+    int64 rdd_disk_used = 4;
+
+    int64 stream_off_heap_memory_used = 5;
+    int64 stream_memory_used = 6;
+    int64 stream_disk_used = 7;
+
+    int64 broadcast_off_heap_memory_used = 8;
+    int64 broadcast_memory_used = 9;
+    int64 broadcast_disk_used = 10;
+}
+
+message RDDStorageStatus {
+    string rdd_name = 1;
+
+    int64 off_heap_memory_used = 2;
+    int64 memory_used = 3;
+    int64 disk_used = 4;
+}
