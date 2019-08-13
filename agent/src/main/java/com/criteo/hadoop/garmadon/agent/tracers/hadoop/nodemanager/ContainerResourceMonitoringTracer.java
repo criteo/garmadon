@@ -91,7 +91,7 @@ public class ContainerResourceMonitoringTracer {
                         .setLimit(limit)
                         .build();
                 eventHandler.accept(System.currentTimeMillis(), header, event);
-            } catch (Exception ignored) {
+            } catch (Throwable ignored) {
             }
         }
     }
@@ -111,7 +111,7 @@ public class ContainerResourceMonitoringTracer {
                 try {
                     field = ContainerMetrics.class.getDeclaredField("containerId");
                     field.setAccessible(true);
-                } catch (Exception ignored) {
+                } catch (Throwable ignored) {
                 }
             }
         }
@@ -164,7 +164,7 @@ public class ContainerResourceMonitoringTracer {
                 } else {
                     LOGGER.warn("ContainerMetrics class does not have containerId field");
                 }
-            } catch (Exception ignored) {
+            } catch (Throwable ignored) {
             }
         }
     }

@@ -3,10 +3,7 @@ package com.criteo.hadoop.garmadon.agent.tracers.hadoop.resourcemanager;
 import com.criteo.hadoop.garmadon.TriConsumer;
 import com.criteo.hadoop.garmadon.event.proto.ResourceManagerEventProtos;
 import com.criteo.hadoop.garmadon.schema.events.Header;
-import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.api.records.Container;
-import org.apache.hadoop.yarn.api.records.ContainerId;
+import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.server.resourcemanager.RMContextImpl;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppState;
@@ -50,6 +47,7 @@ public class RMContextImplEventRunnableTest {
         rmAppAttempt = mock(RMAppAttempt.class);
         when(rmApp.getCurrentAppAttempt()).thenReturn(rmAppAttempt);
         when(rmApp.getApplicationTags()).thenReturn(new HashSet<>(Arrays.asList("simpleTag", "garmadon.project.name:project", "garmadon.workflow.name:workflow")));
+        when(rmAppAttempt.getFinalApplicationStatus()).thenReturn(FinalApplicationStatus.SUCCEEDED);
 
         applicationAttemptId = mock(ApplicationAttemptId.class);
         when(rmAppAttempt.getAppAttemptId()).thenReturn(applicationAttemptId);

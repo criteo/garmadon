@@ -60,6 +60,10 @@
           {
             "text": "state",
             "value": "state"
+          },
+          {
+            "text": "final_status",
+            "value": "final_status"
           }
         ],
         "datasource": "$datasource",
@@ -138,7 +142,7 @@
             "decimals": 2,
             "pattern": "/.*/",
             "thresholds": [],
-            "type": "number",
+            "type": "string",
             "unit": "short"
           }
         ],
@@ -947,7 +951,7 @@
           "x": 0,
           "y": 30
         },
-        "id": 56,
+        "id": 60,
         "legend": {
           "alignAsTable": true,
           "avg": false,
@@ -972,7 +976,7 @@
         "renderer": "flot",
         "repeat": null,
         "repeatDirection": "v",
-        "repeatIteration": 1564138075957,
+        "repeatIteration": 1564402126451,
         "repeatPanelId": 25,
         "scopedVars": {
           "component": {
@@ -1125,7 +1129,7 @@
           "x": 12,
           "y": 30
         },
-        "id": 57,
+        "id": 61,
         "legend": {
           "alignAsTable": true,
           "avg": false,
@@ -1149,7 +1153,7 @@
         "renderer": "flot",
         "repeat": null,
         "repeatDirection": "v",
-        "repeatIteration": 1564138075957,
+        "repeatIteration": 1564402126451,
         "repeatPanelId": 47,
         "scopedVars": {
           "component": {
@@ -4190,6 +4194,7 @@
         {
           "allValue": "*",
           "current": {
+            "tags": [],
             "text": "All",
             "value": "$__all"
           },
