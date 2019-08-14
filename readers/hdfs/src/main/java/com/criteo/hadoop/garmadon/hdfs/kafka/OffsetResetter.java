@@ -66,32 +66,38 @@ public class OffsetResetter<K, V, MESSAGE_KIND> implements ConsumerRebalanceList
                 final Map<Integer, Long> startingOffsets = writer.getStartingOffsets(partitionsId);
 
                 startingOffsets.forEach((part, offset) ->
-                        offsetsPerPartition.computeIfAbsent(part, ignored -> new ArrayList<>()).add(offset));
+                        offsetsPerPartition.computeIfAbsent(part, ignored -> new HashSet<>()).add(offset));
             } catch (IOException e) {
                 LOGGER.warn("Couldn't get offset for partitions {}, will resume from earliest",
                         partitionsId.stream().map(String::valueOf).collect(Collectors.joining(", ")), e);
                 partitions.forEach(part ->
-                        offsetsPerPartition.computeIfAbsent(part.partition(), ignored -> new ArrayList<>())
+                        offsetsPerPartition.computeIfAbsent(part.partition(), ignored -> new HashSet<>())
                         .add(UNKNOWN_OFFSET));
                 // Don't break here as we need all exceptional writers to cache "unknown offset" for future queries
             }
         }
 
+        //Compute min offset per partition, taking into account the possibility
+        //of a new event that would reset all partitions to UNKNOWN_OFFSET
+        //in this case keep the lower offset above
+
+        boolean possibleNewEvent = offsetsPerPartition.values().stream().allMatch(offsets -> offsets.contains(UNKNOWN_OFFSET));
+
+        Map<Integer, Long> minOffsetPerPartition = offsetsPerPartition
+            .entrySet()
+            .stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, offsets -> offsets
+                .getValue()
+                .stream()
+                .filter(offset -> offset != UNKNOWN_OFFSET || !possibleNewEvent)
+                .mapToLong(l -> l).min()
+                .orElse(UNKNOWN_OFFSET))
+            );
+
         for (TopicPartition topicPartition: partitions) {
-            long startingOffset = UNKNOWN_OFFSET;
             int partition = topicPartition.partition();
 
-            if (offsetsPerPartition.containsKey(partition)) {
-                for (long offset : offsetsPerPartition.get(partition)) {
-                    if (offset == UNKNOWN_OFFSET) {
-                        startingOffset = UNKNOWN_OFFSET;
-                        break;
-                    }
-
-                    if (startingOffset == UNKNOWN_OFFSET) startingOffset = offset;
-                    else startingOffset = Math.min(startingOffset, offset);
-                }
-            }
+            long startingOffset = minOffsetPerPartition.getOrDefault(partition, UNKNOWN_OFFSET);
 
             synchronized (consumer) {
                 if (startingOffset == UNKNOWN_OFFSET) {
@@ -107,4 +113,5 @@ public class OffsetResetter<K, V, MESSAGE_KIND> implements ConsumerRebalanceList
             }
         }
     }
+
 }

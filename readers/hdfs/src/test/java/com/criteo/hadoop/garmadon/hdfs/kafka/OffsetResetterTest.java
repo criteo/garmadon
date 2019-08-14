@@ -43,6 +43,39 @@ public class OffsetResetterTest {
     }
 
     @Test
+    public void partitionAssignedValidOffsetWithNewEvent() throws IOException {
+        final Consumer<Long, String> consumer = mock(Consumer.class);
+        final PartitionedWriter firstWriter = mock(PartitionedWriter.class);
+        final PartitionedWriter secondWriter = mock(PartitionedWriter.class);
+        final PartitionedWriter newEventWriter = mock(PartitionedWriter.class);
+        final OffsetResetter offsetResetter = new OffsetResetter<>(consumer, mock(java.util.function.Consumer.class),
+            Arrays.asList(firstWriter, secondWriter, newEventWriter));
+        final TopicPartition firstPartition = new TopicPartition(TOPIC, 1);
+        final TopicPartition secondPartition = new TopicPartition(TOPIC, 2);
+        final List<TopicPartition> partitions = Arrays.asList(firstPartition, secondPartition);
+
+        final Map<Integer, Long> firstOffsets = new HashMap<>();
+        firstOffsets.put(firstPartition.partition(), 10L);
+        firstOffsets.put(secondPartition.partition(), OffsetComputer.NO_OFFSET);
+        when(firstWriter.getStartingOffsets(any())).thenReturn(firstOffsets);
+
+        final Map<Integer, Long> secondOffsets = new HashMap<>();
+        secondOffsets.put(firstPartition.partition(), 15L);
+        secondOffsets.put(secondPartition.partition(), OffsetComputer.NO_OFFSET);
+        when(secondWriter.getStartingOffsets(any())).thenReturn(secondOffsets);
+
+        final Map<Integer, Long> thirdOffsets = new HashMap<>();
+        thirdOffsets.put(firstPartition.partition(), OffsetComputer.NO_OFFSET);
+        thirdOffsets.put(secondPartition.partition(), OffsetComputer.NO_OFFSET);
+        when(newEventWriter.getStartingOffsets(any())).thenReturn(thirdOffsets);
+
+        offsetResetter.onPartitionsAssigned(partitions);
+        verify(consumer, times(1)).seek(eq(firstPartition), eq(10L));
+        verify(consumer, times(1)).seekToBeginning(Collections.singleton(secondPartition));
+        verifyNoMoreInteractions(consumer);
+    }
+
+    @Test
     public void partitionsAssignedCannotFetchOffset() throws IOException {
         final Consumer<Long, String> consumer = mock(Consumer.class);
         final PartitionedWriter successfulWriter = mock(PartitionedWriter.class);
