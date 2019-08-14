@@ -90,7 +90,8 @@ public class OffsetResetter<K, V, MESSAGE_KIND> implements ConsumerRebalanceList
                 .getValue()
                 .stream()
                 .filter(offset -> offset != UNKNOWN_OFFSET || !possibleNewEvent)
-                .mapToLong(l -> l).min()
+                .mapToLong(l -> l)
+                .min()
                 .orElse(UNKNOWN_OFFSET))
             );
 
