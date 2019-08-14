@@ -96,27 +96,12 @@
     "links": [],
     "panels": [
       {
-        "content": "Select executor_id for which you want to see Container/JVM detailed merics and then click here: [Yarn Application Dashboard for $application_id - $container_id](/dashboard/db/garmadon-yarn-application?orgId=1&var-datasource=$datasource&var-username=All&var-framework=All&var-application_name=All&var-application_id=$application_id&var-component=All&var-container_id=$container_id&var-hostname=All&var-uri=All)",
-        "gridPos": {
-          "h": 2,
-          "w": 24,
-          "x": 0,
-          "y": 0
-        },
-        "id": 82,
-        "links": [],
-        "mode": "markdown",
-        "title": "",
-        "transparent": true,
-        "type": "text"
-      },
-      {
         "collapsed": false,
         "gridPos": {
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 2
+          "y": 0
         },
         "id": 14,
         "panels": [],
@@ -135,7 +120,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 3
+          "y": 1
         },
         "id": 69,
         "legend": {
@@ -283,7 +268,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 3
+          "y": 1
         },
         "id": 85,
         "legend": {
@@ -440,7 +425,7 @@
           "h": 8,
           "w": 24,
           "x": 0,
-          "y": 11
+          "y": 9
         },
         "id": 80,
         "links": [],
@@ -502,7 +487,592 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 19
+          "y": 17
+        },
+        "id": 88,
+        "panels": [],
+        "repeat": "executor_id",
+        "scopedVars": {
+          "executor_id": {
+            "selected": true,
+            "text": "1",
+            "value": "1"
+          }
+        },
+        "title": "Block Manager",
+        "type": "row"
+      },
+      {
+        "content": "\nOnly blocks that can live in memory or in disk. Does not take in account Shuffle bocks nor TaskResult blocks.\n\n\n\n",
+        "gridPos": {
+          "h": 2,
+          "w": 12,
+          "x": 0,
+          "y": 18
+        },
+        "id": 97,
+        "links": [],
+        "mode": "markdown",
+        "options": {},
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "",
+        "transparent": true,
+        "type": "text"
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 7,
+          "w": 24,
+          "x": 0,
+          "y": 20
+        },
+        "id": 93,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "options": {},
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "scopedVars": {
+          "executor_id": {
+            "selected": true,
+            "text": "1",
+            "value": "1"
+          }
+        },
+        "seriesOverrides": [
+          {
+            "alias": "memory_used",
+            "color": "#96D98D"
+          },
+          {
+            "alias": "off_heap_memory_used",
+            "color": "#37872D"
+          },
+          {
+            "alias": "disk_used",
+            "color": "#F2495C"
+          }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "memory_used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "rdd_memory_used",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:SPARK_EXECUTOR_STORAGE_STATUS_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
+            "refId": "A",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "off_heap_memory_used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "rdd_off_heap_memory_used",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:SPARK_EXECUTOR_STORAGE_STATUS_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
+            "refId": "B",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "disk_used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "rdd_disk_used",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:SPARK_EXECUTOR_STORAGE_STATUS_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
+            "refId": "C",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "RDD persistence Executor $executor_id",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 7,
+          "w": 24,
+          "x": 0,
+          "y": 27
+        },
+        "id": 95,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "options": {},
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "scopedVars": {
+          "executor_id": {
+            "selected": true,
+            "text": "1",
+            "value": "1"
+          }
+        },
+        "seriesOverrides": [
+          {
+            "alias": "memory_used",
+            "color": "#96D98D"
+          },
+          {
+            "alias": "off_heap_memory_used",
+            "color": "#37872D"
+          },
+          {
+            "alias": "disk_used",
+            "color": "#F2495C"
+          }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "memory_used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "broadcast_memory_used",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:SPARK_EXECUTOR_STORAGE_STATUS_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
+            "refId": "A",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "off_heap_memory_used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "broadcast_off_heap_memory_used",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:SPARK_EXECUTOR_STORAGE_STATUS_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
+            "refId": "B",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "disk_used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "broadcast_disk_used",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:SPARK_EXECUTOR_STORAGE_STATUS_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
+            "refId": "C",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "BROADCAST persistence Executor $executor_id",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "$datasource",
+        "fill": 1,
+        "gridPos": {
+          "h": 7,
+          "w": 24,
+          "x": 0,
+          "y": 34
+        },
+        "id": 94,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "rightSide": true,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "connected",
+        "options": {},
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "scopedVars": {
+          "executor_id": {
+            "selected": true,
+            "text": "1",
+            "value": "1"
+          }
+        },
+        "seriesOverrides": [
+          {
+            "alias": "memory_used",
+            "color": "#96D98D"
+          },
+          {
+            "alias": "off_heap_memory_used",
+            "color": "#37872D"
+          },
+          {
+            "alias": "disk_used",
+            "color": "#F2495C"
+          }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "alias": "memory_used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "stream_memory_used",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:SPARK_EXECUTOR_STORAGE_STATUS_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
+            "refId": "A",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "off_heap_memory_used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "stream_off_heap_memory_used",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:SPARK_EXECUTOR_STORAGE_STATUS_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
+            "refId": "B",
+            "timeField": "timestamp"
+          },
+          {
+            "alias": "disk_used",
+            "bucketAggs": [
+              {
+                "field": "timestamp",
+                "id": "2",
+                "settings": {
+                  "interval": "1s",
+                  "min_doc_count": 0,
+                  "trimEdges": 0
+                },
+                "type": "date_histogram"
+              }
+            ],
+            "metrics": [
+              {
+                "field": "stream_disk_used",
+                "id": "1",
+                "meta": {},
+                "settings": {},
+                "type": "avg"
+              }
+            ],
+            "query": "event_type:SPARK_EXECUTOR_STORAGE_STATUS_EVENT AND application_id:$application_id AND attempt_id:$attempt_id AND executor_hostname:$executor_hostname AND executor_id:$executor_id",
+            "refId": "C",
+            "timeField": "timestamp"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "STREAM persistence Executor $executor_id",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 41
         },
         "id": 55,
         "panels": [],
@@ -515,7 +1085,7 @@
           "h": 5,
           "w": 24,
           "x": 0,
-          "y": 20
+          "y": 42
         },
         "id": 77,
         "links": [],
@@ -536,7 +1106,7 @@
           "h": 9,
           "w": 12,
           "x": 0,
-          "y": 25
+          "y": 47
         },
         "id": 74,
         "legend": {
@@ -554,7 +1124,7 @@
         "lines": false,
         "linewidth": 1,
         "links": [],
-        "minSpan": 12,
+        "maxPerRow": 2,
         "nullPointMode": "null",
         "percentage": false,
         "pointradius": 1,
@@ -865,7 +1435,7 @@
           "h": 9,
           "w": 12,
           "x": 12,
-          "y": 25
+          "y": 47
         },
         "id": 86,
         "legend": {
@@ -883,7 +1453,7 @@
         "lines": false,
         "linewidth": 1,
         "links": [],
-        "minSpan": 12,
+        "maxPerRow": 2,
         "nullPointMode": "null",
         "percentage": true,
         "pointradius": 1,
@@ -1188,7 +1758,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 34
+          "y": 56
         },
         "id": 44,
         "panels": [],
@@ -1207,7 +1777,7 @@
           "h": 9,
           "w": 12,
           "x": 0,
-          "y": 35
+          "y": 57
         },
         "id": 45,
         "legend": {
@@ -1225,7 +1795,7 @@
         "lines": false,
         "linewidth": 1,
         "links": [],
-        "minSpan": 12,
+        "maxPerRow": 2,
         "nullPointMode": "null",
         "percentage": false,
         "pointradius": 1,
@@ -1332,7 +1902,7 @@
           "h": 9,
           "w": 12,
           "x": 12,
-          "y": 35
+          "y": 57
         },
         "id": 47,
         "legend": {
@@ -1350,7 +1920,7 @@
         "lines": false,
         "linewidth": 1,
         "links": [],
-        "minSpan": 12,
+        "maxPerRow": 2,
         "nullPointMode": "null",
         "percentage": false,
         "pointradius": 1,
@@ -1456,7 +2026,7 @@
           "h": 9,
           "w": 12,
           "x": 0,
-          "y": 44
+          "y": 66
         },
         "id": 46,
         "legend": {
@@ -1474,7 +2044,7 @@
         "lines": false,
         "linewidth": 1,
         "links": [],
-        "minSpan": 12,
+        "maxPerRow": 2,
         "nullPointMode": "connected",
         "percentage": false,
         "pointradius": 1,
@@ -1661,7 +2231,7 @@
           "h": 9,
           "w": 12,
           "x": 12,
-          "y": 44
+          "y": 66
         },
         "id": 48,
         "legend": {
@@ -1679,7 +2249,7 @@
         "lines": false,
         "linewidth": 1,
         "links": [],
-        "minSpan": 12,
+        "maxPerRow": 2,
         "nullPointMode": "null",
         "percentage": false,
         "pointradius": 1,
@@ -1860,7 +2430,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 53
+          "y": 75
         },
         "id": 39,
         "panels": [],
@@ -1879,7 +2449,7 @@
           "h": 9,
           "w": 12,
           "x": 0,
-          "y": 54
+          "y": 76
         },
         "id": 40,
         "legend": {
@@ -1897,7 +2467,7 @@
         "lines": false,
         "linewidth": 1,
         "links": [],
-        "minSpan": 12,
+        "maxPerRow": 2,
         "nullPointMode": "null",
         "percentage": false,
         "pointradius": 1,
@@ -2003,7 +2573,7 @@
           "h": 9,
           "w": 12,
           "x": 12,
-          "y": 54
+          "y": 76
         },
         "id": 41,
         "legend": {
@@ -2021,7 +2591,7 @@
         "lines": false,
         "linewidth": 1,
         "links": [],
-        "minSpan": 12,
+        "maxPerRow": 2,
         "nullPointMode": "null",
         "percentage": false,
         "pointradius": 1,
@@ -2127,7 +2697,7 @@
           "h": 9,
           "w": 12,
           "x": 0,
-          "y": 63
+          "y": 85
         },
         "id": 42,
         "legend": {
@@ -2145,7 +2715,7 @@
         "lines": false,
         "linewidth": 1,
         "links": [],
-        "minSpan": 12,
+        "maxPerRow": 2,
         "nullPointMode": "null",
         "percentage": false,
         "pointradius": 1,
@@ -2245,7 +2815,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 72
+          "y": 94
         },
         "id": 9,
         "panels": [],
@@ -2264,7 +2834,7 @@
           "h": 9,
           "w": 12,
           "x": 0,
-          "y": 73
+          "y": 95
         },
         "id": 2,
         "legend": {
@@ -2282,7 +2852,7 @@
         "lines": false,
         "linewidth": 1,
         "links": [],
-        "minSpan": 12,
+        "maxPerRow": 2,
         "nullPointMode": "null",
         "percentage": false,
         "pointradius": 1,
@@ -2396,7 +2966,7 @@
           "h": 9,
           "w": 12,
           "x": 12,
-          "y": 73
+          "y": 95
         },
         "id": 37,
         "legend": {
@@ -2414,7 +2984,7 @@
         "lines": false,
         "linewidth": 1,
         "links": [],
-        "minSpan": 12,
+        "maxPerRow": 2,
         "nullPointMode": "null",
         "percentage": false,
         "pointradius": 1,
@@ -2520,7 +3090,7 @@
           "h": 9,
           "w": 12,
           "x": 0,
-          "y": 82
+          "y": 104
         },
         "id": 83,
         "legend": {
@@ -2538,7 +3108,7 @@
         "lines": false,
         "linewidth": 1,
         "links": [],
-        "minSpan": 12,
+        "maxPerRow": 2,
         "nullPointMode": "null",
         "percentage": false,
         "pointradius": 1,
@@ -2644,7 +3214,7 @@
           "h": 9,
           "w": 12,
           "x": 12,
-          "y": 82
+          "y": 104
         },
         "id": 84,
         "legend": {
@@ -2662,7 +3232,7 @@
         "lines": false,
         "linewidth": 1,
         "links": [],
-        "minSpan": 12,
+        "maxPerRow": 2,
         "nullPointMode": "null",
         "percentage": false,
         "pointradius": 1,
@@ -2762,7 +3332,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 91
+          "y": 113
         },
         "id": 67,
         "panels": [],
@@ -2782,7 +3352,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 92
+          "y": 114
         },
         "id": 65,
         "legend": {
@@ -2907,7 +3477,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 92
+          "y": 114
         },
         "id": 64,
         "legend": {
@@ -3031,7 +3601,7 @@
           "h": 8,
           "w": 12,
           "x": 0,
-          "y": 100
+          "y": 122
         },
         "id": 51,
         "legend": {
@@ -3049,7 +3619,7 @@
         "lines": false,
         "linewidth": 1,
         "links": [],
-        "minSpan": 12,
+        "maxPerRow": 2,
         "nullPointMode": "null",
         "percentage": false,
         "pointradius": 1,
@@ -3185,7 +3755,7 @@
       }
     ],
     "refresh": false,
-    "schemaVersion": 16,
+    "schemaVersion": 18,
     "style": "dark",
     "tags": [
       "git"
@@ -3343,7 +3913,7 @@
           "datasource": "$datasource",
           "definition": "",
           "hide": 0,
-          "includeAll": true,
+          "includeAll": false,
           "label": null,
           "multi": false,
           "name": "executor_id",

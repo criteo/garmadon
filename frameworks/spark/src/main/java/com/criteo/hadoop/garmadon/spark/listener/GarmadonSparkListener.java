@@ -7,36 +7,17 @@ import com.criteo.hadoop.garmadon.schema.events.Header;
 import org.apache.spark.scheduler.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Function0;
-import scala.runtime.AbstractFunction0;
 
 import java.util.HashMap;
 import java.util.function.Supplier;
+
+import static com.criteo.hadoop.garmadon.spark.listener.ScalaUtils.*;
 
 
 public class GarmadonSparkListener extends SparkListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonSparkListener.class);
     private final TriConsumer<Long, Header, Object> eventHandler;
     private Header.SerializedHeader header;
-    private Function0<Long> zeroLongScala = new AbstractFunction0<Long>() {
-        @Override
-        public Long apply() {
-            return 0L;
-        }
-    };
-    private Function0<Long> currentTimeLongScala = new AbstractFunction0<Long>() {
-        @Override
-        public Long apply() {
-            return System.currentTimeMillis();
-        }
-    };
-    private Function0<String> emptyStringScala = new AbstractFunction0<String>() {
-        @Override
-        public String apply() {
-            return "";
-        }
-    };
-
 
     private final HashMap<String, String> executorHostId = new HashMap<>();
 
@@ -100,8 +81,8 @@ public class GarmadonSparkListener extends SparkListener {
     public void onApplicationStart(SparkListenerApplicationStart applicationStart) {
         try {
             header = header.cloneAndOverride(Header.newBuilder()
-                    .withApplicationID(applicationStart.appId().getOrElse(emptyStringScala))
-                    .withAttemptID(applicationStart.appAttemptId().getOrElse(emptyStringScala))
+                    .withApplicationID(applicationStart.appId().getOrElse(EMPTY_STRING_SUPPLIER))
+                    .withAttemptID(applicationStart.appAttemptId().getOrElse(EMPTY_STRING_SUPPLIER))
                     .withApplicationName(applicationStart.appName())
                     .build())
                     .toSerializeHeader();
@@ -114,7 +95,7 @@ public class GarmadonSparkListener extends SparkListener {
     @Override
     public void onStageSubmitted(SparkListenerStageSubmitted stageSubmitted) {
         try {
-            long submissionTime = stageSubmitted.stageInfo().submissionTime().getOrElse(currentTimeLongScala);
+            long submissionTime = stageSubmitted.stageInfo().submissionTime().getOrElse(CURRENT_TIME_MILLIS_SUPPLIER);
             String name = stageSubmitted.stageInfo().name();
             String stageId = String.valueOf(stageSubmitted.stageInfo().stageId());
             String attemptId = String.valueOf(stageSubmitted.stageInfo().attemptId());
@@ -129,8 +110,8 @@ public class GarmadonSparkListener extends SparkListener {
     @Override
     public void onStageCompleted(SparkListenerStageCompleted stageCompleted) {
         try {
-            long submissionTime = stageCompleted.stageInfo().submissionTime().getOrElse(zeroLongScala);
-            long completionTime = stageCompleted.stageInfo().completionTime().getOrElse(currentTimeLongScala);
+            long submissionTime = stageCompleted.stageInfo().submissionTime().getOrElse(ZERO_LONG_SUPPLIER);
+            long completionTime = stageCompleted.stageInfo().completionTime().getOrElse(CURRENT_TIME_MILLIS_SUPPLIER);
             String name = stageCompleted.stageInfo().name();
             String stageId = String.valueOf(stageCompleted.stageInfo().stageId());
             String attemptId = String.valueOf(stageCompleted.stageInfo().attemptId());
@@ -180,7 +161,7 @@ public class GarmadonSparkListener extends SparkListener {
             tryToSet(() -> stageEventBuilder.setOutputBytes(stageCompleted.stageInfo().taskMetrics().outputMetrics().bytesWritten()));
 
             if (!"succeeded".equals(status)) {
-                tryToSet(() -> stageEventBuilder.setFailureReason(stageCompleted.stageInfo().failureReason().getOrElse(emptyStringScala)));
+                tryToSet(() -> stageEventBuilder.setFailureReason(stageCompleted.stageInfo().failureReason().getOrElse(EMPTY_STRING_SUPPLIER)));
             }
 
             this.eventHandler.accept(completionTime, header, stageEventBuilder.build());
