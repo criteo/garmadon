@@ -133,6 +133,8 @@ public class HdfsExporter {
 
         final PartitionsPauseStateHandler pauser = new PartitionsPauseStateHandler(kafkaConsumer);
 
+        final MessageDispatcher<Message> messageDispatcher = new MessageDispatcher<>();
+
         for (Map.Entry<Integer, GarmadonEventDescriptor> out : typeToDirAndClass.entrySet()) {
             final Integer eventType = out.getKey();
             final String eventName = out.getValue().getPath();
@@ -159,7 +161,7 @@ public class HdfsExporter {
             final PartitionedWriter<Message> writer = new PartitionedWriter<>(
                 consumerBuilder, offsetComputer, eventName, emptyMessageBuilder, checkpointer);
 
-            readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(writer, eventName));
+            readerBuilder.intercept(hasType(eventType), msg -> messageDispatcher.dispatch(eventType, eventName, msg));
 
             writers.add(writer);
         }
