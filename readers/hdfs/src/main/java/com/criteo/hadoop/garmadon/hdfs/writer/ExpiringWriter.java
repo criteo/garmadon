@@ -13,7 +13,7 @@ import java.time.temporal.TemporalAmount;
  *
  * @param <MESSAGE_TYPE>     The actual consumed message type
  */
-public class ExpiringConsumer<MESSAGE_TYPE> implements CloseableBiConsumer<MESSAGE_TYPE, Offset> {
+public class ExpiringWriter<MESSAGE_TYPE> implements CloseableBiConsumer<MESSAGE_TYPE, Offset> {
     private final CloseableBiConsumer<MESSAGE_TYPE, Offset> writer;
     private final TemporalAmount expirationDelay;
     private long messagesReceived;
@@ -26,7 +26,7 @@ public class ExpiringConsumer<MESSAGE_TYPE> implements CloseableBiConsumer<MESSA
      * @param expirationDelay           Idle delay after which the writer should get closed
      * @param messagesBeforeExpiring    Number of messages to write before expiring
      */
-    public ExpiringConsumer(CloseableBiConsumer<MESSAGE_TYPE, Offset> writer, TemporalAmount expirationDelay, long messagesBeforeExpiring) {
+    public ExpiringWriter(CloseableBiConsumer<MESSAGE_TYPE, Offset> writer, TemporalAmount expirationDelay, long messagesBeforeExpiring) {
         this.writer = writer;
         this.expirationDelay = expirationDelay;
         this.messagesBeforeExpiring = messagesBeforeExpiring;

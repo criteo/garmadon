@@ -13,13 +13,13 @@ import java.util.List;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("unchecked")
-public class ExpiringConsumerTest {
+public class ExpiringWriterTest {
     private static final Offset DUMMY_OFFSET = buildOffset(12);
 
     @Test
     public void expiredAfterTooManyMessages() throws IOException {
         final CloseableBiConsumer<Integer, Offset> innerMock = mock(CloseableBiConsumer.class);
-        final ExpiringConsumer<Integer> consumer = new ExpiringConsumer<>(innerMock, Duration.ofMinutes(10), 3);
+        final ExpiringWriter<Integer> consumer = new ExpiringWriter<>(innerMock, Duration.ofMinutes(10), 3);
 
         for (int i = 0; i < 3; i++) {
             Assert.assertFalse(consumer.isExpired());
@@ -34,7 +34,7 @@ public class ExpiringConsumerTest {
     @Test
     public void expiredAfterTooMuchIdleTime() throws InterruptedException, IOException {
         final CloseableBiConsumer<Integer, Offset> innerMock = mock(CloseableBiConsumer.class);
-        final ExpiringConsumer<Integer> consumer = new ExpiringConsumer<>(innerMock, Duration.ofSeconds(1), 10);
+        final ExpiringWriter<Integer> consumer = new ExpiringWriter<>(innerMock, Duration.ofSeconds(1), 10);
 
         consumer.write(12, DUMMY_OFFSET);
         Assert.assertFalse(consumer.isExpired());
@@ -45,7 +45,7 @@ public class ExpiringConsumerTest {
     @Test
     public void sendAnotherMessageAfterTimeExpiration() throws InterruptedException, IOException {
         final CloseableBiConsumer<Integer, Offset> innerMock = mock(CloseableBiConsumer.class);
-        final ExpiringConsumer<Integer> consumer = new ExpiringConsumer<>(innerMock, Duration.ofSeconds(1), 10);
+        final ExpiringWriter<Integer> consumer = new ExpiringWriter<>(innerMock, Duration.ofSeconds(1), 10);
 
         Thread.sleep(1001);
         Assert.assertTrue(consumer.isExpired());
@@ -57,14 +57,14 @@ public class ExpiringConsumerTest {
 
     @Test
     public void expiredFromTheStart() throws InterruptedException {
-        final ExpiringConsumer<Integer> noTimeConsumer = new ExpiringConsumer<>(null, Duration.ZERO, 10);
+        final ExpiringWriter<Integer> noTimeConsumer = new ExpiringWriter<>(null, Duration.ZERO, 10);
         Thread.sleep(1);
         Assert.assertTrue(noTimeConsumer.isExpired());
 
-        final ExpiringConsumer<Integer> noMessageConsumer = new ExpiringConsumer<>(null, Duration.ofMinutes(10), 0);
+        final ExpiringWriter<Integer> noMessageConsumer = new ExpiringWriter<>(null, Duration.ofMinutes(10), 0);
         Assert.assertTrue(noMessageConsumer.isExpired());
 
-        final ExpiringConsumer<Integer> allZerosConsumer = new ExpiringConsumer<>(null, Duration.ZERO, 0);
+        final ExpiringWriter<Integer> allZerosConsumer = new ExpiringWriter<>(null, Duration.ZERO, 0);
         Thread.sleep(1);
         Assert.assertTrue(allZerosConsumer.isExpired());
     }
@@ -72,7 +72,7 @@ public class ExpiringConsumerTest {
     @Test
     public void messagesArePassedToInnerWriter() throws IOException {
         final CloseableBiConsumer<Integer, Offset> innerMock = mock(CloseableBiConsumer.class);
-        final ExpiringConsumer<Integer> consumer = new ExpiringConsumer<>(innerMock, Duration.ZERO, 5);
+        final ExpiringWriter<Integer> consumer = new ExpiringWriter<>(innerMock, Duration.ZERO, 5);
         final List<Offset> offsets = Arrays.asList(buildOffset(11), buildOffset(12), buildOffset(13));
 
         for (int i = 0; i < 3; i++) {
@@ -89,7 +89,7 @@ public class ExpiringConsumerTest {
     @Test
     public void closeWithNoMessage() throws IOException {
         final CloseableBiConsumer<Integer, Offset> innerMock = mock(CloseableBiConsumer.class);
-        final ExpiringConsumer<Integer> consumer = new ExpiringConsumer<>(innerMock, Duration.ZERO, 10);
+        final ExpiringWriter<Integer> consumer = new ExpiringWriter<>(innerMock, Duration.ZERO, 10);
 
         consumer.close();
 
@@ -99,7 +99,7 @@ public class ExpiringConsumerTest {
     @Test
     public void closeWithMessages() throws IOException {
         final CloseableBiConsumer<Integer, Offset> innerMock = mock(CloseableBiConsumer.class);
-        final ExpiringConsumer<Integer> consumer = new ExpiringConsumer<>(innerMock, Duration.ZERO, 10);
+        final ExpiringWriter<Integer> consumer = new ExpiringWriter<>(innerMock, Duration.ZERO, 10);
 
         consumer.write(1, DUMMY_OFFSET);
         consumer.write(2, DUMMY_OFFSET);

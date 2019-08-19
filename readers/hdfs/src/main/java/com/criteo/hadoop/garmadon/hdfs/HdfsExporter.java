@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.hdfs;
 
+import akka.actor.ActorSystem;
 import com.criteo.hadoop.garmadon.event.proto.*;
 import com.criteo.hadoop.garmadon.hdfs.configurations.HdfsConfiguration;
 import com.criteo.hadoop.garmadon.hdfs.configurations.HdfsReaderConfiguration;
@@ -138,7 +139,7 @@ public class HdfsExporter {
             final String eventName = out.getValue().getPath();
             final Class<? extends Message> clazz = out.getValue().getClazz();
             final Message.Builder emptyMessageBuilder = out.getValue().getEmptyMessageBuilder();
-            final Function<LocalDateTime, ExpiringConsumer<Message>> consumerBuilder;
+            final Function<LocalDateTime, ExpiringWriter<Message>> consumerBuilder;
             final Path finalEventDir = new Path(finalHdfsDir, eventName);
             final OffsetComputer offsetComputer = new HdfsOffsetComputer(fs, finalEventDir,
                 config.getKafka().getCluster(), config.getHdfs().getBacklogDays());
@@ -224,7 +225,7 @@ public class HdfsExporter {
     }
 
 
-    private static Function<LocalDateTime, ExpiringConsumer<Message>> buildMessageConsumerBuilder(
+    private static Function<LocalDateTime, ExpiringWriter<Message>> buildMessageConsumerBuilder(
         FileSystem fs, Path temporaryHdfsDir, Path finalHdfsDir, Class<? extends Message> clazz,
         OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser, String eventName) {
         Counter.Child tmpFileOpenFailures = PrometheusMetrics.buildCounterChild(
@@ -261,7 +262,7 @@ public class HdfsExporter {
 
                 partitionsPauser.resume(clazz);
 
-                return new ExpiringConsumer<>(new ProtoParquetWriterWithOffset<>(
+                return new ExpiringWriter<>(new ProtoParquetWriterWithOffset<>(
                     protoWriter, tmpFilePath, finalHdfsDir, fs, offsetComputer, dayStartTime, eventName),
                     writersExpirationDelay, messagesBeforeExpiringWriters);
             }
@@ -290,7 +291,7 @@ public class HdfsExporter {
                 writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset, msg.toProto());
 
                 messagesWritten.inc();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 // We accept losing messages every now and then, but still log failures
                 messagesWritingFailures.inc();
                 LOGGER.warn("Couldn't write a message", e);

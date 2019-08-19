@@ -14,6 +14,20 @@
     <version>1.4.0</version>
 
     <dependencies>
+        <!-- AKKA for multithreading -->
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.12</artifactId>
+            <version>2.5.24</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-testkit_2.12</artifactId>
+            <version>2.5.25</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Protobuf -->
         <dependency>
             <groupId>com.google.protobuf</groupId>

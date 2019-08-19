@@ -9,7 +9,7 @@ import java.io.IOException;
  * @param <T>
  * @param <U>
  */
-interface CloseableBiConsumer<T, U> {
+public interface CloseableBiConsumer<T, U> {
     void write(T t, U u) throws IOException;
 
     /**
