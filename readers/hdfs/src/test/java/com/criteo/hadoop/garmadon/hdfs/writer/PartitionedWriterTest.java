@@ -55,17 +55,17 @@ public class PartitionedWriterTest {
         partitionedWriter.write(instantFromDate("1984-05-21 05:55:55"),
                 secondDaySecondPartitionSecondOffset, "D2P2M2");
 
-        verify(firstConsumerMock, times(1)).write(eq("D1P1M1"),
+        verify(firstConsumerMock, times(1)).write(eq(instantFromDate("1987-08-13 11:00:02").toEpochMilli()), eq("D1P1M1"),
                 eq(firstPartitionFirstOffset));
-        verify(firstConsumerMock, times(1)).write(eq("D1P1M2"),
+        verify(firstConsumerMock, times(1)).write(eq(instantFromDate("1987-08-13 13:42:51").toEpochMilli()), eq("D1P1M2"),
                 eq(firstPartitionSecondOffset));
         verifyNoMoreInteractions(firstConsumerMock);
 
-        verify(secondConsumerMock, times(1)).write(eq("D1P2M1"),
+        verify(secondConsumerMock, times(1)).write(eq(instantFromDate("1987-08-13 15:12:22").toEpochMilli()), eq("D1P2M1"),
                 eq(secondPartitionFirstOffset));
         verifyNoMoreInteractions(secondConsumerMock);
 
-        verify(thirdConsumerMock, times(1)).write(eq("D2P2M2"),
+        verify(thirdConsumerMock, times(1)).write(eq(instantFromDate("1984-05-21 05:55:55").toEpochMilli()), eq("D2P2M2"),
                 eq(secondDaySecondPartitionSecondOffset));
         verifyNoMoreInteractions(thirdConsumerMock);
 
@@ -129,17 +129,17 @@ public class PartitionedWriterTest {
         partitionedWriter.write(instantFromDate("1987-08-13 03:33:33"), firstDayThirdOffset, "D1M3");
         partitionedWriter.write(instantFromDate("1984-05-21 02:22:22"), secondDaySecondOffset, "D2M2");
 
-        verify(firstDayFirstConsumerMock, times(1)).write(eq("D1M1"), eq(firstDayFirstOffset));
+        verify(firstDayFirstConsumerMock, times(1)).write(eq(instantFromDate("1987-08-13 05:55:55").toEpochMilli()), eq("D1M1"), eq(firstDayFirstOffset));
         verify(firstDayFirstConsumerMock, times(1)).isExpired();
         verify(firstDayFirstConsumerMock, times(1)).close();
         verifyNoMoreInteractions(firstDayFirstConsumerMock);
 
-        verify(firstDaySecondConsumerMock, times(1)).write(eq("D1M3"), eq(firstDayThirdOffset));
-        verify(firstDaySecondConsumerMock, times(1)).write(eq("D1M2"), eq(firstDaySecondOffset));
+        verify(firstDaySecondConsumerMock, times(1)).write(eq(instantFromDate("1987-08-13 03:33:33").toEpochMilli()), eq("D1M3"), eq(firstDayThirdOffset));
+        verify(firstDaySecondConsumerMock, times(1)).write(eq(instantFromDate("1987-08-13 04:44:44").toEpochMilli()), eq("D1M2"), eq(firstDaySecondOffset));
         verifyNoMoreInteractions(firstDaySecondConsumerMock);
 
-        verify(secondDayFirstConsumerMock, times(1)).write(eq("D2M1"), eq(secondDayFirstOffset));
-        verify(secondDayFirstConsumerMock, times(1)).write(eq("D2M2"), eq(secondDaySecondOffset));
+        verify(secondDayFirstConsumerMock, times(1)).write(eq(instantFromDate("1984-05-21 02:22:22").toEpochMilli()), eq("D2M1"), eq(secondDayFirstOffset));
+        verify(secondDayFirstConsumerMock, times(1)).write(eq(instantFromDate("1984-05-21 02:22:22").toEpochMilli()), eq("D2M2"), eq(secondDaySecondOffset));
 
         verify(secondDayFirstConsumerMock, times(1)).isExpired();
         verifyNoMoreInteractions(secondDayFirstConsumerMock);
@@ -244,11 +244,11 @@ public class PartitionedWriterTest {
         when(writerBuilder.apply(any(LocalDateTime.class))).thenReturn(firstMockConsumer).thenReturn(secondMockConsumer);
 
         writer.write(instant, buildOffset(1, 8), "Ignored");
-        verify(firstMockConsumer, times(1)).write(anyString(), any(Offset.class));
+        verify(firstMockConsumer, times(1)).write(anyLong(), anyString(), any(Offset.class));
         writer.dropPartition(1);
         writer.expireConsumers();
         writer.write(instant, buildOffset(1, 8), "Ignored");
-        verify(secondMockConsumer, times(1)).write(anyString(), any(Offset.class));
+        verify(secondMockConsumer, times(1)).write(anyLong(), anyString(), any(Offset.class));
         writer.expireConsumers();
 
         verify(secondMockConsumer, times(1)).isExpired();
@@ -304,6 +304,7 @@ public class PartitionedWriterTest {
     @Test
     public void heartbeatWithNoMessage() throws IOException {
         final int partition = 1;
+        ArgumentCaptor<Long> timestampCaptor = ArgumentCaptor.forClass(Long.class);
         ArgumentCaptor<DynamicMessage> argument = ArgumentCaptor.forClass(DynamicMessage.class);
         final Offset offset = new TopicPartitionOffset("topic", partition, 123);
         final ExpiringConsumer<Message> consumer = mock(ExpiringConsumer.class);
@@ -319,7 +320,12 @@ public class PartitionedWriterTest {
 
         writer.heartbeat(partition, offset);
 
-        verify(consumer, times(1)).write(argument.capture(), any(Offset.class));
+        verify(consumer, times(1)).write(timestampCaptor.capture(), argument.capture(), any(Offset.class));
+
+        Long timestamp = timestampCaptor.getValue();
+        //timestamp should be now, testing a 10 second range is enough for the purpose
+        long now = System.currentTimeMillis();
+        assertTrue(timestamp - 10000 < now && now < timestamp + 10000);
 
         DynamicMessage toWrite = argument.getValue();
         String[] fields = toWrite.getAllFields().keySet().stream().map(desc -> desc.getName()).toArray(String[]::new);
@@ -343,7 +349,7 @@ public class PartitionedWriterTest {
         writer.write(Instant.EPOCH, offset, "Message");
         writer.heartbeat(partition, offset);
 
-        verify(consumer, never()).write(eq(null), any(Offset.class));
+        verify(consumer, never()).write(anyLong(), eq(null), any(Offset.class));
         verify(consumer, never()).close();
 
         verifyZeroInteractions(mockCheckpointer);
