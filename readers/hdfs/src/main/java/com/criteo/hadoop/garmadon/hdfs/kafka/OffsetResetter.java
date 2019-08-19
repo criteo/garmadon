@@ -77,19 +77,15 @@ public class OffsetResetter<K, V, MESSAGE_KIND> implements ConsumerRebalanceList
             }
         }
 
-        //Compute min offset per partition, taking into account the possibility
-        //of a new event that would reset all partitions to UNKNOWN_OFFSET
-        //in this case keep the lower offset above
-
-        boolean possibleNewEvent = offsetsPerPartition.values().stream().allMatch(offsets -> offsets.contains(UNKNOWN_OFFSET));
-
+        //Compute min offset per partition (excluding UNKNOWN_OFFSET), use UNKNOWN_OFFSET if no min is found
+        //(it means that UNKNOWN_OFFSET was the only available offset)
         Map<Integer, Long> minOffsetPerPartition = offsetsPerPartition
             .entrySet()
             .stream()
             .collect(Collectors.toMap(Map.Entry::getKey, offsets -> offsets
                 .getValue()
                 .stream()
-                .filter(offset -> offset != UNKNOWN_OFFSET || !possibleNewEvent)
+                .filter(offset -> offset != UNKNOWN_OFFSET)
                 .mapToLong(l -> l)
                 .min()
                 .orElse(UNKNOWN_OFFSET))
