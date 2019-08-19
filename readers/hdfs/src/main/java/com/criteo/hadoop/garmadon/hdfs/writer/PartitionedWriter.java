@@ -101,7 +101,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
             // /!\ This line must not be switched with the offset computation as this would create empty files otherwise
             final ExpiringConsumer<MESSAGE_KIND> consumer = getWriter(dayStartTime, partitionId);
 
-            consumer.write(msg, offset);
+            consumer.write(when.toEpochMilli(), msg, offset);
         }
     }
 
@@ -180,11 +180,12 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                     && !shouldSkipOffset(offset.getOffset(), partition)) {
                     final ExpiringConsumer<MESSAGE_KIND> heartbeatWriter = writerBuilder.apply(LocalDateTime.now());
 
+                    long now = System.currentTimeMillis();
                     MESSAGE_KIND msg = (MESSAGE_KIND) ProtoConcatenator
-                        .concatToProtobuf(System.currentTimeMillis(), offset.getOffset(), Arrays.asList(emptyHeader, emptyMessageBuilder.build()))
+                        .concatToProtobuf(now, offset.getOffset(), Arrays.asList(emptyHeader, emptyMessageBuilder.build()))
                         .build();
 
-                    heartbeatWriter.write(msg, offset);
+                    heartbeatWriter.write(now, msg, offset);
 
                     final Path writtenFilePath = heartbeatWriter.close();
 
