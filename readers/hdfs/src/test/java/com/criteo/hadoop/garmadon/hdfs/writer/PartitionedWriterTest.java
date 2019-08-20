@@ -325,7 +325,7 @@ public class PartitionedWriterTest {
         Long timestamp = timestampCaptor.getValue();
         //timestamp should be now, testing a 10 second range is enough for the purpose
         long now = System.currentTimeMillis();
-        assertTrue(timestamp - 10000 < now && now < timestamp + 10000);
+        assertEquals(now, timestamp, 10000);
 
         DynamicMessage toWrite = argument.getValue();
         String[] fields = toWrite.getAllFields().keySet().stream().map(desc -> desc.getName()).toArray(String[]::new);
