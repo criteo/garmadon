@@ -105,6 +105,9 @@ public class HdfsExporter {
             throw new UnsupportedOperationException("Filesystem of type " + fs.getScheme() + " is not supported. Only hdfs and file ones are supported");
         }
 
+        LOGGER.info("Creating actor system");
+        ActorSystem actorSystem = ActorSystem.create();
+
         final Properties props = new Properties();
 
         props.putAll(GarmadonReader.Builder.DEFAULT_KAFKA_PROPS);
@@ -136,9 +139,6 @@ public class HdfsExporter {
         LOGGER.info("Final HDFS dir: {}", finalHdfsDir.toUri());
 
         final PartitionsPauseStateHandler pauser = new PartitionsPauseStateHandler(kafkaConsumer);
-
-        //TODO put somewhere else
-        ActorSystem actorSystem = ActorSystem.create();
 
         for (Map.Entry<Integer, GarmadonEventDescriptor> out : typeToDirAndClass.entrySet()) {
             final Integer eventType = out.getKey();

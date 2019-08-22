@@ -1,10 +1,9 @@
 package com.criteo.hadoop.garmadon.hdfs.writer;
 
 import akka.Done;
-import akka.actor.AbstractActor;
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.Props;
+import akka.actor.*;
+import akka.japi.pf.DeciderBuilder;
+import akka.japi.pf.FI;
 import com.criteo.hadoop.garmadon.reader.Offset;
 
 import java.io.IOException;
@@ -16,7 +15,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import static akka.pattern.Patterns.ask;
-import static com.criteo.hadoop.garmadon.hdfs.writer.AsyncPartitionedWriter.Actor.*;
 
 public class AsyncPartitionedWriter<M> {
 
@@ -37,30 +35,36 @@ public class AsyncPartitionedWriter<M> {
     }
 
     public CompletableFuture<Done> close() {
-        return ask(actor, new CloseEvent(), MAX_AKKA_DELAY).toCompletableFuture().thenApply(o -> (Done) o);
+        return ask(actor, new Actor.CloseEvent(), MAX_AKKA_DELAY).toCompletableFuture().thenApply(o -> (Done) o);
     }
 
     public CompletableFuture<Done> write(Instant when, Offset offset, Supplier<M> msg) {
-        return ask(actor, new WriteEvent(when, offset, msg), MAX_AKKA_DELAY).toCompletableFuture().thenApply(o -> (Done) o);
+        return ask(actor, new Actor.WriteEvent(when, offset, msg), MAX_AKKA_DELAY).toCompletableFuture().thenApply(o -> (Done) o);
     }
 
     public CompletableFuture<Done> dropPartition(int partition) {
-        return ask(actor, new DropPartitionEvent(partition), MAX_AKKA_DELAY).toCompletableFuture().thenApply(o -> (Done) o);
+        return ask(actor, new Actor.DropPartitionEvent(partition), MAX_AKKA_DELAY).toCompletableFuture().thenApply(o -> (Done) o);
     }
 
     public CompletableFuture<Done> expireConsumers() {
-        return ask(actor, new ExpireConsumersEvent(), MAX_AKKA_DELAY).toCompletableFuture().thenApply(o -> (Done) o);
+        return ask(actor, new Actor.ExpireConsumersEvent(), MAX_AKKA_DELAY).toCompletableFuture().thenApply(o -> (Done) o);
     }
 
     public CompletableFuture<Map<Integer, Long>> getStartingOffsets(Collection<Integer> partitions) {
-        return ask(actor, new GetStartingOffsetsEvent(partitions), MAX_AKKA_DELAY).toCompletableFuture().thenApply(o -> (Map<Integer, Long>) o);
+        return ask(actor, new Actor.GetStartingOffsetsEvent(partitions), MAX_AKKA_DELAY).toCompletableFuture().thenApply(o -> (Map<Integer, Long>) o);
     }
 
     public CompletableFuture<Done> heartbeat(int partition, Offset offset) {
-        return ask(actor, new HeartbeatEvent(partition, offset), MAX_AKKA_DELAY).toCompletableFuture().thenApply(o -> (Done) o);
+        return ask(actor, new Actor.HeartbeatEvent(partition, offset), MAX_AKKA_DELAY).toCompletableFuture().thenApply(o -> (Done) o);
     }
 
     static class Actor extends AbstractActor {
+
+        private static SupervisorStrategy strategy = new OneForOneStrategy(
+            DeciderBuilder
+                .match(Exception.class, e -> SupervisorStrategy.resume())
+                .build()
+        );
 
         private final PartitionedWriter<Object> writer;
 
@@ -69,31 +73,36 @@ public class AsyncPartitionedWriter<M> {
         }
 
         @Override
+        public SupervisorStrategy supervisorStrategy() {
+            return strategy;
+        }
+
+        @Override
         public AbstractActor.Receive createReceive() {
             return receiveBuilder()
-                .match(CloseEvent.class, evt -> {
+                .match(CloseEvent.class, protect(evt -> {
                     doClose();
                     done();
-                })
-                .match(DropPartitionEvent.class, evt -> {
+                }))
+                .match(DropPartitionEvent.class, protect(evt -> {
                     doDropPartition(evt.partition);
                     done();
-                })
-                .match(ExpireConsumersEvent.class, evt -> {
+                }))
+                .match(ExpireConsumersEvent.class, protect(evt -> {
                     doExpireConsumers();
                     done();
-                })
-                .match(GetStartingOffsetsEvent.class, evt -> {
+                }))
+                .match(GetStartingOffsetsEvent.class, protect(evt -> {
                     reply(doGetStartingOffsets(evt.partitions));
-                })
-                .match(HeartbeatEvent.class, evt -> {
+                }))
+                .match(HeartbeatEvent.class, protect(evt -> {
                     doHeartbeat(evt.partition, evt.offset);
                     done();
-                })
-                .match(WriteEvent.class, evt -> {
+                }))
+                .match(WriteEvent.class, protect(evt -> {
                     doWrite(evt.when, evt.offset, evt.msgSupplier.get());
                     done();
-                })
+                }))
                 .build();
         }
 
@@ -127,6 +136,20 @@ public class AsyncPartitionedWriter<M> {
 
         private void reply(Object o) {
             getSender().tell(o, getSelf());
+        }
+
+        private <P> FI.UnitApply<P> protect(FI.UnitApply<P> action) {
+            return p -> {
+                try {
+                    action.apply(p);
+                } catch (Exception e) {
+                    replyFailure(e);
+                }
+            };
+        }
+
+        private void replyFailure(Exception e) {
+            getSender().tell(new Status.Failure(e), getSelf());
         }
 
         /* Events the actor can receive */
