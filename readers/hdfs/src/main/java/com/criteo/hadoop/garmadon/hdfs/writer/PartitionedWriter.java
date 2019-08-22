@@ -66,10 +66,8 @@ public class PartitionedWriter<MESSAGE_KIND> {
      * @param partitionId The partition for which to stop processing events.
      */
     void dropPartition(int partitionId) {
-        synchronized (perPartitionDayWriters) {
-            perPartitionDayWriters.remove(partitionId);
-            perPartitionStartOffset.remove(partitionId);
-        }
+        perPartitionDayWriters.remove(partitionId);
+        perPartitionStartOffset.remove(partitionId);
     }
 
     /**
@@ -100,14 +98,13 @@ public class PartitionedWriter<MESSAGE_KIND> {
 
         try {
 
-            synchronized (perPartitionDayWriters) {
-                if (shouldSkipOffset(offset.getOffset(), partitionId)) return;
+            if (shouldSkipOffset(offset.getOffset(), partitionId)) return;
 
-                // /!\ This line must not be switched with the offset computation as this would create empty files otherwise
-                final ExpiringWriter<MESSAGE_KIND> consumer = getWriter(dayStartTime, partitionId);
+            // /!\ This line must not be switched with the offset computation as this would create empty files otherwise
+            final ExpiringWriter<MESSAGE_KIND> consumer = getWriter(dayStartTime, partitionId);
 
-                consumer.write(msg, offset);
-            }
+            consumer.write(msg, offset);
+
             messagesWritten.inc();
 
         } catch (IOException e) {
@@ -145,26 +142,24 @@ public class PartitionedWriter<MESSAGE_KIND> {
      * @throws IOException If the offset computation failed
      */
     Map<Integer, Long> getStartingOffsets(Collection<Integer> partitionsId) throws IOException {
-        synchronized (perPartitionStartOffset) {
-            if (!perPartitionStartOffset.keySet().containsAll(partitionsId)) {
-                final Map<Integer, Long> startingOffsets;
+        if (!perPartitionStartOffset.keySet().containsAll(partitionsId)) {
+            final Map<Integer, Long> startingOffsets;
 
-                try {
-                    startingOffsets = offsetComputer.computeOffsets(partitionsId);
-                } catch (IOException e) {
-                    partitionsId.forEach(id -> perPartitionStartOffset.put(id, OffsetComputer.NO_OFFSET));
-                    throw e;
-                }
-
-                perPartitionStartOffset.putAll(startingOffsets);
-
-                return startingOffsets;
+            try {
+                startingOffsets = offsetComputer.computeOffsets(partitionsId);
+            } catch (IOException e) {
+                partitionsId.forEach(id -> perPartitionStartOffset.put(id, OffsetComputer.NO_OFFSET));
+                throw e;
             }
 
-            return partitionsId.stream()
-                .filter(perPartitionStartOffset::containsKey)
-                .collect(Collectors.toMap(Function.identity(), perPartitionStartOffset::get));
+            perPartitionStartOffset.putAll(startingOffsets);
+
+            return startingOffsets;
         }
+
+        return partitionsId.stream()
+            .filter(perPartitionStartOffset::containsKey)
+            .collect(Collectors.toMap(Function.identity(), perPartitionStartOffset::get));
     }
 
     /**
@@ -182,74 +177,70 @@ public class PartitionedWriter<MESSAGE_KIND> {
      * @param offset    Offset to use for naming
      */
     void heartbeat(int partition, Offset offset) {
-        synchronized (perPartitionDayWriters) {
-            final Counter.Child heartbeatsSent = PrometheusMetrics.buildCounterChild(
-                PrometheusMetrics.HEARTBEATS_SENT, eventName, partition);
-            PrometheusMetrics.buildCounterChild(PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
+        final Counter.Child heartbeatsSent = PrometheusMetrics.buildCounterChild(
+            PrometheusMetrics.HEARTBEATS_SENT, eventName, partition);
+        PrometheusMetrics.buildCounterChild(PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
 
-            try {
-                if ((!perPartitionDayWriters.containsKey(partition) || perPartitionDayWriters.get(partition).isEmpty())
-                    && !shouldSkipOffset(offset.getOffset(), partition)) {
-                    final ExpiringWriter<MESSAGE_KIND> heartbeatWriter = writerBuilder.apply(LocalDateTime.now());
+        try {
+            if ((!perPartitionDayWriters.containsKey(partition) || perPartitionDayWriters.get(partition).isEmpty())
+                && !shouldSkipOffset(offset.getOffset(), partition)) {
+                final ExpiringWriter<MESSAGE_KIND> heartbeatWriter = writerBuilder.apply(LocalDateTime.now());
 
-                    MESSAGE_KIND msg = (MESSAGE_KIND) ProtoConcatenator
-                        .concatToProtobuf(System.currentTimeMillis(), offset.getOffset(), Arrays.asList(emptyHeader, emptyMessageBuilder.build()))
-                        .build();
+                MESSAGE_KIND msg = (MESSAGE_KIND) ProtoConcatenator
+                    .concatToProtobuf(System.currentTimeMillis(), offset.getOffset(), Arrays.asList(emptyHeader, emptyMessageBuilder.build()))
+                    .build();
 
-                    heartbeatWriter.write(msg, offset);
+                heartbeatWriter.write(msg, offset);
 
-                    final Path writtenFilePath = heartbeatWriter.close();
+                final Path writtenFilePath = heartbeatWriter.close();
 
-                    if (writtenFilePath != null) {
-                        heartbeatsSent.inc();
-                        LOGGER.info("Written heartbeat file {}", writtenFilePath.toUri().getPath());
-                    }
+                if (writtenFilePath != null) {
+                    heartbeatsSent.inc();
+                    LOGGER.info("Written heartbeat file {}", writtenFilePath.toUri().getPath());
                 }
-            } catch (IOException e) {
-                LOGGER.warn("Could not write heartbeat", e);
             }
+        } catch (IOException e) {
+            LOGGER.warn("Could not write heartbeat", e);
         }
     }
 
     private void possiblyCloseConsumers(Predicate<ExpiringWriter> shouldClose) {
-        synchronized (perPartitionDayWriters) {
-            perPartitionDayWriters.forEach((partitionId, dailyWriters) ->
-                dailyWriters.entrySet().removeIf(entry -> {
-                    final ExpiringWriter<MESSAGE_KIND> consumer = entry.getValue();
-                    final LocalDateTime day = entry.getKey();
+        perPartitionDayWriters.forEach((partitionId, dailyWriters) ->
+            dailyWriters.entrySet().removeIf(entry -> {
+                final ExpiringWriter<MESSAGE_KIND> consumer = entry.getValue();
+                final LocalDateTime day = entry.getKey();
 
-                    if (shouldClose.test(consumer)) {
-                        if (tryExpireConsumer(consumer)) {
-                            final Counter.Child filesCommitted = PrometheusMetrics.buildCounterChild(
-                                PrometheusMetrics.FILES_COMMITTED, eventName);
-                            final Counter.Child checkpointsFailures = PrometheusMetrics.buildCounterChild(
-                                PrometheusMetrics.CHECKPOINTS_FAILURES, eventName, partitionId);
-                            final Counter.Child checkpointsSuccesses = PrometheusMetrics.buildCounterChild(
-                                PrometheusMetrics.CHECKPOINTS_SUCCESSES, eventName, partitionId);
+                if (shouldClose.test(consumer)) {
+                    if (tryExpireConsumer(consumer)) {
+                        final Counter.Child filesCommitted = PrometheusMetrics.buildCounterChild(
+                            PrometheusMetrics.FILES_COMMITTED, eventName);
+                        final Counter.Child checkpointsFailures = PrometheusMetrics.buildCounterChild(
+                            PrometheusMetrics.CHECKPOINTS_FAILURES, eventName, partitionId);
+                        final Counter.Child checkpointsSuccesses = PrometheusMetrics.buildCounterChild(
+                            PrometheusMetrics.CHECKPOINTS_SUCCESSES, eventName, partitionId);
 
-                            filesCommitted.inc();
+                        filesCommitted.inc();
 
-                            try {
-                                checkpointer.tryCheckpoint(partitionId, latestMessageTimeForPartitionAndDay.get(
-                                    new AbstractMap.SimpleEntry<>(partitionId, day)));
-                            } catch (RuntimeException e) {
-                                String msg = String.format("Failed to checkpoint partition %d, date %s, event %s",
-                                    partitionId, day.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                                    eventName);
+                        try {
+                            checkpointer.tryCheckpoint(partitionId, latestMessageTimeForPartitionAndDay.get(
+                                new AbstractMap.SimpleEntry<>(partitionId, day)));
+                        } catch (RuntimeException e) {
+                            String msg = String.format("Failed to checkpoint partition %d, date %s, event %s",
+                                partitionId, day.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                                eventName);
 
-                                LOGGER.warn(msg, e);
-                                checkpointsFailures.inc();
-                            }
-
-                            checkpointsSuccesses.inc();
-
-                            return true;
+                            LOGGER.warn(msg, e);
+                            checkpointsFailures.inc();
                         }
-                    }
 
-                    return false;
-                }));
-        }
+                        checkpointsSuccesses.inc();
+
+                        return true;
+                    }
+                }
+
+                return false;
+            }));
     }
 
     private boolean tryExpireConsumer(ExpiringWriter<MESSAGE_KIND> consumer) {
