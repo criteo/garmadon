@@ -44,9 +44,9 @@ public class AsyncPartitionedWriterTest {
         CommittableOffset offset = mockOffset(0, 1);
         Object msg = new Object();
 
-        asyncPartitionedWriter.write(now, offset, msg).get(1, TimeUnit.SECONDS);
+        asyncPartitionedWriter.write(now, offset, msg::hashCode).get(1, TimeUnit.SECONDS);
 
-        verify(writer).write(now, offset, msg);
+        verify(writer).write(now, offset, msg.hashCode());
     }
 
     @Test

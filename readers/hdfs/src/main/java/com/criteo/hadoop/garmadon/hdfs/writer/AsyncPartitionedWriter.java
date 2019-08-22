@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 import static akka.pattern.Patterns.ask;
 import static com.criteo.hadoop.garmadon.hdfs.writer.AsyncPartitionedWriter.Actor.*;
@@ -39,7 +40,7 @@ public class AsyncPartitionedWriter<M> {
         return ask(actor, new CloseEvent(), MAX_AKKA_DELAY).toCompletableFuture().thenApply(o -> (Done) o);
     }
 
-    public CompletableFuture<Done> write(Instant when, Offset offset, M msg) {
+    public CompletableFuture<Done> write(Instant when, Offset offset, Supplier<M> msg) {
         return ask(actor, new WriteEvent(when, offset, msg), MAX_AKKA_DELAY).toCompletableFuture().thenApply(o -> (Done) o);
     }
 
@@ -90,7 +91,7 @@ public class AsyncPartitionedWriter<M> {
                     done();
                 })
                 .match(WriteEvent.class, evt -> {
-                    doWrite(evt.when, evt.offset, evt.msg);
+                    doWrite(evt.when, evt.offset, evt.msgSupplier.get());
                     done();
                 })
                 .build();
@@ -132,13 +133,13 @@ public class AsyncPartitionedWriter<M> {
         static class WriteEvent {
 
             private final Instant when;
-            private final Object msg;
+            private final Supplier msgSupplier;
             private final Offset offset;
 
-            WriteEvent(Instant when, Offset offset, Object msg) {
+            WriteEvent(Instant when, Offset offset, Supplier msgSupplier) {
                 this.when = when;
                 this.offset = offset;
-                this.msg = msg;
+                this.msgSupplier = msgSupplier;
             }
         }
 

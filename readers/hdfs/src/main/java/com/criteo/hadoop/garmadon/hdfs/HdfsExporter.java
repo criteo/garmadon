@@ -291,7 +291,7 @@ public class HdfsExporter {
                 eventName, offset.getPartition());
             gauge.set(offset.getOffset());
 
-            writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset, msg.toProto());
+            writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset, msg::toProto);
         };
     }
 
