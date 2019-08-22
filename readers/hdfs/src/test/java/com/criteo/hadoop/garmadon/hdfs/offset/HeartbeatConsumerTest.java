@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.hdfs.offset;
 
+import com.criteo.hadoop.garmadon.hdfs.writer.AsyncPartitionedWriter;
 import com.criteo.hadoop.garmadon.hdfs.writer.PartitionedWriter;
 import com.criteo.hadoop.garmadon.reader.*;
 import org.junit.Test;
@@ -21,7 +22,7 @@ public class HeartbeatConsumerTest {
 
     @Test(timeout = 3000)
     public void noWriter() throws InterruptedException {
-        final List<PartitionedWriter<String>> writers = new ArrayList<>();
+        final List<AsyncPartitionedWriter<String>> writers = new ArrayList<>();
         final HeartbeatConsumer hb = new HeartbeatConsumer<>(writers, Duration.ofMillis(10));
 
         hb.handle(buildGarmadonMessage(new TopicPartitionOffset(TOPIC, BASE_PARTITION, BASE_OFFSET)));
@@ -39,8 +40,8 @@ public class HeartbeatConsumerTest {
                 BASE_OFFSET + 11);
         final Offset secondPartitionSecondOffset = new TopicPartitionOffset(TOPIC, BASE_PARTITION + 1,
                 BASE_OFFSET + 12);
-        final List<PartitionedWriter<String>> writers = Arrays.asList(mock(PartitionedWriter.class),
-                mock(PartitionedWriter.class));
+        final List<AsyncPartitionedWriter<String>> writers = Arrays.asList(mock(AsyncPartitionedWriter.class),
+                mock(AsyncPartitionedWriter.class));
         final HeartbeatConsumer hb = new HeartbeatConsumer<>(writers, Duration.ofMillis(100));
 
         // In-order offsets
@@ -54,12 +55,12 @@ public class HeartbeatConsumerTest {
         hb.start(mock(Thread.UncaughtExceptionHandler.class));
         Thread.sleep(1000);
 
-        for (PartitionedWriter<String> writer: writers) {
+        for (AsyncPartitionedWriter<String> writer: writers) {
             verify(writer, times(1)).heartbeat(eq(BASE_PARTITION),
                     argThat(new OffsetArgumentMatcher(firstPartitionSecondOffset)));
         }
 
-        for (PartitionedWriter<String> writer: writers) {
+        for (AsyncPartitionedWriter<String> writer: writers) {
             verify(writer, times(1)).heartbeat(eq(BASE_PARTITION + 1),
                     argThat(new OffsetArgumentMatcher(secondPartitionSecondOffset)));
         }
@@ -69,7 +70,7 @@ public class HeartbeatConsumerTest {
 
     @Test
     public void differentConsecutiveHeartbeats() throws InterruptedException {
-        final PartitionedWriter writer = mock(PartitionedWriter.class);
+        final AsyncPartitionedWriter writer = mock(AsyncPartitionedWriter.class);
         final HeartbeatConsumer hb = new HeartbeatConsumer<>(Collections.singleton(writer), Duration.ofMillis(100));
         final Offset firstOffset = new TopicPartitionOffset(TOPIC, BASE_PARTITION, BASE_OFFSET);
         final Offset secondOffset = new TopicPartitionOffset(TOPIC, BASE_PARTITION + 1, BASE_OFFSET + 11);
@@ -92,7 +93,7 @@ public class HeartbeatConsumerTest {
     public void dropPartition() throws InterruptedException {
         final Offset firstPartitionOffset = new TopicPartitionOffset(TOPIC, BASE_PARTITION, BASE_OFFSET + 1);
         final Offset secondPartitionOffset = new TopicPartitionOffset(TOPIC, BASE_PARTITION + 1, BASE_OFFSET + 11);
-        final PartitionedWriter<String> writer = mock(PartitionedWriter.class);
+        final AsyncPartitionedWriter<String> writer = mock(AsyncPartitionedWriter.class);
         final HeartbeatConsumer hb = new HeartbeatConsumer<>(Collections.singleton(writer), Duration.ofSeconds(2));
 
         hb.handle(buildGarmadonMessage(firstPartitionOffset));
@@ -116,8 +117,8 @@ public class HeartbeatConsumerTest {
         final int PARTITION = 1;
         final long OFFSET = 123;
         final TopicPartitionOffset offset = new TopicPartitionOffset(TOPIC, PARTITION, OFFSET);
-        final List<PartitionedWriter<String>> writers = Arrays.asList(mock(PartitionedWriter.class),
-                mock(PartitionedWriter.class));
+        final List<AsyncPartitionedWriter<String>> writers = Arrays.asList(mock(AsyncPartitionedWriter.class),
+                mock(AsyncPartitionedWriter.class));
         final HeartbeatConsumer hb = new HeartbeatConsumer<>(writers, Duration.ofMillis(10));
         hb.handle(buildGarmadonMessage(offset));
 
@@ -131,7 +132,7 @@ public class HeartbeatConsumerTest {
 
     @Test(timeout = 3000)
     public void writerExpirerStopWhileWaiting() throws InterruptedException {
-        final HeartbeatConsumer hb = new HeartbeatConsumer<String>(Collections.singleton(mock(PartitionedWriter.class)),
+        final HeartbeatConsumer hb = new HeartbeatConsumer<String>(Collections.singleton(mock(AsyncPartitionedWriter.class)),
                 Duration.ofMillis(10));
 
         hb.start(mock(Thread.UncaughtExceptionHandler.class));

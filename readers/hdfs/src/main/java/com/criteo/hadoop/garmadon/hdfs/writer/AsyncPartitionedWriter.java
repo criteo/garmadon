@@ -6,8 +6,6 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import com.criteo.hadoop.garmadon.reader.Offset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -19,15 +17,13 @@ import java.util.concurrent.CompletableFuture;
 import static akka.pattern.Patterns.ask;
 import static com.criteo.hadoop.garmadon.hdfs.writer.AsyncPartitionedWriter.Actor.*;
 
-public final class AsyncPartitionedWriter<M> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncPartitionedWriter.class);
+public class AsyncPartitionedWriter<M> {
 
     private static final Duration MAX_AKKA_DELAY = Duration.ofSeconds(21474835);
 
     private final ActorRef actor;
 
-    private AsyncPartitionedWriter(ActorRef actor) {
+    AsyncPartitionedWriter(ActorRef actor) {
         this.actor = actor;
     }
 

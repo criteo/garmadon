@@ -12,16 +12,13 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -31,7 +28,7 @@ import java.util.stream.Collectors;
  *
  * @param <MESSAGE_KIND> The type of messages which will ultimately get written.
  */
-public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
+public class PartitionedWriter<MESSAGE_KIND> {
     private static final ZoneId UTC_ZONE = ZoneId.of("UTC");
     private static final Logger LOGGER = LoggerFactory.getLogger(PartitionedWriter.class);
 
@@ -68,7 +65,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      *
      * @param partitionId The partition for which to stop processing events.
      */
-    public void dropPartition(int partitionId) {
+    void dropPartition(int partitionId) {
         synchronized (perPartitionDayWriters) {
             perPartitionDayWriters.remove(partitionId);
             perPartitionStartOffset.remove(partitionId);
@@ -84,25 +81,41 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      * @param msg    Message to be written
      * @throws IOException If the offset computation failed
      */
-    public void write(Instant when, Offset offset, MESSAGE_KIND msg) throws IOException {
+    void write(Instant when, Offset offset, MESSAGE_KIND msg) {
+
+        final Counter.Child messagesWritingFailures = PrometheusMetrics.buildCounterChild(
+            PrometheusMetrics.MESSAGES_WRITING_FAILURES, eventName, offset.getPartition());
+        final Counter.Child messagesWritten = PrometheusMetrics.buildCounterChild(
+            PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
+
         final LocalDateTime dayStartTime = LocalDateTime.ofInstant(when.truncatedTo(ChronoUnit.DAYS), UTC_ZONE);
         final int partitionId = offset.getPartition();
         final AbstractMap.SimpleEntry<Integer, LocalDateTime> dayAndPartition = new AbstractMap.SimpleEntry<>(
-                partitionId, dayStartTime);
+            partitionId, dayStartTime);
 
         if (!latestMessageTimeForPartitionAndDay.containsKey(dayAndPartition) ||
-                when.isAfter(latestMessageTimeForPartitionAndDay.get(dayAndPartition))) {
+            when.isAfter(latestMessageTimeForPartitionAndDay.get(dayAndPartition))) {
             latestMessageTimeForPartitionAndDay.put(dayAndPartition, when);
         }
 
-        synchronized (perPartitionDayWriters) {
-            if (shouldSkipOffset(offset.getOffset(), partitionId)) return;
+        try {
 
-            // /!\ This line must not be switched with the offset computation as this would create empty files otherwise
-            final ExpiringWriter<MESSAGE_KIND> consumer = getWriter(dayStartTime, partitionId);
+            synchronized (perPartitionDayWriters) {
+                if (shouldSkipOffset(offset.getOffset(), partitionId)) return;
 
-            consumer.write(msg, offset);
+                // /!\ This line must not be switched with the offset computation as this would create empty files otherwise
+                final ExpiringWriter<MESSAGE_KIND> consumer = getWriter(dayStartTime, partitionId);
+
+                consumer.write(msg, offset);
+            }
+            messagesWritten.inc();
+
+        } catch (IOException e) {
+            // We accept losing messages every now and then, but still log failures
+            messagesWritingFailures.inc();
+            LOGGER.warn("Couldn't write a message", e);
         }
+
     }
 
     private boolean shouldSkipOffset(long offset, int partitionId) throws IOException {
@@ -120,8 +133,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     /**
      * Close all open consumers
      */
-    @Override
-    public void close() {
+    void close() {
         possiblyCloseConsumers(ignored -> true);
     }
 
@@ -132,7 +144,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      * @return Map with partition id =&gt; lowest offset
      * @throws IOException If the offset computation failed
      */
-    public Map<Integer, Long> getStartingOffsets(Collection<Integer> partitionsId) throws IOException {
+    Map<Integer, Long> getStartingOffsets(Collection<Integer> partitionsId) throws IOException {
         synchronized (perPartitionStartOffset) {
             if (!perPartitionStartOffset.keySet().containsAll(partitionsId)) {
                 final Map<Integer, Long> startingOffsets;
@@ -169,7 +181,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      * @param partition Partition to use for naming
      * @param offset    Offset to use for naming
      */
-    public void heartbeat(int partition, Offset offset) {
+    void heartbeat(int partition, Offset offset) {
         synchronized (perPartitionDayWriters) {
             final Counter.Child heartbeatsSent = PrometheusMetrics.buildCounterChild(
                 PrometheusMetrics.HEARTBEATS_SENT, eventName, partition);
@@ -219,11 +231,11 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
 
                             try {
                                 checkpointer.tryCheckpoint(partitionId, latestMessageTimeForPartitionAndDay.get(
-                                        new AbstractMap.SimpleEntry<>(partitionId, day)));
+                                    new AbstractMap.SimpleEntry<>(partitionId, day)));
                             } catch (RuntimeException e) {
                                 String msg = String.format("Failed to checkpoint partition %d, date %s, event %s",
-                                        partitionId, day.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                                        eventName);
+                                    partitionId, day.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                                    eventName);
 
                                 LOGGER.warn(msg, e);
                                 checkpointsFailures.inc();
@@ -281,64 +293,4 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
         return partitionMap.computeIfAbsent(dayStartTime, writerBuilder);
     }
 
-    /**
-     * Poll a list of PartitionedWriter instances to make them expire if relevant.
-     *
-     * @param <MESSAGE_KIND> Type of messages which will ultimately get written.
-     */
-    public static class Expirer<MESSAGE_KIND> {
-        private final Collection<PartitionedWriter<MESSAGE_KIND>> writers;
-        private final TemporalAmount period;
-        private volatile Thread runningThread;
-
-        /**
-         * @param writers Writers to watch for
-         * @param period  How often the Expirer should try to expire writers
-         */
-        public Expirer(Collection<PartitionedWriter<MESSAGE_KIND>> writers, TemporalAmount period) {
-            this.writers = writers;
-            this.period = period;
-        }
-
-        public void start(Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
-            runningThread = new Thread(() -> {
-                while (!Thread.currentThread().isInterrupted()) {
-                    writers.forEach(PartitionedWriter::expireConsumers);
-
-                    try {
-                        Thread.sleep(period.get(ChronoUnit.SECONDS) * 1000);
-                    } catch (InterruptedException e) {
-                        LOGGER.warn("Got interrupted while waiting to expire writers", e);
-                        break;
-                    }
-                }
-            });
-
-            runningThread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
-            runningThread.start();
-        }
-
-        /**
-         * Notify the main loop to stop running (still need to wait for the run to finish) and close all writers
-         *
-         * @return A completable future which will complete once the expirer is properly stopped
-         */
-        public CompletableFuture<Void> stop() {
-            if (runningThread != null && runningThread.isAlive()) {
-                runningThread.interrupt();
-
-                return CompletableFuture.supplyAsync(() -> {
-                    try {
-                        runningThread.join();
-                    } catch (InterruptedException e) {
-                        LOGGER.info("Exception caught while waiting for expirer thread to finish", e);
-                    }
-
-                    return null;
-                }).thenRun(() -> writers.forEach(PartitionedWriter::close));
-            }
-
-            return CompletableFuture.completedFuture(null);
-        }
-    }
 }

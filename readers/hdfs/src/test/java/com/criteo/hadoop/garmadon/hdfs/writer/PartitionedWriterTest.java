@@ -351,9 +351,9 @@ public class PartitionedWriterTest {
 
     @Test(timeout = 3000)
     public void writerExpirer() throws InterruptedException {
-        final PartitionedWriter<String> firstConsumer = mock(PartitionedWriter.class);
-        final PartitionedWriter<String> secondConsumer = mock(PartitionedWriter.class);
-        final PartitionedWriter.Expirer<String> expirer = new PartitionedWriter.Expirer<>(
+        final AsyncPartitionedWriter<String> firstConsumer = mock(AsyncPartitionedWriter.class);
+        final AsyncPartitionedWriter<String> secondConsumer = mock(AsyncPartitionedWriter.class);
+        final Expirer<String> expirer = new Expirer<>(
                 Arrays.asList(firstConsumer, secondConsumer), Duration.ofMillis(1));
 
         expirer.start(mock(Thread.UncaughtExceptionHandler.class));
@@ -370,7 +370,7 @@ public class PartitionedWriterTest {
 
     @Test(timeout = 3000)
     public void writerExpirerWithNoWriter() throws InterruptedException {
-        final PartitionedWriter.Expirer<String> expirer = new PartitionedWriter.Expirer<>(Collections.emptyList(),
+        final Expirer<String> expirer = new Expirer<>(Collections.emptyList(),
                 Duration.ofMillis(10));
 
         expirer.start(mock(Thread.UncaughtExceptionHandler.class));
@@ -380,8 +380,8 @@ public class PartitionedWriterTest {
 
     @Test(timeout = 3000)
     public void writerExpirerStopWhileWaiting() throws InterruptedException {
-        final PartitionedWriter.Expirer<String> expirer = new PartitionedWriter.Expirer<>(
-                Collections.singleton(mock(PartitionedWriter.class)), Duration.ofHours(42));
+        final Expirer<String> expirer = new Expirer<>(
+                Collections.singleton(mock(AsyncPartitionedWriter.class)), Duration.ofHours(42));
 
         expirer.start(mock(Thread.UncaughtExceptionHandler.class));
         Thread.sleep(1000);

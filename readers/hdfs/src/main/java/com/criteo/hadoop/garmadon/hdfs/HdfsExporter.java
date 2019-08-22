@@ -33,7 +33,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.FileSystemNotFoundException;
-import java.time.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -114,8 +117,8 @@ public class HdfsExporter {
 
         final KafkaConsumer<String, byte[]> kafkaConsumer = new KafkaConsumer<>(props);
         final GarmadonReader.Builder readerBuilder = GarmadonReader.Builder.stream(kafkaConsumer);
-        final Collection<PartitionedWriter<Message>> writers = new ArrayList<>();
-        final PartitionedWriter.Expirer expirer = new PartitionedWriter.Expirer<>(writers, expirerPeriod);
+        final Collection<AsyncPartitionedWriter<Message>> writers = new ArrayList<>();
+        final Expirer expirer = new Expirer<>(writers, expirerPeriod);
         final HeartbeatConsumer heartbeat = new HeartbeatConsumer<>(writers, heartbeatPeriod);
         final Map<Integer, GarmadonEventDescriptor> typeToDirAndClass = getTypeToEventDescriptor();
         final Path temporaryHdfsDir = new Path(baseTemporaryHdfsDir, UUID.randomUUID().toString());
@@ -134,6 +137,9 @@ public class HdfsExporter {
 
         final PartitionsPauseStateHandler pauser = new PartitionsPauseStateHandler(kafkaConsumer);
 
+        //TODO put somewhere else
+        ActorSystem actorSystem = ActorSystem.create();
+
         for (Map.Entry<Integer, GarmadonEventDescriptor> out : typeToDirAndClass.entrySet()) {
             final Integer eventType = out.getKey();
             final String eventName = out.getValue().getPath();
@@ -149,7 +155,7 @@ public class HdfsExporter {
             final Checkpointer checkpointer = new FsBasedCheckpointer(fs,
                 (partition, instant) -> {
                     Path dayDir = new Path(finalEventDir,
-                            delayedPathComputer.apply(instant.atZone(ZoneId.of("UTC"))));
+                        delayedPathComputer.apply(instant.atZone(ZoneId.of("UTC"))));
 
                     return new Path(dayDir, "." + partition.toString() + ".done");
                 });
@@ -160,9 +166,11 @@ public class HdfsExporter {
             final PartitionedWriter<Message> writer = new PartitionedWriter<>(
                 consumerBuilder, offsetComputer, eventName, emptyMessageBuilder, checkpointer);
 
-            readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(writer, eventName));
+            final AsyncPartitionedWriter<Message> asyncWriter = AsyncPartitionedWriter.create(actorSystem, writer);
 
-            writers.add(writer);
+            readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(asyncWriter, eventName));
+
+            writers.add(asyncWriter);
         }
 
         final List<ConsumerRebalanceListener> listeners = Arrays.asList(
@@ -274,28 +282,16 @@ public class HdfsExporter {
         };
     }
 
-    private static GarmadonReader.GarmadonMessageHandler buildGarmadonMessageHandler(PartitionedWriter<Message> writer,
+    private static GarmadonReader.GarmadonMessageHandler buildGarmadonMessageHandler(AsyncPartitionedWriter<Message> writer,
                                                                                      String eventName) {
         return msg -> {
             final CommittableOffset offset = msg.getCommittableOffset();
-            final Counter.Child messagesWritingFailures = PrometheusMetrics.buildCounterChild(
-                PrometheusMetrics.MESSAGES_WRITING_FAILURES, eventName, offset.getPartition());
-            final Counter.Child messagesWritten = PrometheusMetrics.buildCounterChild(
-                PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
 
             Gauge.Child gauge = PrometheusMetrics.buildGaugeChild(PrometheusMetrics.CURRENT_RUNNING_OFFSETS,
                 eventName, offset.getPartition());
             gauge.set(offset.getOffset());
 
-            try {
-                writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset, msg.toProto());
-
-                messagesWritten.inc();
-            } catch (Exception e) {
-                // We accept losing messages every now and then, but still log failures
-                messagesWritingFailures.inc();
-                LOGGER.warn("Couldn't write a message", e);
-            }
+            writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset, msg.toProto());
         };
     }
 

@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.hdfs.offset;
 
-import com.criteo.hadoop.garmadon.hdfs.writer.PartitionedWriter;
+import com.criteo.hadoop.garmadon.hdfs.writer.AsyncPartitionedWriter;
 import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
@@ -26,14 +26,14 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
     private final Map<Integer, Offset> latestHeartbeats = new HashMap<>();
 
     private final TemporalAmount period;
-    private final Collection<PartitionedWriter<MESSAGE_KIND>> writers;
+    private final Collection<AsyncPartitionedWriter<MESSAGE_KIND>> writers;
     private Thread runningThread;
 
     /**
      * @param writers   Writers to send heartbeats to
      * @param period    How frequently heartbeats should be sent
      */
-    public HeartbeatConsumer(Collection<PartitionedWriter<MESSAGE_KIND>> writers, TemporalAmount period) {
+    public HeartbeatConsumer(Collection<AsyncPartitionedWriter<MESSAGE_KIND>> writers, TemporalAmount period) {
         this.writers = writers;
         this.period = period;
     }
