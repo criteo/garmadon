@@ -90,6 +90,8 @@ public class AsyncWriter<M> {
      * The writer is still usable but will operate on new files
      * <p>
      * Exception during close will call uncaught exception handler and be returned in the completable future
+     *
+     * @return CompletableFuture completed when all underlying writers are closed (or failed doing it). Can complete exceptionally.
      */
     public CompletableFuture<Void> close() {
         return askAll(new WriterActor.CloseEvent());
@@ -99,6 +101,13 @@ public class AsyncWriter<M> {
      * Dispatch messages to the correct writer for an event name previously registered
      * <p>
      * Exceptions during writing process will be caught be the uncaught exception handler provided at start
+     *
+     * @param eventName Used to redirect the message to the previously registered writer for the event name
+     * @param when Timestamp of the message
+     * @param offset The offset of the message sent
+     * @param msg Message provided via a supplier.
+     *            This helps any computation associated to this message production (proto conversion for instance)
+     *            to be executed in the asynchronous domain.
      */
     public void dispatch(String eventName, Instant when, Offset offset, Supplier<M> msg) {
         ActorRef ref = actors.get(eventName);
@@ -113,6 +122,10 @@ public class AsyncWriter<M> {
      * Drop partition for all underlying writers
      * <p>
      * Exception during close will call uncaught exception handler and be returned in the completable future
+     *
+     * @param partition The partition to drop
+     *
+     * @return CompletableFuture completed when all underlying writers dropped the partition (or failed doing it). Can complete exceptionally.
      */
     public CompletableFuture<Void> dropPartition(int partition) {
         return askAll(new WriterActor.DropPartitionEvent(partition));
@@ -131,6 +144,11 @@ public class AsyncWriter<M> {
      * Get starting offsets from all underlying writers and aggregate them to define the lowest per partition
      * <p>
      * Exception during close will call uncaught exception handler and be returned in the completable future
+     *
+     * @param partitions Partitions for which to collect starting offsets
+     *
+     * @return  CompletableFuture completed when all underlying writers have returned their failing offsets.
+     *          If one fails, the resulting CompletableFuture will complete exceptionally
      */
     public CompletableFuture<Map<Integer, Long>> getStartingOffsets(Collection<Integer> partitions) {
         return actors
@@ -156,6 +174,9 @@ public class AsyncWriter<M> {
      * Heartbeats underlying writers
      * <p>
      * Exceptions during heartbeat process will be caught be the uncaught exception handler provided at start
+     *
+     * @param partition The partition for which to heartbeat
+     * @param offset    The current offset at the moment of heartbeat
      */
     public void heartbeat(int partition, Offset offset) {
         tellAll(new WriterActor.HeartbeatEvent(partition, offset));

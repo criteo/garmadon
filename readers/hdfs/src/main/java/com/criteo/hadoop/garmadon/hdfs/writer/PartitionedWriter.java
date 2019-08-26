@@ -48,6 +48,8 @@ public class PartitionedWriter<MESSAGE_KIND> {
      *                            consuming message.
      * @param eventName           Event name used for logging &amp; monitoring.
      * @param emptyMessageBuilder Empty message builder used to write heartbeat
+     *
+     * @param checkpointer        Creates checkpoint file when called
      */
     public PartitionedWriter(Function<LocalDateTime, ExpiringWriter<MESSAGE_KIND>> writerBuilder,
                              OffsetComputer offsetComputer, String eventName, Message.Builder emptyMessageBuilder,
