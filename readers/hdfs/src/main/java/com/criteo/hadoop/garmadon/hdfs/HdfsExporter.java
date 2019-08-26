@@ -1,6 +1,5 @@
 package com.criteo.hadoop.garmadon.hdfs;
 
-import akka.actor.ActorSystem;
 import com.criteo.hadoop.garmadon.event.proto.*;
 import com.criteo.hadoop.garmadon.hdfs.configurations.HdfsConfiguration;
 import com.criteo.hadoop.garmadon.hdfs.configurations.HdfsReaderConfiguration;
@@ -105,9 +104,6 @@ public class HdfsExporter {
             throw new UnsupportedOperationException("Filesystem of type " + fs.getScheme() + " is not supported. Only hdfs and file ones are supported");
         }
 
-        LOGGER.info("Creating actor system");
-        ActorSystem actorSystem = ActorSystem.create();
-
         final Properties props = new Properties();
 
         props.putAll(GarmadonReader.Builder.DEFAULT_KAFKA_PROPS);
@@ -120,9 +116,6 @@ public class HdfsExporter {
 
         final KafkaConsumer<String, byte[]> kafkaConsumer = new KafkaConsumer<>(props);
         final GarmadonReader.Builder readerBuilder = GarmadonReader.Builder.stream(kafkaConsumer);
-        final Collection<AsyncPartitionedWriter<Message>> writers = new ArrayList<>();
-        final Expirer expirer = new Expirer<>(writers, expirerPeriod);
-        final HeartbeatConsumer heartbeat = new HeartbeatConsumer<>(writers, heartbeatPeriod);
         final Map<Integer, GarmadonEventDescriptor> typeToDirAndClass = getTypeToEventDescriptor();
         final Path temporaryHdfsDir = new Path(baseTemporaryHdfsDir, UUID.randomUUID().toString());
         final PrometheusHttpConsumerMetrics prometheusServer = new PrometheusHttpConsumerMetrics(config.getPrometheus().getPort());
@@ -139,6 +132,8 @@ public class HdfsExporter {
         LOGGER.info("Final HDFS dir: {}", finalHdfsDir.toUri());
 
         final PartitionsPauseStateHandler pauser = new PartitionsPauseStateHandler(kafkaConsumer);
+
+        AsyncWriter<Message> asyncWriter = new AsyncWriter<>();
 
         for (Map.Entry<Integer, GarmadonEventDescriptor> out : typeToDirAndClass.entrySet()) {
             final Integer eventType = out.getKey();
@@ -166,15 +161,16 @@ public class HdfsExporter {
             final PartitionedWriter<Message> writer = new PartitionedWriter<>(
                 consumerBuilder, offsetComputer, eventName, emptyMessageBuilder, checkpointer);
 
-            final AsyncPartitionedWriter<Message> asyncWriter = AsyncPartitionedWriter.create(actorSystem, writer);
+            asyncWriter.subscribe(eventName, writer);
 
             readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(asyncWriter, eventName));
-
-            writers.add(asyncWriter);
         }
 
+        final Expirer expirer = new Expirer<>(asyncWriter, expirerPeriod);
+        final HeartbeatConsumer heartbeat = new HeartbeatConsumer<>(asyncWriter, heartbeatPeriod);
+
         final List<ConsumerRebalanceListener> listeners = Arrays.asList(
-            new OffsetResetter<>(kafkaConsumer, heartbeat::dropPartition, writers), pauser);
+            new OffsetResetter<>(kafkaConsumer, heartbeat::dropPartition, asyncWriter), pauser);
 
         // We need to build a meta listener as only the last call to #subscribe wins
         kafkaConsumer.subscribe(Collections.singleton(GarmadonReader.GARMADON_TOPIC),
@@ -202,15 +198,16 @@ public class HdfsExporter {
 
         final GarmadonReader garmadonReader = readerBuilder.build(false);
 
-        CompletableFuture<Void> readerFuture = garmadonReader.startReading();
         Thread.UncaughtExceptionHandler uncaughtExceptionHandler = (thread, e) -> {
             LOGGER.error("Interrupting reader", e);
             garmadonReader.stopReading();
         };
 
+        asyncWriter.start(uncaughtExceptionHandler);
         expirer.start(uncaughtExceptionHandler);
         heartbeat.start(uncaughtExceptionHandler);
 
+        CompletableFuture<Void> readerFuture = garmadonReader.startReading();
         try {
             readerFuture.join();
         } catch (Exception e) {
@@ -282,7 +279,7 @@ public class HdfsExporter {
         };
     }
 
-    private static GarmadonReader.GarmadonMessageHandler buildGarmadonMessageHandler(AsyncPartitionedWriter<Message> writer,
+    private static GarmadonReader.GarmadonMessageHandler buildGarmadonMessageHandler(AsyncWriter<Message> writer,
                                                                                      String eventName) {
         return msg -> {
             final CommittableOffset offset = msg.getCommittableOffset();
@@ -291,7 +288,7 @@ public class HdfsExporter {
                 eventName, offset.getPartition());
             gauge.set(offset.getOffset());
 
-            writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset, msg::toProto);
+            writer.dispatch(eventName, Instant.ofEpochMilli(msg.getTimestamp()), offset, msg::toProto);
         };
     }
 

@@ -349,45 +349,6 @@ public class PartitionedWriterTest {
         verifyZeroInteractions(mockCheckpointer);
     }
 
-    @Test(timeout = 3000)
-    public void writerExpirer() throws InterruptedException {
-        final AsyncPartitionedWriter<String> firstConsumer = mock(AsyncPartitionedWriter.class);
-        final AsyncPartitionedWriter<String> secondConsumer = mock(AsyncPartitionedWriter.class);
-        final Expirer<String> expirer = new Expirer<>(
-                Arrays.asList(firstConsumer, secondConsumer), Duration.ofMillis(1));
-
-        expirer.start(mock(Thread.UncaughtExceptionHandler.class));
-
-        Thread.sleep(500);
-
-        verify(firstConsumer, atLeastOnce()).expireConsumers();
-        verify(secondConsumer, atLeastOnce()).expireConsumers();
-
-        expirer.stop().join();
-        verify(firstConsumer, atLeastOnce()).close();
-        verify(secondConsumer, atLeastOnce()).close();
-    }
-
-    @Test(timeout = 3000)
-    public void writerExpirerWithNoWriter() throws InterruptedException {
-        final Expirer<String> expirer = new Expirer<>(Collections.emptyList(),
-                Duration.ofMillis(10));
-
-        expirer.start(mock(Thread.UncaughtExceptionHandler.class));
-        Thread.sleep(500);
-        expirer.stop().join();
-    }
-
-    @Test(timeout = 3000)
-    public void writerExpirerStopWhileWaiting() throws InterruptedException {
-        final Expirer<String> expirer = new Expirer<>(
-                Collections.singleton(mock(AsyncPartitionedWriter.class)), Duration.ofHours(42));
-
-        expirer.start(mock(Thread.UncaughtExceptionHandler.class));
-        Thread.sleep(1000);
-        expirer.stop().join();
-    }
-
     private static Offset buildOffset(int partitionId, long offsetValue) {
         final Offset offset = mock(Offset.class);
 

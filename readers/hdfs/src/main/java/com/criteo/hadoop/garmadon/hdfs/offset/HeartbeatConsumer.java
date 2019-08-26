@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.hdfs.offset;
 
-import com.criteo.hadoop.garmadon.hdfs.writer.AsyncPartitionedWriter;
+import com.criteo.hadoop.garmadon.hdfs.writer.AsyncWriter;
 import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
@@ -10,13 +10,13 @@ import org.slf4j.LoggerFactory;
 
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Send periodic heartbeats to a collection of writers, only if different from previous heartbeat
+ *
  * @param <MESSAGE_KIND> Event proto type
  */
 public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonMessageHandler {
@@ -26,15 +26,15 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
     private final Map<Integer, Offset> latestHeartbeats = new HashMap<>();
 
     private final TemporalAmount period;
-    private final Collection<AsyncPartitionedWriter<MESSAGE_KIND>> writers;
+    private final AsyncWriter<MESSAGE_KIND> writer;
     private Thread runningThread;
 
     /**
-     * @param writers   Writers to send heartbeats to
-     * @param period    How frequently heartbeats should be sent
+     * @param writer Writer to send heartbeats to
+     * @param period How frequently heartbeats should be sent
      */
-    public HeartbeatConsumer(Collection<AsyncPartitionedWriter<MESSAGE_KIND>> writers, TemporalAmount period) {
-        this.writers = writers;
+    public HeartbeatConsumer(AsyncWriter<MESSAGE_KIND> writer, TemporalAmount period) {
+        this.writer = writer;
         this.period = period;
     }
 
@@ -49,7 +49,7 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
 
                         if (!offset.equals(latestHeartbeat)) {
                             latestHeartbeats.put(partition, offset);
-                            writers.forEach(writer -> writer.heartbeat(partition, offset));
+                            writer.heartbeat(partition, offset);
                         }
                     }
                 }
@@ -71,7 +71,7 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
     /**
      * Keep track of messages to send heartbeats with the latest available offset
      *
-     * @param msg   The message from which to extract the offset
+     * @param msg The message from which to extract the offset
      */
     @Override
     public void handle(GarmadonMessage msg) {
@@ -88,7 +88,7 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
     /**
      * Stop sending heartbeats ASAP
      *
-     * @return  A completable future which will complete once the expirer is properly stopped
+     * @return A completable future which will complete once the expirer is properly stopped
      */
     public CompletableFuture<Void> stop() {
         if (runningThread != null && runningThread.isAlive()) {

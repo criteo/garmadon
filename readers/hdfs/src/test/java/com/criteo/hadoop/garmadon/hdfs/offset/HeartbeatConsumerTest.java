@@ -1,16 +1,14 @@
 package com.criteo.hadoop.garmadon.hdfs.offset;
 
-import com.criteo.hadoop.garmadon.hdfs.writer.AsyncPartitionedWriter;
-import com.criteo.hadoop.garmadon.hdfs.writer.PartitionedWriter;
-import com.criteo.hadoop.garmadon.reader.*;
+import com.criteo.hadoop.garmadon.hdfs.writer.AsyncWriter;
+import com.criteo.hadoop.garmadon.reader.CommittableOffset;
+import com.criteo.hadoop.garmadon.reader.GarmadonMessage;
+import com.criteo.hadoop.garmadon.reader.Offset;
+import com.criteo.hadoop.garmadon.reader.TopicPartitionOffset;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -21,28 +19,15 @@ public class HeartbeatConsumerTest {
     private static final long BASE_OFFSET = 123;
 
     @Test(timeout = 3000)
-    public void noWriter() throws InterruptedException {
-        final List<AsyncPartitionedWriter<String>> writers = new ArrayList<>();
-        final HeartbeatConsumer hb = new HeartbeatConsumer<>(writers, Duration.ofMillis(10));
-
-        hb.handle(buildGarmadonMessage(new TopicPartitionOffset(TOPIC, BASE_PARTITION, BASE_OFFSET)));
-        hb.start(mock(Thread.UncaughtExceptionHandler.class));
-        Thread.sleep(500);
-
-        hb.stop().join();
-    }
-
-    @Test(timeout = 3000)
     public void heartbeat() throws InterruptedException {
         final Offset firstPartitionFirstOffset = new TopicPartitionOffset(TOPIC, BASE_PARTITION, BASE_OFFSET);
         final Offset firstPartitionSecondOffset = new TopicPartitionOffset(TOPIC, BASE_PARTITION, BASE_OFFSET + 1);
         final Offset secondPartitionFirstOffset = new TopicPartitionOffset(TOPIC, BASE_PARTITION + 1,
-                BASE_OFFSET + 11);
+            BASE_OFFSET + 11);
         final Offset secondPartitionSecondOffset = new TopicPartitionOffset(TOPIC, BASE_PARTITION + 1,
-                BASE_OFFSET + 12);
-        final List<AsyncPartitionedWriter<String>> writers = Arrays.asList(mock(AsyncPartitionedWriter.class),
-                mock(AsyncPartitionedWriter.class));
-        final HeartbeatConsumer hb = new HeartbeatConsumer<>(writers, Duration.ofMillis(100));
+            BASE_OFFSET + 12);
+        AsyncWriter<String> writer = mock(AsyncWriter.class);
+        final HeartbeatConsumer hb = new HeartbeatConsumer<>(writer, Duration.ofMillis(100));
 
         // In-order offsets
         hb.handle(buildGarmadonMessage(firstPartitionFirstOffset));
@@ -55,23 +40,19 @@ public class HeartbeatConsumerTest {
         hb.start(mock(Thread.UncaughtExceptionHandler.class));
         Thread.sleep(1000);
 
-        for (AsyncPartitionedWriter<String> writer: writers) {
-            verify(writer, times(1)).heartbeat(eq(BASE_PARTITION),
-                    argThat(new OffsetArgumentMatcher(firstPartitionSecondOffset)));
-        }
+        verify(writer, times(1)).heartbeat(eq(BASE_PARTITION),
+            argThat(new OffsetArgumentMatcher(firstPartitionSecondOffset)));
 
-        for (AsyncPartitionedWriter<String> writer: writers) {
-            verify(writer, times(1)).heartbeat(eq(BASE_PARTITION + 1),
-                    argThat(new OffsetArgumentMatcher(secondPartitionSecondOffset)));
-        }
+        verify(writer, times(1)).heartbeat(eq(BASE_PARTITION + 1),
+            argThat(new OffsetArgumentMatcher(secondPartitionSecondOffset)));
 
         hb.stop().join();
     }
 
     @Test
     public void differentConsecutiveHeartbeats() throws InterruptedException {
-        final AsyncPartitionedWriter writer = mock(AsyncPartitionedWriter.class);
-        final HeartbeatConsumer hb = new HeartbeatConsumer<>(Collections.singleton(writer), Duration.ofMillis(100));
+        final AsyncWriter writer = mock(AsyncWriter.class);
+        final HeartbeatConsumer hb = new HeartbeatConsumer<>(writer, Duration.ofMillis(100));
         final Offset firstOffset = new TopicPartitionOffset(TOPIC, BASE_PARTITION, BASE_OFFSET);
         final Offset secondOffset = new TopicPartitionOffset(TOPIC, BASE_PARTITION + 1, BASE_OFFSET + 11);
 
@@ -79,12 +60,12 @@ public class HeartbeatConsumerTest {
         hb.start(mock(Thread.UncaughtExceptionHandler.class));
         Thread.sleep(1000);
         verify(writer, times(1)).heartbeat(eq(BASE_PARTITION),
-                argThat(new OffsetArgumentMatcher(firstOffset)));
+            argThat(new OffsetArgumentMatcher(firstOffset)));
 
         hb.handle(buildGarmadonMessage(secondOffset));
         Thread.sleep(1000);
         verify(writer, times(1)).heartbeat(eq(BASE_PARTITION + 1),
-                argThat(new OffsetArgumentMatcher(secondOffset)));
+            argThat(new OffsetArgumentMatcher(secondOffset)));
 
         hb.stop().join();
     }
@@ -93,8 +74,8 @@ public class HeartbeatConsumerTest {
     public void dropPartition() throws InterruptedException {
         final Offset firstPartitionOffset = new TopicPartitionOffset(TOPIC, BASE_PARTITION, BASE_OFFSET + 1);
         final Offset secondPartitionOffset = new TopicPartitionOffset(TOPIC, BASE_PARTITION + 1, BASE_OFFSET + 11);
-        final AsyncPartitionedWriter<String> writer = mock(AsyncPartitionedWriter.class);
-        final HeartbeatConsumer hb = new HeartbeatConsumer<>(Collections.singleton(writer), Duration.ofSeconds(2));
+        final AsyncWriter<String> writer = mock(AsyncWriter.class);
+        final HeartbeatConsumer hb = new HeartbeatConsumer<>(writer, Duration.ofSeconds(2));
 
         hb.handle(buildGarmadonMessage(firstPartitionOffset));
         hb.handle(buildGarmadonMessage(secondPartitionOffset));
@@ -105,7 +86,7 @@ public class HeartbeatConsumerTest {
         Thread.sleep(1000);
 
         verify(writer, times(1)).heartbeat(eq(BASE_PARTITION + 1),
-                argThat(new OffsetArgumentMatcher(secondPartitionOffset)));
+            argThat(new OffsetArgumentMatcher(secondPartitionOffset)));
 
         verify(writer, never()).heartbeat(eq(BASE_PARTITION), any(Offset.class));
 
@@ -117,23 +98,22 @@ public class HeartbeatConsumerTest {
         final int PARTITION = 1;
         final long OFFSET = 123;
         final TopicPartitionOffset offset = new TopicPartitionOffset(TOPIC, PARTITION, OFFSET);
-        final List<AsyncPartitionedWriter<String>> writers = Arrays.asList(mock(AsyncPartitionedWriter.class),
-                mock(AsyncPartitionedWriter.class));
-        final HeartbeatConsumer hb = new HeartbeatConsumer<>(writers, Duration.ofMillis(10));
+        AsyncWriter<String> writer = mock(AsyncWriter.class);
+        final HeartbeatConsumer hb = new HeartbeatConsumer<>(writer, Duration.ofMillis(10));
         hb.handle(buildGarmadonMessage(offset));
 
         hb.start(mock(Thread.UncaughtExceptionHandler.class));
 
-        verify(writers.get(0), after(100).atLeast(1)).heartbeat(eq(PARTITION),
-                argThat(new OffsetArgumentMatcher(offset)));
+        verify(writer, after(100).atLeast(1)).heartbeat(eq(PARTITION),
+            argThat(new OffsetArgumentMatcher(offset)));
 
         hb.stop().join();
     }
 
     @Test(timeout = 3000)
     public void writerExpirerStopWhileWaiting() throws InterruptedException {
-        final HeartbeatConsumer hb = new HeartbeatConsumer<String>(Collections.singleton(mock(AsyncPartitionedWriter.class)),
-                Duration.ofMillis(10));
+        final HeartbeatConsumer hb = new HeartbeatConsumer<String>(mock(AsyncWriter.class),
+            Duration.ofMillis(10));
 
         hb.start(mock(Thread.UncaughtExceptionHandler.class));
         Thread.sleep(1000);
@@ -162,13 +142,14 @@ public class HeartbeatConsumerTest {
 
         @Override
         public boolean matches(Object o) {
-            if (!(o instanceof Offset))
+            if (!(o instanceof Offset)) {
                 return false;
+            }
 
             final Offset off = (Offset) o;
 
             return toCompare.getOffset() == off.getOffset() && toCompare.getTopic().equals(off.getTopic()) &&
-                    toCompare.getPartition() == toCompare.getPartition();
+                toCompare.getPartition() == toCompare.getPartition();
         }
     }
 }
