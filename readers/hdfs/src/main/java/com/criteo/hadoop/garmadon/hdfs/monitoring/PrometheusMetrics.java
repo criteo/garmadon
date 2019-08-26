@@ -31,6 +31,8 @@ public final class PrometheusMetrics {
             "Current offsets");
     public static final Gauge LATEST_COMMITTED_OFFSETS = buildGauge("latest_committed_offsets",
             "Latest committed offsets");
+    public static final Gauge LATEST_COMMITTED_TIMESTAMPS = buildGauge("latest_committed_timestamps",
+        "Latest committed timestamps");
 
     private PrometheusMetrics() {
     }

@@ -84,4 +84,5 @@ public class OffsetResetter<K, V, MESSAGE_KIND> implements ConsumerRebalanceList
             }
         }
     }
+
 }

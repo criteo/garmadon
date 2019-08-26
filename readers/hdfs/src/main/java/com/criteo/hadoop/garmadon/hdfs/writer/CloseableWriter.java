@@ -1,16 +1,16 @@
 package com.criteo.hadoop.garmadon.hdfs.writer;
 
+import com.criteo.hadoop.garmadon.reader.Offset;
 import org.apache.hadoop.fs.Path;
 
 import java.io.IOException;
 
 /**
- * Combination of Closeable and Consumer<T, U>
- * @param <T>
- * @param <U>
+ * Writer that can be closed
+ * @param <M> the message type to write
  */
-public interface CloseableBiConsumer<T, U> {
-    void write(T t, U u) throws IOException;
+interface CloseableWriter<M> {
+    void write(long timestamp, M t, Offset offset) throws IOException;
 
     /**
      * Close the underlying medium.

@@ -4,6 +4,7 @@ import akka.Done;
 import akka.actor.*;
 import akka.japi.pf.DeciderBuilder;
 import akka.japi.pf.FI;
+import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.reader.Offset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,11 +104,11 @@ public class AsyncWriter<M> {
      * Exceptions during writing process will be caught be the uncaught exception handler provided at start
      *
      * @param eventName Used to redirect the message to the previously registered writer for the event name
-     * @param when Timestamp of the message
-     * @param offset The offset of the message sent
-     * @param msg Message provided via a supplier.
-     *            This helps any computation associated to this message production (proto conversion for instance)
-     *            to be executed in the asynchronous domain.
+     * @param when      Timestamp of the message
+     * @param offset    The offset of the message sent
+     * @param msg       Message provided via a supplier.
+     *                  This helps any computation associated to this message production (proto conversion for instance)
+     *                  to be executed in the asynchronous domain.
      */
     public void dispatch(String eventName, Instant when, Offset offset, Supplier<M> msg) {
         ActorRef ref = actors.get(eventName);
@@ -124,7 +125,6 @@ public class AsyncWriter<M> {
      * Exception during close will call uncaught exception handler and be returned in the completable future
      *
      * @param partition The partition to drop
-     *
      * @return CompletableFuture completed when all underlying writers dropped the partition (or failed doing it). Can complete exceptionally.
      */
     public CompletableFuture<Void> dropPartition(int partition) {
@@ -146,9 +146,8 @@ public class AsyncWriter<M> {
      * Exception during close will call uncaught exception handler and be returned in the completable future
      *
      * @param partitions Partitions for which to collect starting offsets
-     *
-     * @return  CompletableFuture completed when all underlying writers have returned their failing offsets.
-     *          If one fails, the resulting CompletableFuture will complete exceptionally
+     * @return CompletableFuture completed when all underlying writers have returned their failing offsets.
+     * If one fails, the resulting CompletableFuture will complete exceptionally
      */
     public CompletableFuture<Map<Integer, Long>> getStartingOffsets(Collection<Integer> partitions) {
         return actors
@@ -166,8 +165,18 @@ public class AsyncWriter<M> {
     }
 
     private Map<Integer, Long> mergeStartingOffsets(Map<Integer, Long> offsets1, Map<Integer, Long> offsets2) {
-        offsets2.forEach((partition, offset) -> offsets1.merge(partition, offset, Long::min));
+        offsets2.forEach((partition, offset) -> offsets1.merge(partition, offset, this::mergeStartingOffsetsForPartition));
         return offsets1;
+    }
+
+    private Long mergeStartingOffsetsForPartition(Long o1, Long o2) {
+        if (o1 == OffsetComputer.NO_OFFSET) {
+            return o2;
+        }
+        if (o2 == OffsetComputer.NO_OFFSET) {
+            return o1;
+        }
+        return Long.min(o1, o2);
     }
 
     /**

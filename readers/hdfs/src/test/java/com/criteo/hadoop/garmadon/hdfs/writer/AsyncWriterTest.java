@@ -173,10 +173,12 @@ public class AsyncWriterTest {
     public void shouldGetStartingOffsetsFromUnderlyingWriter() throws InterruptedException, ExecutionException, TimeoutException, IOException {
         PartitionedWriter<Object> firstWriter = mock(PartitionedWriter.class);
         PartitionedWriter<Object> secondWriter = mock(PartitionedWriter.class);
+        PartitionedWriter<Object> thirdWriter = mock(PartitionedWriter.class);
 
         AsyncWriter<Object> asyncWriter = new AsyncWriter<>();
         asyncWriter.subscribe("1", firstWriter);
         asyncWriter.subscribe("2", secondWriter);
+        asyncWriter.subscribe("3", thirdWriter);
 
         final TopicPartition firstPartition = new TopicPartition("topic", 1);
         final TopicPartition secondPartition = new TopicPartition("topic", 2);
@@ -184,13 +186,18 @@ public class AsyncWriterTest {
 
         final Map<Integer, Long> firstOffsets = new HashMap<>();
         firstOffsets.put(firstPartition.partition(), 10L);
-        firstOffsets.put(secondPartition.partition(), 20L);
+        firstOffsets.put(secondPartition.partition(), OffsetComputer.NO_OFFSET);
         when(firstWriter.getStartingOffsets(any())).thenReturn(firstOffsets);
 
         final Map<Integer, Long> secondOffsets = new HashMap<>();
         secondOffsets.put(firstPartition.partition(), 15L);
         secondOffsets.put(secondPartition.partition(), OffsetComputer.NO_OFFSET);
         when(secondWriter.getStartingOffsets(any())).thenReturn(secondOffsets);
+
+        final Map<Integer, Long> thirdOffsets = new HashMap<>();
+        thirdOffsets.put(firstPartition.partition(), OffsetComputer.NO_OFFSET);
+        thirdOffsets.put(secondPartition.partition(), OffsetComputer.NO_OFFSET);
+        when(thirdWriter.getStartingOffsets(any())).thenReturn(thirdOffsets);
 
 
         final Throwable[] caughtException = startAndCatchExceptions(asyncWriter);

@@ -13,8 +13,8 @@ import java.time.temporal.TemporalAmount;
  *
  * @param <MESSAGE_TYPE>     The actual consumed message type
  */
-public class ExpiringWriter<MESSAGE_TYPE> implements CloseableBiConsumer<MESSAGE_TYPE, Offset> {
-    private final CloseableBiConsumer<MESSAGE_TYPE, Offset> writer;
+public class ExpiringWriter<MESSAGE_TYPE> implements CloseableWriter<MESSAGE_TYPE> {
+    private final CloseableWriter<MESSAGE_TYPE> writer;
     private final TemporalAmount expirationDelay;
     private long messagesReceived;
     private long messagesBeforeExpiring;
@@ -26,7 +26,7 @@ public class ExpiringWriter<MESSAGE_TYPE> implements CloseableBiConsumer<MESSAGE
      * @param expirationDelay           Idle delay after which the writer should get closed
      * @param messagesBeforeExpiring    Number of messages to write before expiring
      */
-    public ExpiringWriter(CloseableBiConsumer<MESSAGE_TYPE, Offset> writer, TemporalAmount expirationDelay, long messagesBeforeExpiring) {
+    public ExpiringWriter(CloseableWriter<MESSAGE_TYPE> writer, TemporalAmount expirationDelay, long messagesBeforeExpiring) {
         this.writer = writer;
         this.expirationDelay = expirationDelay;
         this.messagesBeforeExpiring = messagesBeforeExpiring;
@@ -39,10 +39,10 @@ public class ExpiringWriter<MESSAGE_TYPE> implements CloseableBiConsumer<MESSAGE
      * @param message   The message to be written
      */
     @Override
-    public void write(MESSAGE_TYPE message, Offset offset) throws IOException {
+    public void write(long timestamp, MESSAGE_TYPE message, Offset offset) throws IOException {
         ++this.messagesReceived;
 
-        this.writer.write(message, offset);
+        this.writer.write(timestamp, message, offset);
     }
 
     @Override

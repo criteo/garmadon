@@ -48,7 +48,6 @@ public class PartitionedWriter<MESSAGE_KIND> {
      *                            consuming message.
      * @param eventName           Event name used for logging &amp; monitoring.
      * @param emptyMessageBuilder Empty message builder used to write heartbeat
-     *
      * @param checkpointer        Creates checkpoint file when called
      */
     public PartitionedWriter(Function<LocalDateTime, ExpiringWriter<MESSAGE_KIND>> writerBuilder,
@@ -105,8 +104,7 @@ public class PartitionedWriter<MESSAGE_KIND> {
             // /!\ This line must not be switched with the offset computation as this would create empty files otherwise
             final ExpiringWriter<MESSAGE_KIND> consumer = getWriter(dayStartTime, partitionId);
 
-            consumer.write(msg, offset);
-
+            consumer.write(when.toEpochMilli(), msg, offset);
             messagesWritten.inc();
 
         } catch (IOException e) {
@@ -188,11 +186,12 @@ public class PartitionedWriter<MESSAGE_KIND> {
                 && !shouldSkipOffset(offset.getOffset(), partition)) {
                 final ExpiringWriter<MESSAGE_KIND> heartbeatWriter = writerBuilder.apply(LocalDateTime.now());
 
+                long now = System.currentTimeMillis();
                 MESSAGE_KIND msg = (MESSAGE_KIND) ProtoConcatenator
-                    .concatToProtobuf(System.currentTimeMillis(), offset.getOffset(), Arrays.asList(emptyHeader, emptyMessageBuilder.build()))
+                    .concatToProtobuf(now, offset.getOffset(), Arrays.asList(emptyHeader, emptyMessageBuilder.build()))
                     .build();
 
-                heartbeatWriter.write(msg, offset);
+                heartbeatWriter.write(now, msg, offset);
 
                 final Path writtenFilePath = heartbeatWriter.close();
 
