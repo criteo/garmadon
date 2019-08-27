@@ -164,20 +164,31 @@ public class HdfsExporter {
             writers.add(writer);
         }
 
-        final List<ConsumerRebalanceListener> listeners = Arrays.asList(
-            new OffsetResetter<>(kafkaConsumer, heartbeat::dropPartition, writers), pauser);
+        final List<ConsumerRebalanceListener> kafkaConsumerRebalanceListeners = new ArrayList<>();
+        kafkaConsumerRebalanceListeners.add(new OffsetResetter<>(kafkaConsumer, heartbeat::dropPartition, writers));
+        kafkaConsumerRebalanceListeners.add(pauser);
+        kafkaConsumerRebalanceListeners.add(new ConsumerRebalanceListener() {
+            @Override
+            public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+                partitions.forEach(tp -> PrometheusMetrics.clearPartitionCollectors(tp.partition()));
+            }
+
+            @Override
+            public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+            }
+        });
 
         // We need to build a meta listener as only the last call to #subscribe wins
         kafkaConsumer.subscribe(Collections.singleton(GarmadonReader.GARMADON_TOPIC),
             new ConsumerRebalanceListener() {
                 @Override
                 public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-                    listeners.forEach(listener -> listener.onPartitionsRevoked(partitions));
+                    kafkaConsumerRebalanceListeners.forEach(listener -> listener.onPartitionsRevoked(partitions));
                 }
 
                 @Override
                 public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-                    listeners.forEach(listener -> listener.onPartitionsAssigned(partitions));
+                    kafkaConsumerRebalanceListeners.forEach(listener -> listener.onPartitionsAssigned(partitions));
                 }
             });
 
