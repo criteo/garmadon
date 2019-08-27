@@ -186,8 +186,7 @@ public class HdfsExporter {
 
             CommittableOffset offset = msg.getCommittableOffset();
 
-            Gauge.Child gauge = PrometheusMetrics.buildGaugeChild(PrometheusMetrics.CURRENT_RUNNING_OFFSETS,
-                "global", offset.getPartition());
+            Gauge.Child gauge = PrometheusMetrics.currentRunningOffsetsGauge("global", offset.getPartition());
             gauge.set(offset.getOffset());
         });
 
@@ -227,10 +226,8 @@ public class HdfsExporter {
     private static Function<LocalDateTime, ExpiringConsumer<Message>> buildMessageConsumerBuilder(
         FileSystem fs, Path temporaryHdfsDir, Path finalHdfsDir, Class<? extends Message> clazz,
         OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser, String eventName) {
-        Counter.Child tmpFileOpenFailures = PrometheusMetrics.buildCounterChild(
-            PrometheusMetrics.TMP_FILE_OPEN_FAILURES, eventName);
-        Counter.Child tmpFilesOpened = PrometheusMetrics.buildCounterChild(
-            PrometheusMetrics.TMP_FILES_OPENED, eventName);
+        Counter.Child tmpFileOpenFailures = PrometheusMetrics.tmpFileOpenFailuresCounter(eventName);
+        Counter.Child tmpFilesOpened = PrometheusMetrics.tmpFilesOpened(eventName);
 
         return dayStartTime -> {
             final String uniqueFileName = UUID.randomUUID().toString();
@@ -277,13 +274,10 @@ public class HdfsExporter {
                                                                                      String eventName) {
         return msg -> {
             final CommittableOffset offset = msg.getCommittableOffset();
-            final Counter.Child messagesWritingFailures = PrometheusMetrics.buildCounterChild(
-                PrometheusMetrics.MESSAGES_WRITING_FAILURES, eventName, offset.getPartition());
-            final Counter.Child messagesWritten = PrometheusMetrics.buildCounterChild(
-                PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
+            final Counter.Child messagesWritingFailures = PrometheusMetrics.messageWritingFailuresCounter(eventName, offset.getPartition());
+            final Counter.Child messagesWritten = PrometheusMetrics.messageWrittenCounter(eventName, offset.getPartition());
 
-            Gauge.Child gauge = PrometheusMetrics.buildGaugeChild(PrometheusMetrics.CURRENT_RUNNING_OFFSETS,
-                eventName, offset.getPartition());
+            Gauge.Child gauge = PrometheusMetrics.currentRunningOffsetsGauge(eventName, offset.getPartition());
             gauge.set(offset.getOffset());
 
             try {

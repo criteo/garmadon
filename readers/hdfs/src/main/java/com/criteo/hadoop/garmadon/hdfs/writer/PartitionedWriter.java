@@ -171,9 +171,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      */
     public void heartbeat(int partition, Offset offset) {
         synchronized (perPartitionDayWriters) {
-            final Counter.Child heartbeatsSent = PrometheusMetrics.buildCounterChild(
-                PrometheusMetrics.HEARTBEATS_SENT, eventName, partition);
-            PrometheusMetrics.buildCounterChild(PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
+            final Counter.Child heartbeatsSent = PrometheusMetrics.hearbeatsSentCounter(eventName, partition);
 
             try {
                 if ((!perPartitionDayWriters.containsKey(partition) || perPartitionDayWriters.get(partition).isEmpty())
@@ -209,12 +207,9 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
 
                     if (shouldClose.test(consumer)) {
                         if (tryExpireConsumer(consumer)) {
-                            final Counter.Child filesCommitted = PrometheusMetrics.buildCounterChild(
-                                PrometheusMetrics.FILES_COMMITTED, eventName);
-                            final Counter.Child checkpointsFailures = PrometheusMetrics.buildCounterChild(
-                                PrometheusMetrics.CHECKPOINTS_FAILURES, eventName, partitionId);
-                            final Counter.Child checkpointsSuccesses = PrometheusMetrics.buildCounterChild(
-                                PrometheusMetrics.CHECKPOINTS_SUCCESSES, eventName, partitionId);
+                            final Counter.Child filesCommitted = PrometheusMetrics.filesCommittedCounter(eventName);
+                            final Counter.Child checkpointsFailures = PrometheusMetrics.checkPointFailuresCounter(eventName, partitionId);
+                            final Counter.Child checkpointsSuccesses = PrometheusMetrics.checkPointSuccessesCounter(eventName, partitionId);
 
                             filesCommitted.inc();
 

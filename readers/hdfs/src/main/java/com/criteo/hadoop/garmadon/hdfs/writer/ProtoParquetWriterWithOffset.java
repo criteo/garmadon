@@ -4,6 +4,7 @@ import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.reader.Offset;
 import com.google.protobuf.MessageOrBuilder;
+import io.prometheus.client.Gauge;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Options;
@@ -74,12 +75,6 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
             throw new IOException(String.format("Trying to write a zero-sized file, please fix (%s)", additionalInfo));
         }
 
-        PrometheusMetrics.buildGaugeChild(PrometheusMetrics.LATEST_COMMITTED_OFFSETS,
-            eventName, latestOffset.getPartition()).set(latestOffset.getOffset());
-
-        PrometheusMetrics.buildGaugeChild(PrometheusMetrics.LATEST_COMMITTED_TIMESTAMPS,
-            eventName, latestOffset.getPartition()).set(latestTimestamp);
-
         if (!writerClosed) {
             writer.close();
             writerClosed = true;
@@ -107,6 +102,9 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         } else {
             moveToFinalPath(temporaryHdfsPath, finalPath);
         }
+
+        PrometheusMetrics.latestCommittedOffsetGauge(eventName, latestOffset.getPartition()).set(latestOffset.getOffset());
+        PrometheusMetrics.latestCommittedTimestampGauge(eventName, latestOffset.getPartition()).set(latestTimestamp);
 
         return finalPath;
     }
