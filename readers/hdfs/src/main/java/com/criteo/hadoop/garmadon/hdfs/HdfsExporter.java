@@ -25,18 +25,22 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
-import org.apache.parquet.proto.ProtoParquetWriter;
+import org.apache.parquet.proto.ProtoWriteSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.FileSystemNotFoundException;
-import java.time.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.any;
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasType;
@@ -138,7 +142,7 @@ public class HdfsExporter {
             final String eventName = out.getValue().getPath();
             final Class<? extends Message> clazz = out.getValue().getClazz();
             final Message.Builder emptyMessageBuilder = out.getValue().getEmptyMessageBuilder();
-            final Function<LocalDateTime, ExpiringConsumer<Message>> consumerBuilder;
+            final BiFunction<Integer, LocalDateTime, ExpiringConsumer<Message>> consumerBuilder;
             final Path finalEventDir = new Path(finalHdfsDir, eventName);
             final OffsetComputer offsetComputer = new HdfsOffsetComputer(fs, finalEventDir,
                 config.getKafka().getCluster(), config.getHdfs().getBacklogDays());
@@ -148,7 +152,7 @@ public class HdfsExporter {
             final Checkpointer checkpointer = new FsBasedCheckpointer(fs,
                 (partition, instant) -> {
                     Path dayDir = new Path(finalEventDir,
-                            delayedPathComputer.apply(instant.atZone(ZoneId.of("UTC"))));
+                        delayedPathComputer.apply(instant.atZone(ZoneId.of("UTC"))));
 
                     return new Path(dayDir, "." + partition.toString() + ".done");
                 });
@@ -162,6 +166,7 @@ public class HdfsExporter {
             readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(writer, eventName));
 
             writers.add(writer);
+
         }
 
         final List<ConsumerRebalanceListener> kafkaConsumerRebalanceListeners = new ArrayList<>();
@@ -234,23 +239,25 @@ public class HdfsExporter {
     }
 
 
-    private static Function<LocalDateTime, ExpiringConsumer<Message>> buildMessageConsumerBuilder(
+    private static BiFunction<Integer, LocalDateTime, ExpiringConsumer<Message>> buildMessageConsumerBuilder(
         FileSystem fs, Path temporaryHdfsDir, Path finalHdfsDir, Class<? extends Message> clazz,
         OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser, String eventName) {
         Counter.Child tmpFileOpenFailures = PrometheusMetrics.tmpFileOpenFailuresCounter(eventName);
         Counter.Child tmpFilesOpened = PrometheusMetrics.tmpFilesOpened(eventName);
 
-        return dayStartTime -> {
+        return (partition, dayStartTime) -> {
             final String uniqueFileName = UUID.randomUUID().toString();
             final String additionalInfo = String.format("Date = %s, Event type = %s", dayStartTime,
                 clazz.getSimpleName());
 
             for (int i = 0; i < maxTmpFileOpenRetries; ++i) {
                 final Path tmpFilePath = new Path(temporaryHdfsDir, uniqueFileName);
-                final ProtoParquetWriter<Message> protoWriter;
+                final ParquetWriter<Message> protoWriter;
+                final ExtraMetadataWriteSupport<Message> extraMetadataWriteSupport;
 
                 try {
-                    protoWriter = new ProtoParquetWriter<>(tmpFilePath, clazz, CompressionCodecName.GZIP,
+                    extraMetadataWriteSupport = new ExtraMetadataWriteSupport<>(new ProtoWriteSupport<>(clazz));
+                    protoWriter = new ParquetWriter<>(tmpFilePath, extraMetadataWriteSupport, CompressionCodecName.GZIP,
                         sizeBeforeFlushingTmp * 1_024 * 1_024, 1_024 * 1_024);
                     tmpFilesOpened.inc();
                 } catch (IOException e) {
@@ -270,7 +277,7 @@ public class HdfsExporter {
                 partitionsPauser.resume(clazz);
 
                 return new ExpiringConsumer<>(new ProtoParquetWriterWithOffset<>(
-                    protoWriter, tmpFilePath, finalHdfsDir, fs, offsetComputer, dayStartTime, eventName),
+                    protoWriter, tmpFilePath, finalHdfsDir, fs, offsetComputer, dayStartTime, eventName, extraMetadataWriteSupport, partition),
                     writersExpirationDelay, messagesBeforeExpiringWriters);
             }
 

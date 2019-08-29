@@ -22,6 +22,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -35,7 +36,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     private static final ZoneId UTC_ZONE = ZoneId.of("UTC");
     private static final Logger LOGGER = LoggerFactory.getLogger(PartitionedWriter.class);
 
-    private final Function<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> writerBuilder;
+    private final BiFunction<Integer, LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> writerBuilder;
     private final OffsetComputer offsetComputer;
     private final Map<Integer, Map<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>>> perPartitionDayWriters = new HashMap<>();
     private final HashMap<Integer, Long> perPartitionStartOffset = new HashMap<>();
@@ -52,7 +53,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
      * @param eventName           Event name used for logging &amp; monitoring.
      * @param emptyMessageBuilder Empty message builder used to write heartbeat
      */
-    public PartitionedWriter(Function<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> writerBuilder,
+    public PartitionedWriter(BiFunction<Integer, LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> writerBuilder,
                              OffsetComputer offsetComputer, String eventName, Message.Builder emptyMessageBuilder,
                              Checkpointer checkpointer) {
         this.eventName = eventName;
@@ -176,7 +177,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
             try {
                 if ((!perPartitionDayWriters.containsKey(partition) || perPartitionDayWriters.get(partition).isEmpty())
                     && !shouldSkipOffset(offset.getOffset(), partition)) {
-                    final ExpiringConsumer<MESSAGE_KIND> heartbeatWriter = writerBuilder.apply(LocalDateTime.now());
+                    final ExpiringConsumer<MESSAGE_KIND> heartbeatWriter = writerBuilder.apply(offset.getPartition(), LocalDateTime.now());
 
                     long now = System.currentTimeMillis();
                     MESSAGE_KIND msg = (MESSAGE_KIND) ProtoConcatenator
@@ -274,7 +275,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
 
         final Map<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> partitionMap = perPartitionDayWriters.get(partitionId);
 
-        return partitionMap.computeIfAbsent(dayStartTime, writerBuilder);
+        return partitionMap.computeIfAbsent(dayStartTime, k -> writerBuilder.apply(partitionId, k));
     }
 
     /**
