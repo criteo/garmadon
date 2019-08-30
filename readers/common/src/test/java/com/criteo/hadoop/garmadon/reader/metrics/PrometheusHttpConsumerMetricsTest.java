@@ -21,7 +21,7 @@ public class PrometheusHttpConsumerMetricsTest {
 
     @Before
     public void up() throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
-        String objectName = "kafka.consumer:type=consumer-metrics,client-id=" + GarmadonReader.CONSUMER_ID;
+        String objectName = "kafka.consumer:type=consumer-metrics,client-id=consumer-1";
 
         mbeanName = new ObjectName(objectName);
         KafkaMetrics mbean = new KafkaMetrics();
