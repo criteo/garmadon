@@ -51,8 +51,8 @@ public class ProtoParquetWriterWithOffsetTest {
         final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writerMock, tmpPath,
             finalPath, fsMock, new FixedOffsetComputer(FINAL_FILE_NAME, 123), LocalDateTime.MIN, "ignored");
 
-        consumer.write(firstMessageMock, new TopicPartitionOffset(TOPIC, 1, 2));
-        consumer.write(secondMessageMock, new TopicPartitionOffset(TOPIC, 1, 3));
+        consumer.write(1234567890L, firstMessageMock, new TopicPartitionOffset(TOPIC, 1, 2));
+        consumer.write(1234567891L, secondMessageMock, new TopicPartitionOffset(TOPIC, 1, 3));
         verify(writerMock, times(1)).write(firstMessageMock);
         verify(writerMock, times(1)).write(secondMessageMock);
         verifyNoMoreInteractions(writerMock);
@@ -89,8 +89,8 @@ public class ProtoParquetWriterWithOffsetTest {
         final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writerMock, tmpPath,
             finalPath, fsMock, new HdfsOffsetComputer(fsMock, finalPath, 2), today, "ignored");
 
-        consumer.write(firstMessageMock, new TopicPartitionOffset(TOPIC, 1, 2));
-        consumer.write(secondMessageMock, new TopicPartitionOffset(TOPIC, 1, 3));
+        consumer.write(1234567890L, firstMessageMock, new TopicPartitionOffset(TOPIC, 1, 2));
+        consumer.write(1234567891L, secondMessageMock, new TopicPartitionOffset(TOPIC, 1, 3));
 
         // Directory doesn't exist and creation succeeds
         when(fsMock.exists(any(Path.class))).thenReturn(false);
@@ -131,7 +131,7 @@ public class ProtoParquetWriterWithOffsetTest {
         boolean thrown = false;
 
         // We need to write one event, otherwise we will fail with a "no message" error
-        parquetWriter.write(mock(MessageOrBuilder.class), new TopicPartitionOffset(TOPIC, 1, 2));
+        parquetWriter.write(1234567890L, mock(MessageOrBuilder.class), new TopicPartitionOffset(TOPIC, 1, 2));
 
         when(fileNamer.computeTopicGlob(any(LocalDateTime.class), any(Offset.class))).thenReturn("ignored");
         when(fileNamer.computePath(any(LocalDateTime.class), any(Long.class), any(Offset.class))).thenReturn("ignored");
@@ -314,7 +314,7 @@ public class ProtoParquetWriterWithOffsetTest {
             .concatToProtobuf(System.currentTimeMillis(), 1L, Arrays.asList(emptyHeader, DataAccessEventProtos.FsEvent.newBuilder().build()));
 
         Message msg = protoConcatenator.build();
-        parquetWriter.write(msg, new TopicPartitionOffset(TOPIC, 1, 2));
+        parquetWriter.write(1234567890L, msg, new TopicPartitionOffset(TOPIC, 1, 2));
 
         return parquetWriter;
     }
@@ -332,7 +332,7 @@ public class ProtoParquetWriterWithOffsetTest {
             .concatToProtobuf(System.currentTimeMillis(), 1L, Arrays.asList(emptyHeader, ContainerEventProtos.ContainerResourceEvent.newBuilder().build()));
 
         Message msg = protoConcatenator.build();
-        parquetWriter.write(msg, new TopicPartitionOffset(TOPIC, 1, 2));
+        parquetWriter.write(1234567890L, msg, new TopicPartitionOffset(TOPIC, 1, 2));
 
         return parquetWriter;
     }
@@ -354,7 +354,7 @@ public class ProtoParquetWriterWithOffsetTest {
                 localFs, new FixedOffsetComputer(FINAL_FILE_NAME, 123), UTC_EPOCH, "ignored");
 
             for (EventHeaderProtos.Header header : inputHeaders) {
-                consumer.write(header, new TopicPartitionOffset(TOPIC, 1, offset++));
+                consumer.write(1234567890L, header, new TopicPartitionOffset(TOPIC, 1, offset++));
             }
             consumer.close();
 

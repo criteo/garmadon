@@ -81,8 +81,6 @@ public class Heuristics {
         jvmStatsHeuristics.add(new HeapUsage(db));
         jvmStatsHeuristics.add(new Threads(db));
         jvmStatsHeuristics.add(new CodeCacheUsage(db));
-        jvmStatsHeuristics.add(new Safepoints(db));
-        jvmStatsHeuristics.add(new Locks(db));
 
         this.heuristics.add(fileHeuristic);
         this.heuristics.addAll(gcStatsHeuristics);

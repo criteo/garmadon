@@ -27,7 +27,7 @@ import java.util.*;
  * @param <MESSAGE_KIND> The message to be written in Proto + Parquet
  */
 public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
-    implements CloseableBiConsumer<MESSAGE_KIND, Offset> {
+    implements CloseableWriter<MESSAGE_KIND> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtoParquetWriterWithOffset.class);
     private static final Map<String, String> EMPTY_METADATA = new HashMap<>();
 
@@ -41,6 +41,7 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
     private final long fsBlockSize;
 
     private Offset latestOffset = null;
+    private long latestTimestamp = 0;
     private boolean writerClosed = false;
 
     /**
@@ -75,6 +76,9 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
 
         PrometheusMetrics.buildGaugeChild(PrometheusMetrics.LATEST_COMMITTED_OFFSETS,
             eventName, latestOffset.getPartition()).set(latestOffset.getOffset());
+
+        PrometheusMetrics.buildGaugeChild(PrometheusMetrics.LATEST_COMMITTED_TIMESTAMPS,
+            eventName, latestOffset.getPartition()).set(latestTimestamp);
 
         if (!writerClosed) {
             writer.close();
@@ -117,7 +121,7 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
             }
         }
 
-        LOGGER.info("Committed {} to {}", temporaryHdfsPath, finalPath.toUri());
+        LOGGER.info("Committed {} to {}", tempPath, finalPath.toUri());
     }
 
     protected void mergeToFinalPath(Path lastAvailableFinalPath, Path finalPath) throws IOException {
@@ -154,8 +158,10 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
 
 
     @Override
-    public void write(MESSAGE_KIND msg, Offset offset) throws IOException {
+    public void write(long timestamp, MESSAGE_KIND msg, Offset offset) throws IOException {
         if (latestOffset == null || offset.getOffset() > latestOffset.getOffset()) latestOffset = offset;
+
+        latestTimestamp = timestamp;
 
         if (msg != null) {
             writer.write(msg);

@@ -83,6 +83,7 @@ public class RMContextImplEventRunnable implements Runnable {
                 .forEach(splitTag -> BUILDERS.get(splitTag[0]).accept(splitTag[1], eventBuilder));
 
             eventBuilder.setFinalStatus(rmApp.getFinalApplicationStatus().name());
+
             eventBuilder.setStartTime(rmApp.getStartTime());
             eventBuilder.setFinishTime(rmApp.getFinishTime());
 
