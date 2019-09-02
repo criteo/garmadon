@@ -134,6 +134,8 @@ public class ElasticSearchReaderTest {
         eventMap.put("workflow_name", "");
         eventMap.put("memory_seconds", 0);
         eventMap.put("vcore_seconds", 0);
+        eventMap.put("finish_time", 0);
+        eventMap.put("start_time", 0);
 
         writeGarmadonMessage(type, event, 0L);
         verify(bulkProcessor, times(1)).add(argument.capture(), any(CommittableOffset.class));
