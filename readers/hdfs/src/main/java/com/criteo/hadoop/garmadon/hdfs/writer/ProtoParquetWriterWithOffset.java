@@ -90,18 +90,18 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
             writerClosed = true;
         }
 
-        final Optional<Path> lastExistingFinalPath = getLastExistingFinalPath();
+        final Optional<Path> lastestExistingFinalPath = getLastestExistingFinalPath();
 
-        long lastIndex = lastExistingFinalPath.map(path -> fileNamer.getIndex(path.getName()) + 1).orElse(1L);
+        long lastIndex = lastestExistingFinalPath.map(path -> fileNamer.getIndex(path.getName()) + 1).orElse(1L);
 
         final Path finalPath = new Path(finalHdfsDir, fileNamer.computePath(dayStartTime, lastIndex, latestOffset.getPartition()));
 
-        if (lastExistingFinalPath.isPresent()) {
-            long blockSize = fs.getFileStatus(lastExistingFinalPath.get()).getLen();
+        if (lastestExistingFinalPath.isPresent()) {
+            long blockSize = fs.getFileStatus(lastestExistingFinalPath.get()).getLen();
             if (blockSize > fsBlockSize) {
                 moveToFinalPath(temporaryHdfsPath, finalPath);
             } else {
-                mergeToFinalPath(lastExistingFinalPath.get(), finalPath);
+                mergeToFinalPath(lastestExistingFinalPath.get(), finalPath);
             }
         } else {
             moveToFinalPath(temporaryHdfsPath, finalPath);
@@ -176,7 +176,7 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         }
     }
 
-    private Optional<Path> getLastExistingFinalPath() throws IOException {
+    private Optional<Path> getLastestExistingFinalPath() throws IOException {
         final Path topicGlobPath = new Path(finalHdfsDir, fileNamer.computeTopicGlob(dayStartTime, partition));
         return Arrays.stream(fs.globStatus(topicGlobPath))
             .map(FileStatus::getPath)
@@ -191,22 +191,29 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
     }
 
     private double getLatestCommittedTimestamp() {
+        //there are cases for which we won't find a value for the latest committed timestamp
+        // - the first time this code goes in, no file has the correct metadata
+        // - for a new event type, we have no history too, so no value
+        //By using the default value 'now' rather than 0, we prevent firing unnecessary alerts
+        //However, if there is an actual problem and the reader never commits, it will eventually fire
+        //an alert.
+        long defaultValue = System.currentTimeMillis();
         try {
-            Optional<Path> latestFileCommitted = getLastExistingFinalPath();
+            Optional<Path> latestFileCommitted = getLastestExistingFinalPath();
             if (latestFileCommitted.isPresent()) {
                 String timestamp = ParquetFileReader
                     .open(fs.getConf(), latestFileCommitted.get())
                     .getFooter()
                     .getFileMetaData()
                     .getKeyValueMetaData()
-                    .getOrDefault(LATEST_TIMESTAMP_META_KEY, String.valueOf(System.currentTimeMillis()));
+                    .getOrDefault(LATEST_TIMESTAMP_META_KEY, String.valueOf(defaultValue));
                 return Double.valueOf(timestamp);
             } else {
-                return System.currentTimeMillis();
+                return defaultValue;
             }
         } catch (IOException e) {
             LOGGER.warn("could not get last existing final path. Defaulting latest committed timestamp to 0");
-            return System.currentTimeMillis();
+            return defaultValue;
         }
     }
 

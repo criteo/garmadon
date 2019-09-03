@@ -209,8 +209,8 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                     if (shouldClose.test(consumer)) {
                         if (tryExpireConsumer(consumer)) {
                             final Counter.Child filesCommitted = PrometheusMetrics.filesCommittedCounter(eventName);
-                            final Counter.Child checkpointsFailures = PrometheusMetrics.checkPointFailuresCounter(eventName, partitionId);
-                            final Counter.Child checkpointsSuccesses = PrometheusMetrics.checkPointSuccessesCounter(eventName, partitionId);
+                            final Counter.Child checkpointsFailures = PrometheusMetrics.checkpointFailuresCounter(eventName, partitionId);
+                            final Counter.Child checkpointsSuccesses = PrometheusMetrics.checkpointSuccessesCounter(eventName, partitionId);
 
                             filesCommitted.inc();
 

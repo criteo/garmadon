@@ -6,12 +6,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Enumeration;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class PrometheusMetricsTest {
 
@@ -65,32 +65,24 @@ public class PrometheusMetricsTest {
         createCollectorsForEventPartition("event_2", 1);
         createCollectorsForEventPartition("event_2", 1);
 
-        Optional<Set<List<String>>> incorrectLabels = PrometheusMetrics
-            .getRegisteredCollectors()
-            .values()
-            .stream()
-            .filter(labelsAssociatedWithCollector -> labelsAssociatedWithCollector.size() != 2)
-            .findFirst();
+        assertEquals(2, PrometheusMetrics.getRegisteredCollectors().size());
 
-        assertThat(incorrectLabels.isPresent(), is(false));
+        PrometheusMetrics.getRegisteredCollectors().get(0)
+            .forEach((collectors, childLabels) -> assertEquals(1, childLabels.size()));
+
+        PrometheusMetrics.getRegisteredCollectors().get(1)
+            .forEach((collectors, childLabels) -> assertEquals(1, childLabels.size()));
     }
 
     private void checkLabelExist(String label, String value) {
-        Enumeration<Collector.MetricFamilySamples> samples = CollectorRegistry.defaultRegistry.metricFamilySamples();
-        while (samples.hasMoreElements()) {
-            Collector.MetricFamilySamples thoseSamples = samples.nextElement();
-
-            Optional<Collector.MetricFamilySamples.Sample> sampleWithLabelAndValue = thoseSamples.samples.stream().filter(sample -> {
-                int idx = sample.labelNames.indexOf(label);
-                return idx >= 0 && sample.labelValues.get(idx).equals(value);
-            }).findFirst();
-
-            if (sampleWithLabelAndValue.isPresent()) {
-                return;
-            }
-
+        try {
+            checkLabelNotExist(label, value);
+        } catch (AssertionError e) {
+            //label exists means checkLabelNotExist fails
+            //so we are good here
+            return;
         }
-        throw new RuntimeException("expected to find a collector with label " + label + "{" + value + "}");
+        fail("expected to find a collector with label " + label + "{" + value + "}");
     }
 
     private void checkLabelNotExist(String label, String value) {
@@ -108,8 +100,8 @@ public class PrometheusMetricsTest {
 
     private void createCollectorsForEventPartition(String eventName, int partition) {
         PrometheusMetrics.currentRunningOffsetsGauge(eventName, partition);
-        PrometheusMetrics.checkPointFailuresCounter(eventName, partition);
-        PrometheusMetrics.checkPointSuccessesCounter(eventName, partition);
+        PrometheusMetrics.checkpointFailuresCounter(eventName, partition);
+        PrometheusMetrics.checkpointSuccessesCounter(eventName, partition);
         PrometheusMetrics.hearbeatsSentCounter(eventName, partition);
         PrometheusMetrics.latestCommittedOffsetGauge(eventName, partition);
         PrometheusMetrics.latestCommittedTimestampGauge(eventName, partition);

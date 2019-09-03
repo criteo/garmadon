@@ -36,10 +36,9 @@ public final class PrometheusMetrics {
     private static final Gauge LATEST_COMMITTED_TIMESTAMPS = buildGauge("latest_committed_timestamps",
         "Latest committed timestamps");
 
-    private static final Map<SimpleCollector<?>, Set<List<String>>> REGISTERED_COLLECTORS = new ConcurrentHashMap<>();
-
-    //when partition label is present, that's its id
-    private static final int PARTITION_LABEL_IDX = 1;
+    //We must remember what child collectors are assigned to what partition
+    //and to be able to remove them, we must remember the parent collector and the labels associated to the child collector
+    private static final Map<Integer, Map<SimpleCollector<?>, Set<List<String>>>> REGISTERED_COLLECTORS = new ConcurrentHashMap<>();
 
     private PrometheusMetrics() {
     }
@@ -56,44 +55,36 @@ public final class PrometheusMetrics {
         return buildChild(FILES_COMMITTED, eventName);
     }
 
-    public static Counter.Child checkPointFailuresCounter(String eventName, int partition) {
-        registerPartitionCollector(CHECKPOINTS_FAILURES, eventName, String.valueOf(partition));
-        return buildChild(CHECKPOINTS_FAILURES, eventName, String.valueOf(partition));
+    public static Counter.Child checkpointFailuresCounter(String eventName, int partition) {
+        return buildChild(CHECKPOINTS_FAILURES, partition, eventName, String.valueOf(partition));
     }
 
-    public static Counter.Child checkPointSuccessesCounter(String eventName, int partition) {
-        registerPartitionCollector(CHECKPOINTS_SUCCESSES, eventName, String.valueOf(partition));
-        return buildChild(CHECKPOINTS_SUCCESSES, eventName, String.valueOf(partition));
+    public static Counter.Child checkpointSuccessesCounter(String eventName, int partition) {
+        return buildChild(CHECKPOINTS_SUCCESSES, partition, eventName, String.valueOf(partition));
     }
 
     public static Counter.Child messageWritingFailuresCounter(String eventName, int partition) {
-        registerPartitionCollector(MESSAGES_WRITING_FAILURES, eventName, String.valueOf(partition));
-        return buildChild(MESSAGES_WRITING_FAILURES, eventName, String.valueOf(partition));
+        return buildChild(MESSAGES_WRITING_FAILURES, partition, eventName, String.valueOf(partition));
     }
 
     public static Counter.Child messageWrittenCounter(String eventName, int partition) {
-        registerPartitionCollector(MESSAGES_WRITTEN, eventName, String.valueOf(partition));
-        return buildChild(MESSAGES_WRITTEN, eventName, String.valueOf(partition));
+        return buildChild(MESSAGES_WRITTEN, partition, eventName, String.valueOf(partition));
     }
 
     public static Counter.Child hearbeatsSentCounter(String eventName, int partition) {
-        registerPartitionCollector(HEARTBEATS_SENT, eventName, String.valueOf(partition));
-        return buildChild(HEARTBEATS_SENT, eventName, String.valueOf(partition));
+        return buildChild(HEARTBEATS_SENT, partition, eventName, String.valueOf(partition));
     }
 
     public static Gauge.Child currentRunningOffsetsGauge(String eventName, int partition) {
-        registerPartitionCollector(CURRENT_RUNNING_OFFSETS, eventName, String.valueOf(partition));
-        return buildChild(CURRENT_RUNNING_OFFSETS, eventName, String.valueOf(partition));
+        return buildChild(CURRENT_RUNNING_OFFSETS, partition, eventName, String.valueOf(partition));
     }
 
     public static Gauge.Child latestCommittedOffsetGauge(String eventName, int partition) {
-        registerPartitionCollector(LATEST_COMMITTED_OFFSETS, eventName, String.valueOf(partition));
-        return buildChild(LATEST_COMMITTED_OFFSETS, eventName, String.valueOf(partition));
+        return buildChild(LATEST_COMMITTED_OFFSETS, partition, eventName, String.valueOf(partition));
     }
 
     public static Gauge.Child latestCommittedTimestampGauge(String eventName, int partition) {
-        registerPartitionCollector(LATEST_COMMITTED_TIMESTAMPS, eventName, String.valueOf(partition));
-        Gauge.Child gauge = buildChild(LATEST_COMMITTED_TIMESTAMPS, eventName, String.valueOf(partition));
+        Gauge.Child gauge = buildChild(LATEST_COMMITTED_TIMESTAMPS, partition, eventName, String.valueOf(partition));
         return new Gauge.Child() {
             @Override
             public void set(double val) {
@@ -107,35 +98,13 @@ public final class PrometheusMetrics {
         };
     }
 
-    public static void clearCollectors() {
-        REGISTERED_COLLECTORS.forEach((collector, labels) -> {
-            collector.clear();
-            labels.clear();
-        });
-    }
-
-    public static void clearPartitionCollectors(int partition) {
-        REGISTERED_COLLECTORS.forEach((collector, labels) -> labels
-            .stream()
-            .filter(list -> String.valueOf(partition).equals(list.get(PARTITION_LABEL_IDX)))
-            .forEach(list -> collector.remove(list.toArray(new String[0])))
-        );
-    }
-
-    public static Map<SimpleCollector<?>, Set<List<String>>> getRegisteredCollectors() {
-        return new HashMap<>(REGISTERED_COLLECTORS);
-    }
-
-    private static <CHILD> void registerPartitionCollector(SimpleCollector<CHILD> collector, String... labels) {
-        REGISTERED_COLLECTORS.computeIfAbsent(collector, ignored -> new HashSet<>());
-        REGISTERED_COLLECTORS.computeIfPresent(collector, (key, allLabels) -> {
-            allLabels.add(Arrays.asList(mergeWithDefault(labels)));
-            return allLabels;
-        });
-    }
-
     private static <CHILD> CHILD buildChild(SimpleCollector<CHILD> collector, String... labels) {
         return collector.labels(mergeWithDefault(labels));
+    }
+
+    private static <CHILD> CHILD buildChild(SimpleCollector<CHILD> collector, Integer partition, String... labels) {
+        registerPartitionCollector(collector, partition, labels);
+        return buildChild(collector, labels);
     }
 
     private static Counter buildCounter(String name, String help) {
@@ -160,6 +129,35 @@ public final class PrometheusMetrics {
             .name(name).help(help)
             .labelNames("name", "partition", "hostname", "release")
             .register();
+    }
+
+    public static void clearCollectors() {
+        REGISTERED_COLLECTORS.forEach((partition, parentCollectorToChildLabels) -> {
+            parentCollectorToChildLabels.forEach((collector, labels) -> collector.clear());
+            parentCollectorToChildLabels.clear();
+        });
+    }
+
+    public static void clearPartitionCollectors(int partition) {
+        REGISTERED_COLLECTORS
+            .get(partition)
+            .forEach((collector, childLabels) -> childLabels.forEach(labels -> collector.remove(labels.toArray(new String[0]))));
+    }
+
+    public static Map<Integer, Map<SimpleCollector<?>, Set<List<String>>>> getRegisteredCollectors() {
+        return Collections.unmodifiableMap(REGISTERED_COLLECTORS);
+    }
+
+    private static <CHILD> void registerPartitionCollector(SimpleCollector<CHILD> collector, Integer partition, String... labels) {
+        REGISTERED_COLLECTORS.computeIfAbsent(partition, ignored -> new HashMap<>());
+        REGISTERED_COLLECTORS.computeIfPresent(partition, (part, parentCollectorToChildLabels) -> {
+            parentCollectorToChildLabels.computeIfAbsent(collector, ignored -> new HashSet<>());
+            parentCollectorToChildLabels.computeIfPresent(collector, (ignored, childLabels) -> {
+                childLabels.add(Arrays.asList(mergeWithDefault(labels)));
+                return childLabels;
+            });
+            return parentCollectorToChildLabels;
+        });
     }
 
     private static String[] mergeWithDefault(String... labels) {
