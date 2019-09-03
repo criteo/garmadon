@@ -123,7 +123,7 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
             }
         }
 
-        LOGGER.info("Committed {} to {}", temporaryHdfsPath, finalPath.toUri());
+        LOGGER.info("Committed {} to {}", tempPath, finalPath.toUri());
     }
 
     protected void mergeToFinalPath(Path lastAvailableFinalPath, Path finalPath) throws IOException {

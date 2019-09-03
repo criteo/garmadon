@@ -9,10 +9,9 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.server.resourcemanager.RMContextImpl;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
+import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppMetrics;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppState;
-import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.AggregateAppResourceUsage;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttempt;
-import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,24 +82,24 @@ public class RMContextImplEventRunnable implements Runnable {
                 })
                 .forEach(splitTag -> BUILDERS.get(splitTag[0]).accept(splitTag[1], eventBuilder));
 
+            eventBuilder.setFinalStatus(rmApp.getFinalApplicationStatus().name());
+
+            eventBuilder.setStartTime(rmApp.getStartTime());
+            eventBuilder.setFinishTime(rmApp.getFinishTime());
+
+            RMAppMetrics rmAppMetrics = rmApp.getRMAppMetrics();
+            if (rmAppMetrics != null) {
+                eventBuilder.setMemorySeconds(rmAppMetrics.getMemorySeconds());
+                eventBuilder.setVcoreSeconds(rmAppMetrics.getVcoreSeconds());
+            }
+
             RMAppAttempt rmAppAttempt = rmApp.getCurrentAppAttempt();
             if (rmAppAttempt != null) {
                 headerBuilder.withAttemptID(rmAppAttempt.getAppAttemptId().toString());
 
-                RMAppAttemptMetrics rmAppAttemptMetrics = rmApp.getCurrentAppAttempt().getRMAppAttemptMetrics();
-                if (rmAppAttemptMetrics != null) {
-                    AggregateAppResourceUsage aggregateAppResourceUsage = rmAppAttemptMetrics.getAggregateAppResourceUsage();
-                    eventBuilder.setMemorySeconds(aggregateAppResourceUsage.getMemorySeconds());
-                    eventBuilder.setVcoreSeconds(aggregateAppResourceUsage.getVcoreSeconds());
-                }
-
                 Container container = rmAppAttempt.getMasterContainer();
                 if (container != null) {
                     eventBuilder.setAmContainerId(container.getId().toString());
-                }
-
-                if (rmAppAttempt.getFinalApplicationStatus() != null) {
-                    eventBuilder.setFinalStatus(rmAppAttempt.getFinalApplicationStatus().name());
                 }
             }
 
