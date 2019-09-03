@@ -50,7 +50,7 @@ public class ProtoParquetWriterWithOffsetTest {
     private static final String TOPIC = "topic";
     private static final LocalDateTime TODAY = LocalDateTime.now();
 
-    private FileSystem localFsSpy;
+    private FileSystem localFs;
     private Path rootPath;
     private Path finalPath;
     private Path tmpPath;
@@ -61,17 +61,17 @@ public class ProtoParquetWriterWithOffsetTest {
         rootPath = new Path(tmpDir.toString());
         finalPath = new Path(rootPath, "final");
         tmpPath = new Path(rootPath, "tmp");
-        localFsSpy = spy(FileSystem.getLocal(new Configuration()));
-        localFsSpy.mkdirs(rootPath);
-        localFsSpy.mkdirs(finalPath);
-        localFsSpy.mkdirs(tmpPath);
+        localFs = FileSystem.getLocal(new Configuration());
+        localFs.mkdirs(rootPath);
+        localFs.mkdirs(finalPath);
+        localFs.mkdirs(tmpPath);
 
         PrometheusMetrics.clearCollectors();
     }
 
     @After
     public void tearDown() throws IOException {
-        localFsSpy.delete(rootPath, true);
+        localFs.delete(rootPath, true);
     }
 
     @Test(expected = IOException.class)
@@ -80,7 +80,7 @@ public class ProtoParquetWriterWithOffsetTest {
         final BiConsumer<String, String> protoMetadataWriter = mock(BiConsumer.class);
 
         final ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
-            createTmpFile(), finalPath, localFsSpy, new HdfsOffsetComputer(localFsSpy, finalPath, 2), LocalDateTime.MIN, "ignored",
+            createTmpFile(), finalPath, localFs, new HdfsOffsetComputer(localFs, finalPath, 2), LocalDateTime.MIN, "ignored",
             protoMetadataWriter, 0);
 
         parquetWriter.close();
@@ -91,6 +91,7 @@ public class ProtoParquetWriterWithOffsetTest {
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
         final OffsetComputer fileNamer = mock(OffsetComputer.class);
         final BiConsumer<String, String> protoMetadataWriter = mock(BiConsumer.class);
+        final FileSystem localFsSpy = spy(localFs);
 
         when(fileNamer.computeTopicGlob(any(LocalDateTime.class), anyInt())).thenReturn("ignored");
         when(fileNamer.computePath(any(LocalDateTime.class), any(Long.class), anyInt())).thenReturn("ignored");
@@ -146,15 +147,13 @@ public class ProtoParquetWriterWithOffsetTest {
 
     @Test
     public void finalFileTooBigToBeMerged() throws IOException {
+        localFs.getConf().set("fs.local.block.size", "1");
 
-        doReturn(1L).when(localFsSpy).getDefaultBlockSize(any());
-
-        final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFsSpy, rootPath, 2);
+        final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, rootPath, 2);
 
         //we already create and populate tmp file as we will mock the underlying writer
         final Path tmpFile = new Path(tmpPath, "tmp_file");
-        final Path existingFile = new Path(finalPath, hdfsOffsetComputer.computePath(TODAY, 0L, 1));
-        final Path nextFile = new Path(finalPath, hdfsOffsetComputer.computePath(TODAY, 1L, 1));
+        final Path existingFinalFile = new Path(finalPath, hdfsOffsetComputer.computePath(TODAY, 0L, 1));
         createParquetFile(
             tmpFile,
             DataAccessEventProtos.FsEvent.class,
@@ -162,7 +161,7 @@ public class ProtoParquetWriterWithOffsetTest {
             654321
         );
         createParquetFile(
-            existingFile,
+            existingFinalFile,
             DataAccessEventProtos.FsEvent.class,
             () -> DataAccessEventProtos.FsEvent.newBuilder().build(),
             123456
@@ -172,30 +171,36 @@ public class ProtoParquetWriterWithOffsetTest {
         final BiConsumer<String, String> protoMetadataWriter = mock(BiConsumer.class);
 
         ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
-            tmpFile, finalPath, localFsSpy, hdfsOffsetComputer, TODAY, "ignored",
+            tmpFile, finalPath, localFs, hdfsOffsetComputer, TODAY, "ignored",
             protoMetadataWriter, 1);
         //simul write action
         parquetWriter.write(654321, mock(MessageOrBuilder.class), new TopicPartitionOffset(TOPIC, 1, 0));
         parquetWriter.close();
 
-        assertTrue(localFsSpy.exists(existingFile));
-        assertTrue(localFsSpy.exists(nextFile));
-        assertFalse(localFsSpy.listFiles(tmpPath, true).hasNext());
 
-        checkFileLatestCommittedTimestamp(existingFile, 123456);
+        final Path nextFile = new Path(finalPath, hdfsOffsetComputer.computePath(TODAY, 1L, 1));
+
+        Set<LocatedFileStatus> finalFiles = listFiles(localFs, finalPath);
+        Set<LocatedFileStatus> tmpFiles = listFiles(localFs, tmpPath);
+
+        assertEquals(2, finalFiles.size());
+        assertTrue(containsFile(finalFiles, existingFinalFile));
+        assertTrue(containsFile(finalFiles, nextFile));
+        assertEquals(0, tmpFiles.size());
+
+        checkFileLatestCommittedTimestamp(existingFinalFile, 123456);
         checkFileLatestCommittedTimestamp(nextFile, 654321);
     }
 
     @Test
     public void finalFileAndTempFilesMergedWhenFinalSizeIsNotBigEnough() throws IOException {
-        doReturn(Long.MAX_VALUE).when(localFsSpy).getDefaultBlockSize(any());
+        localFs.getConf().set("fs.local.block.size", String.valueOf(Long.MAX_VALUE));
 
-        final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFsSpy, rootPath, 2);
+        final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, rootPath, 2);
 
         //we already create and populate tmp file as we will mock the underlying writer
         final Path tmpFile = new Path(tmpPath, "tmp_file");
         final Path existingFinalFile = new Path(finalPath, hdfsOffsetComputer.computePath(TODAY, 0L, 1));
-        final Path nextFile = new Path(finalPath, hdfsOffsetComputer.computePath(TODAY, 1L, 1));
         createParquetFile(
             tmpFile,
             DataAccessEventProtos.FsEvent.class,
@@ -213,18 +218,23 @@ public class ProtoParquetWriterWithOffsetTest {
         final BiConsumer<String, String> protoMetadataWriter = mock(BiConsumer.class);
 
         ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
-            tmpFile, finalPath, localFsSpy, hdfsOffsetComputer, TODAY, "ignored",
+            tmpFile, finalPath, localFs, hdfsOffsetComputer, TODAY, "ignored",
             protoMetadataWriter, 1);
         //simul write action
         parquetWriter.write(999999999L, mock(MessageOrBuilder.class), new TopicPartitionOffset(TOPIC, 1, 0));
         parquetWriter.close();
 
-        assertTrue(localFsSpy.exists(existingFinalFile));
-        assertFalse(localFsSpy.exists(nextFile));
-        assertFalse(localFsSpy.listFiles(tmpPath, true).hasNext());
+
+        Set<LocatedFileStatus> finalFiles = listFiles(localFs, finalPath);
+        Set<LocatedFileStatus> tmpFiles = listFiles(localFs, tmpPath);
+
+        assertEquals(1, finalFiles.size());
+        assertTrue(containsFile(finalFiles, existingFinalFile));
+        assertEquals(0, tmpFiles.size());
 
         //Check that it can still be read after merge
-        ParquetReader<DataAccessEventProtos.FsEvent.Builder> reader = ProtoParquetReader.<DataAccessEventProtos.FsEvent.Builder>builder(existingFinalFile).build();
+        ParquetReader<DataAccessEventProtos.FsEvent.Builder> reader = ProtoParquetReader
+            .<DataAccessEventProtos.FsEvent.Builder>builder(existingFinalFile).build();
         int count = 0;
         while (reader.read() != null) {
             count++;
@@ -237,14 +247,13 @@ public class ProtoParquetWriterWithOffsetTest {
 
     @Test
     public void finalFileAndTempFilesNotMergedDueToDifferentSchema() throws IOException {
-        doReturn(1L).when(localFsSpy).getDefaultBlockSize(any());
+        localFs.getConf().set("fs.local.block.size", "1");
 
-        final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFsSpy, rootPath, 2);
+        final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, rootPath, 2);
 
         //we already create and populate tmp file as we will mock the underlying writer
         final Path tmpFile = new Path(tmpPath, "tmp_file");
         final Path existingFinalFile = new Path(finalPath, hdfsOffsetComputer.computePath(TODAY, 0L, 1));
-        final Path nextFile = new Path(finalPath, hdfsOffsetComputer.computePath(TODAY, 1L, 1));
         createParquetFile(
             tmpFile,
             DataAccessEventProtos.FsEvent.class,
@@ -262,16 +271,23 @@ public class ProtoParquetWriterWithOffsetTest {
         final BiConsumer<String, String> protoMetadataWriter = mock(BiConsumer.class);
 
         ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
-            tmpFile, finalPath, localFsSpy, hdfsOffsetComputer, TODAY, "ignored",
+            tmpFile, finalPath, localFs, hdfsOffsetComputer, TODAY, "ignored",
             protoMetadataWriter, 1);
         //simul write action
         parquetWriter.write(987654321, mock(MessageOrBuilder.class), new TopicPartitionOffset(TOPIC, 1, 0));
 
         parquetWriter.close();
 
-        assertTrue(localFsSpy.exists(existingFinalFile));
-        assertTrue(localFsSpy.exists(nextFile));
-        assertFalse(localFsSpy.listFiles(tmpPath, true).hasNext());
+
+        final Path nextFile = new Path(finalPath, hdfsOffsetComputer.computePath(TODAY, 1L, 1));
+
+        Set<LocatedFileStatus> finalFiles = listFiles(localFs, finalPath);
+        Set<LocatedFileStatus> tmpFiles = listFiles(localFs, tmpPath);
+
+        assertEquals(2, finalFiles.size());
+        assertTrue(containsFile(finalFiles, existingFinalFile));
+        assertTrue(containsFile(finalFiles, nextFile));
+        assertEquals(0, tmpFiles.size());
 
         checkFileLatestCommittedTimestamp(existingFinalFile, 123456789);
         checkFileLatestCommittedTimestamp(nextFile, 987654321);
@@ -279,7 +295,7 @@ public class ProtoParquetWriterWithOffsetTest {
 
     @Test
     public void initializedWithExistingIndexFiles() throws IOException {
-        final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFsSpy, finalPath, 2);
+        final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, finalPath, 2);
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
         final Path path = new Path(finalPath, hdfsOffsetComputer.computePath(TODAY, 0, 0));
         createParquetFile(
@@ -292,7 +308,7 @@ public class ProtoParquetWriterWithOffsetTest {
         final BiConsumer<String, String> protoMetadataWriter = mock(BiConsumer.class);
 
         final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writerMock, tmpPath,
-            finalPath, localFsSpy, hdfsOffsetComputer, TODAY, "eventName",
+            finalPath, localFs, hdfsOffsetComputer, TODAY, "eventName",
             protoMetadataWriter, 0);
 
         assertThat(
@@ -308,7 +324,7 @@ public class ProtoParquetWriterWithOffsetTest {
         final BiConsumer<String, String> protoMetadataWriter = mock(BiConsumer.class);
 
         final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writerMock, tmpPath,
-            finalPath, localFsSpy, new HdfsOffsetComputer(localFsSpy, finalPath, 2), today, "eventName",
+            finalPath, localFs, new HdfsOffsetComputer(localFs, finalPath, 2), today, "eventName",
             protoMetadataWriter, 0);
 
         assertEquals(
@@ -320,7 +336,7 @@ public class ProtoParquetWriterWithOffsetTest {
 
     @Test
     public void initializedWithExistingIndexFilesHavingNoMetadataForLatestCommittedTimestamp() throws IOException {
-        final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFsSpy, finalPath, 2);
+        final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, finalPath, 2);
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
         final Path path = new Path(finalPath, hdfsOffsetComputer.computePath(TODAY, 0, 0));
         createParquetFile(
@@ -333,7 +349,7 @@ public class ProtoParquetWriterWithOffsetTest {
         final BiConsumer<String, String> protoMetadataWriter = mock(BiConsumer.class);
 
         final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writerMock, tmpPath,
-            finalPath, localFsSpy, hdfsOffsetComputer, TODAY, "eventName",
+            finalPath, localFs, hdfsOffsetComputer, TODAY, "eventName",
             protoMetadataWriter, 0);
 
         assertEquals(
@@ -348,6 +364,7 @@ public class ProtoParquetWriterWithOffsetTest {
         final LocalDateTime today = LocalDateTime.now();
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
         final BiConsumer<String, String> protoMetadataWriter = mock(BiConsumer.class);
+        final FileSystem localFsSpy = spy(localFs);
 
         final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writerMock, tmpPath,
             finalPath, localFsSpy, new HdfsOffsetComputer(localFsSpy, finalPath, 2), today, "eventName",
@@ -398,7 +415,7 @@ public class ProtoParquetWriterWithOffsetTest {
         final BiConsumer<String, String> protoMetadataWriter = mock(BiConsumer.class);
 
         final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writer, newTmpFile, finalPath,
-            localFsSpy, new FixedOffsetComputer(FINAL_FILE_NAME, 123), UTC_EPOCH, "ignored",
+            localFs, new FixedOffsetComputer(FINAL_FILE_NAME, 123), UTC_EPOCH, "ignored",
             protoMetadataWriter, 1);
 
         for (EventHeaderProtos.Header header : inputHeaders) {
@@ -406,7 +423,7 @@ public class ProtoParquetWriterWithOffsetTest {
         }
         consumer.close();
 
-        final RemoteIterator<LocatedFileStatus> filesIterator = localFsSpy.listFiles(finalPath, false);
+        final RemoteIterator<LocatedFileStatus> filesIterator = localFs.listFiles(finalPath, false);
         final LocatedFileStatus fileStatus = filesIterator.next();
         Assert.assertEquals(FINAL_FILE_NAME, fileStatus.getPath().getName());
         Assert.assertFalse("There should be only one output file", filesIterator.hasNext());
@@ -425,8 +442,25 @@ public class ProtoParquetWriterWithOffsetTest {
 
     private Path createTmpFile() throws IOException {
         Path p = new Path(tmpPath, UUID.randomUUID().toString());
-        localFsSpy.create(p).close();
+        localFs.create(p).close();
         return p;
+    }
+
+    private Set<LocatedFileStatus> listFiles(FileSystem fs, Path p) throws IOException {
+        RemoteIterator<LocatedFileStatus> it = fs.listFiles(p, true);
+        Set<LocatedFileStatus> s = new HashSet<>();
+        while (it.hasNext()) {
+            s.add(it.next());
+        }
+        return s;
+    }
+
+    private boolean containsFile(Set<LocatedFileStatus> files, Path p) {
+        return files.stream().filter(lfs -> lfs.isFile() && pathWithoutScheme(lfs.getPath()).equals(pathWithoutScheme(p))).count() == 1;
+    }
+
+    private String pathWithoutScheme(Path p) {
+        return p.toUri().getPath();
     }
 
 }
