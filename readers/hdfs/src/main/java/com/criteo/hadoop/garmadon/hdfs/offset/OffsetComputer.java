@@ -1,7 +1,5 @@
 package com.criteo.hadoop.garmadon.hdfs.offset;
 
-import com.criteo.hadoop.garmadon.reader.Offset;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -28,16 +26,16 @@ public interface OffsetComputer {
 
     /**
      * @param time      Time-window start time (eg. day start if daily)
-     * @param offset    Kafka offset
+     * @param partition Kafka partition
      * @return          Topic Glob Path based on a time and offset
      */
-    String computeTopicGlob(LocalDateTime time, Offset offset);
+    String computeTopicGlob(LocalDateTime time, int partition);
 
     /**
      * @param time      Time-window start time (eg. day start if daily)
      * @param index     file index
-     * @param offset    Kafka offset
+     * @param partition Kafka partition
      * @return          Path based on a time and offset
      */
-    String computePath(LocalDateTime time, long index, Offset offset);
+    String computePath(LocalDateTime time, long index, int partition);
 }

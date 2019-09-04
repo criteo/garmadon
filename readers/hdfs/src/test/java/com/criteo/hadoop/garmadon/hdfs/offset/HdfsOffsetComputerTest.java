@@ -9,7 +9,9 @@ import com.criteo.hadoop.garmadon.reader.TopicPartitionOffset;
 import com.google.protobuf.Message;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.parquet.proto.ProtoParquetWriter;
 import org.junit.Assert;
@@ -19,7 +21,10 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.LongStream;
 
 import static org.mockito.Matchers.any;
@@ -31,8 +36,8 @@ public class HdfsOffsetComputerTest {
     @Before
     public void setup() throws IOException {
         offsetComputer = new HdfsOffsetComputer(buildFileSystem(
-                Arrays.asList("456.12", "123.abc", "456.24")),
-                new Path("Fake path"), 2);
+            Arrays.asList("456.12", "123.abc", "456.24")),
+            new Path("Fake path"), 2);
     }
 
     @Test
@@ -92,8 +97,8 @@ public class HdfsOffsetComputerTest {
     @Test
     public void matchingPatternAmongMultiplePartitions() throws IOException {
         final HdfsOffsetComputer offsetComputer = spy(new HdfsOffsetComputer(buildFileSystem(
-                Arrays.asList("456.index=12", "123.index=12", "456.index=12")),
-                new Path("Fake path"), 2));
+            Arrays.asList("456.index=12", "123.index=12", "456.index=12")),
+            new Path("Fake path"), 2));
 
         doReturn(12L).when(offsetComputer).getMaxOffset(any());
 
@@ -136,11 +141,11 @@ public class HdfsOffsetComputerTest {
             localFs.mkdirs(rootPath);
             localFs.mkdirs(basePath);
 
-            writeParquetFile(new Path(basePath, hdfsOffsetComputer.computePath(today, 0L, buildOffset(1, 1))), 1);
-            writeParquetFile(new Path(basePath, hdfsOffsetComputer.computePath(today, 0L, buildOffset(2, 12))), 12);
-            writeParquetFile(new Path(basePath, hdfsOffsetComputer.computePath(yesterday, 0L, buildOffset(1, 2))), 2);
-            writeParquetFile(new Path(basePath, hdfsOffsetComputer.computePath(yesterday, 1L, buildOffset(1, 3))), 3);
-            writeParquetFile(new Path(basePath, hdfsOffsetComputer.computePath(twoDaysAgo, 0L, buildOffset(1, 42))), 42);
+            writeParquetFile(new Path(basePath, hdfsOffsetComputer.computePath(today, 0L, 1)), 1);
+            writeParquetFile(new Path(basePath, hdfsOffsetComputer.computePath(today, 0L, 2)), 12);
+            writeParquetFile(new Path(basePath, hdfsOffsetComputer.computePath(yesterday, 0L, 1)), 2);
+            writeParquetFile(new Path(basePath, hdfsOffsetComputer.computePath(yesterday, 1L, 1)), 3);
+            writeParquetFile(new Path(basePath, hdfsOffsetComputer.computePath(twoDaysAgo, 0L, 1)), 42);
 
             Map<Integer, Long> offsets = hdfsOffsetComputer.computeOffsets(Arrays.asList(1, 2, 3));
 
@@ -157,14 +162,14 @@ public class HdfsOffsetComputerTest {
     }
 
     private void performSinglePartitionTest(List<String> fileNames, int partitionId, long expectedOffset, String kafkaCluster)
-            throws IOException {
+        throws IOException {
         final HdfsOffsetComputer offsetComputer = spy(new HdfsOffsetComputer(buildFileSystem(fileNames),
-                new Path("Fake path"), kafkaCluster, 2));
+            new Path("Fake path"), kafkaCluster, 2));
 
         doReturn(expectedOffset).when(offsetComputer).getMaxOffset(any());
 
         Assert.assertEquals(expectedOffset,
-                offsetComputer.computeOffsets(Collections.singleton(partitionId)).get(partitionId).longValue());
+            offsetComputer.computeOffsets(Collections.singleton(partitionId)).get(partitionId).longValue());
     }
 
     private Offset buildOffset(int partition, long offset) {
@@ -174,7 +179,7 @@ public class HdfsOffsetComputerTest {
     private FileSystem buildFileSystem(List<String> fileNames) throws IOException {
         final FileSystem fs = mock(FileSystem.class);
         final FileStatus[] statuses = fileNames.stream().map(name ->
-                new FileStatus(0, false, 0, 0, 0, new Path(name))).toArray(FileStatus[]::new);
+            new FileStatus(0, false, 0, 0, 0, new Path(name))).toArray(FileStatus[]::new);
 
         when(fs.globStatus(any(Path.class))).thenReturn(statuses);
 
@@ -183,14 +188,14 @@ public class HdfsOffsetComputerTest {
 
     private void writeParquetFile(Path fileName, long offset) throws IOException {
         ProtoParquetWriter<Message> writer = new ProtoParquetWriter<>(fileName, EventsWithHeader.FsEvent.class, CompressionCodecName.SNAPPY,
-                1 * 1_024 * 1_024, 1_024 * 1_024);
+            1 * 1_024 * 1_024, 1_024 * 1_024);
 
         EventHeaderProtos.Header emptyHeader = EventHeaderProtos.Header.newBuilder().build();
 
         LongStream.range(0, offset).forEach(n -> {
             Message msg = ProtoConcatenator
-                    .concatToProtobuf(System.currentTimeMillis(), offset, Arrays.asList(emptyHeader, DataAccessEventProtos.FsEvent.newBuilder().build()))
-                    .build();
+                .concatToProtobuf(System.currentTimeMillis(), offset, Arrays.asList(emptyHeader, DataAccessEventProtos.FsEvent.newBuilder().build()))
+                .build();
             try {
                 writer.write(msg);
             } catch (IOException e) {

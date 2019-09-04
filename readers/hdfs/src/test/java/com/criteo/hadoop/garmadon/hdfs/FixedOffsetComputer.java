@@ -1,7 +1,6 @@
 package com.criteo.hadoop.garmadon.hdfs;
 
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
-import com.criteo.hadoop.garmadon.reader.Offset;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -40,12 +39,12 @@ public class FixedOffsetComputer implements OffsetComputer {
     }
 
     @Override
-    public String computeTopicGlob(LocalDateTime time, Offset offset) {
+    public String computeTopicGlob(LocalDateTime time, int partition) {
         return fileName + "*";
     }
 
     @Override
-    public String computePath(LocalDateTime time, long index, Offset offset) {
+    public String computePath(LocalDateTime time, long index, int partition) {
         return fileName;
     }
 }
