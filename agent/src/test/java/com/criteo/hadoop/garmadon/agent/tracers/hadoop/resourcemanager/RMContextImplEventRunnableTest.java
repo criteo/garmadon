@@ -55,23 +55,6 @@ public class RMContextImplEventRunnableTest {
         assertThat(appEvent.getFinalStatus()).isEqualTo("SUCCEEDED");
     }
 
-    @Test
-    public void RMContextImplEventRunnable_sendAppEvent_without_FinalStatus_should_not_fail() {
-        RMApp rmApp = mockRMApp("container_id_001", null, "project", "workflow", null);
-        rmContextImplEventRunnable.sendAppEvent(applicationId, rmApp);
-        verify(eventHandler).accept(any(Long.class), any(Header.class), argument.capture());
-
-        ResourceManagerEventProtos.ApplicationEvent appEvent = argument.getValue();
-
-        assertThat(appEvent.getAmContainerId()).isEqualTo("container_id_001");
-        assertThat(appEvent.getTrackingUrl()).isEqualTo("");
-
-        assertThat(appEvent.getProjectName()).isEqualTo("project");
-        assertThat(appEvent.getWorkflowName()).isEqualTo("workflow");
-
-        assertThat(appEvent.getFinalStatus()).isEqualTo("");
-    }
-
     public RMApp mockRMApp(String containerId, String trackingUrl, String projectName, String workflow, FinalApplicationStatus finalApplicationStatus) {
         RMApp rmApp = mock(RMApp.class);
         when(rmApp.getUser()).thenReturn("user");
@@ -86,7 +69,7 @@ public class RMContextImplEventRunnableTest {
         when(rmApp.getApplicationTags()).thenReturn(
             new HashSet<>(Arrays.asList("simpleTag", "garmadon.project.name:" + projectName, "garmadon.workflow.name:" + workflow))
         );
-        when(rmAppAttempt.getFinalApplicationStatus()).thenReturn(finalApplicationStatus);
+        when(rmApp.getFinalApplicationStatus()).thenReturn(finalApplicationStatus);
 
         ApplicationAttemptId applicationAttemptId = mock(ApplicationAttemptId.class);
         when(rmAppAttempt.getAppAttemptId()).thenReturn(applicationAttemptId);
