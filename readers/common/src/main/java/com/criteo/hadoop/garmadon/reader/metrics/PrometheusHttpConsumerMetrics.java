@@ -63,7 +63,7 @@ public class PrometheusHttpConsumerMetrics {
 
     private static final Gauge BASE_KAFKA_METRICS_GAUGE = Gauge.build()
         .name("garmadon_kafka_metrics").help("Kafka producer metrics")
-        .labelNames("name", "hostname", "release")
+        .labelNames("name", "hostname", "release", "consumer_id")
         .register();
 
     private static ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
@@ -81,7 +81,7 @@ public class PrometheusHttpConsumerMetrics {
         // Expose JMX, GCs, classloading, thread count, memory pool
         DefaultExports.initialize();
         try {
-            baseKafkaJmxName = new ObjectName("kafka.consumer:type=consumer-metrics,client-id=consumer-*");
+            baseKafkaJmxName = new ObjectName("kafka.consumer:type=consumer-metrics,client-id=*");
         } catch (MalformedObjectNameException e) {
             LOGGER.error("", e);
         }
@@ -116,7 +116,7 @@ public class PrometheusHttpConsumerMetrics {
                     MBeanAttributeInfo[] attrInfo = info.getAttributes();
                     for (MBeanAttributeInfo attr : attrInfo) {
                         if (attr.isReadable() && attr.getType().equals("double")) {
-                            BASE_KAFKA_METRICS_GAUGE.labels(attr.getName(), GarmadonReader.getHostname(), RELEASE)
+                            BASE_KAFKA_METRICS_GAUGE.labels(attr.getName(), GarmadonReader.getHostname(), RELEASE, name.getKeyProperty("client-id"))
                                 .set((Double) MBS.getAttribute(name, attr.getName()));
                         }
                     }
