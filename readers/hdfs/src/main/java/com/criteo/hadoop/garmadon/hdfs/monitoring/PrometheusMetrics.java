@@ -139,9 +139,10 @@ public final class PrometheusMetrics {
     }
 
     public static void clearPartitionCollectors(int partition) {
-        REGISTERED_COLLECTORS
-            .get(partition)
-            .forEach((collector, childLabels) -> childLabels.forEach(labels -> collector.remove(labels.toArray(new String[0]))));
+        Map<SimpleCollector<?>, Set<List<String>>> collectorToChildLabels = REGISTERED_COLLECTORS.get(partition);
+        if (collectorToChildLabels != null) {
+            collectorToChildLabels.forEach((collector, childLabels) -> childLabels.forEach(labels -> collector.remove(labels.toArray(new String[0]))));
+        }
     }
 
     public static Map<Integer, Map<SimpleCollector<?>, Set<List<String>>>> getRegisteredCollectors() {
