@@ -5,6 +5,7 @@ import com.criteo.hadoop.garmadon.reader.configurations.PrometheusConfiguration;
 
 public class HdfsReaderConfiguration {
     private HdfsConfiguration hdfs;
+    private HiveConfiguration hive = new HiveConfiguration();
     private KafkaConfiguration kafka;
     private PrometheusConfiguration prometheus;
     private int parallelism;
@@ -16,6 +17,14 @@ public class HdfsReaderConfiguration {
 
     public void setHdfs(HdfsConfiguration hdfs) {
         this.hdfs = hdfs;
+    }
+
+    public HiveConfiguration getHive() {
+        return hive;
+    }
+
+    public void setHive(HiveConfiguration hive) {
+        this.hive = hive;
     }
 
     public KafkaConfiguration getKafka() {

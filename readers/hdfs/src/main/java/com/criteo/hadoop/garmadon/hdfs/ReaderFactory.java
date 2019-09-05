@@ -2,6 +2,7 @@ package com.criteo.hadoop.garmadon.hdfs;
 
 import com.criteo.hadoop.garmadon.event.proto.*;
 import com.criteo.hadoop.garmadon.hdfs.configurations.HdfsReaderConfiguration;
+import com.criteo.hadoop.garmadon.hdfs.hive.HiveClient;
 import com.criteo.hadoop.garmadon.hdfs.kafka.OffsetResetter;
 import com.criteo.hadoop.garmadon.hdfs.kafka.PartitionsPauseStateHandler;
 import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.FileSystemNotFoundException;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -94,6 +96,10 @@ public class ReaderFactory {
     private final int sizeBeforeFlushingTmp;
     private final int backlogDays;
     private final String kafkaCluster;
+    private final Boolean createHiveTable;
+    private final String driverName;
+    private final String hiveJdbcUrl;
+    private final String hiveDatabase;
 
     public ReaderFactory(HdfsReaderConfiguration conf) {
         maxTmpFileOpenRetries = conf.getHdfs().getMaxTmpFileOpenRetries();
@@ -105,6 +111,10 @@ public class ReaderFactory {
         sizeBeforeFlushingTmp = conf.getHdfs().getSizeBeforeFlushingTmp();
         backlogDays = conf.getHdfs().getBacklogDays();
         kafkaCluster = conf.getKafka().getCluster();
+        createHiveTable = conf.getHive().isCreateHiveTable();
+        driverName = conf.getHive().getDriverName();
+        hiveJdbcUrl = conf.getHive().getHiveJdbcUrl();
+        hiveDatabase = conf.getHive().getHiveDatabase();
     }
 
     private static void addTypeMapping(Map<Integer, GarmadonEventDescriptor> out,
@@ -121,6 +131,15 @@ public class ReaderFactory {
         final PartitionedWriter.Expirer expirer = new PartitionedWriter.Expirer<>(writers, expirerPeriod);
         final HeartbeatConsumer heartbeat = new HeartbeatConsumer<>(writers, heartbeatPeriod);
         final PartitionsPauseStateHandler pauser = new PartitionsPauseStateHandler(kafkaConsumer);
+
+        HiveClient hiveClient = null;
+        if (createHiveTable) {
+            try {
+                hiveClient = new HiveClient(driverName, hiveJdbcUrl, hiveDatabase, new Path(finalHdfsDir, "hive").toString());
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         for (Map.Entry<Integer, GarmadonEventDescriptor> out : typeToEventDescriptor.entrySet()) {
             final Integer eventType = out.getKey();
@@ -142,7 +161,7 @@ public class ReaderFactory {
                 });
 
             consumerBuilder = buildMessageConsumerBuilder(fs, new Path(temporaryHdfsDir, eventName),
-                finalEventDir, clazz, offsetComputer, pauser, eventName);
+                finalEventDir, clazz, offsetComputer, pauser, eventName, hiveClient);
 
             final PartitionedWriter<Message> writer = new PartitionedWriter<>(
                 consumerBuilder, offsetComputer, eventName, emptyMessageBuilder, checkpointer);
@@ -209,7 +228,8 @@ public class ReaderFactory {
 
     private BiFunction<Integer, LocalDateTime, ExpiringConsumer<Message>> buildMessageConsumerBuilder(
         FileSystem fs, Path temporaryHdfsDir, Path finalHdfsDir, Class<? extends Message> clazz,
-        OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser, String eventName) {
+        OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser, String eventName,
+        HiveClient hiveClient) {
         Counter.Child tmpFileOpenFailures = PrometheusMetrics.tmpFileOpenFailuresCounter(eventName);
         Counter.Child tmpFilesOpened = PrometheusMetrics.tmpFilesOpened(eventName);
 
@@ -245,7 +265,7 @@ public class ReaderFactory {
                 partitionsPauser.resume(clazz);
 
                 return new ExpiringConsumer<>(new ProtoParquetWriterWithOffset<>(
-                    protoWriter, tmpFilePath, finalHdfsDir, fs, offsetComputer, dayStartTime, eventName, extraMetadataWriteSupport, partition),
+                    protoWriter, tmpFilePath, finalHdfsDir, fs, offsetComputer, dayStartTime, eventName, extraMetadataWriteSupport, partition, hiveClient),
                     writersExpirationDelay, messagesBeforeExpiringWriters);
             }
 

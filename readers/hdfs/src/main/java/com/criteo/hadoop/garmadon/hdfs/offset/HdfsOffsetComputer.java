@@ -46,7 +46,7 @@ public class HdfsOffsetComputer implements OffsetComputer {
         this.fs = fs;
         this.basePath = basePath;
         this.backlogDays = backlogDays;
-        this.dirRenamePattern = "%s";
+        this.dirRenamePattern = "day=%s";
 
         if (kafkaCluster == null) {
             this.offsetFilePatternGenerator = Pattern.compile("^(?<partitionId>\\d+)(?>\\.index=(?<index>\\d+))*.*$");

@@ -1,6 +1,7 @@
 package com.criteo.hadoop.garmadon.hdfs;
 
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
