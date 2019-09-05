@@ -11,7 +11,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.ParquetFileWriter;
-import org.apache.parquet.proto.ProtoParquetWriter;
+import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.schema.MessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.BiConsumer;
 
 /**
  * Wrap an actual ProtoParquetWriter, renaming the output file properly when closing.
@@ -28,17 +29,21 @@ import java.util.*;
  */
 public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
     implements CloseableWriter<MESSAGE_KIND> {
+
+    public static final String LATEST_TIMESTAMP_META_KEY = "latest_timestamp";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtoParquetWriterWithOffset.class);
-    private static final Map<String, String> EMPTY_METADATA = new HashMap<>();
 
     private final Path temporaryHdfsPath;
-    private final ProtoParquetWriter<MESSAGE_KIND> writer;
+    private final ParquetWriter<MESSAGE_KIND> writer;
     private final Path finalHdfsDir;
     private final FileSystem fs;
     private final OffsetComputer fileNamer;
     private final LocalDateTime dayStartTime;
     private final String eventName;
     private final long fsBlockSize;
+    private final BiConsumer<String, String> protoMetadataWriter;
+    private final int partition;
 
     private Offset latestOffset = null;
     private long latestTimestamp = 0;
@@ -53,9 +58,10 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
      * @param dayStartTime      The day partition the final file will go to
      * @param eventName         Event name used for logging &amp; monitoring
      */
-    public ProtoParquetWriterWithOffset(ProtoParquetWriter<MESSAGE_KIND> writer, Path temporaryHdfsPath,
+    public ProtoParquetWriterWithOffset(ParquetWriter<MESSAGE_KIND> writer, Path temporaryHdfsPath,
                                         Path finalHdfsDir, FileSystem fs, OffsetComputer fileNamer,
-                                        LocalDateTime dayStartTime, String eventName) {
+                                        LocalDateTime dayStartTime, String eventName,
+                                        BiConsumer<String, String> protoMetadataWriter, int partition) {
         this.writer = writer;
         this.temporaryHdfsPath = temporaryHdfsPath;
         this.finalHdfsDir = finalHdfsDir;
@@ -64,6 +70,10 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         this.dayStartTime = dayStartTime;
         this.eventName = eventName;
         this.fsBlockSize = fs.getDefaultBlockSize(finalHdfsDir);
+        this.protoMetadataWriter = protoMetadataWriter;
+        this.partition = partition;
+
+        initializeLatestCommittedTimestampGauge();
     }
 
     @Override
@@ -74,39 +84,31 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
             throw new IOException(String.format("Trying to write a zero-sized file, please fix (%s)", additionalInfo));
         }
 
-        PrometheusMetrics.buildGaugeChild(PrometheusMetrics.LATEST_COMMITTED_OFFSETS,
-            eventName, latestOffset.getPartition()).set(latestOffset.getOffset());
-
-        PrometheusMetrics.buildGaugeChild(PrometheusMetrics.LATEST_COMMITTED_TIMESTAMPS,
-            eventName, latestOffset.getPartition()).set(latestTimestamp);
-
         if (!writerClosed) {
+            protoMetadataWriter.accept(LATEST_TIMESTAMP_META_KEY, String.valueOf(latestTimestamp));
             writer.close();
             writerClosed = true;
         }
 
-        final Path topicGlobPath = new Path(finalHdfsDir, fileNamer.computeTopicGlob(dayStartTime, latestOffset));
+        final Optional<Path> lastestExistingFinalPath = getLastestExistingFinalPath();
 
-        final Optional<Path> lastAvailableFinalPath = Arrays.stream(fs.globStatus(topicGlobPath))
-            .map(FileStatus::getPath)
-            .max(Comparator.comparingLong(path -> fileNamer.getIndex(path.getName())));
+        long lastIndex = lastestExistingFinalPath.map(path -> fileNamer.getIndex(path.getName()) + 1).orElse(1L);
 
-        long lastIndex = lastAvailableFinalPath.map(path -> fileNamer.getIndex(path.getName()) + 1).orElse(1L);
+        final Path finalPath = new Path(finalHdfsDir, fileNamer.computePath(dayStartTime, lastIndex, latestOffset.getPartition()));
 
-        final Path finalPath = new Path(finalHdfsDir, fileNamer.computePath(dayStartTime, lastIndex, latestOffset));
-
-        FileSystemUtils.ensureDirectoriesExist(Collections.singleton(finalPath.getParent()), fs);
-
-        if (lastAvailableFinalPath.isPresent()) {
-            long blockSize = fs.getFileStatus(lastAvailableFinalPath.get()).getLen();
+        if (lastestExistingFinalPath.isPresent()) {
+            long blockSize = fs.getFileStatus(lastestExistingFinalPath.get()).getLen();
             if (blockSize > fsBlockSize) {
                 moveToFinalPath(temporaryHdfsPath, finalPath);
             } else {
-                mergeToFinalPath(lastAvailableFinalPath.get(), finalPath);
+                mergeToFinalPath(lastestExistingFinalPath.get(), finalPath);
             }
         } else {
             moveToFinalPath(temporaryHdfsPath, finalPath);
         }
+
+        PrometheusMetrics.latestCommittedOffsetGauge(eventName, latestOffset.getPartition()).set(latestOffset.getOffset());
+        PrometheusMetrics.latestCommittedTimestampGauge(eventName, latestOffset.getPartition()).set(latestTimestamp);
 
         return finalPath;
     }
@@ -125,27 +127,33 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
     }
 
     protected void mergeToFinalPath(Path lastAvailableFinalPath, Path finalPath) throws IOException {
-        MessageType schema = ParquetFileReader.open(fs.getConf(), lastAvailableFinalPath).getFileMetaData().getSchema();
-        if (!checkSchemaEquality(schema)) {
-            LOGGER.warn("Schema between last available final file ({}) and temp file ({}) are not identical. We can't merge them",
-                lastAvailableFinalPath, temporaryHdfsPath);
-            moveToFinalPath(temporaryHdfsPath, finalPath);
-        } else {
-            Path mergedTempFile = new Path(temporaryHdfsPath.toString() + ".merged");
+        try (ParquetFileReader reader = ParquetFileReader.open(fs.getConf(), lastAvailableFinalPath)) {
+            MessageType schema = reader.getFileMetaData().getSchema();
+            if (!checkSchemaEquality(schema)) {
+                LOGGER.warn("Schema between last available final file ({}) and temp file ({}) are not identical. We can't merge them",
+                    lastAvailableFinalPath, temporaryHdfsPath);
+                moveToFinalPath(temporaryHdfsPath, finalPath);
+            } else {
+                Path mergedTempFile = new Path(temporaryHdfsPath.toString() + ".merged");
 
-            if (fs.isFile(mergedTempFile)) fs.delete(mergedTempFile, false);
+                if (fs.isFile(mergedTempFile)) fs.delete(mergedTempFile, false);
 
-            ParquetFileWriter writerPF = new ParquetFileWriter(fs.getConf(), schema, mergedTempFile);
-            writerPF.start();
-            writerPF.appendFile(fs.getConf(), lastAvailableFinalPath);
-            writerPF.appendFile(fs.getConf(), temporaryHdfsPath);
-            writerPF.end(EMPTY_METADATA);
+                Map<String, String> existingMetadata = reader.getFileMetaData().getKeyValueMetaData();
+                Map<String, String> newMetadata = new HashMap<>(existingMetadata);
+                newMetadata.put(LATEST_TIMESTAMP_META_KEY, String.valueOf(latestTimestamp));
 
-            moveToFinalPath(mergedTempFile, lastAvailableFinalPath);
-            try {
-                fs.delete(temporaryHdfsPath, false);
-                // This file is in a temp folder that should be deleted at exit so we should not throw exception here
-            } catch (IOException ignored) {
+                ParquetFileWriter writerPF = new ParquetFileWriter(fs.getConf(), schema, mergedTempFile);
+                writerPF.start();
+                writerPF.appendFile(fs.getConf(), lastAvailableFinalPath);
+                writerPF.appendFile(fs.getConf(), temporaryHdfsPath);
+                writerPF.end(newMetadata);
+
+                moveToFinalPath(mergedTempFile, lastAvailableFinalPath);
+                try {
+                    fs.delete(temporaryHdfsPath, false);
+                    // This file is in a temp folder that should be deleted at exit so we should not throw exception here
+                } catch (IOException ignored) {
+                }
             }
         }
     }
@@ -167,4 +175,46 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
             writer.write(msg);
         }
     }
+
+    private Optional<Path> getLastestExistingFinalPath() throws IOException {
+        final Path topicGlobPath = new Path(finalHdfsDir, fileNamer.computeTopicGlob(dayStartTime, partition));
+        return Arrays.stream(fs.globStatus(topicGlobPath))
+            .map(FileStatus::getPath)
+            .max(Comparator.comparingLong(path -> fileNamer.getIndex(path.getName())));
+    }
+
+
+    private void initializeLatestCommittedTimestampGauge() {
+        if (PrometheusMetrics.latestCommittedTimestampGauge(eventName, partition).get() == 0) {
+            PrometheusMetrics.latestCommittedTimestampGauge(eventName, partition).set(getLatestCommittedTimestamp());
+        }
+    }
+
+    private double getLatestCommittedTimestamp() {
+        //there are cases for which we won't find a value for the latest committed timestamp
+        // - the first time this code goes in, no file has the correct metadata
+        // - for a new event type, we have no history too, so no value
+        //By using the default value 'now' rather than 0, we prevent firing unnecessary alerts
+        //However, if there is an actual problem and the reader never commits, it will eventually fire
+        //an alert.
+        long defaultValue = System.currentTimeMillis();
+        try {
+            Optional<Path> latestFileCommitted = getLastestExistingFinalPath();
+            if (latestFileCommitted.isPresent()) {
+                String timestamp = ParquetFileReader
+                    .open(fs.getConf(), latestFileCommitted.get())
+                    .getFooter()
+                    .getFileMetaData()
+                    .getKeyValueMetaData()
+                    .getOrDefault(LATEST_TIMESTAMP_META_KEY, String.valueOf(defaultValue));
+                return Double.valueOf(timestamp);
+            } else {
+                return defaultValue;
+            }
+        } catch (IOException e) {
+            LOGGER.warn("could not get last existing final path. Defaulting latest committed timestamp to 0");
+            return defaultValue;
+        }
+    }
+
 }

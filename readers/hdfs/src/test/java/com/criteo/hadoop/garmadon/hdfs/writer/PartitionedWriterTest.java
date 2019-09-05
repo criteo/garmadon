@@ -15,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import java.io.IOException;
 import java.time.*;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static com.criteo.hadoop.garmadon.hdfs.TestUtils.instantFromDate;
@@ -27,7 +28,7 @@ import static org.mockito.Mockito.*;
 public class PartitionedWriterTest {
     @Test
     public void writeToMultipleDaysAndPartitions() throws IOException {
-        final Function<LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(Function.class);
+        final BiFunction<Integer, LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(BiFunction.class);
         final Checkpointer mockCheckpointer = mock(Checkpointer.class);
         final PartitionedWriter<String> partitionedWriter = new PartitionedWriter<>(writerBuilder,
                 new FixedOffsetComputer("ignored", 0), "ignored",
@@ -42,7 +43,7 @@ public class PartitionedWriterTest {
         final Offset firstPartitionSecondOffset = buildOffset(firstPartition, 102);
         final Offset secondDaySecondPartitionSecondOffset = buildOffset(secondPartition, 301);
 
-        when(writerBuilder.apply(any(LocalDateTime.class))).thenReturn(firstConsumerMock)
+        when(writerBuilder.apply(any(), any(LocalDateTime.class))).thenReturn(firstConsumerMock)
                 .thenReturn(secondConsumerMock)
                 .thenReturn(thirdConsumerMock);
 
@@ -69,9 +70,11 @@ public class PartitionedWriterTest {
                 eq(secondDaySecondPartitionSecondOffset));
         verifyNoMoreInteractions(thirdConsumerMock);
 
-        verify(writerBuilder, times(2)).apply(
+        verify(writerBuilder, times(1)).apply(eq(11),
                 eq(localDateTimeFromDate("1987-08-13 00:00:00")));
-        verify(writerBuilder, times(1)).apply(
+        verify(writerBuilder, times(1)).apply(eq(12),
+            eq(localDateTimeFromDate("1987-08-13 00:00:00")));
+        verify(writerBuilder, times(1)).apply(eq(12),
                 eq(localDateTimeFromDate("1984-05-21 00:00:00")));
         verifyNoMoreInteractions(writerBuilder);
 
@@ -94,7 +97,7 @@ public class PartitionedWriterTest {
 
     @Test
     public void writeOnExpired() throws IOException {
-        final Function<LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(Function.class);
+        final BiFunction<Integer, LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(BiFunction.class);
         final Checkpointer mockCheckpointer = mock(Checkpointer.class);
         final PartitionedWriter<String> partitionedWriter = new PartitionedWriter<>(writerBuilder,
                 new FixedOffsetComputer("ignored", 0), "ignored",
@@ -109,10 +112,10 @@ public class PartitionedWriterTest {
         final Offset secondDayFirstOffset = buildOffset(partitionId, 201);
         final Offset secondDaySecondOffset = buildOffset(partitionId, secondDayFirstOffset.getOffset() + 1);
 
-        when(writerBuilder.apply(localDateTimeFromDate("1987-08-13 00:00:00")))
+        when(writerBuilder.apply(11, localDateTimeFromDate("1987-08-13 00:00:00")))
                 .thenReturn(firstDayFirstConsumerMock).thenReturn(firstDaySecondConsumerMock);
 
-        when(writerBuilder.apply(localDateTimeFromDate("1984-05-21 00:00:00")))
+        when(writerBuilder.apply(11, localDateTimeFromDate("1984-05-21 00:00:00")))
                 .thenReturn(secondDayFirstConsumerMock);
 
         doReturn(true).when(firstDayFirstConsumerMock).isExpired();
@@ -157,7 +160,7 @@ public class PartitionedWriterTest {
 
     @Test
     public void closingExceptionalConsumerThrowExceptionAfter5Retries() throws IOException {
-        final Function<LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(Function.class);
+        final BiFunction<Integer, LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(BiFunction.class);
         final Checkpointer mockCheckpointer = mock(Checkpointer.class);
         final PartitionedWriter<String> partitionedWriter = new PartitionedWriter<>(writerBuilder,
             new FixedOffsetComputer("ignored", 0), "ignored",
@@ -171,8 +174,8 @@ public class PartitionedWriterTest {
 
         doThrow(new IOException("Cassé")).when(throwingConsumer).close();
 
-        when(writerBuilder.apply(eq(localDateTimeFromDate("1987-08-13 00:00:00")))).thenReturn(nonThrowingConsumer);
-        when(writerBuilder.apply(eq(localDateTimeFromDate("1984-05-21 00:00:00")))).thenReturn(throwingConsumer);
+        when(writerBuilder.apply(eq(1), eq(localDateTimeFromDate("1987-08-13 00:00:00")))).thenReturn(nonThrowingConsumer);
+        when(writerBuilder.apply(eq(1), eq(localDateTimeFromDate("1984-05-21 00:00:00")))).thenReturn(throwingConsumer);
 
         partitionedWriter.write(instantFromDate("1987-08-13 12:12:22"), firstOffset, "I don't care");
         partitionedWriter.write(instantFromDate("1984-05-21 02:22:22"), secondOffset, "Me neither");
@@ -193,7 +196,7 @@ public class PartitionedWriterTest {
 
     @Test
     public void checkpointFailureDoesNotFailExpiring() throws IOException {
-        final Function<LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(Function.class);
+        final BiFunction<Integer, LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(BiFunction.class);
         final Checkpointer throwingCheckpointer = mock(Checkpointer.class);
         final PartitionedWriter<String> partitionedWriter = new PartitionedWriter<>(writerBuilder,
                 new FixedOffsetComputer("ignored", 0), "ignored",
@@ -201,7 +204,7 @@ public class PartitionedWriterTest {
         final ExpiringConsumer<String> closingConsumer = mock(ExpiringConsumer.class);
         final Offset dummyOffset = buildOffset(1, 101);
 
-        when(writerBuilder.apply(eq(localDateTimeFromDate("1987-08-13 00:00:00")))).thenReturn(closingConsumer);
+        when(writerBuilder.apply(eq(1), eq(localDateTimeFromDate("1987-08-13 00:00:00")))).thenReturn(closingConsumer);
         doReturn(true).when(closingConsumer).isExpired();
 
         when(throwingCheckpointer.tryCheckpoint(anyInt(), any(Instant.class))).thenThrow(new RuntimeException("Logged exception"));
@@ -218,7 +221,7 @@ public class PartitionedWriterTest {
 
     @Test
     public void skipMessagesBeforeLowestOffset() throws IOException {
-        final Function<LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(Function.class);
+        final BiFunction<Integer, LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(BiFunction.class);
         final Checkpointer mockCheckpointer = mock(Checkpointer.class);
         final PartitionedWriter<String> writer = new PartitionedWriter<>(writerBuilder,
                 new FixedOffsetComputer("ignored", 42), "ignored",
@@ -233,7 +236,7 @@ public class PartitionedWriterTest {
 
     @Test
     public void dropPartition() throws IOException {
-        final Function<LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(Function.class);
+        final BiFunction<Integer, LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(BiFunction.class);
         final OffsetComputer offsetComputer = new FixedOffsetComputer("0", 0);
         final PartitionedWriter<String> writer = new PartitionedWriter<>(writerBuilder, offsetComputer,
                 "ignored", DataAccessEventProtos.FsEvent.newBuilder(), mock(Checkpointer.class));
@@ -241,7 +244,7 @@ public class PartitionedWriterTest {
         final ExpiringConsumer<String> secondMockConsumer = mock(ExpiringConsumer.class);
         final Instant instant = Instant.EPOCH;
 
-        when(writerBuilder.apply(any(LocalDateTime.class))).thenReturn(firstMockConsumer).thenReturn(secondMockConsumer);
+        when(writerBuilder.apply(any(), any(LocalDateTime.class))).thenReturn(firstMockConsumer).thenReturn(secondMockConsumer);
 
         writer.write(instant, buildOffset(1, 8), "Ignored");
         verify(firstMockConsumer, times(1)).write(anyLong(), anyString(), any(Offset.class));
@@ -258,12 +261,12 @@ public class PartitionedWriterTest {
 
     @Test
     public void dropUnknownPartition() throws IOException {
-        final Function<LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(Function.class);
+        final BiFunction<Integer, LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(BiFunction.class);
         final PartitionedWriter<String> writer = new PartitionedWriter<>(writerBuilder,
                 new FixedOffsetComputer("0", 0), "ignored",
                 DataAccessEventProtos.FsEvent.newBuilder(), mock(Checkpointer.class));
 
-        when(writerBuilder.apply(any(LocalDateTime.class))).thenReturn(mock(ExpiringConsumer.class));
+        when(writerBuilder.apply(any(), any(LocalDateTime.class))).thenReturn(mock(ExpiringConsumer.class));
 
         // No call to #dropPartition should crash
         writer.dropPartition(123);
@@ -278,7 +281,7 @@ public class PartitionedWriterTest {
         final int firstPartition = 42;
         final int secondPartition = 51;
         final OffsetComputer offsetComputer = mock(OffsetComputer.class);
-        final PartitionedWriter<String> writer = new PartitionedWriter<>(mock(Function.class), offsetComputer,
+        final PartitionedWriter<String> writer = new PartitionedWriter<>(mock(BiFunction.class), offsetComputer,
                 "ignored", DataAccessEventProtos.FsEvent.newBuilder(), mock(Checkpointer.class));
 
         firstOffsets.put(firstPartition, 2L);
@@ -310,7 +313,7 @@ public class PartitionedWriterTest {
         final ExpiringConsumer<Message> consumer = mock(ExpiringConsumer.class);
         final OffsetComputer offsetComputer = mock(OffsetComputer.class);
         final Checkpointer mockCheckpointer = mock(Checkpointer.class);
-        final PartitionedWriter<Message> writer = new PartitionedWriter<>((ignored) -> consumer,
+        final PartitionedWriter<Message> writer = new PartitionedWriter<>((ignored1, ignored2) -> consumer,
                 offsetComputer, "ignored", DataAccessEventProtos.FsEvent.newBuilder(), mockCheckpointer);
 
         final HashMap<Integer, Long> partitionOffsets = new HashMap<>();
@@ -342,7 +345,7 @@ public class PartitionedWriterTest {
         final Offset offset = new TopicPartitionOffset("topic", partition, offsetValue);
         final ExpiringConsumer<String> consumer = mock(ExpiringConsumer.class);
         final Checkpointer mockCheckpointer = mock(Checkpointer.class);
-        final PartitionedWriter<String> writer = new PartitionedWriter<>((ignored) -> consumer,
+        final PartitionedWriter<String> writer = new PartitionedWriter<>((ignored1, ignored2) -> consumer,
                 new FixedOffsetComputer("0", 0), "ignored",
                 DataAccessEventProtos.FsEvent.newBuilder(), mockCheckpointer);
 

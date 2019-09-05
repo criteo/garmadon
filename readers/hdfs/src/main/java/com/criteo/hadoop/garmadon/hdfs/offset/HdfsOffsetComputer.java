@@ -1,6 +1,5 @@
 package com.criteo.hadoop.garmadon.hdfs.offset;
 
-import com.criteo.hadoop.garmadon.reader.Offset;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -160,13 +159,13 @@ public class HdfsOffsetComputer implements OffsetComputer {
     }
 
     @Override
-    public String computeTopicGlob(LocalDateTime time, Offset offset) {
-        return computeDirName(time) + "/" + offset.getPartition() + ".*";
+    public String computeTopicGlob(LocalDateTime time, int partition) {
+        return computeDirName(time) + "/" + partition + ".*";
     }
 
     @Override
-    public String computePath(LocalDateTime time, long index, Offset offset) {
-        return computeDirName(time) + "/" + String.format(fileRenamePattern, offset.getPartition(), index);
+    public String computePath(LocalDateTime time, long index, int partition) {
+        return computeDirName(time) + "/" + String.format(fileRenamePattern, partition, index);
     }
 
     protected class FinalEventPartitionFile {

@@ -6,10 +6,7 @@ import com.criteo.hadoop.garmadon.hdfs.kafka.OffsetResetter;
 import com.criteo.hadoop.garmadon.hdfs.kafka.PartitionsPauseStateHandler;
 import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
 import com.criteo.hadoop.garmadon.hdfs.offset.*;
-import com.criteo.hadoop.garmadon.hdfs.writer.DelayedDailyPathComputer;
-import com.criteo.hadoop.garmadon.hdfs.writer.ExpiringConsumer;
-import com.criteo.hadoop.garmadon.hdfs.writer.PartitionedWriter;
-import com.criteo.hadoop.garmadon.hdfs.writer.ProtoParquetWriterWithOffset;
+import com.criteo.hadoop.garmadon.hdfs.writer.*;
 import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
@@ -21,8 +18,9 @@ import org.apache.hadoop.fs.Path;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
-import org.apache.parquet.proto.ProtoParquetWriter;
+import org.apache.parquet.proto.ProtoWriteSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +33,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.any;
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasType;
@@ -129,7 +127,7 @@ public class ReaderFactory {
             final String eventName = out.getValue().getPath();
             final Class<? extends Message> clazz = out.getValue().getClazz();
             final Message.Builder emptyMessageBuilder = out.getValue().getEmptyMessageBuilder();
-            final Function<LocalDateTime, ExpiringConsumer<Message>> consumerBuilder;
+            final BiFunction<Integer, LocalDateTime, ExpiringConsumer<Message>> consumerBuilder;
             final Path finalEventDir = new Path(finalHdfsDir, eventName);
             final OffsetComputer offsetComputer = new HdfsOffsetComputer(fs, finalEventDir, kafkaCluster, backlogDays);
 
@@ -154,20 +152,31 @@ public class ReaderFactory {
             writers.add(writer);
         }
 
-        final List<ConsumerRebalanceListener> listeners = Arrays.asList(
-            new OffsetResetter<>(kafkaConsumer, heartbeat::dropPartition, writers), pauser);
+        final List<ConsumerRebalanceListener> kafkaConsumerRebalanceListeners = new ArrayList<>();
+        kafkaConsumerRebalanceListeners.add(new OffsetResetter<>(kafkaConsumer, heartbeat::dropPartition, writers));
+        kafkaConsumerRebalanceListeners.add(pauser);
+        kafkaConsumerRebalanceListeners.add(new ConsumerRebalanceListener() {
+            @Override
+            public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+                partitions.forEach(tp -> PrometheusMetrics.clearPartitionCollectors(tp.partition()));
+            }
+
+            @Override
+            public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+            }
+        });
 
         // We need to build a meta listener as only the last call to #subscribe wins
         kafkaConsumer.subscribe(Collections.singleton(GarmadonReader.GARMADON_TOPIC),
             new ConsumerRebalanceListener() {
                 @Override
                 public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-                    listeners.forEach(listener -> listener.onPartitionsRevoked(partitions));
+                    kafkaConsumerRebalanceListeners.forEach(listener -> listener.onPartitionsRevoked(partitions));
                 }
 
                 @Override
                 public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-                    listeners.forEach(listener -> listener.onPartitionsAssigned(partitions));
+                    kafkaConsumerRebalanceListeners.forEach(listener -> listener.onPartitionsAssigned(partitions));
                 }
             });
 
@@ -176,8 +185,7 @@ public class ReaderFactory {
 
             CommittableOffset offset = msg.getCommittableOffset();
 
-            Gauge.Child gauge = PrometheusMetrics.buildGaugeChild(PrometheusMetrics.CURRENT_RUNNING_OFFSETS,
-                "global", offset.getPartition());
+            Gauge.Child gauge = PrometheusMetrics.currentRunningOffsetsGauge("global", offset.getPartition());
             gauge.set(offset.getOffset());
         });
 
@@ -199,25 +207,25 @@ public class ReaderFactory {
         return reader;
     }
 
-    private Function<LocalDateTime, ExpiringConsumer<Message>> buildMessageConsumerBuilder(
+    private BiFunction<Integer, LocalDateTime, ExpiringConsumer<Message>> buildMessageConsumerBuilder(
         FileSystem fs, Path temporaryHdfsDir, Path finalHdfsDir, Class<? extends Message> clazz,
         OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser, String eventName) {
-        Counter.Child tmpFileOpenFailures = PrometheusMetrics.buildCounterChild(
-            PrometheusMetrics.TMP_FILE_OPEN_FAILURES, eventName);
-        Counter.Child tmpFilesOpened = PrometheusMetrics.buildCounterChild(
-            PrometheusMetrics.TMP_FILES_OPENED, eventName);
+        Counter.Child tmpFileOpenFailures = PrometheusMetrics.tmpFileOpenFailuresCounter(eventName);
+        Counter.Child tmpFilesOpened = PrometheusMetrics.tmpFilesOpened(eventName);
 
-        return dayStartTime -> {
+        return (partition, dayStartTime) -> {
             final String uniqueFileName = UUID.randomUUID().toString();
             final String additionalInfo = String.format("Date = %s, Event type = %s", dayStartTime,
                 clazz.getSimpleName());
 
             for (int i = 0; i < maxTmpFileOpenRetries; ++i) {
                 final Path tmpFilePath = new Path(temporaryHdfsDir, uniqueFileName);
-                final ProtoParquetWriter<Message> protoWriter;
+                final ParquetWriter<Message> protoWriter;
+                final ExtraMetadataWriteSupport<Message> extraMetadataWriteSupport;
 
                 try {
-                    protoWriter = new ProtoParquetWriter<>(tmpFilePath, clazz, CompressionCodecName.GZIP,
+                    extraMetadataWriteSupport = new ExtraMetadataWriteSupport<>(new ProtoWriteSupport<>(clazz));
+                    protoWriter = new ParquetWriter<>(tmpFilePath, extraMetadataWriteSupport, CompressionCodecName.GZIP,
                         sizeBeforeFlushingTmp * 1_024 * 1_024, 1_024 * 1_024);
                     tmpFilesOpened.inc();
                 } catch (IOException e) {
@@ -237,7 +245,7 @@ public class ReaderFactory {
                 partitionsPauser.resume(clazz);
 
                 return new ExpiringConsumer<>(new ProtoParquetWriterWithOffset<>(
-                    protoWriter, tmpFilePath, finalHdfsDir, fs, offsetComputer, dayStartTime, eventName),
+                    protoWriter, tmpFilePath, finalHdfsDir, fs, offsetComputer, dayStartTime, eventName, extraMetadataWriteSupport, partition),
                     writersExpirationDelay, messagesBeforeExpiringWriters);
             }
 
@@ -252,13 +260,10 @@ public class ReaderFactory {
                                                                               String eventName) {
         return msg -> {
             final CommittableOffset offset = msg.getCommittableOffset();
-            final Counter.Child messagesWritingFailures = PrometheusMetrics.buildCounterChild(
-                PrometheusMetrics.MESSAGES_WRITING_FAILURES, eventName, offset.getPartition());
-            final Counter.Child messagesWritten = PrometheusMetrics.buildCounterChild(
-                PrometheusMetrics.MESSAGES_WRITTEN, eventName, offset.getPartition());
+            final Counter.Child messagesWritingFailures = PrometheusMetrics.messageWritingFailuresCounter(eventName, offset.getPartition());
+            final Counter.Child messagesWritten = PrometheusMetrics.messageWrittenCounter(eventName, offset.getPartition());
 
-            Gauge.Child gauge = PrometheusMetrics.buildGaugeChild(PrometheusMetrics.CURRENT_RUNNING_OFFSETS,
-                eventName, offset.getPartition());
+            Gauge.Child gauge = PrometheusMetrics.currentRunningOffsetsGauge(eventName, offset.getPartition());
             gauge.set(offset.getOffset());
 
             try {
