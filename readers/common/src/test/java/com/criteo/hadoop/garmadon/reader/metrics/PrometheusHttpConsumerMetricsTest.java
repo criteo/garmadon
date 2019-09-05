@@ -21,7 +21,7 @@ public class PrometheusHttpConsumerMetricsTest {
 
     @Before
     public void up() throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
-        String objectName = "kafka.consumer:type=consumer-metrics,client-id=" + GarmadonReader.CONSUMER_ID;
+        String objectName = "kafka.consumer:type=consumer-metrics,client-id=consumer-1";
 
         mbeanName = new ObjectName(objectName);
         KafkaMetrics mbean = new KafkaMetrics();
@@ -49,8 +49,8 @@ public class PrometheusHttpConsumerMetricsTest {
     public void Prometheus_Collect_Kafka_metrics() throws MBeanException, IntrospectionException, ReflectionException, AttributeNotFoundException, InstanceNotFoundException {
         PrometheusHttpConsumerMetrics.exposeKafkaMetrics();
         assertNotNull(CollectorRegistry.defaultRegistry.getSampleValue("garmadon_kafka_metrics",
-                new String[]{"name", "hostname", "release"},
-                new String[]{"IoStats", GarmadonReader.getHostname(), PrometheusHttpConsumerMetrics.RELEASE}));
+                new String[]{"name", "hostname", "release", "consumer_id"},
+                new String[]{"IoStats", GarmadonReader.getHostname(), PrometheusHttpConsumerMetrics.RELEASE, "consumer-1"}));
     }
 
     static class KafkaMetrics implements KafkaMetricsMBean {

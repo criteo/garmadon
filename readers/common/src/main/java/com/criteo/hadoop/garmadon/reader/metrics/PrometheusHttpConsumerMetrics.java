@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.Optional;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,59 +22,66 @@ import java.util.concurrent.TimeUnit;
  */
 public class PrometheusHttpConsumerMetrics {
     public static final String RELEASE = Optional
-            .ofNullable(PrometheusHttpConsumerMetrics.class.getPackage().getImplementationVersion())
-            .orElse("1.0-SNAPSHOT")
-            .replace(".", "_");
+        .ofNullable(PrometheusHttpConsumerMetrics.class.getPackage().getImplementationVersion())
+        .orElse("1.0-SNAPSHOT")
+        .replace(".", "_");
 
     public static final Counter GARMADON_READER_METRICS = Counter.build()
-            .name("garmadon_reader_metrics").help("Garmadon reader metrics")
-            .labelNames("name", "hostname", "release")
-            .register();
+        .name("garmadon_reader_metrics").help("Garmadon reader metrics")
+        .labelNames("name", "hostname", "release")
+        .register();
 
     public static final Summary LATENCY_INDEXING_TO_ES = Summary.build()
-            .name("garmadon_reader_duration").help("Duration in ms")
-            .labelNames("name", "hostname", "release")
-            .quantile(0.75, 0.01)
-            .quantile(0.9, 0.01)
-            .quantile(0.99, 0.001)
-            .register();
+        .name("garmadon_reader_duration").help("Duration in ms")
+        .labelNames("name", "hostname", "release")
+        .quantile(0.75, 0.01)
+        .quantile(0.9, 0.01)
+        .quantile(0.99, 0.001)
+        .register();
 
     public static final Counter.Child ISSUE_READING_GARMADON_MESSAGE_BAD_HEAD = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS
-            .labels("issue_reading_garmadon_message_bad_head",
-                    GarmadonReader.getHostname(),
-                    PrometheusHttpConsumerMetrics.RELEASE);
+        .labels("issue_reading_garmadon_message_bad_head",
+            GarmadonReader.getHostname(),
+            PrometheusHttpConsumerMetrics.RELEASE);
 
     public static final Gauge GARMADON_READER_LAST_EVENT_TIMESTAMP = Gauge.build()
-            .name("garmadon_reader_last_event_timestamp").help("Garmadon reader last event timestamp")
-            .labelNames("name", "hostname", "release", "partition")
-            .register();
+        .name("garmadon_reader_last_event_timestamp").help("Garmadon reader last event timestamp")
+        .labelNames("name", "hostname", "release", "partition")
+        .register();
 
     public static final Counter.Child ISSUE_READING_PROTO_HEAD = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("issue_reading_proto_head",
-            GarmadonReader.getHostname(),
-            PrometheusHttpConsumerMetrics.RELEASE);
+        GarmadonReader.getHostname(),
+        PrometheusHttpConsumerMetrics.RELEASE);
 
     public static final Counter.Child ISSUE_READING_PROTO_BODY = PrometheusHttpConsumerMetrics.GARMADON_READER_METRICS.labels("issue_reading_proto_body",
-            GarmadonReader.getHostname(),
-            PrometheusHttpConsumerMetrics.RELEASE);
+        GarmadonReader.getHostname(),
+        PrometheusHttpConsumerMetrics.RELEASE);
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PrometheusHttpConsumerMetrics.class);
     private static final MBeanServer MBS = ManagementFactory.getPlatformMBeanServer();
 
     private static final Gauge BASE_KAFKA_METRICS_GAUGE = Gauge.build()
-            .name("garmadon_kafka_metrics").help("Kafka producer metrics")
-            .labelNames("name", "hostname", "release")
-            .register();
+        .name("garmadon_kafka_metrics").help("Kafka producer metrics")
+        .labelNames("name", "hostname", "release", "consumer_id")
+        .register();
 
-    private static ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(1);
+    private static ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(r, "prometheus-refresh-jmx-kafka-metrics");
+            t.setDaemon(true);
+            return t;
+        }
+    });
 
-    private static ObjectName oName;
+    private static ObjectName baseKafkaJmxName;
 
     static {
         // Expose JMX, GCs, classloading, thread count, memory pool
         DefaultExports.initialize();
         try {
-            oName = new ObjectName("kafka.consumer:type=consumer-metrics,client-id=" + GarmadonReader.CONSUMER_ID);
+            baseKafkaJmxName = new ObjectName("kafka.consumer:type=consumer-metrics,client-id=*");
         } catch (MalformedObjectNameException e) {
             LOGGER.error("", e);
         }
@@ -102,13 +110,15 @@ public class PrometheusHttpConsumerMetrics {
 
     protected static void exposeKafkaMetrics() {
         try {
-            if (oName != null) {
-                MBeanInfo info = MBS.getMBeanInfo(oName);
-                MBeanAttributeInfo[] attrInfo = info.getAttributes();
-                for (MBeanAttributeInfo attr : attrInfo) {
-                    if (attr.isReadable() && attr.getType().equals("double")) {
-                        BASE_KAFKA_METRICS_GAUGE.labels(attr.getName(), GarmadonReader.getHostname(), RELEASE)
-                                .set((Double) MBS.getAttribute(oName, attr.getName()));
+            if (baseKafkaJmxName != null) {
+                for (ObjectName name : MBS.queryNames(baseKafkaJmxName, null)) {
+                    MBeanInfo info = MBS.getMBeanInfo(name);
+                    MBeanAttributeInfo[] attrInfo = info.getAttributes();
+                    for (MBeanAttributeInfo attr : attrInfo) {
+                        if (attr.isReadable() && attr.getType().equals("double")) {
+                            BASE_KAFKA_METRICS_GAUGE.labels(attr.getName(), GarmadonReader.getHostname(), RELEASE, name.getKeyProperty("client-id"))
+                                .set((Double) MBS.getAttribute(name, attr.getName()));
+                        }
                     }
                 }
             }

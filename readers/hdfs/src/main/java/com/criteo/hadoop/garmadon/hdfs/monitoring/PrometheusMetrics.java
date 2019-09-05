@@ -134,8 +134,8 @@ public final class PrometheusMetrics {
     public static void clearCollectors() {
         REGISTERED_COLLECTORS.forEach((partition, parentCollectorToChildLabels) -> {
             parentCollectorToChildLabels.forEach((collector, labels) -> collector.clear());
-            parentCollectorToChildLabels.clear();
         });
+        REGISTERED_COLLECTORS.clear();
     }
 
     public static void clearPartitionCollectors(int partition) {

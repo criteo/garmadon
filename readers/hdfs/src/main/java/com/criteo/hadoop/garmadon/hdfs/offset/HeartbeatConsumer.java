@@ -38,7 +38,7 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
         this.period = period;
     }
 
-    public void start(Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
+    public void start(Thread.UncaughtExceptionHandler uncaughtExceptionHandler, String name) {
         runningThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 synchronized (latestPartitionsOffset) {
@@ -61,7 +61,7 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
                     break;
                 }
             }
-        });
+        }, name);
 
         runningThread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
 

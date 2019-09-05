@@ -7,6 +7,8 @@ public class HdfsReaderConfiguration {
     private HdfsConfiguration hdfs;
     private KafkaConfiguration kafka;
     private PrometheusConfiguration prometheus;
+    private int parallelism;
+
 
     public HdfsConfiguration getHdfs() {
         return hdfs;
@@ -30,5 +32,13 @@ public class HdfsReaderConfiguration {
 
     public void setPrometheus(PrometheusConfiguration prometheus) {
         this.prometheus = prometheus;
+    }
+
+    public int getParallelism() {
+        return parallelism;
+    }
+
+    public void setParallelism(int parallelism) {
+        this.parallelism = parallelism;
     }
 }

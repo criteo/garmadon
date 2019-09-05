@@ -20,17 +20,19 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.criteo.hadoop.garmadon.protocol.ProtocolConstants.FRAME_DELIMITER_SIZE;
 import static com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics.GARMADON_READER_LAST_EVENT_TIMESTAMP;
 import static com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics.RELEASE;
 
 public final class GarmadonReader {
+
     public static final String GARMADON_TOPIC = "garmadon";
 
-    public static final String CONSUMER_ID;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonReader.class);
+
+    private static final AtomicInteger READER_IDX = new AtomicInteger(0);
 
     private static String hostname;
 
@@ -41,20 +43,20 @@ public final class GarmadonReader {
             LOGGER.error("", e);
             System.exit(1);
         }
-        CONSUMER_ID = "garmadon.reader." + getHostname();
-
     }
 
     protected final Reader reader;
 
     private final CompletableFuture<Void> cf;
+    private final int id;
 
     private boolean reading = false;
 
     private GarmadonReader(Consumer<String, byte[]> kafkaConsumer, List<GarmadonMessageHandler> beforeInterceptHandlers,
-                           Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners) {
+                           Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, int id) {
         this.cf = new CompletableFuture<>();
         this.reader = new Reader(kafkaConsumer, beforeInterceptHandlers, listeners, cf);
+        this.id = id;
     }
 
     public static String getHostname() {
@@ -66,7 +68,7 @@ public final class GarmadonReader {
      */
     public synchronized CompletableFuture<Void> startReading() {
         if (!reading) {
-            new Thread(reader).start();
+            new Thread(reader, "garmadon-reader-kafka-consumer-thread-" + id).start();
             reading = true;
         }
         return cf;
@@ -270,7 +272,6 @@ public final class GarmadonReader {
             DEFAULT_KAFKA_PROPS.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
             DEFAULT_KAFKA_PROPS.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
             DEFAULT_KAFKA_PROPS.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
-            DEFAULT_KAFKA_PROPS.put(ConsumerConfig.CLIENT_ID_CONFIG, CONSUMER_ID);
         }
 
         Builder(Consumer<String, byte[]> kafkaConsumer) {
@@ -302,7 +303,7 @@ public final class GarmadonReader {
         public GarmadonReader build(boolean autoSubscribe) {
             if (autoSubscribe) kafkaConsumer.subscribe(Collections.singletonList(GARMADON_TOPIC));
 
-            return new GarmadonReader(kafkaConsumer, beforeInterceptHandlers, listeners);
+            return new GarmadonReader(kafkaConsumer, beforeInterceptHandlers, listeners, READER_IDX.getAndIncrement());
         }
     }
 
