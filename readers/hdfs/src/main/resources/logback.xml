@@ -5,7 +5,11 @@
         </encoder>
     </appender>
 
-    <root level="info">
+    <logger name="com.criteo" level="INFO" />
+    <logger name="org.apache.kafka.common.utils.AppInfoParser" level="INFO" />
+    <logger name="org.apache.kafka.clients.consumer.ConsumerConfig" level="INFO" />
+
+    <root level="WARN">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
