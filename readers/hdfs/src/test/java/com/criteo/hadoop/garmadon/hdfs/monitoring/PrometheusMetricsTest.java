@@ -74,6 +74,11 @@ public class PrometheusMetricsTest {
             .forEach((collectors, childLabels) -> assertEquals(1, childLabels.size()));
     }
 
+    @Test
+    public void shouldNotFailWhenCleaningNonAlreadyRegisteredPartition() {
+        PrometheusMetrics.clearPartitionCollectors(0);
+    }
+
     private void checkLabelExist(String label, String value) {
         try {
             checkLabelNotExist(label, value);
