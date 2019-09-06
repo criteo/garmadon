@@ -34,6 +34,7 @@ import java.nio.file.Files;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -328,7 +329,7 @@ public class ProtoParquetWriterWithOffsetTest {
             protoMetadataWriter, 0);
 
         assertEquals(
-            (double) System.currentTimeMillis(),
+            (double) TODAY.toLocalDate().atStartOfDay().toEpochSecond(ZoneOffset.UTC) * 1000,
             PrometheusMetrics.latestCommittedTimestampGauge("eventName", 0).get(),
             1000
         );
@@ -353,7 +354,7 @@ public class ProtoParquetWriterWithOffsetTest {
             protoMetadataWriter, 0);
 
         assertEquals(
-            (double) System.currentTimeMillis(),
+            (double) TODAY.toLocalDate().atStartOfDay().toEpochSecond(ZoneOffset.UTC) * 1000,
             PrometheusMetrics.latestCommittedTimestampGauge("eventName", 0).get(),
             1000
         );
@@ -373,7 +374,7 @@ public class ProtoParquetWriterWithOffsetTest {
         doThrow(new IOException()).when(localFsSpy).globStatus(any(Path.class));
 
         assertEquals(
-            (double) System.currentTimeMillis(),
+            (double) TODAY.toLocalDate().atStartOfDay().toEpochSecond(ZoneOffset.UTC) * 1000,
             PrometheusMetrics.latestCommittedTimestampGauge("eventName", 0).get(),
             1000
         );

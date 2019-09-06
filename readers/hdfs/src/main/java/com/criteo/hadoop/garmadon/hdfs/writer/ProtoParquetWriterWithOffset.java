@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -196,10 +197,9 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         //there are cases for which we won't find a value for the latest committed timestamp
         // - the first time this code goes in, no file has the correct metadata
         // - for a new event type, we have no history too, so no value
-        //By using the default value 'now' rather than 0, we prevent firing unnecessary alerts
-        //However, if there is an actual problem and the reader never commits, it will eventually fire
-        //an alert.
-        long defaultValue = System.currentTimeMillis();
+        // - if started and no file has been create for the day
+        //Using the timestamp of today midnight prevents unnecessary alerts
+        long defaultValue = LocalDateTime.now().toLocalDate().atStartOfDay().toEpochSecond(ZoneOffset.UTC) * 1000;
         try {
             Optional<Path> latestFileCommitted = getLastestExistingFinalPath();
             if (latestFileCommitted.isPresent()) {
