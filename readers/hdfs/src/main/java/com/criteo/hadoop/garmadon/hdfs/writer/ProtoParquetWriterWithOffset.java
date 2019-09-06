@@ -96,6 +96,8 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
 
         final Path finalPath = new Path(finalHdfsDir, fileNamer.computePath(dayStartTime, lastIndex, latestOffset.getPartition()));
 
+        FileSystemUtils.ensureDirectoriesExist(Collections.singleton(finalPath.getParent()), fs);
+
         if (lastestExistingFinalPath.isPresent()) {
             long blockSize = fs.getFileStatus(lastestExistingFinalPath.get()).getLen();
             if (blockSize > fsBlockSize) {
