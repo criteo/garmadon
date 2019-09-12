@@ -159,6 +159,10 @@ public final class GarmadonReader {
                     continue;
                 }
 
+                GARMADON_READER_LAST_EVENT_TIMESTAMP
+                    .labels("read", GarmadonReader.getHostname(), RELEASE, String.valueOf(record.partition()))
+                    .set(timestamp);
+
                 EventHeaderProtos.Header header = null;
                 Message body = null;
 
@@ -193,10 +197,6 @@ public final class GarmadonReader {
                                     record.partition(), record.offset());
 
                                 GarmadonMessage msg = new GarmadonMessage(typeMarker, timestamp, header, body, committableOffset);
-
-                                GARMADON_READER_LAST_EVENT_TIMESTAMP
-                                    .labels("read", GarmadonReader.getHostname(), RELEASE, String.valueOf(committableOffset.getPartition()))
-                                    .set(timestamp);
 
                                 beforeInterceptHandlers.forEach(c -> c.handle(msg));
                                 listeners.get(filter).handle(msg);
