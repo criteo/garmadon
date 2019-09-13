@@ -41,6 +41,7 @@ public class HiveClient {
     }
 
     protected void execute(String query) throws SQLException {
+        LOGGER.debug("Execute hql: {}", query);
         int maxAttempts = 5;
         for (int retry = 1; retry <= maxAttempts; ++retry) {
             try {
@@ -69,7 +70,6 @@ public class HiveClient {
     public void createDatabaseIfAbsent(String location) throws SQLException {
         String databaseCreation = "CREATE DATABASE IF NOT EXISTS " + database + " COMMENT 'Database for garmadon events' LOCATION '" + location + "'";
         LOGGER.info("Create database {} if not exists", database);
-        LOGGER.debug("Execute hql: {}", databaseCreation);
         execute(databaseCreation);
     }
 
@@ -89,7 +89,6 @@ public class HiveClient {
             + " STORED AS PARQUET"
             + " LOCATION '" + location + "'";
         LOGGER.info("Create table {} if not exists", table);
-        LOGGER.debug("Execute hql: {}", tableCreation);
         execute(tableCreation);
     }
 
@@ -101,7 +100,6 @@ public class HiveClient {
             + " ADD IF NOT EXISTS PARTITION (day='" + partition + "')"
             + " LOCATION '" + location + "/day=" + partition + "'";
         LOGGER.info("Create partition day={} on {} if not exists", partition, table);
-        LOGGER.debug("Execute hql: {}", partitionCreation);
         execute(partitionCreation);
     }
 

@@ -93,12 +93,6 @@ public class HiveClientTest {
         assertEquals("EXTERNAL_TABLE", result.get("Table Type").trim());
         assertEquals("string", result.get("day"));
         assertEquals("string", result.get("app_id"));
-
-        try {
-            hiveClient.execute("DESCRIBE FORMATTED not_a_table");
-        } catch (SQLException e) {
-            assertTrue(e.getMessage().contains("Table not found not_a_table"));
-        }
     }
 
     @Test(expected = RuntimeException.class)

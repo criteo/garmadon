@@ -22,8 +22,8 @@ public class HiveDriverConsul extends HiveDriver {
         try {
             java.sql.DriverManager.registerDriver(new HiveDriverConsul());
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error("Issue to register " + HiveDriverConsul.class, e);
+            throw new RuntimeException(e);
         }
     }
 
