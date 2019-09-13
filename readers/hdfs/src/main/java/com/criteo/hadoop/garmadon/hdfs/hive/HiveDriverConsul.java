@@ -45,9 +45,10 @@ public class HiveDriverConsul extends HiveDriver {
     /**
      * Fetches one of the healthy node
      */
-    private String getEndPoint(String url) {
+    private String getEndPoint(String url) throws SQLException {
         String serviceName = url.split("/")[0];
         List<HealthService> nodes = getHealthyEndPoints(serviceName);
+        if (nodes.size() == 0) throw new SQLException("No nodes are available for service: " + serviceName);
         HealthService electedNode = nodes.get(ThreadLocalRandom.current().nextInt(nodes.size()));
 
         String host = electedNode.getNode().getAddress();
