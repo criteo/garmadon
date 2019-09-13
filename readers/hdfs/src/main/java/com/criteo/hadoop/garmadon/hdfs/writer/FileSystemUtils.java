@@ -18,13 +18,13 @@ public final class FileSystemUtils {
      * @throws IOException When failing to create any of the directories
      */
     public static boolean ensureDirectoriesExist(Collection<Path> dirs, FileSystem fs) throws IOException {
-        boolean hasBeenCreated = false;
+        boolean created = false;
         for (Path dir : dirs) {
             if (!fs.exists(dir)) {
-                hasBeenCreated = fs.mkdirs(dir);
-                if (!hasBeenCreated) throw new IOException(String.format("Couldn't create %s (no specific reason)", dir.toUri()));
+                created = fs.mkdirs(dir);
+                if (!created) throw new IOException(String.format("Couldn't create %s (no specific reason)", dir.toUri()));
             }
         }
-        return hasBeenCreated;
+        return created;
     }
 }
