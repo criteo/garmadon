@@ -105,20 +105,28 @@ public class HiveClient {
 
     protected String inferHiveType(Type field) throws Exception {
         String fieldHiveType;
-        if (field.asPrimitiveType().getPrimitiveTypeName().name().equals("BINARY")) {
-            fieldHiveType = "string";
-        } else if (field.asPrimitiveType().getPrimitiveTypeName().name().equals("INT32")) {
-            fieldHiveType = "int";
-        } else if (field.asPrimitiveType().getPrimitiveTypeName().name().equals("INT64")) {
-            fieldHiveType = "bigint";
-        } else if (field.asPrimitiveType().getPrimitiveTypeName().name().equals("FLOAT")) {
-            fieldHiveType = "float";
-        } else if (field.asPrimitiveType().getPrimitiveTypeName().name().equals("DOUBLE")) {
-            fieldHiveType = "double";
-        } else if (field.asPrimitiveType().getPrimitiveTypeName().name().equals("BOOLEAN")) {
-            fieldHiveType = "boolean";
-        } else {
-            throw new Exception("Unsupported Data Type: " + field.asPrimitiveType().getPrimitiveTypeName().name());
+
+        switch (field.asPrimitiveType().getPrimitiveTypeName().name()) {
+            case "BINARY":
+                fieldHiveType = "string";
+                break;
+            case "INT32":
+                fieldHiveType = "int";
+                break;
+            case "INT64":
+                fieldHiveType = "bigint";
+                break;
+            case "FLOAT":
+                fieldHiveType = "float";
+                break;
+            case "DOUBLE":
+                fieldHiveType = "double";
+                break;
+            case "BOOLEAN":
+                fieldHiveType = "boolean";
+                break;
+            default:
+                throw new Exception("Unsupported Data Type: " + field.asPrimitiveType().getPrimitiveTypeName().name());
         }
 
         if (field.isRepetition(Type.Repetition.REPEATED)) {
