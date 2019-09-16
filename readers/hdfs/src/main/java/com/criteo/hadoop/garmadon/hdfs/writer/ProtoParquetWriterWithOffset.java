@@ -187,9 +187,8 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
 
 
     private void initializeLatestCommittedTimestampGauge() {
-        if (PrometheusMetrics.latestCommittedTimestampGauge(eventName, partition).get() == 0) {
-            PrometheusMetrics.latestCommittedTimestampGauge(eventName, partition).set(getLatestCommittedTimestamp());
-        }
+        double timestamp = getLatestCommittedTimestamp();
+        PrometheusMetrics.latestCommittedTimestampGauge(eventName, partition).set(timestamp);
     }
 
     private double getLatestCommittedTimestamp() {
