@@ -242,11 +242,13 @@ public class ReaderFactory {
                     continue;
                 }
 
-                partitionsPauser.resume(clazz);
-
-                return new ExpiringConsumer<>(new ProtoParquetWriterWithOffset<>(
+                ExpiringConsumer consumer = new ExpiringConsumer<>(new ProtoParquetWriterWithOffset<>(
                     protoWriter, tmpFilePath, finalHdfsDir, fs, offsetComputer, dayStartTime, eventName, extraMetadataWriteSupport, partition),
                     writersExpirationDelay, messagesBeforeExpiringWriters);
+
+                partitionsPauser.resume(clazz);
+
+                return consumer;
             }
 
             // There's definitely something wrong, potentially the whole instance, so stop trying
