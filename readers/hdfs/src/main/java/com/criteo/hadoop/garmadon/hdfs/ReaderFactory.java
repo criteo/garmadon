@@ -171,12 +171,24 @@ public class ReaderFactory {
             new ConsumerRebalanceListener() {
                 @Override
                 public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-                    kafkaConsumerRebalanceListeners.forEach(listener -> listener.onPartitionsRevoked(partitions));
+                    kafkaConsumerRebalanceListeners.forEach(listener -> {
+                        try {
+                            listener.onPartitionsRevoked(partitions);
+                        } catch (Exception e) {
+                            LOGGER.error(e.getMessage(), e);
+                        }
+                    });
                 }
 
                 @Override
                 public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-                    kafkaConsumerRebalanceListeners.forEach(listener -> listener.onPartitionsAssigned(partitions));
+                    kafkaConsumerRebalanceListeners.forEach(listener -> {
+                        try {
+                            listener.onPartitionsAssigned(partitions);
+                        } catch (Exception e) {
+                            LOGGER.error(e.getMessage(), e);
+                        }
+                    });
                 }
             });
 
