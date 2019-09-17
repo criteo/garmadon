@@ -4,7 +4,6 @@ import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 import com.criteo.hadoop.garmadon.event.proto.ResourceManagerEventProtos;
 import com.criteo.hadoop.garmadon.hdfs.FixedOffsetComputer;
-import com.criteo.hadoop.garmadon.hdfs.hive.HiveClient;
 import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
 import com.criteo.hadoop.garmadon.hdfs.offset.HdfsOffsetComputer;
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
@@ -21,15 +20,10 @@ import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
-import org.apache.parquet.hadoop.metadata.FileMetaData;
-import org.apache.parquet.hadoop.metadata.ParquetMetadata;
 import org.apache.parquet.hadoop.util.HadoopInputFile;
 import org.apache.parquet.proto.ProtoParquetReader;
 import org.apache.parquet.proto.ProtoParquetWriter;
 import org.apache.parquet.proto.ProtoWriteSupport;
-import org.apache.parquet.schema.MessageType;
-import org.apache.parquet.schema.PrimitiveType;
-import org.apache.parquet.schema.Type;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,7 +31,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -83,19 +76,19 @@ public class ProtoParquetWriterWithOffsetTest {
     }
 
     @Test(expected = IOException.class)
-    public void closeWithNoEvent() throws IOException, SQLException {
+    public void closeWithNoEvent() throws IOException {
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
         final BiConsumer<String, String> protoMetadataWriter = mock(BiConsumer.class);
 
         final ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
             createTmpFile(), finalPath, localFs, new HdfsOffsetComputer(localFs, finalPath, 2), LocalDateTime.MIN, "ignored",
-            protoMetadataWriter, 0, null);
+            protoMetadataWriter, 0);
 
         parquetWriter.close();
     }
 
     @Test
-    public void closeRenameFails() throws IOException, SQLException {
+    public void closeRenameFails() throws IOException {
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
         final OffsetComputer fileNamer = mock(OffsetComputer.class);
         final BiConsumer<String, String> protoMetadataWriter = mock(BiConsumer.class);
@@ -107,7 +100,7 @@ public class ProtoParquetWriterWithOffsetTest {
 
         final ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
             createTmpFile(), finalPath, localFsSpy, new HdfsOffsetComputer(localFsSpy, finalPath, 2), LocalDateTime.MIN, "ignored",
-            protoMetadataWriter, 0, null);
+            protoMetadataWriter, 0);
         boolean thrown = false;
 
         // We need to write one event, otherwise we will fail with a "no message" error
@@ -133,14 +126,14 @@ public class ProtoParquetWriterWithOffsetTest {
 
     // We want to check that an empty file gets created and therefore need an actual FS
     @Test
-    public void closeWithNullEventWithLocalFilesystem() throws IOException, SQLException {
+    public void closeWithNullEventWithLocalFilesystem() throws IOException {
         final Collection<EventHeaderProtos.Header> headers = checkSingleFileWithFileSystem(Collections.singleton(null));
 
         Assert.assertEquals(0, headers.size());
     }
 
     @Test
-    public void closeAfterSomeEventWithLocalFilesystem() throws IOException, SQLException {
+    public void closeAfterSomeEventWithLocalFilesystem() throws IOException {
         final List<EventHeaderProtos.Header> inputHeaders = new LinkedList<>();
 
         inputHeaders.add(EventHeaderProtos.Header.newBuilder().setAttemptId("1").build());
@@ -154,7 +147,7 @@ public class ProtoParquetWriterWithOffsetTest {
     }
 
     @Test
-    public void finalFileTooBigToBeMerged() throws IOException, SQLException {
+    public void finalFileTooBigToBeMerged() throws IOException {
         localFs.getConf().set("fs.local.block.size", "1");
 
         final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, rootPath, 2);
@@ -180,7 +173,7 @@ public class ProtoParquetWriterWithOffsetTest {
 
         ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
             tmpFile, finalPath, localFs, hdfsOffsetComputer, TODAY, "ignored",
-            protoMetadataWriter, 1, null);
+            protoMetadataWriter, 1);
         //simul write action
         parquetWriter.write(654321, mock(MessageOrBuilder.class), new TopicPartitionOffset(TOPIC, 1, 0));
         parquetWriter.close();
@@ -201,7 +194,7 @@ public class ProtoParquetWriterWithOffsetTest {
     }
 
     @Test
-    public void finalFileAndTempFilesMergedWhenFinalSizeIsNotBigEnough() throws IOException, SQLException {
+    public void finalFileAndTempFilesMergedWhenFinalSizeIsNotBigEnough() throws IOException {
         localFs.getConf().set("fs.local.block.size", String.valueOf(Long.MAX_VALUE));
 
         final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, rootPath, 2);
@@ -227,7 +220,7 @@ public class ProtoParquetWriterWithOffsetTest {
 
         ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
             tmpFile, finalPath, localFs, hdfsOffsetComputer, TODAY, "ignored",
-            protoMetadataWriter, 1, null);
+            protoMetadataWriter, 1);
         //simul write action
         parquetWriter.write(999999999L, mock(MessageOrBuilder.class), new TopicPartitionOffset(TOPIC, 1, 0));
         parquetWriter.close();
@@ -254,7 +247,7 @@ public class ProtoParquetWriterWithOffsetTest {
     }
 
     @Test
-    public void finalFileAndTempFilesNotMergedDueToDifferentSchema() throws IOException, SQLException {
+    public void finalFileAndTempFilesNotMergedDueToDifferentSchema() throws IOException {
         localFs.getConf().set("fs.local.block.size", "1");
 
         final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, rootPath, 2);
@@ -280,7 +273,7 @@ public class ProtoParquetWriterWithOffsetTest {
 
         ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
             tmpFile, finalPath, localFs, hdfsOffsetComputer, TODAY, "ignored",
-            protoMetadataWriter, 1, null);
+            protoMetadataWriter, 1);
         //simul write action
         parquetWriter.write(987654321, mock(MessageOrBuilder.class), new TopicPartitionOffset(TOPIC, 1, 0));
 
@@ -302,7 +295,7 @@ public class ProtoParquetWriterWithOffsetTest {
     }
 
     @Test
-    public void initializedWithExistingIndexFiles() throws IOException, SQLException {
+    public void initializedWithExistingIndexFiles() throws IOException {
         final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, finalPath, 2);
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
         final Path path = new Path(finalPath, hdfsOffsetComputer.computePath(TODAY, 0, 0));
@@ -317,7 +310,7 @@ public class ProtoParquetWriterWithOffsetTest {
 
         final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writerMock, tmpPath,
             finalPath, localFs, hdfsOffsetComputer, TODAY, "eventName",
-            protoMetadataWriter, 0, null);
+            protoMetadataWriter, 0);
 
         assertThat(
             PrometheusMetrics.latestCommittedTimestampGauge("eventName", 0).get(),
@@ -333,7 +326,7 @@ public class ProtoParquetWriterWithOffsetTest {
 
         final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writerMock, tmpPath,
             finalPath, localFs, new HdfsOffsetComputer(localFs, finalPath, 2), today, "eventName",
-            protoMetadataWriter, 0, null);
+            protoMetadataWriter, 0);
 
         assertEquals(
             (double) System.currentTimeMillis(),
@@ -358,7 +351,7 @@ public class ProtoParquetWriterWithOffsetTest {
 
         final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writerMock, tmpPath,
             finalPath, localFs, hdfsOffsetComputer, TODAY, "eventName",
-            protoMetadataWriter, 0, null);
+            protoMetadataWriter, 0);
 
         assertEquals(
             (double) System.currentTimeMillis(),
@@ -376,7 +369,7 @@ public class ProtoParquetWriterWithOffsetTest {
 
         final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writerMock, tmpPath,
             finalPath, localFsSpy, new HdfsOffsetComputer(localFsSpy, finalPath, 2), today, "eventName",
-            protoMetadataWriter, 0, null);
+            protoMetadataWriter, 0);
 
         doThrow(new IOException()).when(localFsSpy).globStatus(any(Path.class));
 
@@ -385,82 +378,6 @@ public class ProtoParquetWriterWithOffsetTest {
             PrometheusMetrics.latestCommittedTimestampGauge("eventName", 0).get(),
             1000
         );
-    }
-
-    @Test
-    public void createHiveTableOnlyWhenNewDayFolderIsCreated() throws IOException, SQLException {
-        final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
-        final OffsetComputer fileNamer = mock(OffsetComputer.class);
-        final BiConsumer<String, String> protoMetadataWriter = mock(BiConsumer.class);
-        final HiveClient hiveClient = mock(HiveClient.class);
-        final FileSystem localFsSpy = spy(localFs);
-
-        final ParquetMetadata parquetMetadata = mock(ParquetMetadata.class);
-        PrimitiveType appId = new PrimitiveType(Type.Repetition.OPTIONAL, PrimitiveType.PrimitiveTypeName.BINARY, "app_id");
-        MessageType schema = new MessageType("fs", appId);
-        FileMetaData fileMetaData = new FileMetaData(schema, new HashMap<String, String>(), "test");
-
-        when(writerMock.getFooter()).thenReturn(parquetMetadata);
-        when(parquetMetadata.getFileMetaData()).thenReturn(fileMetaData);
-        doNothing().when(hiveClient).createPartitionIfNotExist(any(String.class), any(MessageType.class), any(String.class), any(String.class));
-
-
-        when(fileNamer.computeTopicGlob(any(LocalDateTime.class), anyInt())).thenReturn("ignored");
-        when(fileNamer.computePath(any(LocalDateTime.class), any(Long.class), anyInt())).thenReturn("ignored");
-        doReturn(true).when(localFsSpy).rename(any(Path.class), any(Path.class));
-        doReturn(true).when(localFsSpy).mkdirs(any(Path.class));
-
-
-        final ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
-            createTmpFile(), finalPath, localFsSpy, new HdfsOffsetComputer(localFsSpy, finalPath, 2), LocalDateTime.MIN, "ignored",
-            protoMetadataWriter, 0, hiveClient);
-
-        // We need to write one event, otherwise we will fail with a "no message" error
-        parquetWriter.write(1234567890L, mock(MessageOrBuilder.class), new TopicPartitionOffset(TOPIC, 1, 2));
-
-        try {
-            parquetWriter.close();
-        } catch (IOException | SQLException ignored) {
-        }
-        verify(hiveClient, times(1)).createPartitionIfNotExist(any(String.class), any(MessageType.class), any(String.class), any(String.class));
-    }
-
-    @Test
-    public void createHiveTableNotCalledIfNewDayFolderNotCreated() throws IOException, SQLException {
-        final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
-        final OffsetComputer fileNamer = mock(OffsetComputer.class);
-        final BiConsumer<String, String> protoMetadataWriter = mock(BiConsumer.class);
-        final HiveClient hiveClient = mock(HiveClient.class);
-        final FileSystem localFsSpy = spy(localFs);
-
-        final ParquetMetadata parquetMetadata = mock(ParquetMetadata.class);
-        PrimitiveType appId = new PrimitiveType(Type.Repetition.OPTIONAL, PrimitiveType.PrimitiveTypeName.BINARY, "app_id");
-        MessageType schema = new MessageType("fs", appId);
-        FileMetaData fileMetaData = new FileMetaData(schema, new HashMap<String, String>(), "test");
-
-        when(writerMock.getFooter()).thenReturn(parquetMetadata);
-        when(parquetMetadata.getFileMetaData()).thenReturn(fileMetaData);
-        doNothing().when(hiveClient).createPartitionIfNotExist(any(String.class), any(MessageType.class), any(String.class), any(String.class));
-
-
-        when(fileNamer.computeTopicGlob(any(LocalDateTime.class), anyInt())).thenReturn("ignored");
-        when(fileNamer.computePath(any(LocalDateTime.class), any(Long.class), anyInt())).thenReturn("ignored");
-        doReturn(true).when(localFsSpy).rename(any(Path.class), any(Path.class));
-        doReturn(false).when(localFsSpy).mkdirs(any(Path.class));
-
-
-        final ProtoParquetWriterWithOffset parquetWriter = new ProtoParquetWriterWithOffset<>(writerMock,
-            createTmpFile(), finalPath, localFsSpy, new HdfsOffsetComputer(localFsSpy, finalPath, 2), LocalDateTime.MIN, "ignored",
-            protoMetadataWriter, 0, hiveClient);
-
-        // We need to write one event, otherwise we will fail with a "no message" error
-        parquetWriter.write(1234567890L, mock(MessageOrBuilder.class), new TopicPartitionOffset(TOPIC, 1, 2));
-
-        try {
-            parquetWriter.close();
-        } catch (IOException | SQLException ignored) {
-        }
-        verify(hiveClient, never()).createPartitionIfNotExist(any(String.class), any(MessageType.class), any(String.class), any(String.class));
     }
 
     private <M extends Message> void createParquetFile(Path p, Class<M> clazz, Supplier<M> msgBuilder, long latestCommittedTimestamp) throws IOException {
@@ -489,7 +406,7 @@ public class ProtoParquetWriterWithOffsetTest {
     }
 
     private List<EventHeaderProtos.Header> checkSingleFileWithFileSystem(
-        Collection<EventHeaderProtos.Header> inputHeaders) throws IOException, SQLException {
+        Collection<EventHeaderProtos.Header> inputHeaders) throws IOException {
         final List<EventHeaderProtos.Header> headers = new LinkedList<>();
 
         Path newTmpFile = new Path(tmpPath, "file");
@@ -500,7 +417,7 @@ public class ProtoParquetWriterWithOffsetTest {
 
         final ProtoParquetWriterWithOffset consumer = new ProtoParquetWriterWithOffset<>(writer, newTmpFile, finalPath,
             localFs, new FixedOffsetComputer(FINAL_FILE_NAME, 123), UTC_EPOCH, "ignored",
-            protoMetadataWriter, 1, null);
+            protoMetadataWriter, 1);
 
         for (EventHeaderProtos.Header header : inputHeaders) {
             consumer.write(1234567890L, header, new TopicPartitionOffset(TOPIC, 1, offset++));

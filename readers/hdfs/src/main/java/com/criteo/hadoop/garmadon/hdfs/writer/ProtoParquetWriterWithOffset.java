@@ -1,6 +1,5 @@
 package com.criteo.hadoop.garmadon.hdfs.writer;
 
-import com.criteo.hadoop.garmadon.hdfs.hive.HiveClient;
 import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.reader.Offset;
@@ -18,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -36,21 +34,22 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtoParquetWriterWithOffset.class);
 
-    private final Path temporaryHdfsPath;
     private final ParquetWriter<MESSAGE_KIND> writer;
     private final Path finalHdfsDir;
     private final FileSystem fs;
     private final OffsetComputer fileNamer;
     private final LocalDateTime dayStartTime;
     private final String eventName;
+
+    private final Path temporaryHdfsPath;
     private final long fsBlockSize;
     private final BiConsumer<String, String> protoMetadataWriter;
     private final int partition;
-    private final HiveClient hiveClient;
 
     private Offset latestOffset = null;
     private long latestTimestamp = 0;
     private boolean writerClosed = false;
+
 
     /**
      * @param writer            The actual Proto + Parquet writer
@@ -64,7 +63,7 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
     public ProtoParquetWriterWithOffset(ParquetWriter<MESSAGE_KIND> writer, Path temporaryHdfsPath,
                                         Path finalHdfsDir, FileSystem fs, OffsetComputer fileNamer,
                                         LocalDateTime dayStartTime, String eventName,
-                                        BiConsumer<String, String> protoMetadataWriter, int partition, HiveClient hiveClient) {
+                                        BiConsumer<String, String> protoMetadataWriter, int partition) {
         this.writer = writer;
         this.temporaryHdfsPath = temporaryHdfsPath;
         this.finalHdfsDir = finalHdfsDir;
@@ -75,24 +74,19 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         this.fsBlockSize = fs.getDefaultBlockSize(finalHdfsDir);
         this.protoMetadataWriter = protoMetadataWriter;
         this.partition = partition;
-        this.hiveClient = hiveClient;
 
         initializeLatestCommittedTimestampGauge();
     }
 
     @Override
-    public Path close() throws IOException, SQLException {
+    public Path close() throws IOException {
         if (latestOffset == null) {
             final String additionalInfo = String.format(" Date = %s, Temp file = %s",
                 dayStartTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), temporaryHdfsPath.toUri());
             throw new IOException(String.format("Trying to write a zero-sized file, please fix (%s)", additionalInfo));
         }
 
-        if (!writerClosed) {
-            protoMetadataWriter.accept(LATEST_TIMESTAMP_META_KEY, String.valueOf(latestTimestamp));
-            writer.close();
-            writerClosed = true;
-        }
+        closeWriter();
 
         final Optional<Path> lastestExistingFinalPath = getLastestExistingFinalPath();
 
@@ -100,13 +94,7 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
 
         final Path finalPath = new Path(finalHdfsDir, fileNamer.computePath(dayStartTime, lastIndex, latestOffset.getPartition()));
 
-        if (FileSystemUtils.ensureDirectoriesExist(Collections.singleton(finalPath.getParent()), fs)) {
-            // Create hive partition if not exist
-            if (hiveClient != null) {
-                hiveClient.createPartitionIfNotExist(eventName, writer.getFooter().getFileMetaData().getSchema(),
-                    dayStartTime.format(DateTimeFormatter.ISO_DATE), finalHdfsDir.toString());
-            }
-        }
+        FileSystemUtils.ensureDirectoriesExist(Collections.singleton(finalPath.getParent()), fs);
 
         if (lastestExistingFinalPath.isPresent()) {
             long blockSize = fs.getFileStatus(lastestExistingFinalPath.get()).getLen();
@@ -123,6 +111,14 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         PrometheusMetrics.latestCommittedTimestampGauge(eventName, latestOffset.getPartition()).set(latestTimestamp);
 
         return finalPath;
+    }
+
+    protected void closeWriter() throws IOException {
+        if (!writerClosed) {
+            protoMetadataWriter.accept(LATEST_TIMESTAMP_META_KEY, String.valueOf(latestTimestamp));
+            writer.close();
+            writerClosed = true;
+        }
     }
 
     protected void moveToFinalPath(Path tempPath, Path finalPath) throws IOException {
@@ -176,7 +172,6 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         return schema.equals(schema2);
     }
 
-
     @Override
     public void write(long timestamp, MESSAGE_KIND msg, Offset offset) throws IOException {
         if (latestOffset == null || offset.getOffset() > latestOffset.getOffset()) latestOffset = offset;
@@ -229,4 +224,19 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         }
     }
 
+    public ParquetWriter<MESSAGE_KIND> getWriter() {
+        return writer;
+    }
+
+    public Path getFinalHdfsDir() {
+        return finalHdfsDir;
+    }
+
+    public LocalDateTime getDayStartTime() {
+        return dayStartTime;
+    }
+
+    public String getEventName() {
+        return eventName;
+    }
 }

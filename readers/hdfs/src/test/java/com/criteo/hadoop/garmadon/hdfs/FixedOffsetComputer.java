@@ -40,6 +40,11 @@ public class FixedOffsetComputer implements OffsetComputer {
     }
 
     @Override
+    public String computeDirName(LocalDateTime time) {
+        return null;
+    }
+
+    @Override
     public String computeTopicGlob(LocalDateTime time, int partition) {
         return fileName + "*";
     }

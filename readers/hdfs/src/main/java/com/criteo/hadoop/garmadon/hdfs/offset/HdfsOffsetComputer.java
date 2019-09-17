@@ -141,7 +141,8 @@ public class HdfsOffsetComputer implements OffsetComputer {
             .orElse(NO_OFFSET);
     }
 
-    private String computeDirName(LocalDateTime time) {
+    @Override
+    public String computeDirName(LocalDateTime time) {
         return String.format(dirRenamePattern, time.format(DateTimeFormatter.ISO_DATE));
     }
 
