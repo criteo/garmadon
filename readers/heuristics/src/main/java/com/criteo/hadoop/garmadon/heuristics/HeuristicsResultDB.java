@@ -1,16 +1,11 @@
 package com.criteo.hadoop.garmadon.heuristics;
 
 import com.criteo.hadoop.garmadon.heuristics.configurations.DbConfiguration;
+import com.criteo.hadoop.garmadon.reader.helper.ReaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 
 public class HeuristicsResultDB {
@@ -29,7 +24,7 @@ public class HeuristicsResultDB {
     private static final String HEURISTIC_RESULT_DETAILS_TABLENAME = "garmadon_yarn_app_heuristic_result_details";
     private static final String HEURISTIC_HELP_TABLENAME = "garmadon_heuristic_help";
     private static final String CREATE_YARN_APP_HEURISTIC_RESULT_SQL = "INSERT INTO " + HEURISTIC_RESULT_TABLENAME +
-            " (yarn_app_result_id, heuristic_class, heuristic_name, severity, score, ready) " +
+             " (yarn_app_result_id, heuristic_class, heuristic_name, severity, score, ready) " +
             "VALUES (?, ?, ?, ?, ?, ?)";
     private static final String CREATE_YARN_APP_HEURISTIC_RESULT_DETAILS_SQL = "INSERT INTO " + HEURISTIC_RESULT_DETAILS_TABLENAME +
             " (yarn_app_heuristic_result_id, name, value, details) " +
@@ -39,12 +34,19 @@ public class HeuristicsResultDB {
             " (heuristic_id, help_html) " +
             "VALUES (?, ?)";
 
-    private final Connection connection;
-    private final PreparedStatement createYarnAppResultStat;
-    private final PreparedStatement createYarnAppResultDetailsStat;
-    private final PreparedStatement createHeuristicHelp;
+    protected Connection connection;
+
+    private final DbConfiguration dbConfiguration;
+    private PreparedStatement createYarnAppResultStat;
+    private PreparedStatement createYarnAppResultDetailsStat;
+    private PreparedStatement createHeuristicHelp;
 
     public HeuristicsResultDB(DbConfiguration dbConfiguration) {
+        this.dbConfiguration = dbConfiguration;
+        initConnectionAndStatement(dbConfiguration);
+    }
+
+    protected void initConnectionAndStatement(DbConfiguration dbConfiguration) {
         try {
             connection = DriverManager.getConnection(dbConfiguration.getConnectionString(), dbConfiguration.getUser(), dbConfiguration.getPassword());
         } catch (SQLException ex) {
@@ -54,6 +56,7 @@ public class HeuristicsResultDB {
         createYarnAppResultStat = prepareStatements(CREATE_YARN_APP_HEURISTIC_RESULT_SQL);
         createYarnAppResultDetailsStat = prepareStatements(CREATE_YARN_APP_HEURISTIC_RESULT_DETAILS_SQL);
         createHeuristicHelp = prepareStatements(CREATE_HEURISTIC_HELP);
+
     }
 
     private PreparedStatement prepareStatements(String sql) {
@@ -67,39 +70,49 @@ public class HeuristicsResultDB {
 
     public void createHeuristicResult(HeuristicResult heuristicResult) {
         int resultId = -1;
+        executeUpdate(() -> {
+            try {
+                createYarnAppResultStat.clearParameters();
+                createYarnAppResultStat.setString(1, heuristicResult.getAppId());
+                createYarnAppResultStat.setString(2, heuristicResult.getHeuristicClass().getName());
+                createYarnAppResultStat.setString(3, heuristicResult.getHeuristicClass().getSimpleName() + "@" + heuristicResult.getAttemptId());
+                createYarnAppResultStat.setInt(4, heuristicResult.getSeverity());
+                createYarnAppResultStat.setInt(5, heuristicResult.getScore());
+                createYarnAppResultStat.setInt(6, 1);
+                createYarnAppResultStat.executeUpdate();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }, "Error inserting into " + HEURISTIC_RESULT_TABLENAME + " table");
         try {
-            createYarnAppResultStat.clearParameters();
-            createYarnAppResultStat.setString(1, heuristicResult.getAppId());
-            createYarnAppResultStat.setString(2, heuristicResult.getHeuristicClass().getName());
-            createYarnAppResultStat.setString(3, heuristicResult.getHeuristicClass().getSimpleName() + "@" + heuristicResult.getAttemptId());
-            createYarnAppResultStat.setInt(4, heuristicResult.getSeverity());
-            createYarnAppResultStat.setInt(5, heuristicResult.getScore());
-            createYarnAppResultStat.setInt(6, 1);
-            createYarnAppResultStat.executeUpdate();
             try (ResultSet rsGenKey = createYarnAppResultStat.getGeneratedKeys()) {
                 while (rsGenKey.next()) {
                     resultId = rsGenKey.getInt(1);
                 }
             }
         } catch (SQLException ex) {
-            LOGGER.warn("Error inserting into {} table", HEURISTIC_RESULT_TABLENAME, ex);
+            LOGGER.warn("Error reading YarnAppResult key", ex);
             return;
         }
         if (resultId == -1) {
             LOGGER.warn("No result id retrieve from insertion into {}", HEURISTIC_RESULT_TABLENAME);
         }
-        try {
-            for (int i = 0; i < heuristicResult.getDetailCount(); i++) {
-                createYarnAppResultDetailsStat.clearParameters();
-                HeuristicResult.HeuristicResultDetail detail = heuristicResult.getDetail(i);
-                createYarnAppResultDetailsStat.setInt(1, resultId);
-                createYarnAppResultDetailsStat.setString(2, detail.name);
-                createYarnAppResultDetailsStat.setString(3, detail.value);
-                createYarnAppResultDetailsStat.setString(4, detail.details);
-                createYarnAppResultDetailsStat.executeUpdate();
-            }
-        } catch (SQLException ex) {
-            LOGGER.warn("Error inserting into {} table", HEURISTIC_RESULT_DETAILS_TABLENAME, ex);
+        for (int i = 0; i < heuristicResult.getDetailCount(); i++) {
+            int finalResultId = resultId;
+            int finalI = i;
+            executeUpdate(() -> {
+                try {
+                    createYarnAppResultDetailsStat.clearParameters();
+                    HeuristicResult.HeuristicResultDetail detail = heuristicResult.getDetail(finalI);
+                    createYarnAppResultDetailsStat.setInt(1, finalResultId);
+                    createYarnAppResultDetailsStat.setString(2, detail.name);
+                    createYarnAppResultDetailsStat.setString(3, detail.value);
+                    createYarnAppResultDetailsStat.setString(4, detail.details);
+                    createYarnAppResultDetailsStat.executeUpdate();
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }, "Error inserting into " + HEURISTIC_RESULT_DETAILS_TABLENAME + " table");
         }
     }
 
@@ -112,16 +125,28 @@ public class HeuristicsResultDB {
         }
         for (Heuristic heuristic : heuristics) {
             String heuristicName = heuristic.getClass().getSimpleName();
-            try {
-                Clob clob = connection.createClob();
-                clob.setString(1, heuristic.getHelp());
-                createHeuristicHelp.clearParameters();
-                createHeuristicHelp.setString(1, heuristicName);
-                createHeuristicHelp.setClob(2, clob);
-                createHeuristicHelp.executeUpdate();
-            } catch (Exception ex) {
-                LOGGER.warn("Error when inserting help for {}", heuristicName, ex);
-            }
+            executeUpdate(() -> {
+                try {
+                    Clob clob = connection.createClob();
+                    clob.setString(1, heuristic.getHelp());
+                    createHeuristicHelp.clearParameters();
+                    createHeuristicHelp.setString(1, heuristicName);
+                    createHeuristicHelp.setClob(2, clob);
+                    createHeuristicHelp.executeUpdate();
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }, "Error when inserting help for " + heuristicName);
         }
+    }
+
+    public boolean executeUpdate(Runnable executor, String exceptionStr) {
+        return ReaderUtils.retryAction(executor,
+            exceptionStr, () -> {
+                try {
+                    initConnectionAndStatement(dbConfiguration);
+                } catch (Exception ignored) {
+                }
+            });
     }
 }
