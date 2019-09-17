@@ -262,12 +262,15 @@ public class ReaderFactory {
                     continue;
                 }
 
-                partitionsPauser.resume(clazz);
-
-                return new ExpiringConsumer<>(new HiveProtoParquetWriterWithOffset<>(new ProtoParquetWriterWithOffset<>(protoWriter, tmpFilePath, finalHdfsDir,
+                ExpiringConsumer consumer = new ExpiringConsumer<>(new HiveProtoParquetWriterWithOffset<>(
+                    new ProtoParquetWriterWithOffset<>(protoWriter, tmpFilePath, finalHdfsDir,
                     fs, offsetComputer, dayStartTime, eventName, extraMetadataWriteSupport, partition), hiveClient)
                     .withHiveSupport(createHiveTable),
                     writersExpirationDelay, messagesBeforeExpiringWriters);
+
+                partitionsPauser.resume(clazz);
+
+                return consumer;
             }
 
             // There's definitely something wrong, potentially the whole instance, so stop trying
