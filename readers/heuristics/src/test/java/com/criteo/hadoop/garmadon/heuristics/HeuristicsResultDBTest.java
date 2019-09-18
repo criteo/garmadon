@@ -121,11 +121,10 @@ public class HeuristicsResultDBTest {
         HeuristicsResultDB db = spy(new HeuristicsResultDB(dbConfiguration));
         HeuristicResult heuristicResult = new HeuristicResult(appId, "attemptId", GCCause.class, 1, 1);
         heuristicResult.addDetail(detail, "value", "This is a new detail");
+        mysqld.stop();
         new Thread(() -> {
-            mysqld.stop();
             initDb();
         }).start();
-        waitUntilDbStopped();
         db.createHeuristicResult(heuristicResult);
         verify(db, atLeast(2)).initConnectionAndStatement(dbConfiguration);
     }
@@ -137,24 +136,7 @@ public class HeuristicsResultDBTest {
         HeuristicsResultDB db = new HeuristicsResultDB(dbConfiguration);
         HeuristicResult heuristicResult = new HeuristicResult(appId, "attemptId", GCCause.class, 1, 1);
         heuristicResult.addDetail(detail, "value", "This is a new detail");
-        new Thread(() -> {
-            mysqld.stop();
-        }).start();
-        waitUntilDbStopped();
+        mysqld.stop();
         db.createHeuristicResult(heuristicResult);
-    }
-
-    private void waitUntilDbStopped() {
-        while (true) {
-            try {
-                new ServerSocket(port).close();
-                break;
-            } catch (IOException e) {
-                try {
-                    Thread.sleep(100L);
-                } catch (InterruptedException ignored) {
-                }
-            }
-        }
     }
 }
