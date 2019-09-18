@@ -9,6 +9,11 @@
     <logger name="org.apache.kafka.common.utils.AppInfoParser" level="INFO" />
     <logger name="org.apache.kafka.clients.consumer.ConsumerConfig" level="INFO" />
 
+    <logger name="org.apache.hadoop.hdfs.RemoteBlockReader2" level="TRACE" />
+    <logger name="org.apache.hadoop.hdfs.DFSClient" level="INFO" />
+    <logger name="org.apache.hadoop.net.SocketIOWithTimeout" level="INFO" />
+    <logger name="org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver" level="TRACE" />
+
     <root level="WARN">
         <appender-ref ref="STDOUT" />
     </root>
