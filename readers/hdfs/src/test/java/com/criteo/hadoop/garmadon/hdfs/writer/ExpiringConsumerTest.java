@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.mockito.InOrder;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +18,7 @@ public class ExpiringConsumerTest {
     private static final Offset DUMMY_OFFSET = buildOffset(12);
 
     @Test
-    public void expiredAfterTooManyMessages() throws IOException {
+    public void expiredAfterTooManyMessages() throws IOException, SQLException {
         final CloseableWriter<Integer> innerMock = mock(CloseableWriter.class);
         final ExpiringConsumer<Integer> consumer = new ExpiringConsumer<>(innerMock, Duration.ofMinutes(10), 3);
 
@@ -87,7 +88,7 @@ public class ExpiringConsumerTest {
     }
 
     @Test
-    public void closeWithNoMessage() throws IOException {
+    public void closeWithNoMessage() throws IOException, SQLException {
         final CloseableWriter<Integer> innerMock = mock(CloseableWriter.class);
         final ExpiringConsumer<Integer> consumer = new ExpiringConsumer<>(innerMock, Duration.ZERO, 10);
 
@@ -97,7 +98,7 @@ public class ExpiringConsumerTest {
     }
 
     @Test
-    public void closeWithMessages() throws IOException {
+    public void closeWithMessages() throws IOException, SQLException {
         final CloseableWriter<Integer> innerMock = mock(CloseableWriter.class);
         final ExpiringConsumer<Integer> consumer = new ExpiringConsumer<>(innerMock, Duration.ZERO, 10);
 

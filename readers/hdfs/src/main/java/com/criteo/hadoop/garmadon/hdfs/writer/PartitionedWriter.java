@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -194,7 +195,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
                         LOGGER.info("Written heartbeat file {}", writtenFilePath.toUri().getPath());
                     }
                 }
-            } catch (IOException e) {
+            } catch (IOException | SQLException e) {
                 LOGGER.warn("Could not write heartbeat", e);
             }
         }
