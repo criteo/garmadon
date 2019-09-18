@@ -13,10 +13,10 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.*;
 import java.util.*;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import static com.criteo.hadoop.garmadon.hdfs.TestUtils.instantFromDate;
 import static com.criteo.hadoop.garmadon.hdfs.TestUtils.localDateTimeFromDate;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings("unchecked")
 public class PartitionedWriterTest {
     @Test
-    public void writeToMultipleDaysAndPartitions() throws IOException {
+    public void writeToMultipleDaysAndPartitions() throws IOException, SQLException {
         final BiFunction<Integer, LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(BiFunction.class);
         final Checkpointer mockCheckpointer = mock(Checkpointer.class);
         final PartitionedWriter<String> partitionedWriter = new PartitionedWriter<>(writerBuilder,
@@ -96,7 +96,7 @@ public class PartitionedWriterTest {
     }
 
     @Test
-    public void writeOnExpired() throws IOException {
+    public void writeOnExpired() throws IOException, SQLException {
         final BiFunction<Integer, LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(BiFunction.class);
         final Checkpointer mockCheckpointer = mock(Checkpointer.class);
         final PartitionedWriter<String> partitionedWriter = new PartitionedWriter<>(writerBuilder,
@@ -159,7 +159,7 @@ public class PartitionedWriterTest {
     }
 
     @Test
-    public void closingExceptionalConsumerThrowExceptionAfter5Retries() throws IOException {
+    public void closingExceptionalConsumerThrowExceptionAfter5Retries() throws IOException, SQLException {
         final BiFunction<Integer, LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(BiFunction.class);
         final Checkpointer mockCheckpointer = mock(Checkpointer.class);
         final PartitionedWriter<String> partitionedWriter = new PartitionedWriter<>(writerBuilder,
@@ -195,7 +195,7 @@ public class PartitionedWriterTest {
     }
 
     @Test
-    public void checkpointFailureDoesNotFailExpiring() throws IOException {
+    public void checkpointFailureDoesNotFailExpiring() throws IOException, SQLException {
         final BiFunction<Integer, LocalDateTime, ExpiringConsumer<String>> writerBuilder = mock(BiFunction.class);
         final Checkpointer throwingCheckpointer = mock(Checkpointer.class);
         final PartitionedWriter<String> partitionedWriter = new PartitionedWriter<>(writerBuilder,
@@ -305,7 +305,7 @@ public class PartitionedWriterTest {
     }
 
     @Test
-    public void heartbeatWithNoMessage() throws IOException {
+    public void heartbeatWithNoMessage() throws IOException, SQLException {
         final int partition = 1;
         ArgumentCaptor<Long> timestampCaptor = ArgumentCaptor.forClass(Long.class);
         ArgumentCaptor<DynamicMessage> argument = ArgumentCaptor.forClass(DynamicMessage.class);
@@ -339,7 +339,7 @@ public class PartitionedWriterTest {
     }
 
     @Test
-    public void heartbeatWithMessages() throws IOException {
+    public void heartbeatWithMessages() throws IOException, SQLException {
         final int partition = 1;
         final int offsetValue = 123;
         final Offset offset = new TopicPartitionOffset("topic", partition, offsetValue);
