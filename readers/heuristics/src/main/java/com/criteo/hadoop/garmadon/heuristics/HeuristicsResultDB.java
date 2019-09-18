@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 public class HeuristicsResultDB {
 
@@ -24,7 +25,7 @@ public class HeuristicsResultDB {
     private static final String HEURISTIC_RESULT_DETAILS_TABLENAME = "garmadon_yarn_app_heuristic_result_details";
     private static final String HEURISTIC_HELP_TABLENAME = "garmadon_heuristic_help";
     private static final String CREATE_YARN_APP_HEURISTIC_RESULT_SQL = "INSERT INTO " + HEURISTIC_RESULT_TABLENAME +
-             " (yarn_app_result_id, heuristic_class, heuristic_name, severity, score, ready) " +
+            " (yarn_app_result_id, heuristic_class, heuristic_name, severity, score, ready) " +
             "VALUES (?, ?, ?, ?, ?, ?)";
     private static final String CREATE_YARN_APP_HEURISTIC_RESULT_DETAILS_SQL = "INSERT INTO " + HEURISTIC_RESULT_DETAILS_TABLENAME +
             " (yarn_app_heuristic_result_id, name, value, details) " +
@@ -71,18 +72,14 @@ public class HeuristicsResultDB {
     public void createHeuristicResult(HeuristicResult heuristicResult) {
         int resultId = -1;
         executeUpdate(() -> {
-            try {
-                createYarnAppResultStat.clearParameters();
-                createYarnAppResultStat.setString(1, heuristicResult.getAppId());
-                createYarnAppResultStat.setString(2, heuristicResult.getHeuristicClass().getName());
-                createYarnAppResultStat.setString(3, heuristicResult.getHeuristicClass().getSimpleName() + "@" + heuristicResult.getAttemptId());
-                createYarnAppResultStat.setInt(4, heuristicResult.getSeverity());
-                createYarnAppResultStat.setInt(5, heuristicResult.getScore());
-                createYarnAppResultStat.setInt(6, 1);
-                createYarnAppResultStat.executeUpdate();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
+            createYarnAppResultStat.clearParameters();
+            createYarnAppResultStat.setString(1, heuristicResult.getAppId());
+            createYarnAppResultStat.setString(2, heuristicResult.getHeuristicClass().getName());
+            createYarnAppResultStat.setString(3, heuristicResult.getHeuristicClass().getSimpleName() + "@" + heuristicResult.getAttemptId());
+            createYarnAppResultStat.setInt(4, heuristicResult.getSeverity());
+            createYarnAppResultStat.setInt(5, heuristicResult.getScore());
+            createYarnAppResultStat.setInt(6, 1);
+            return createYarnAppResultStat.executeUpdate();
         }, "Error inserting into " + HEURISTIC_RESULT_TABLENAME + " table");
         try {
             try (ResultSet rsGenKey = createYarnAppResultStat.getGeneratedKeys()) {
@@ -101,17 +98,13 @@ public class HeuristicsResultDB {
             int finalResultId = resultId;
             int finalI = i;
             executeUpdate(() -> {
-                try {
-                    createYarnAppResultDetailsStat.clearParameters();
-                    HeuristicResult.HeuristicResultDetail detail = heuristicResult.getDetail(finalI);
-                    createYarnAppResultDetailsStat.setInt(1, finalResultId);
-                    createYarnAppResultDetailsStat.setString(2, detail.name);
-                    createYarnAppResultDetailsStat.setString(3, detail.value);
-                    createYarnAppResultDetailsStat.setString(4, detail.details);
-                    createYarnAppResultDetailsStat.executeUpdate();
-                } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
-                }
+                createYarnAppResultDetailsStat.clearParameters();
+                HeuristicResult.HeuristicResultDetail detail = heuristicResult.getDetail(finalI);
+                createYarnAppResultDetailsStat.setInt(1, finalResultId);
+                createYarnAppResultDetailsStat.setString(2, detail.name);
+                createYarnAppResultDetailsStat.setString(3, detail.value);
+                createYarnAppResultDetailsStat.setString(4, detail.details);
+                return createYarnAppResultDetailsStat.executeUpdate();
             }, "Error inserting into " + HEURISTIC_RESULT_DETAILS_TABLENAME + " table");
         }
     }
@@ -126,22 +119,18 @@ public class HeuristicsResultDB {
         for (Heuristic heuristic : heuristics) {
             String heuristicName = heuristic.getClass().getSimpleName();
             executeUpdate(() -> {
-                try {
-                    Clob clob = connection.createClob();
-                    clob.setString(1, heuristic.getHelp());
-                    createHeuristicHelp.clearParameters();
-                    createHeuristicHelp.setString(1, heuristicName);
-                    createHeuristicHelp.setClob(2, clob);
-                    createHeuristicHelp.executeUpdate();
-                } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
-                }
+                Clob clob = connection.createClob();
+                clob.setString(1, heuristic.getHelp());
+                createHeuristicHelp.clearParameters();
+                createHeuristicHelp.setString(1, heuristicName);
+                createHeuristicHelp.setClob(2, clob);
+                return createHeuristicHelp.executeUpdate();
             }, "Error when inserting help for " + heuristicName);
         }
     }
 
-    public boolean executeUpdate(Runnable executor, String exceptionStr) {
-        return ReaderUtils.retryAction(executor,
+    public void executeUpdate(Callable action, String exceptionStr) {
+        ReaderUtils.retryAction(action,
             exceptionStr, () -> {
                 try {
                     initConnectionAndStatement(dbConfiguration);

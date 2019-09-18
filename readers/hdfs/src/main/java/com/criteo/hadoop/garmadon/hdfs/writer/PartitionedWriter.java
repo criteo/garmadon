@@ -240,11 +240,8 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
 
     private boolean tryExpireConsumer(ExpiringConsumer<MESSAGE_KIND> consumer) {
         return ReaderUtils.retryAction(() -> {
-            try {
-                consumer.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            consumer.close();
+            return true;
         }, String.format("Couldn't close writer for %s", eventName), ReaderUtils.EMPTY_ACTION);
     }
 

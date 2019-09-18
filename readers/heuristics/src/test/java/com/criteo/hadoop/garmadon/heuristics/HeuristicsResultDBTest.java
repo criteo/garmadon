@@ -151,7 +151,7 @@ public class HeuristicsResultDBTest {
                 break;
             } catch (IOException e) {
                 try {
-                    Thread.sleep(1L);
+                    Thread.sleep(100L);
                 } catch (InterruptedException ignored) {
                 }
             }
