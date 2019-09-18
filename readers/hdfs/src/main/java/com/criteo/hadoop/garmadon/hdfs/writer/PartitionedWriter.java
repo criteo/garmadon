@@ -6,6 +6,7 @@ import com.criteo.hadoop.garmadon.hdfs.offset.Checkpointer;
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.protobuf.ProtoConcatenator;
 import com.criteo.hadoop.garmadon.reader.Offset;
+import com.criteo.hadoop.garmadon.reader.helper.ReaderUtils;
 import com.google.protobuf.Message;
 import io.prometheus.client.Counter;
 import org.apache.hadoop.fs.Path;
@@ -239,27 +240,10 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     }
 
     private boolean tryExpireConsumer(ExpiringConsumer<MESSAGE_KIND> consumer) {
-        final int maxAttempts = 5;
-
-        for (int retry = 1; retry <= maxAttempts; ++retry) {
-            try {
-                consumer.close();
-                return true;
-            } catch (IOException | SQLException e) {
-                String exMsg = String.format("Couldn't close writer for %s (%d/%d)", eventName, retry, maxAttempts);
-                if (retry < maxAttempts) {
-                    LOGGER.warn(exMsg, e);
-                    try {
-                        Thread.sleep(1000 * retry);
-                    } catch (InterruptedException ignored) {
-                    }
-                } else {
-                    LOGGER.error(exMsg, e);
-                }
-            }
-        }
-
-        throw new RuntimeException(String.format("Couldn't close writer for %s", eventName));
+        return ReaderUtils.retryAction(() -> {
+            consumer.close();
+            return true;
+        }, String.format("Couldn't close writer for %s", eventName), ReaderUtils.EMPTY_ACTION);
     }
 
     /**
