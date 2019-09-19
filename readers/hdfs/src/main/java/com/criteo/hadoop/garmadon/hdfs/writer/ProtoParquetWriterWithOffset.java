@@ -198,8 +198,8 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         // - the first time this code goes in, no file has the correct metadata
         // - for a new event type, we have no history too, so no value
         // - if started and no file has been create for the day
-        //Using the timestamp of today midnight prevents unnecessary alerts
-        long defaultValue = LocalDateTime.now().toLocalDate().atStartOfDay().toEpochSecond(ZoneOffset.UTC) * 1000;
+        //Using 0 might raise an unwanted alert but should be pretty rare and stop by itself
+        long defaultValue = 0;
         try {
             Optional<Path> latestFileCommitted = getLastestExistingFinalPath();
             if (latestFileCommitted.isPresent()) {
