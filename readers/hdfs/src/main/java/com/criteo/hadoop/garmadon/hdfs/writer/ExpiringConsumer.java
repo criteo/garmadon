@@ -4,6 +4,7 @@ import com.criteo.hadoop.garmadon.reader.Offset;
 import org.apache.hadoop.fs.Path;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 
@@ -46,7 +47,7 @@ public class ExpiringConsumer<MESSAGE_TYPE> implements CloseableWriter<MESSAGE_T
     }
 
     @Override
-    public Path close() throws IOException {
+    public Path close() throws IOException, SQLException {
         return writer.close();
     }
 

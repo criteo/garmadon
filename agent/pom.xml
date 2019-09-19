@@ -206,8 +206,8 @@
                                 </relocation>
                                 <!-- Relocating guava -->
                                 <relocation>
-                                    <pattern>com.google.guava</pattern>
-                                    <shadedPattern>garmadon.com.google.guava</shadedPattern>
+                                    <pattern>com.google.common</pattern>
+                                    <shadedPattern>garmadon.com.google.common</shadedPattern>
                                 </relocation>
                                 <!-- Relocating org.slf4j -->
                                 <relocation>
