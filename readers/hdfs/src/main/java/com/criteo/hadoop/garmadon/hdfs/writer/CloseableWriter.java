@@ -4,6 +4,7 @@ import com.criteo.hadoop.garmadon.reader.Offset;
 import org.apache.hadoop.fs.Path;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * Writer that can be closed
@@ -18,6 +19,6 @@ interface CloseableWriter<M> {
      * @return              Closed file path
      * @throws IOException  If failing to close
      */
-    Path close() throws IOException;
+    Path close() throws IOException, SQLException;
 }
 

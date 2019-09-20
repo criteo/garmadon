@@ -253,24 +253,6 @@ services:
        aliases:
          - grafana
 
-  mariadb:
-    container_name: mariadb
-    image: mariadb
-    environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-      MYSQL_DATABASE: drelephant_db
-      MYSQL_USER: user
-      MYSQL_PASSWORD: pass
-    ports:
-      - "3306:3306"
-    restart: always
-    depends_on:
-      - kafka
-    networks:
-      nwk:
-        aliases:
-          - mariadb
-
 networks:
   nwk:
     driver: bridge

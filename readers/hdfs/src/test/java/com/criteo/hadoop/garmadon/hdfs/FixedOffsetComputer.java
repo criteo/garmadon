@@ -1,3 +1,4 @@
+
 package com.criteo.hadoop.garmadon.hdfs;
 
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
@@ -36,6 +37,11 @@ public class FixedOffsetComputer implements OffsetComputer {
     @Override
     public long getIndex(String fileName) {
         return 0;
+    }
+
+    @Override
+    public String computeDirName(LocalDateTime time) {
+        return null;
     }
 
     @Override

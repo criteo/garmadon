@@ -46,7 +46,7 @@ public class HdfsOffsetComputer implements OffsetComputer {
         this.fs = fs;
         this.basePath = basePath;
         this.backlogDays = backlogDays;
-        this.dirRenamePattern = "%s";
+        this.dirRenamePattern = "day=%s";
 
         if (kafkaCluster == null) {
             this.offsetFilePatternGenerator = Pattern.compile("^(?<partitionId>\\d+)(?>\\.index=(?<index>\\d+))*.*$");
@@ -141,7 +141,8 @@ public class HdfsOffsetComputer implements OffsetComputer {
             .orElse(NO_OFFSET);
     }
 
-    private String computeDirName(LocalDateTime time) {
+    @Override
+    public String computeDirName(LocalDateTime time) {
         return String.format(dirRenamePattern, time.format(DateTimeFormatter.ISO_DATE));
     }
 

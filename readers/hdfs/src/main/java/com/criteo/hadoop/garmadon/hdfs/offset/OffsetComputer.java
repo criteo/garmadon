@@ -26,6 +26,12 @@ public interface OffsetComputer {
 
     /**
      * @param time      Time-window start time (eg. day start if daily)
+     * @return          Path based on time
+     */
+    String computeDirName(LocalDateTime time);
+
+    /**
+     * @param time      Time-window start time (eg. day start if daily)
      * @param partition Kafka partition
      * @return          Topic Glob Path based on a time and offset
      */
