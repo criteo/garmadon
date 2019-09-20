@@ -12,10 +12,11 @@ import org.slf4j.LoggerFactory;
 import javax.management.*;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 
 /**
  *
@@ -61,10 +62,30 @@ public class PrometheusHttpConsumerMetrics {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrometheusHttpConsumerMetrics.class);
     private static final MBeanServer MBS = ManagementFactory.getPlatformMBeanServer();
 
+    // basic kafka consumer jmx metrics
     private static final Gauge BASE_KAFKA_METRICS_GAUGE = Gauge.build()
-        .name("garmadon_kafka_metrics").help("Kafka producer metrics")
+        .name("garmadon_kafka_metrics").help("Kafka consumer metrics")
         .labelNames("name", "hostname", "release", "consumer_id")
         .register();
+
+    // kafka consumer coordinator metrics
+    private static final Gauge KAFKA_COORDINATOR_METRICS_GAUGE = Gauge.build()
+        .name("garmadon_kafka_consumer_coordinator_metrics").help("Kafka consumer coordinator metrics")
+        .labelNames("name", "hostname", "release", "consumer_id")
+        .register();
+
+    // kafka fetch manager global metrics
+    private static final Gauge KAFKA_FETCH_MANAGER_METRICS_GAUGE = Gauge.build()
+            .name("garmadon_kafka_fetch_manager_metrics").help("Kafka fetch manager metrics")
+            .labelNames("name", "hostname", "release", "consumer_id")
+            .register();
+
+    // kafka fetch manager metrics per topic and partition
+    private static final Gauge KAFKA_FETCH_MANAGER_PER_TOPIC_PARTITION_METRICS_GAUGE = Gauge.build()
+            .name("garmadon_kafka_fetch_manager_topic_partition_metrics").help("Kafka fetch manager metrics per topic partition")
+            .labelNames("name", "hostname", "release", "consumer_id", "topic", "partition")
+            .register();
+
 
     private static ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
         @Override
@@ -75,13 +96,45 @@ public class PrometheusHttpConsumerMetrics {
         }
     });
 
-    private static ObjectName baseKafkaJmxName;
+    // Key => JMX ObjectName
+    // Value => Function(ObjectName, Attr) => Gauge.labels
+    // then we only have to set the value for this metric
+    private static Map<ObjectName, BiFunction<ObjectName, MBeanAttributeInfo, Gauge.Child>> kafkaJmxNameToPrometheusLabeler;
+
+    // util method to build a generic prometheus labeler callback from a gauge
+    private static BiFunction<ObjectName, MBeanAttributeInfo, Gauge.Child> getKafkaMetricConsumerFromGauge(Gauge gauge) {
+        return (name, attr) -> {
+            String clientId = name.getKeyProperty("client-id");
+            return gauge.labels(attr.getName(), GarmadonReader.getHostname(), RELEASE, clientId);
+        };
+    }
+
+    // specific callback for consumer coordinator metrics (that includes topic and partition labels)
+    private static final BiFunction<ObjectName, MBeanAttributeInfo, Gauge.Child> KAFKA_CONSUMER_COORDINATOR_METRICS = (name, attr) -> {
+        String clientId = name.getKeyProperty("client-id");
+        String topic = name.getKeyProperty("topic");
+        String partition = name.getKeyProperty("partition");
+        return KAFKA_FETCH_MANAGER_PER_TOPIC_PARTITION_METRICS_GAUGE
+                .labels(attr.getName(), GarmadonReader.getHostname(), RELEASE, clientId, topic, partition);
+    };
 
     static {
         // Expose JMX, GCs, classloading, thread count, memory pool
         DefaultExports.initialize();
+        kafkaJmxNameToPrometheusLabeler = new HashMap<>();
         try {
-            baseKafkaJmxName = new ObjectName("kafka.consumer:type=consumer-metrics,client-id=*");
+            kafkaJmxNameToPrometheusLabeler.put(
+                    new ObjectName("kafka.consumer:type=consumer-metrics,client-id=*"),
+                    getKafkaMetricConsumerFromGauge(BASE_KAFKA_METRICS_GAUGE));
+            kafkaJmxNameToPrometheusLabeler.put(
+                    new ObjectName("kafka.consumer:type=consumer-coordinator-metrics,client-id=*"),
+                    getKafkaMetricConsumerFromGauge(KAFKA_COORDINATOR_METRICS_GAUGE));
+            kafkaJmxNameToPrometheusLabeler.put(
+                    new ObjectName("kafka.consumer:type=consumer-fetch-manager-metrics,client-id=*"),
+                    getKafkaMetricConsumerFromGauge(KAFKA_FETCH_MANAGER_METRICS_GAUGE));
+            kafkaJmxNameToPrometheusLabeler.put(
+                    new ObjectName("kafka.consumer:type=consumer-fetch-manager-metrics,client-id=*,topic=garmadon,partition=*"),
+                    KAFKA_CONSUMER_COORDINATOR_METRICS);
         } catch (MalformedObjectNameException e) {
             LOGGER.error("", e);
         }
@@ -110,20 +163,26 @@ public class PrometheusHttpConsumerMetrics {
 
     protected static void exposeKafkaMetrics() {
         try {
-            if (baseKafkaJmxName != null) {
+            for (Map.Entry<ObjectName, BiFunction<ObjectName, MBeanAttributeInfo, Gauge.Child>> entry : kafkaJmxNameToPrometheusLabeler.entrySet()) {
+                // jmx object to expose
+                ObjectName baseKafkaJmxName = entry.getKey();
+                // callback to build a prometheus metric with labels
+                BiFunction<ObjectName, MBeanAttributeInfo, Gauge.Child> prometheusMetricLabelsFromObjectNameAndAttr = entry.getValue();
+
                 for (ObjectName name : MBS.queryNames(baseKafkaJmxName, null)) {
                     MBeanInfo info = MBS.getMBeanInfo(name);
                     MBeanAttributeInfo[] attrInfo = info.getAttributes();
                     for (MBeanAttributeInfo attr : attrInfo) {
                         if (attr.isReadable() && attr.getType().equals("double")) {
-                            BASE_KAFKA_METRICS_GAUGE.labels(attr.getName(), GarmadonReader.getHostname(), RELEASE, name.getKeyProperty("client-id"))
-                                .set((Double) MBS.getAttribute(name, attr.getName()));
+                            // create metrics target labels and set the corresponding value
+                            prometheusMetricLabelsFromObjectNameAndAttr.apply(name, attr)
+                                    .set((Double) MBS.getAttribute(name, attr.getName()));
                         }
                     }
                 }
             }
         } catch (InstanceNotFoundException | IntrospectionException | ReflectionException | MBeanException | AttributeNotFoundException e) {
-            LOGGER.error("", e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 }
