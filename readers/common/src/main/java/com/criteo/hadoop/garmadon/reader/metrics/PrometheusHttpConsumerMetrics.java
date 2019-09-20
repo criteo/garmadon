@@ -101,14 +101,6 @@ public class PrometheusHttpConsumerMetrics {
     // then we only have to set the value for this metric
     private static Map<ObjectName, BiFunction<ObjectName, MBeanAttributeInfo, Gauge.Child>> kafkaJmxNameToPrometheusLabeler;
 
-    // util method to build a generic prometheus labeler callback from a gauge
-    private static BiFunction<ObjectName, MBeanAttributeInfo, Gauge.Child> getKafkaMetricConsumerFromGauge(Gauge gauge) {
-        return (name, attr) -> {
-            String clientId = name.getKeyProperty("client-id");
-            return gauge.labels(attr.getName(), GarmadonReader.getHostname(), RELEASE, clientId);
-        };
-    }
-
     // specific callback for consumer coordinator metrics (that includes topic and partition labels)
     private static final BiFunction<ObjectName, MBeanAttributeInfo, Gauge.Child> KAFKA_CONSUMER_COORDINATOR_METRICS = (name, attr) -> {
         String clientId = name.getKeyProperty("client-id");
@@ -159,6 +151,14 @@ public class PrometheusHttpConsumerMetrics {
             server.stop();
         }
         scheduler.shutdown();
+    }
+
+    // util method to build a generic prometheus labeler callback from a gauge
+    private static BiFunction<ObjectName, MBeanAttributeInfo, Gauge.Child> getKafkaMetricConsumerFromGauge(Gauge gauge) {
+        return (name, attr) -> {
+            String clientId = name.getKeyProperty("client-id");
+            return gauge.labels(attr.getName(), GarmadonReader.getHostname(), RELEASE, clientId);
+        };
     }
 
     protected static void exposeKafkaMetrics() {
