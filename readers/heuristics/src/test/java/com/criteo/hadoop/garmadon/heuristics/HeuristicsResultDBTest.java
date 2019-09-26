@@ -64,6 +64,7 @@ public class HeuristicsResultDBTest {
         dbConfiguration.setUser(elephant);
         dbConfiguration.setPassword(elephant);
         dbConfiguration.setConnectionString("jdbc:mysql://localhost:" + port + "/" + elephant);
+        dbConfiguration.setSleepRetry(1000L);
     }
 
     @After

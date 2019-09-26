@@ -136,6 +136,6 @@ public class HeuristicsResultDB {
                     initConnectionAndStatement(dbConfiguration);
                 } catch (Exception ignored) {
                 }
-            });
+            }, this.dbConfiguration.getSleepRetry());
     }
 }

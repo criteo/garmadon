@@ -16,6 +16,10 @@ public class ReaderUtils {
     }
 
     public static <T> T retryAction(Callable<T> action, String exceptionStr, Runnable actionFailure) {
+        return retryAction(action, exceptionStr, actionFailure, 1000L);
+    }
+
+    public static <T> T retryAction(Callable<T> action, String exceptionStr, Runnable actionFailure, Long sleepDuration) {
         final int maxAttempts = 5;
 
         for (int retry = 1; retry <= maxAttempts; ++retry) {
@@ -26,7 +30,7 @@ public class ReaderUtils {
                 if (retry < maxAttempts) {
                     LOGGER.warn(exMsg, e);
                     try {
-                        Thread.sleep(1000 * retry);
+                        Thread.sleep(sleepDuration * retry);
                     } catch (InterruptedException ignored) {
                     }
                 } else {
