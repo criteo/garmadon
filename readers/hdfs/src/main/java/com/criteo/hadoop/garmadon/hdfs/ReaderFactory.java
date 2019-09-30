@@ -190,6 +190,7 @@ public class ReaderFactory {
             new ConsumerRebalanceListener() {
                 @Override
                 public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+                    LOGGER.warn("revoking partitions");
                     kafkaConsumerRebalanceListeners.forEach(listener -> {
                         try {
                             listener.onPartitionsRevoked(partitions);
@@ -201,6 +202,7 @@ public class ReaderFactory {
 
                 @Override
                 public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+                    LOGGER.warn("assigning partitions");
                     kafkaConsumerRebalanceListeners.forEach(listener -> {
                         try {
                             listener.onPartitionsAssigned(partitions);
