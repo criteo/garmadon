@@ -191,6 +191,7 @@ public class ReaderFactory {
                 @Override
                 public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
                     LOGGER.warn("revoking partitions");
+                    long start = System.currentTimeMillis();
                     kafkaConsumerRebalanceListeners.forEach(listener -> {
                         try {
                             listener.onPartitionsRevoked(partitions);
@@ -198,11 +199,14 @@ public class ReaderFactory {
                             LOGGER.error(e.getMessage(), e);
                         }
                     });
+                    long end = System.currentTimeMillis();
+                    LOGGER.warn("finished revoking partitions " + (end - start) + "ms");
                 }
 
                 @Override
                 public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
                     LOGGER.warn("assigning partitions");
+                    long start = System.currentTimeMillis();
                     kafkaConsumerRebalanceListeners.forEach(listener -> {
                         try {
                             listener.onPartitionsAssigned(partitions);
@@ -210,6 +214,8 @@ public class ReaderFactory {
                             LOGGER.error(e.getMessage(), e);
                         }
                     });
+                    long end = System.currentTimeMillis();
+                    LOGGER.warn("finished assigning partitions in " + (end - start) + "ms");
                 }
             });
 
