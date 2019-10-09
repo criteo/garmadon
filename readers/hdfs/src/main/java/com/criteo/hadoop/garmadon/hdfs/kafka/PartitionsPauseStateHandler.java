@@ -44,18 +44,21 @@ public class PartitionsPauseStateHandler implements ConsumerRebalanceListener {
     }
 
     public void pause(Class pausingEvent) {
-        synchronized (consumer) {
-            if (pausedEvents.isEmpty() && !currentlyAssignedPartitions.isEmpty()) consumer.pause(currentlyAssignedPartitions);
-
+        if (pausedEvents.isEmpty() && !currentlyAssignedPartitions.isEmpty()) {
+            synchronized (consumer) {
+                consumer.pause(currentlyAssignedPartitions);
+            }
             pausedEvents.add(pausingEvent);
         }
     }
 
     public void resume(Class resumingEvent) {
-        synchronized (consumer) {
-            pausedEvents.remove(resumingEvent);
+        pausedEvents.remove(resumingEvent);
 
-            if (pausedEvents.isEmpty() && !currentlyAssignedPartitions.isEmpty()) consumer.resume(currentlyAssignedPartitions);
+        if (pausedEvents.isEmpty() && !currentlyAssignedPartitions.isEmpty()) {
+            synchronized (consumer) {
+                consumer.resume(currentlyAssignedPartitions);
+            }
         }
     }
 }
