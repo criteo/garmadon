@@ -285,7 +285,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
         public void start(Thread.UncaughtExceptionHandler uncaughtExceptionHandler, String name) {
             runningThread = new Thread(() -> {
                 while (!Thread.currentThread().isInterrupted()) {
-                    writers.forEach(PartitionedWriter::expireConsumers);
+                    run();
 
                     try {
                         Thread.sleep(period.get(ChronoUnit.SECONDS) * 1000);
@@ -298,6 +298,10 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
 
             runningThread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
             runningThread.start();
+        }
+
+        public void run() {
+            writers.forEach(PartitionedWriter::expireConsumers);
         }
 
         /**

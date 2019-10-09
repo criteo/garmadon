@@ -41,18 +41,7 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
     public void start(Thread.UncaughtExceptionHandler uncaughtExceptionHandler, String name) {
         runningThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
-                synchronized (latestPartitionsOffset) {
-                    for (Map.Entry<Integer, Offset> partitionOffset : latestPartitionsOffset.entrySet()) {
-                        int partition = partitionOffset.getKey();
-                        Offset offset = partitionOffset.getValue();
-                        Offset latestHeartbeat = latestHeartbeats.get(partition);
-
-                        if (!offset.equals(latestHeartbeat)) {
-                            latestHeartbeats.put(partition, offset);
-                            writers.forEach(writer -> writer.heartbeat(partition, offset));
-                        }
-                    }
-                }
+                run();
 
                 try {
                     Thread.sleep(period.get(ChronoUnit.SECONDS) * 1000);
@@ -66,6 +55,21 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
         runningThread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
 
         runningThread.start();
+    }
+
+    public void run() {
+        synchronized (latestPartitionsOffset) {
+            for (Map.Entry<Integer, Offset> partitionOffset : latestPartitionsOffset.entrySet()) {
+                int partition = partitionOffset.getKey();
+                Offset offset = partitionOffset.getValue();
+                Offset latestHeartbeat = latestHeartbeats.get(partition);
+
+                if (!offset.equals(latestHeartbeat)) {
+                    latestHeartbeats.put(partition, offset);
+                    writers.forEach(writer -> writer.heartbeat(partition, offset));
+                }
+            }
+        }
     }
 
     /**
