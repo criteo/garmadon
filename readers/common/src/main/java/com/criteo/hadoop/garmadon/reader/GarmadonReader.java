@@ -111,7 +111,7 @@ public final class GarmadonReader {
 
     protected static class Reader implements Runnable {
 
-        private final SynchronizedConsumer<String, byte[]> consumer;
+        private final Consumer<String, byte[]> consumer;
         private final List<RecurrentAction> recurrentActions;
         private final CompletableFuture<Void> cf;
         private final List<GarmadonMessageHandler> beforeInterceptHandlers;
@@ -124,7 +124,7 @@ public final class GarmadonReader {
 
         Reader(Consumer<String, byte[]> consumer, List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter,
             GarmadonMessageHandler> listeners, List<RecurrentAction> recurrentActions, CompletableFuture<Void> cf) {
-            this.consumer = SynchronizedConsumer.synchronize(consumer);
+            this.consumer = consumer;
             this.beforeInterceptHandlers = beforeInterceptHandlers;
             this.listeners = listeners;
             this.filters = listeners.keySet();
@@ -251,37 +251,6 @@ public final class GarmadonReader {
             int get() {
                 return count;
             }
-        }
-    }
-
-    static final class SynchronizedConsumer<K, V> {
-
-        private final Consumer<K, V> consumer;
-
-        private SynchronizedConsumer(Consumer<K, V> consumer) {
-            this.consumer = consumer;
-        }
-
-        synchronized ConsumerRecords<K, V> poll(long timeout) {
-            synchronized (consumer) {
-                return consumer.poll(timeout);
-            }
-        }
-
-        synchronized void commitSync(Map<TopicPartition, OffsetAndMetadata> offsets) {
-            synchronized (consumer) {
-                consumer.commitSync(offsets);
-            }
-        }
-
-        synchronized void commitAsync(Map<TopicPartition, OffsetAndMetadata> offsets, OffsetCommitCallback callback) {
-            synchronized (consumer) {
-                consumer.commitAsync(offsets, callback);
-            }
-        }
-
-        static <K, V> SynchronizedConsumer<K, V> synchronize(Consumer<K, V> consumer) {
-            return new SynchronizedConsumer<>(consumer);
         }
     }
 
