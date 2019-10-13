@@ -8,12 +8,10 @@ import com.criteo.hadoop.garmadon.reader.Offset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Send periodic heartbeats to a collection of writers, only if different from previous heartbeat
