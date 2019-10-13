@@ -369,9 +369,6 @@ public class PartitionedWriterTest {
 
         verify(firstConsumer, atLeastOnce()).expireConsumers();
         verify(secondConsumer, atLeastOnce()).expireConsumers();
-
-        verify(firstConsumer, atLeastOnce()).close();
-        verify(secondConsumer, atLeastOnce()).close();
     }
 
     @Test(timeout = 3000)

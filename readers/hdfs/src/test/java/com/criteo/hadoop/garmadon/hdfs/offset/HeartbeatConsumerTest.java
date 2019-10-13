@@ -76,7 +76,7 @@ public class HeartbeatConsumerTest {
                 argThat(new OffsetArgumentMatcher(firstOffset)));
 
         hb.handle(buildGarmadonMessage(secondOffset));
-        Thread.sleep(1000);
+        hb.run();
         verify(writer, times(1)).heartbeat(eq(BASE_PARTITION + 1),
                 argThat(new OffsetArgumentMatcher(secondOffset)));
     }
