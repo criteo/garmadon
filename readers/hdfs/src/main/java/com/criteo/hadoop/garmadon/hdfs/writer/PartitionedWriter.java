@@ -282,49 +282,8 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
             this.period = period;
         }
 
-        public void start(Thread.UncaughtExceptionHandler uncaughtExceptionHandler, String name) {
-            runningThread = new Thread(() -> {
-                while (!Thread.currentThread().isInterrupted()) {
-                    run();
-
-                    try {
-                        Thread.sleep(period.get(ChronoUnit.SECONDS) * 1000);
-                    } catch (InterruptedException e) {
-                        LOGGER.warn("Got interrupted while waiting to expire writers", e);
-                        break;
-                    }
-                }
-            }, name);
-
-            runningThread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
-            runningThread.start();
-        }
-
         public void run() {
             writers.forEach(PartitionedWriter::expireConsumers);
-        }
-
-        /**
-         * Notify the main loop to stop running (still need to wait for the run to finish) and close all writers
-         *
-         * @return A completable future which will complete once the expirer is properly stopped
-         */
-        public CompletableFuture<Void> stop() {
-            if (runningThread != null && runningThread.isAlive()) {
-                runningThread.interrupt();
-
-                return CompletableFuture.supplyAsync(() -> {
-                    try {
-                        runningThread.join();
-                    } catch (InterruptedException e) {
-                        LOGGER.info("Exception caught while waiting for expirer thread to finish", e);
-                    }
-
-                    return null;
-                }).thenRun(() -> writers.forEach(PartitionedWriter::close));
-            }
-
-            return CompletableFuture.completedFuture(null);
         }
     }
 }

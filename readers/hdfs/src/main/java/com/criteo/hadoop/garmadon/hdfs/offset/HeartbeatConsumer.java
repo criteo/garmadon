@@ -38,25 +38,6 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
         this.period = period;
     }
 
-    public void start(Thread.UncaughtExceptionHandler uncaughtExceptionHandler, String name) {
-        runningThread = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                run();
-
-                try {
-                    Thread.sleep(period.get(ChronoUnit.SECONDS) * 1000);
-                } catch (InterruptedException e) {
-                    LOGGER.warn("Got interrupted in between heartbeats", e);
-                    break;
-                }
-            }
-        }, name);
-
-        runningThread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
-
-        runningThread.start();
-    }
-
     public void run() {
         synchronized (latestPartitionsOffset) {
             for (Map.Entry<Integer, Offset> partitionOffset : latestPartitionsOffset.entrySet()) {
@@ -87,28 +68,6 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
                 latestPartitionsOffset.put(offset.getPartition(), offset);
             }
         }
-    }
-
-    /**
-     * Stop sending heartbeats ASAP
-     *
-     * @return  A completable future which will complete once the expirer is properly stopped
-     */
-    public CompletableFuture<Void> stop() {
-        if (runningThread != null && runningThread.isAlive()) {
-            runningThread.interrupt();
-            return CompletableFuture.supplyAsync(() -> {
-                try {
-                    runningThread.join();
-                } catch (InterruptedException e) {
-                    LOGGER.info("Exception caught while waiting for heartbeat thread to finish", e);
-                }
-
-                return null;
-            });
-        }
-
-        return CompletableFuture.completedFuture(null);
     }
 
     /**
