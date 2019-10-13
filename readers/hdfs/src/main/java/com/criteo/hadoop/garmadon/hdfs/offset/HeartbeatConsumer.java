@@ -27,7 +27,6 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
 
     private final TemporalAmount period;
     private final Collection<PartitionedWriter<MESSAGE_KIND>> writers;
-    private Thread runningThread;
 
     /**
      * @param writers   Writers to send heartbeats to
@@ -39,16 +38,14 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
     }
 
     public void run() {
-        synchronized (latestPartitionsOffset) {
-            for (Map.Entry<Integer, Offset> partitionOffset : latestPartitionsOffset.entrySet()) {
-                int partition = partitionOffset.getKey();
-                Offset offset = partitionOffset.getValue();
-                Offset latestHeartbeat = latestHeartbeats.get(partition);
+        for (Map.Entry<Integer, Offset> partitionOffset : latestPartitionsOffset.entrySet()) {
+            int partition = partitionOffset.getKey();
+            Offset offset = partitionOffset.getValue();
+            Offset latestHeartbeat = latestHeartbeats.get(partition);
 
-                if (!offset.equals(latestHeartbeat)) {
-                    latestHeartbeats.put(partition, offset);
-                    writers.forEach(writer -> writer.heartbeat(partition, offset));
-                }
+            if (!offset.equals(latestHeartbeat)) {
+                latestHeartbeats.put(partition, offset);
+                writers.forEach(writer -> writer.heartbeat(partition, offset));
             }
         }
     }
@@ -60,13 +57,11 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
      */
     @Override
     public void handle(GarmadonMessage msg) {
-        synchronized (latestPartitionsOffset) {
-            final CommittableOffset offset = msg.getCommittableOffset();
-            final Offset currentMaxOffset = latestPartitionsOffset.get(offset.getPartition());
+        final CommittableOffset offset = msg.getCommittableOffset();
+        final Offset currentMaxOffset = latestPartitionsOffset.get(offset.getPartition());
 
-            if (currentMaxOffset == null || offset.getOffset() > currentMaxOffset.getOffset()) {
-                latestPartitionsOffset.put(offset.getPartition(), offset);
-            }
+        if (currentMaxOffset == null || offset.getOffset() > currentMaxOffset.getOffset()) {
+            latestPartitionsOffset.put(offset.getPartition(), offset);
         }
     }
 
@@ -76,9 +71,7 @@ public class HeartbeatConsumer<MESSAGE_KIND> implements GarmadonReader.GarmadonM
      * @param partition The partition to stop working on
      */
     public void dropPartition(int partition) {
-        synchronized (latestPartitionsOffset) {
-            latestPartitionsOffset.remove(partition);
-            latestHeartbeats.remove(partition);
-        }
+        latestPartitionsOffset.remove(partition);
+        latestHeartbeats.remove(partition);
     }
 }

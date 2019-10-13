@@ -271,7 +271,6 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     public static class Expirer<MESSAGE_KIND> {
         private final Collection<PartitionedWriter<MESSAGE_KIND>> writers;
         private final TemporalAmount period;
-        private volatile Thread runningThread;
 
         /**
          * @param writers Writers to watch for
