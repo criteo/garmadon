@@ -53,7 +53,7 @@ public class PluginClassLoaderTracer {
             Field spiClassLoaderField = pluginClassLoaderZz.getDeclaredField("spiPackages");
             spiClassLoaderField.setAccessible(true);
 
-            ImmutableList<String> spiPackages = (ImmutableList<String>) spiClassLoaderField.get(o);
+            List<String> spiPackages = (List<String>) spiClassLoaderField.get(o);
             List<String> tmpspiPackages = new ArrayList<>(spiPackages);
             tmpspiPackages.add("com.criteo.hadoop.garmadon.agent.");
 
