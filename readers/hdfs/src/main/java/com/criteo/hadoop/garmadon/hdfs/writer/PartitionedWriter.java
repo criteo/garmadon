@@ -283,5 +283,20 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
         public void run() {
             writers.forEach(PartitionedWriter::expireConsumers);
         }
+
+        public void stop() {
+            final RuntimeException exception = new RuntimeException("failed to stop writers");
+            writers.forEach(w -> {
+                try {
+                    w.close();
+                } catch (Exception e) {
+                    LOGGER.error(e.getMessage(), e);
+                    exception.addSuppressed(e);
+                }
+            });
+            if (exception.getSuppressed().length > 0) {
+                throw exception;
+            }
+        }
     }
 }

@@ -228,8 +228,10 @@ public class ReaderFactory {
             gauge.set(offset.getOffset());
         });
 
-        readerBuilder.recurring(heartbeat::run, heartbeatPeriod);
-        readerBuilder.recurring(expirer::run, expirerPeriod);
+        readerBuilder
+                .recurring(heartbeat::run, heartbeatPeriod)
+                .recurring(expirer::run, expirerPeriod)
+                .postReadingHook(expirer::stop);
 
         GarmadonReader reader = readerBuilder.build(false);
 
