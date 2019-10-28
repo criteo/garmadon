@@ -54,11 +54,14 @@ public final class GarmadonReader {
     private boolean reading = false;
 
     private GarmadonReader(Consumer<String, byte[]> kafkaConsumer, List<GarmadonMessageHandler> beforeInterceptHandlers,
-                           Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, List<RecurrentAction> recurrentActions,
-                           List<Runnable> postReadingActions, int id) {
+                           Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, List<RecurrentAction> recurrentActions, int id) {
         this.cf = new CompletableFuture<>();
-        this.reader = new Reader(kafkaConsumer, beforeInterceptHandlers, listeners, recurrentActions, postReadingActions, cf);
+        this.reader = new Reader(kafkaConsumer, beforeInterceptHandlers, listeners, recurrentActions, cf);
         this.id = id;
+    }
+
+    public CompletableFuture<Void> getCompletableFuture() {
+        return cf;
     }
 
     public static String getHostname() {
@@ -113,7 +116,6 @@ public final class GarmadonReader {
 
         private final Consumer<String, byte[]> consumer;
         private final List<RecurrentAction> recurrentActions;
-        private List<Runnable> postReadingActions;
         private final CompletableFuture<Void> cf;
         private final List<GarmadonMessageHandler> beforeInterceptHandlers;
         private final Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners;
@@ -124,14 +126,13 @@ public final class GarmadonReader {
         private volatile boolean keepOnReading = true;
 
         Reader(Consumer<String, byte[]> consumer, List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter,
-            GarmadonMessageHandler> listeners, List<RecurrentAction> recurrentActions, List<Runnable> postReadingActions,
+            GarmadonMessageHandler> listeners, List<RecurrentAction> recurrentActions,
             CompletableFuture<Void> cf) {
             this.consumer = consumer;
             this.beforeInterceptHandlers = beforeInterceptHandlers;
             this.listeners = listeners;
             this.filters = listeners.keySet();
             this.recurrentActions = recurrentActions;
-            this.postReadingActions = postReadingActions;
             this.cf = cf;
         }
 
@@ -150,25 +151,10 @@ public final class GarmadonReader {
                 cf.completeExceptionally(e);
             }
 
-            final RuntimeException firstExceptionDuringPostReadingActions = new RuntimeException("failed to run successfuly post reading actions");
-
-            postReadingActions.forEach(r -> {
-                try {
-                    r.run();
-                } catch (Exception e) {
-                    firstExceptionDuringPostReadingActions.addSuppressed(e);
-                    LOGGER.error(e.getMessage(), e);
-                }
-            });
-
             LOGGER.info("stopped reading");
             cf.complete(null);
 
             LOGGER.info("received {} messages", receivedCounter.get());
-
-            if (firstExceptionDuringPostReadingActions.getSuppressed().length > 0) {
-                throw firstExceptionDuringPostReadingActions;
-            }
         }
 
         protected void readConsumerRecords() {
@@ -316,11 +302,6 @@ public final class GarmadonReader {
             return this;
         }
 
-        public Builder postReadingHook(Runnable action) {
-            postReadingActions.add(action);
-            return this;
-        }
-
         public GarmadonReader build() {
             return this.build(true);
         }
@@ -328,8 +309,7 @@ public final class GarmadonReader {
         public GarmadonReader build(boolean autoSubscribe) {
             if (autoSubscribe) kafkaConsumer.subscribe(Collections.singletonList(GARMADON_TOPIC));
 
-            return new GarmadonReader(kafkaConsumer, beforeInterceptHandlers, listeners, recurrentActions,
-                    postReadingActions, READER_IDX.getAndIncrement());
+            return new GarmadonReader(kafkaConsumer, beforeInterceptHandlers, listeners, recurrentActions, READER_IDX.getAndIncrement());
         }
     }
 

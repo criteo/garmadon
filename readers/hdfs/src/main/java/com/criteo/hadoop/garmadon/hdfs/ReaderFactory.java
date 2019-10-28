@@ -230,10 +230,13 @@ public class ReaderFactory {
 
         readerBuilder
                 .recurring(heartbeat::run, heartbeatPeriod)
-                .recurring(expirer::run, expirerPeriod)
-                .postReadingHook(expirer::stop);
+                .recurring(expirer::run, expirerPeriod);
 
         GarmadonReader reader = readerBuilder.build(false);
+
+        reader.getCompletableFuture().whenComplete((v, t) -> {
+            expirer.stop();
+        });
 
         Runtime.getRuntime().addShutdownHook(new Thread(reader::stopReading));
 
