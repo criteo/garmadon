@@ -228,18 +228,15 @@ public class ReaderFactory {
             gauge.set(offset.getOffset());
         });
 
+        readerBuilder
+                .recurring(heartbeat::run, heartbeatPeriod)
+                .recurring(expirer::run, expirerPeriod);
+
         GarmadonReader reader = readerBuilder.build(false);
 
-        Thread.UncaughtExceptionHandler uncaughtExceptionHandler = (thread, e) -> {
-            LOGGER.error("Interrupting reader " + idx, e);
-            reader.stopReading().whenComplete((t, ex) -> {
-                expirer.stop().join();
-                heartbeat.stop().join();
-            });
-        };
-
-        expirer.start(uncaughtExceptionHandler, "expirer-" + idx);
-        heartbeat.start(uncaughtExceptionHandler, "heartbeat-" + idx);
+        reader.getCompletableFuture().whenComplete((v, t) -> {
+            expirer.stop();
+        });
 
         Runtime.getRuntime().addShutdownHook(new Thread(reader::stopReading));
 

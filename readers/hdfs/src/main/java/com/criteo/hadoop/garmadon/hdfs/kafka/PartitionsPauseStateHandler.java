@@ -29,33 +29,25 @@ public class PartitionsPauseStateHandler implements ConsumerRebalanceListener {
 
     @Override
     public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-        synchronized (consumer) {
-            currentlyAssignedPartitions.removeAll(partitions);
-        }
+        currentlyAssignedPartitions.removeAll(partitions);
     }
 
     @Override
     public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-        synchronized (consumer) {
-            currentlyAssignedPartitions.addAll(partitions);
+        currentlyAssignedPartitions.addAll(partitions);
 
-            if (!pausedEvents.isEmpty() && !currentlyAssignedPartitions.isEmpty()) consumer.pause(currentlyAssignedPartitions);
-        }
+        if (!pausedEvents.isEmpty() && !currentlyAssignedPartitions.isEmpty()) consumer.pause(currentlyAssignedPartitions);
     }
 
     public void pause(Class pausingEvent) {
-        synchronized (consumer) {
-            if (pausedEvents.isEmpty() && !currentlyAssignedPartitions.isEmpty()) consumer.pause(currentlyAssignedPartitions);
+        if (pausedEvents.isEmpty() && !currentlyAssignedPartitions.isEmpty()) consumer.pause(currentlyAssignedPartitions);
 
-            pausedEvents.add(pausingEvent);
-        }
+        pausedEvents.add(pausingEvent);
     }
 
     public void resume(Class resumingEvent) {
-        synchronized (consumer) {
-            pausedEvents.remove(resumingEvent);
+        pausedEvents.remove(resumingEvent);
 
-            if (pausedEvents.isEmpty() && !currentlyAssignedPartitions.isEmpty()) consumer.resume(currentlyAssignedPartitions);
-        }
+        if (pausedEvents.isEmpty() && !currentlyAssignedPartitions.isEmpty()) consumer.resume(currentlyAssignedPartitions);
     }
 }

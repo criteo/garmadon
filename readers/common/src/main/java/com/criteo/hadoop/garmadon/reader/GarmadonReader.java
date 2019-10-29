@@ -6,7 +6,6 @@ import com.criteo.hadoop.garmadon.schema.exceptions.DeserializationException;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.google.protobuf.Message;
 import org.apache.kafka.clients.consumer.*;
-import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
@@ -18,6 +17,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,10 +54,14 @@ public final class GarmadonReader {
     private boolean reading = false;
 
     private GarmadonReader(Consumer<String, byte[]> kafkaConsumer, List<GarmadonMessageHandler> beforeInterceptHandlers,
-                           Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, int id) {
+                           Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, List<RecurrentAction> recurrentActions, int id) {
         this.cf = new CompletableFuture<>();
-        this.reader = new Reader(kafkaConsumer, beforeInterceptHandlers, listeners, cf);
+        this.reader = new Reader(kafkaConsumer, beforeInterceptHandlers, listeners, recurrentActions, cf);
         this.id = id;
+    }
+
+    public CompletableFuture<Void> getCompletableFuture() {
+        return cf;
     }
 
     public static String getHostname() {
@@ -86,9 +91,31 @@ public final class GarmadonReader {
         }
     }
 
+    public static class RecurrentAction {
+        private final TemporalAmount period;
+        private final Runnable action;
+
+        private LocalDateTime nextRunTimestamp;
+
+        public RecurrentAction(Runnable action, TemporalAmount period) {
+            this.action = action;
+            this.period = period;
+            nextRunTimestamp = LocalDateTime.now();
+        }
+
+        public void run() {
+            LocalDateTime current = LocalDateTime.now();
+            if (current.isAfter(nextRunTimestamp)) {
+                nextRunTimestamp = current.plus(period);
+                action.run();
+            }
+        }
+    }
+
     protected static class Reader implements Runnable {
 
-        private final SynchronizedConsumer<String, byte[]> consumer;
+        private final Consumer<String, byte[]> consumer;
+        private final List<RecurrentAction> recurrentActions;
         private final CompletableFuture<Void> cf;
         private final List<GarmadonMessageHandler> beforeInterceptHandlers;
         private final Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners;
@@ -99,11 +126,13 @@ public final class GarmadonReader {
         private volatile boolean keepOnReading = true;
 
         Reader(Consumer<String, byte[]> consumer, List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter,
-            GarmadonMessageHandler> listeners, CompletableFuture<Void> cf) {
-            this.consumer = SynchronizedConsumer.synchronize(consumer);
+            GarmadonMessageHandler> listeners, List<RecurrentAction> recurrentActions,
+            CompletableFuture<Void> cf) {
+            this.consumer = consumer;
             this.beforeInterceptHandlers = beforeInterceptHandlers;
             this.listeners = listeners;
             this.filters = listeners.keySet();
+            this.recurrentActions = recurrentActions;
             this.cf = cf;
         }
 
@@ -114,6 +143,7 @@ public final class GarmadonReader {
                 LOGGER.info("initialize reading");
 
                 while (keepOnReading) {
+                    recurrentActions.forEach(RecurrentAction::run);
                     readConsumerRecords();
                 }
             } catch (Exception e) {
@@ -228,43 +258,14 @@ public final class GarmadonReader {
         }
     }
 
-    static final class SynchronizedConsumer<K, V> {
-
-        private final Consumer<K, V> consumer;
-
-        private SynchronizedConsumer(Consumer<K, V> consumer) {
-            this.consumer = consumer;
-        }
-
-        synchronized ConsumerRecords<K, V> poll(long timeout) {
-            synchronized (consumer) {
-                return consumer.poll(timeout);
-            }
-        }
-
-        synchronized void commitSync(Map<TopicPartition, OffsetAndMetadata> offsets) {
-            synchronized (consumer) {
-                consumer.commitSync(offsets);
-            }
-        }
-
-        synchronized void commitAsync(Map<TopicPartition, OffsetAndMetadata> offsets, OffsetCommitCallback callback) {
-            synchronized (consumer) {
-                consumer.commitAsync(offsets, callback);
-            }
-        }
-
-        static <K, V> SynchronizedConsumer<K, V> synchronize(Consumer<K, V> consumer) {
-            return new SynchronizedConsumer<>(consumer);
-        }
-    }
-
     public static class Builder {
         public static final Properties DEFAULT_KAFKA_PROPS = new Properties();
 
         private final Consumer<String, byte[]> kafkaConsumer;
-        private Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners = new HashMap<>();
-        private List<GarmadonMessageHandler> beforeInterceptHandlers = new ArrayList<>();
+        private final Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners = new HashMap<>();
+        private final List<GarmadonMessageHandler> beforeInterceptHandlers = new ArrayList<>();
+        private final List<RecurrentAction> recurrentActions = new ArrayList<>();
+        private final List<Runnable> postReadingActions = new ArrayList<>();
 
         static {
             DEFAULT_KAFKA_PROPS.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString()); //by default groupId is random
@@ -296,6 +297,11 @@ public final class GarmadonReader {
             return this;
         }
 
+        public Builder recurring(Runnable action, TemporalAmount period) {
+            recurrentActions.add(new RecurrentAction(action, period));
+            return this;
+        }
+
         public GarmadonReader build() {
             return this.build(true);
         }
@@ -303,7 +309,7 @@ public final class GarmadonReader {
         public GarmadonReader build(boolean autoSubscribe) {
             if (autoSubscribe) kafkaConsumer.subscribe(Collections.singletonList(GARMADON_TOPIC));
 
-            return new GarmadonReader(kafkaConsumer, beforeInterceptHandlers, listeners, READER_IDX.getAndIncrement());
+            return new GarmadonReader(kafkaConsumer, beforeInterceptHandlers, listeners, recurrentActions, READER_IDX.getAndIncrement());
         }
     }
 

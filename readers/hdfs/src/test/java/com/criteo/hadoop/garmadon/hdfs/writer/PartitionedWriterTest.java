@@ -365,26 +365,17 @@ public class PartitionedWriterTest {
         final PartitionedWriter.Expirer<String> expirer = new PartitionedWriter.Expirer<>(
                 Arrays.asList(firstConsumer, secondConsumer), Duration.ofMillis(1));
 
-        expirer.start(mock(Thread.UncaughtExceptionHandler.class), "expirer");
-
-        Thread.sleep(500);
+        expirer.run();
 
         verify(firstConsumer, atLeastOnce()).expireConsumers();
         verify(secondConsumer, atLeastOnce()).expireConsumers();
-
-        expirer.stop().join();
-        verify(firstConsumer, atLeastOnce()).close();
-        verify(secondConsumer, atLeastOnce()).close();
     }
 
     @Test(timeout = 3000)
     public void writerExpirerWithNoWriter() throws InterruptedException {
         final PartitionedWriter.Expirer<String> expirer = new PartitionedWriter.Expirer<>(Collections.emptyList(),
                 Duration.ofMillis(10));
-
-        expirer.start(mock(Thread.UncaughtExceptionHandler.class), "expirer");
-        Thread.sleep(500);
-        expirer.stop().join();
+        expirer.run();
     }
 
     @Test(timeout = 3000)
@@ -392,9 +383,7 @@ public class PartitionedWriterTest {
         final PartitionedWriter.Expirer<String> expirer = new PartitionedWriter.Expirer<>(
                 Collections.singleton(mock(PartitionedWriter.class)), Duration.ofHours(42));
 
-        expirer.start(mock(Thread.UncaughtExceptionHandler.class), "expirer");
-        Thread.sleep(1000);
-        expirer.stop().join();
+        expirer.run();
     }
 
     private static Offset buildOffset(int partitionId, long offsetValue) {
