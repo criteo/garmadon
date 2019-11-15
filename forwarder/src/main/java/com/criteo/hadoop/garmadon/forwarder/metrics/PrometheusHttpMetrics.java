@@ -2,20 +2,27 @@ package com.criteo.hadoop.garmadon.forwarder.metrics;
 
 import com.criteo.hadoop.garmadon.forwarder.Forwarder;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.Summary;
 import io.prometheus.client.exporter.HTTPServer;
+import io.prometheus.client.exporter.common.TextFormat;
 import io.prometheus.client.hotspot.DefaultExports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.*;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.lang.management.ManagementFactory;
+import java.net.HttpURLConnection;
 import java.util.Optional;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPOutputStream;
 
 /**
  *
@@ -84,13 +91,31 @@ public class PrometheusHttpMetrics {
         }, 30, 60, TimeUnit.SECONDS);
     }
 
+    public static class HTTPServerWithStatus extends HTTPServer {
+
+        public HTTPServerWithStatus(int port) throws IOException {
+            super(port);
+            server.createContext("/status", new HttpHandler() {
+                @Override
+                public void handle(HttpExchange t) throws IOException {
+                    String response = "OK";
+                    t.getResponseHeaders().set("Content-Type", "text/plain");
+                    t.getResponseHeaders().set("Content-Length", "2");
+                    t.sendResponseHeaders(HttpURLConnection.HTTP_OK, 2L);
+                    t.getResponseBody().write(response.getBytes());
+                    t.close();
+                }
+            });
+        }
+    }
+
     protected PrometheusHttpMetrics() {
         throw new UnsupportedOperationException();
     }
 
     public static void start(int prometheusPort) throws IOException {
         if (server == null) {
-            server = new HTTPServer(prometheusPort);
+            server = new HTTPServerWithStatus(prometheusPort);
         }
     }
 

@@ -1,6 +1,8 @@
 package com.criteo.hadoop.garmadon.reader.metrics;
 
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.Summary;
@@ -12,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import javax.management.*;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -138,11 +141,29 @@ public class PrometheusHttpConsumerMetrics {
         }, 0, 30, TimeUnit.SECONDS);
     }
 
+    public static class HTTPServerWithStatus extends HTTPServer {
+
+        public HTTPServerWithStatus(int port) throws IOException {
+            super(port);
+            server.createContext("/status", new HttpHandler() {
+                @Override
+                public void handle(HttpExchange t) throws IOException {
+                    String response = "OK";
+                    t.getResponseHeaders().set("Content-Type", "text/plain");
+                    t.getResponseHeaders().set("Content-Length", "2");
+                    t.sendResponseHeaders(HttpURLConnection.HTTP_OK, 2L);
+                    t.getResponseBody().write(response.getBytes());
+                    t.close();
+                }
+            });
+        }
+    }
+
     private HTTPServer server;
 
     public PrometheusHttpConsumerMetrics(int prometheusPort) {
         try {
-            server = new HTTPServer(prometheusPort);
+            server = new HTTPServerWithStatus(prometheusPort);
         } catch (IOException e) {
             LOGGER.error("Failed to initialize Prometheus Http server: ", e);
         }
