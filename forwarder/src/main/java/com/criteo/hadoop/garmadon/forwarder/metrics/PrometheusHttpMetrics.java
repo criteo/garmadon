@@ -8,21 +8,17 @@ import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.Summary;
 import io.prometheus.client.exporter.HTTPServer;
-import io.prometheus.client.exporter.common.TextFormat;
 import io.prometheus.client.hotspot.DefaultExports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.*;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.lang.management.ManagementFactory;
 import java.net.HttpURLConnection;
 import java.util.Optional;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.GZIPOutputStream;
 
 /**
  *
