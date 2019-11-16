@@ -159,7 +159,7 @@ public final class ElasticSearchReader {
         props.putAll(GarmadonReader.Builder.DEFAULT_KAFKA_PROPS);
         props.putAll(kafka.getSettings());
 
-        return GarmadonReader.Builder.stream(new KafkaConsumer<>(props));
+        return GarmadonReader.Builder.stream(new KafkaConsumer<>(props)).synchronizeKafkaConsumer();
     }
 
     private static void putGarmadonTemplate(RestHighLevelClient esClient, ElasticsearchConfiguration elasticsearch)
@@ -245,8 +245,8 @@ public final class ElasticSearchReader {
             config.getElasticsearch().getIndexPrefix(), new PrometheusHttpConsumerMetrics(config.getPrometheus().getPort()),
             new ElasticSearchCacheManager());
 
-        reader.startReading().join();
-
         Runtime.getRuntime().addShutdownHook(new Thread(() -> reader.stop().join()));
+
+        reader.startReading().join();
     }
 }
