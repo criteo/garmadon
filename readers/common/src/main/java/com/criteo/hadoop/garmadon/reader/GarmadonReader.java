@@ -18,6 +18,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.*;
@@ -115,6 +116,7 @@ public final class GarmadonReader {
 
     protected static class Reader implements Runnable {
 
+        public static final Duration KAFKA_TIMEOUT = Duration.ofMillis(1000L);
         private final GarmadonConsumer<String, byte[]> consumer;
         private final List<RecurrentAction> recurrentActions;
         private final CompletableFuture<Void> cf;
@@ -159,7 +161,7 @@ public final class GarmadonReader {
         }
 
         protected void readConsumerRecords() {
-            ConsumerRecords<String, byte[]> records = consumer.poll(1000L);
+            ConsumerRecords<String, byte[]> records = consumer.poll(KAFKA_TIMEOUT);
 
             for (ConsumerRecord<String, byte[]> record : records) {
 
@@ -260,7 +262,7 @@ public final class GarmadonReader {
     }
 
     public interface GarmadonConsumer<K, V> {
-        ConsumerRecords<K, V> poll(long timeout);
+        ConsumerRecords<K, V> poll(Duration timeout);
 
         void commitSync(Map<TopicPartition, OffsetAndMetadata> offsets);
 
@@ -275,7 +277,7 @@ public final class GarmadonReader {
             this.consumer = consumer;
         }
 
-        public ConsumerRecords<K, V> poll(long timeout) {
+        public ConsumerRecords<K, V> poll(Duration timeout) {
             return consumer.poll(timeout);
         }
 
@@ -300,19 +302,19 @@ public final class GarmadonReader {
             this.consumer = consumer;
         }
 
-        public synchronized ConsumerRecords<K, V> poll(long timeout) {
+        public ConsumerRecords<K, V> poll(Duration timeout) {
             synchronized (consumer) {
                 return consumer.poll(timeout);
             }
         }
 
-        public synchronized void commitSync(Map<TopicPartition, OffsetAndMetadata> offsets) {
+        public void commitSync(Map<TopicPartition, OffsetAndMetadata> offsets) {
             synchronized (consumer) {
                 consumer.commitSync(offsets);
             }
         }
 
-        public synchronized void commitAsync(Map<TopicPartition, OffsetAndMetadata> offsets, OffsetCommitCallback callback) {
+        public void commitAsync(Map<TopicPartition, OffsetAndMetadata> offsets, OffsetCommitCallback callback) {
             synchronized (consumer) {
                 consumer.commitAsync(offsets, callback);
             }
