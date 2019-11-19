@@ -1,6 +1,6 @@
 package com.criteo.hadoop.garmadon.reader;
 
-import com.criteo.hadoop.garmadon.reader.GarmadonReader.GarmadonConsumer;
+import com.criteo.hadoop.garmadon.reader.GarmadonReader.SafeGarmadonConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 
@@ -19,12 +19,12 @@ import java.util.concurrent.CompletableFuture;
  */
 public class CommittableOffset<K, V> implements Offset {
 
-    private final GarmadonConsumer<K, V> consumer;
+    private final SafeGarmadonConsumer<K, V> consumer;
     private final String topic;
     private final int partition;
     private final long lastProcessedOffset;
 
-    public CommittableOffset(GarmadonConsumer<K, V> consumer, String topic, int partition, long lastProcessedOffset) {
+    public CommittableOffset(SafeGarmadonConsumer<K, V> consumer, String topic, int partition, long lastProcessedOffset) {
         this.consumer = consumer;
         this.topic = topic;
         this.partition = partition;

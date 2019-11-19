@@ -159,7 +159,7 @@ public final class ElasticSearchReader {
         props.putAll(GarmadonReader.Builder.DEFAULT_KAFKA_PROPS);
         props.putAll(kafka.getSettings());
 
-        return GarmadonReader.Builder.stream(new KafkaConsumer<>(props)).synchronizeKafkaConsumer();
+        return GarmadonReader.Builder.stream(new KafkaConsumer<>(props));
     }
 
     private static void putGarmadonTemplate(RestHighLevelClient esClient, ElasticsearchConfiguration elasticsearch)
