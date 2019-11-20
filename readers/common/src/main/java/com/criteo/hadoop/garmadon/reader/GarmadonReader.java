@@ -261,7 +261,7 @@ public final class GarmadonReader {
         }
     }
 
-    public static class SafeGarmadonConsumer<K, V> {
+    public static final class SafeGarmadonConsumer<K, V> {
         private final Consumer<K, V> consumer;
 
         private SafeGarmadonConsumer(Consumer<K, V> consumer) {
