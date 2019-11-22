@@ -6,6 +6,7 @@ import com.criteo.hadoop.garmadon.schema.exceptions.DeserializationException;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.google.protobuf.Message;
 import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.*;
@@ -53,7 +55,7 @@ public final class GarmadonReader {
 
     private boolean reading = false;
 
-    private GarmadonReader(Consumer<String, byte[]> kafkaConsumer, List<GarmadonMessageHandler> beforeInterceptHandlers,
+    private GarmadonReader(SafeGarmadonConsumer<String, byte[]> kafkaConsumer, List<GarmadonMessageHandler> beforeInterceptHandlers,
                            Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners, List<RecurrentAction> recurrentActions, int id) {
         this.cf = new CompletableFuture<>();
         this.reader = new Reader(kafkaConsumer, beforeInterceptHandlers, listeners, recurrentActions, cf);
@@ -114,7 +116,8 @@ public final class GarmadonReader {
 
     protected static class Reader implements Runnable {
 
-        private final Consumer<String, byte[]> consumer;
+        public static final Duration KAFKA_TIMEOUT = Duration.ofMillis(1000L);
+        private final SafeGarmadonConsumer<String, byte[]> consumer;
         private final List<RecurrentAction> recurrentActions;
         private final CompletableFuture<Void> cf;
         private final List<GarmadonMessageHandler> beforeInterceptHandlers;
@@ -125,9 +128,9 @@ public final class GarmadonReader {
 
         private volatile boolean keepOnReading = true;
 
-        Reader(Consumer<String, byte[]> consumer, List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter,
+        Reader(SafeGarmadonConsumer<String, byte[]> consumer, List<GarmadonMessageHandler> beforeInterceptHandlers, Map<GarmadonMessageFilter,
             GarmadonMessageHandler> listeners, List<RecurrentAction> recurrentActions,
-            CompletableFuture<Void> cf) {
+               CompletableFuture<Void> cf) {
             this.consumer = consumer;
             this.beforeInterceptHandlers = beforeInterceptHandlers;
             this.listeners = listeners;
@@ -158,7 +161,7 @@ public final class GarmadonReader {
         }
 
         protected void readConsumerRecords() {
-            ConsumerRecords<String, byte[]> records = consumer.poll(1000L);
+            ConsumerRecords<String, byte[]> records = consumer.poll(KAFKA_TIMEOUT);
 
             for (ConsumerRecord<String, byte[]> record : records) {
 
@@ -258,6 +261,36 @@ public final class GarmadonReader {
         }
     }
 
+    public static final class SafeGarmadonConsumer<K, V> {
+        private final Consumer<K, V> consumer;
+
+        private SafeGarmadonConsumer(Consumer<K, V> consumer) {
+            this.consumer = consumer;
+        }
+
+        public ConsumerRecords<K, V> poll(Duration timeout) {
+            synchronized (consumer) {
+                return consumer.poll(timeout);
+            }
+        }
+
+        public void commitSync(Map<TopicPartition, OffsetAndMetadata> offsets) {
+            synchronized (consumer) {
+                consumer.commitSync(offsets);
+            }
+        }
+
+        public void commitAsync(Map<TopicPartition, OffsetAndMetadata> offsets, OffsetCommitCallback callback) {
+            synchronized (consumer) {
+                consumer.commitAsync(offsets, callback);
+            }
+        }
+
+        static <K, V> SafeGarmadonConsumer synchronize(Consumer<K, V> consumer) {
+            return new SafeGarmadonConsumer(consumer);
+        }
+    }
+
     public static class Builder {
         public static final Properties DEFAULT_KAFKA_PROPS = new Properties();
 
@@ -309,7 +342,9 @@ public final class GarmadonReader {
         public GarmadonReader build(boolean autoSubscribe) {
             if (autoSubscribe) kafkaConsumer.subscribe(Collections.singletonList(GARMADON_TOPIC));
 
-            return new GarmadonReader(kafkaConsumer, beforeInterceptHandlers, listeners, recurrentActions, READER_IDX.getAndIncrement());
+            SafeGarmadonConsumer<String, byte[]> gConsumer = GarmadonReader.SafeGarmadonConsumer.synchronize(kafkaConsumer);
+
+            return new GarmadonReader(gConsumer, beforeInterceptHandlers, listeners, recurrentActions, READER_IDX.getAndIncrement());
         }
     }
 

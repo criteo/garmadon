@@ -245,8 +245,8 @@ public final class ElasticSearchReader {
             config.getElasticsearch().getIndexPrefix(), new PrometheusHttpConsumerMetrics(config.getPrometheus().getPort()),
             new ElasticSearchCacheManager());
 
-        reader.startReading().join();
-
         Runtime.getRuntime().addShutdownHook(new Thread(() -> reader.stop().join()));
+
+        reader.startReading().join();
     }
 }
