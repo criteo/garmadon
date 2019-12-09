@@ -207,13 +207,14 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         try {
             Optional<Path> latestFileCommitted = getLastestExistingFinalPath();
             if (latestFileCommitted.isPresent()) {
-                String timestamp = ParquetFileReader
-                    .open(fs.getConf(), latestFileCommitted.get())
-                    .getFooter()
-                    .getFileMetaData()
-                    .getKeyValueMetaData()
-                    .getOrDefault(LATEST_TIMESTAMP_META_KEY, String.valueOf(defaultValue));
-                return Double.valueOf(timestamp);
+                try (ParquetFileReader pfr = ParquetFileReader.open(fs.getConf(), latestFileCommitted.get())) {
+                    String timestamp = pfr
+                            .getFooter()
+                            .getFileMetaData()
+                            .getKeyValueMetaData()
+                            .getOrDefault(LATEST_TIMESTAMP_META_KEY, String.valueOf(defaultValue));
+                    return Double.valueOf(timestamp);
+                }
             } else {
                 return defaultValue;
             }
