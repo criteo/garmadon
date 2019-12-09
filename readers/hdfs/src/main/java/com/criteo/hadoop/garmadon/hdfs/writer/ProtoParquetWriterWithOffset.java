@@ -167,9 +167,11 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
     }
 
     private boolean checkSchemaEquality(MessageType schema) throws IOException {
-        MessageType schema2 = ParquetFileReader.open(fs.getConf(), temporaryHdfsPath).getFileMetaData().getSchema();
+        try (ParquetFileReader pfr = ParquetFileReader.open(fs.getConf(), temporaryHdfsPath)) {
+            MessageType schema2 = pfr.getFileMetaData().getSchema();
 
-        return schema.equals(schema2);
+            return schema.equals(schema2);
+        }
     }
 
     @Override
@@ -207,13 +209,14 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
         try {
             Optional<Path> latestFileCommitted = getLastestExistingFinalPath();
             if (latestFileCommitted.isPresent()) {
-                String timestamp = ParquetFileReader
-                    .open(fs.getConf(), latestFileCommitted.get())
-                    .getFooter()
-                    .getFileMetaData()
-                    .getKeyValueMetaData()
-                    .getOrDefault(LATEST_TIMESTAMP_META_KEY, String.valueOf(defaultValue));
-                return Double.valueOf(timestamp);
+                try (ParquetFileReader pfr = ParquetFileReader.open(fs.getConf(), latestFileCommitted.get())) {
+                    String timestamp = pfr
+                            .getFooter()
+                            .getFileMetaData()
+                            .getKeyValueMetaData()
+                            .getOrDefault(LATEST_TIMESTAMP_META_KEY, String.valueOf(defaultValue));
+                    return Double.valueOf(timestamp);
+                }
             } else {
                 return defaultValue;
             }
