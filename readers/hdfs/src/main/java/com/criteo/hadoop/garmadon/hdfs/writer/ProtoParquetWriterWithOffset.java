@@ -167,9 +167,11 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
     }
 
     private boolean checkSchemaEquality(MessageType schema) throws IOException {
-        MessageType schema2 = ParquetFileReader.open(fs.getConf(), temporaryHdfsPath).getFileMetaData().getSchema();
+        try (ParquetFileReader pfr = ParquetFileReader.open(fs.getConf(), temporaryHdfsPath)) {
+            MessageType schema2 = pfr.getFileMetaData().getSchema();
 
-        return schema.equals(schema2);
+            return schema.equals(schema2);
+        }
     }
 
     @Override
