@@ -152,9 +152,14 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
 
                 ParquetFileWriter writerPF = new ParquetFileWriter(fs.getConf(), schema, mergedTempFile);
                 writerPF.start();
-                writerPF.appendFile(fs.getConf(), lastAvailableFinalPath);
-                writerPF.appendFile(fs.getConf(), temporaryHdfsPath);
-                writerPF.end(newMetadata);
+                try (
+                    ParquetFileReader dest = ParquetFileReader.open(fs.getConf(), lastAvailableFinalPath);
+                    ParquetFileReader temp = ParquetFileReader.open(fs.getConf(), lastAvailableFinalPath)
+                ) {
+                    dest.appendTo(writerPF);
+                    temp.appendTo(writerPF);
+                    writerPF.end(newMetadata);
+                }
 
                 moveToFinalPath(mergedTempFile, lastAvailableFinalPath);
                 try {
