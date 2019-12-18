@@ -4,14 +4,22 @@ import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.reader.Offset;
 import com.google.protobuf.MessageOrBuilder;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Options;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.parquet.example.data.Group;
+import org.apache.parquet.example.data.GroupWriter;
+import org.apache.parquet.example.data.simple.convert.GroupRecordConverter;
 import org.apache.parquet.hadoop.ParquetFileReader;
-import org.apache.parquet.hadoop.ParquetFileWriter;
+import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.ParquetWriter;
+import org.apache.parquet.hadoop.api.ReadSupport;
+import org.apache.parquet.hadoop.api.WriteSupport;
+import org.apache.parquet.io.api.RecordConsumer;
+import org.apache.parquet.io.api.RecordMaterializer;
 import org.apache.parquet.schema.MessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,18 +158,22 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
                 Map<String, String> newMetadata = new HashMap<>(existingMetadata);
                 newMetadata.put(LATEST_TIMESTAMP_META_KEY, String.valueOf(latestTimestamp));
 
-                ParquetFileWriter writerPF = new ParquetFileWriter(fs.getConf(), schema, mergedTempFile);
-                writerPF.start();
                 try (
-                    ParquetFileReader dest = ParquetFileReader.open(fs.getConf(), lastAvailableFinalPath);
-                    ParquetFileReader temp = ParquetFileReader.open(fs.getConf(), lastAvailableFinalPath)
+                    ParquetWriter<Object> writerPF = new ParquetWriter(mergedTempFile, fs.getConf(), new ParquetGroupWriteSupport(schema, newMetadata));
+                    ParquetReader<Object> dest = new ParquetReader(fs.getConf(), lastAvailableFinalPath, new ParquetGroupReadSupport());
+                    ParquetReader<Object> temp = new ParquetReader(fs.getConf(), lastAvailableFinalPath, new ParquetGroupReadSupport())
                 ) {
-                    dest.appendTo(writerPF);
-                    temp.appendTo(writerPF);
-                    writerPF.end(newMetadata);
+                    Object o;
+                    while ((o = dest.read()) != null) {
+                        writerPF.write(o);
+                    }
+                    while ((o = temp.read()) != null) {
+                        writerPF.write(o);
+                    }
                 }
 
                 moveToFinalPath(mergedTempFile, lastAvailableFinalPath);
+
                 try {
                     fs.delete(temporaryHdfsPath, false);
                     // This file is in a temp folder that should be deleted at exit so we should not throw exception here
@@ -216,10 +228,10 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
             if (latestFileCommitted.isPresent()) {
                 try (ParquetFileReader pfr = ParquetFileReader.open(fs.getConf(), latestFileCommitted.get())) {
                     String timestamp = pfr
-                            .getFooter()
-                            .getFileMetaData()
-                            .getKeyValueMetaData()
-                            .getOrDefault(LATEST_TIMESTAMP_META_KEY, String.valueOf(defaultValue));
+                        .getFooter()
+                        .getFileMetaData()
+                        .getKeyValueMetaData()
+                        .getOrDefault(LATEST_TIMESTAMP_META_KEY, String.valueOf(defaultValue));
                     return Double.valueOf(timestamp);
                 }
             } else {
@@ -245,5 +257,54 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
 
     public String getEventName() {
         return eventName;
+    }
+
+
+    public static class ParquetGroupReadSupport extends ReadSupport<Group> {
+
+        @Override
+        public org.apache.parquet.hadoop.api.ReadSupport.ReadContext init(
+            Configuration configuration, Map<String, String> keyValueMetaData,
+            MessageType fileSchema) {
+            String partialSchemaString = configuration.get(ReadSupport.PARQUET_READ_SCHEMA);
+            MessageType requestedProjection = getSchemaForRead(fileSchema, partialSchemaString);
+            return new ReadContext(requestedProjection);
+        }
+
+        @Override
+        public RecordMaterializer<Group> prepareForRead(Configuration configuration,
+                                                        Map<String, String> keyValueMetaData, MessageType fileSchema,
+                                                        org.apache.parquet.hadoop.api.ReadSupport.ReadContext readContext) {
+            return new GroupRecordConverter(readContext.getRequestedSchema());
+        }
+
+    }
+
+    public static class ParquetGroupWriteSupport extends WriteSupport<Group> {
+
+        private MessageType schema;
+        private GroupWriter groupWriter;
+        private Map<String, String> extraMetaData;
+
+        ParquetGroupWriteSupport(MessageType schema, Map<String, String> extraMetaData) {
+            this.schema = schema;
+            this.extraMetaData = extraMetaData;
+        }
+
+        @Override
+        public WriteContext init(Configuration configuration) {
+            return new WriteContext(schema, this.extraMetaData);
+        }
+
+        @Override
+        public void prepareForWrite(RecordConsumer recordConsumer) {
+            groupWriter = new GroupWriter(recordConsumer, schema);
+        }
+
+        @Override
+        public void write(Group record) {
+            groupWriter.write(record);
+        }
+
     }
 }

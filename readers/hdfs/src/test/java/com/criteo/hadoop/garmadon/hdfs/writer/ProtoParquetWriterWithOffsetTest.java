@@ -386,7 +386,7 @@ public class ProtoParquetWriterWithOffsetTest {
 
     private <M extends Message> void createParquetFile(Path p, Class<M> clazz, Supplier<M> msgBuilder, Optional<Long> latestCommittedTimestamp) throws IOException {
         ExtraMetadataWriteSupport extraMetadataWriteSupport = new ExtraMetadataWriteSupport<>(new ProtoWriteSupport<>(clazz));
-        ParquetWriter<Message> writer = new ParquetWriter<>(p, extraMetadataWriteSupport, CompressionCodecName.SNAPPY,
+        ParquetWriter<Message> writer = new     ParquetWriter<>(p, extraMetadataWriteSupport, CompressionCodecName.SNAPPY,
             1_024 * 1_024, 1_024 * 1_024);
 
         writer.write(msgBuilder.get());
