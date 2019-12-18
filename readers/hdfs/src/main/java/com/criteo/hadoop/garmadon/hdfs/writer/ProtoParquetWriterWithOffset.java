@@ -16,6 +16,7 @@ import org.apache.parquet.example.data.simple.convert.GroupRecordConverter;
 import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.ParquetWriter;
+import org.apache.parquet.hadoop.api.InitContext;
 import org.apache.parquet.hadoop.api.ReadSupport;
 import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.io.api.RecordConsumer;
@@ -160,8 +161,8 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
 
                 try (
                     ParquetWriter<Object> writerPF = new ParquetWriter(mergedTempFile, fs.getConf(), new ParquetGroupWriteSupport(schema, newMetadata));
-                    ParquetReader<Object> dest = new ParquetReader(fs.getConf(), lastAvailableFinalPath, new ParquetGroupReadSupport());
-                    ParquetReader<Object> temp = new ParquetReader(fs.getConf(), lastAvailableFinalPath, new ParquetGroupReadSupport())
+                    ParquetReader<Object> dest = new ParquetReader(fs.getConf(), lastAvailableFinalPath, new ParquetGroupReadSupport(schema));
+                    ParquetReader<Object> temp = new ParquetReader(fs.getConf(), lastAvailableFinalPath, new ParquetGroupReadSupport(schema))
                 ) {
                     Object o;
                     while ((o = dest.read()) != null) {
@@ -262,13 +263,15 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
 
     public static class ParquetGroupReadSupport extends ReadSupport<Group> {
 
+        private MessageType schema;
+
+        ParquetGroupReadSupport(MessageType schema) {
+            this.schema = schema;
+        }
+
         @Override
-        public org.apache.parquet.hadoop.api.ReadSupport.ReadContext init(
-            Configuration configuration, Map<String, String> keyValueMetaData,
-            MessageType fileSchema) {
-            String partialSchemaString = configuration.get(ReadSupport.PARQUET_READ_SCHEMA);
-            MessageType requestedProjection = getSchemaForRead(fileSchema, partialSchemaString);
-            return new ReadContext(requestedProjection);
+        public ReadContext init(InitContext context) {
+            return new ReadContext(schema);
         }
 
         @Override
