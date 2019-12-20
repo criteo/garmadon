@@ -151,7 +151,7 @@ public class PrometheusHttpConsumerMetrics {
                 public void handle(HttpExchange t) throws IOException {
                     String response = "<a href=\"/status\"><h1>status</h1></a>" +
                             "<a href=\"/metrics\"><h1>metrics</h1></a>";
-                    t.getResponseHeaders().set("Content-Type", "text/plain");
+                    t.getResponseHeaders().set("Content-Type", "text/html");
                     t.getResponseHeaders().set("Content-Length", Integer.toString(response.length()));
                     t.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length());
                     t.getResponseBody().write(response.getBytes());
