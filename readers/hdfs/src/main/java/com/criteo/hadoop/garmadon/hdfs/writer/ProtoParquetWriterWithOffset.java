@@ -154,7 +154,7 @@ public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
                 writerPF.start();
                 try (
                     ParquetFileReader dest = ParquetFileReader.open(fs.getConf(), lastAvailableFinalPath);
-                    ParquetFileReader temp = ParquetFileReader.open(fs.getConf(), lastAvailableFinalPath)
+                    ParquetFileReader temp = ParquetFileReader.open(fs.getConf(), temporaryHdfsPath)
                 ) {
                     dest.appendTo(writerPF);
                     temp.appendTo(writerPF);

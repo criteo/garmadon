@@ -159,13 +159,15 @@ public class ProtoParquetWriterWithOffsetTest {
             tmpFile,
             DataAccessEventProtos.FsEvent.class,
             () -> DataAccessEventProtos.FsEvent.newBuilder().build(),
-            654321
+            654321,
+            1
         );
         createParquetFile(
             existingFinalFile,
             DataAccessEventProtos.FsEvent.class,
             () -> DataAccessEventProtos.FsEvent.newBuilder().build(),
-            123456
+            123456,
+            1
         );
 
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
@@ -206,13 +208,15 @@ public class ProtoParquetWriterWithOffsetTest {
             tmpFile,
             DataAccessEventProtos.FsEvent.class,
             () -> DataAccessEventProtos.FsEvent.newBuilder().build(),
-            987654321
+            987654321,
+            1
         );
         createParquetFile(
             existingFinalFile,
             DataAccessEventProtos.FsEvent.class,
             () -> DataAccessEventProtos.FsEvent.newBuilder().build(),
-            123456789
+            123456789,
+            2
         );
 
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
@@ -240,7 +244,7 @@ public class ProtoParquetWriterWithOffsetTest {
         while (reader.read() != null) {
             count++;
         }
-        assertEquals(2, count);
+        assertEquals(3, count);
 
         //timestamp should be the one of the latest tmp file merged
         checkFileLatestCommittedTimestamp(existingFinalFile, 999999999);
@@ -259,13 +263,15 @@ public class ProtoParquetWriterWithOffsetTest {
             tmpFile,
             DataAccessEventProtos.FsEvent.class,
             () -> DataAccessEventProtos.FsEvent.newBuilder().build(),
-            987654321
+            987654321,
+            1
         );
         createParquetFile(
             existingFinalFile,
             ResourceManagerEventProtos.ContainerEvent.class,
             () -> ResourceManagerEventProtos.ContainerEvent.newBuilder().build(),
-            123456789
+            123456789,
+            1
         );
 
         final ProtoParquetWriter<Message> writerMock = mock(ProtoParquetWriter.class);
@@ -303,7 +309,8 @@ public class ProtoParquetWriterWithOffsetTest {
             path,
             DataAccessEventProtos.FsEvent.class,
             () -> DataAccessEventProtos.FsEvent.newBuilder().build(),
-            1234567890
+            1234567890,
+            1
         );
 
         final BiConsumer<String, String> protoMetadataWriter = mock(BiConsumer.class);
@@ -344,7 +351,8 @@ public class ProtoParquetWriterWithOffsetTest {
             path,
             DataAccessEventProtos.FsEvent.class,
             () -> DataAccessEventProtos.FsEvent.newBuilder().build(),
-            Optional.empty()
+            Optional.empty(),
+            1
         );
 
         final BiConsumer<String, String> protoMetadataWriter = mock(BiConsumer.class);
@@ -380,16 +388,21 @@ public class ProtoParquetWriterWithOffsetTest {
         );
     }
 
-    private <M extends Message> void createParquetFile(Path p, Class<M> clazz, Supplier<M> msgBuilder, long latestCommittedTimestamp) throws IOException {
-        createParquetFile(p, clazz, msgBuilder, Optional.of(latestCommittedTimestamp));
+    private <M extends Message> void createParquetFile(Path p, Class<M> clazz, Supplier<M> msgBuilder, long latestCommittedTimestamp, int rowCount)
+        throws IOException {
+        createParquetFile(p, clazz, msgBuilder, Optional.of(latestCommittedTimestamp), rowCount);
     }
 
-    private <M extends Message> void createParquetFile(Path p, Class<M> clazz, Supplier<M> msgBuilder, Optional<Long> latestCommittedTimestamp) throws IOException {
+    private <M extends Message> void createParquetFile(Path p, Class<M> clazz, Supplier<M> msgBuilder, Optional<Long> latestCommittedTimestamp, int rowCount)
+        throws IOException {
         ExtraMetadataWriteSupport extraMetadataWriteSupport = new ExtraMetadataWriteSupport<>(new ProtoWriteSupport<>(clazz));
         ParquetWriter<Message> writer = new ParquetWriter<>(p, extraMetadataWriteSupport, CompressionCodecName.SNAPPY,
             1_024 * 1_024, 1_024 * 1_024);
 
-        writer.write(msgBuilder.get());
+        for (int i = 0; i < rowCount; i++) {
+            writer.write(msgBuilder.get());
+        }
+
         latestCommittedTimestamp.ifPresent(
             timestamp -> extraMetadataWriteSupport.accept(ProtoParquetWriterWithOffset.LATEST_TIMESTAMP_META_KEY, String.valueOf(timestamp))
         );
