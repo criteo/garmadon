@@ -15,7 +15,8 @@
         "match": "*_%*",
         "mapping": {
           "type": "float",
-          "index": false
+          "index": false,
+          "ignore_malformed": true
         }
       }
     },
@@ -33,7 +34,8 @@
         "match_mapping_type": "double",
         "mapping": {
           "type": "float",
-          "index": false
+          "index": false,
+          "ignore_malformed": true
         }
       }
     }
@@ -865,7 +867,8 @@
     },
     "value": {
       "type": "float",
-      "index": false
+      "index": false,
+      "ignore_malformed": true
     },
     "writes": {
       "type": "long",
@@ -1018,35 +1021,43 @@
     },
     "num_bytes_out_per_second": {
       "type": "double",
-      "index": false
+      "index": false,
+      "ignore_malformed": true
     },
     "num_bytes_in_local_per_second": {
       "type": "double",
-      "index": false
+      "index": false,
+      "ignore_malformed": true
     },
     "num_bytes_in_remote_per_second": {
       "type": "double",
-      "index": false
+      "index": false,
+      "ignore_malformed": true
     },
     "num_buffers_out_per_second": {
       "type": "double",
-      "index": false
+      "index": false,
+      "ignore_malformed": true
     },
     "num_buffers_in_local_per_second": {
       "type": "double",
-      "index": false
+      "index": false,
+      "ignore_malformed": true
     },
     "num_buffers_in_remote_per_second": {
       "type": "double",
-      "index": false
+      "index": false,
+      "ignore_malformed": true
     },
     "num_records_in_per_second": {
       "type": "double",
-      "index": false
+      "index": false,
+      "ignore_malformed": true
     },
     "num_records_out_per_second": {
       "type": "double",
-      "index": false
+      "index": false,
+      "ignore_malformed": true
     },
     "task_name": {
       "type": "text",
@@ -1154,15 +1165,18 @@
     },
     "records_lag_max": {
       "type": "double",
-      "index": false
+      "index": false,
+      "ignore_malformed": true
     },
     "records_consumed_rate": {
       "type": "double",
-      "index": false
+      "index": false,
+      "ignore_malformed": true
     },
     "bytes_consumed_rate": {
       "type": "double",
-      "index": false
+      "index": false,
+      "ignore_malformed": true
     },
     "rdd_name": {
       "type": "keyword",
