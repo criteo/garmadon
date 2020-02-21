@@ -46,11 +46,11 @@ public class HdfsExporter {
     }
 
     /**
-     * @param args: args[0]: Kafka connection string
-     *              args[1]: Kafka group
-     *              args[2]: Temporary HDFS directory
-     *              args[3]: Final HDFS directory
-     *              args[4]: Prometheus port
+     * @param args args[0]: Kafka connection string
+     *             args[1]: Kafka group
+     *             args[2]: Temporary HDFS directory
+     *             args[3]: Final HDFS directory
+     *             args[4]: Prometheus port
      * @throws IOException in case of error during config loading
      */
     public static void main(String[] args) throws IOException {
