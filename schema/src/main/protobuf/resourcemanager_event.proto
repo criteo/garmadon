@@ -31,4 +31,6 @@ message ContainerEvent {
     bool is_finished = 7;
     string container_hostname = 8;
     string log_url = 9;
+    int32 vcores_reserved = 10;
+    int32 memory_reserved = 11;
 }

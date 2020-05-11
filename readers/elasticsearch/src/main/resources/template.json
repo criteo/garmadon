@@ -1231,6 +1231,14 @@
     "disk_used": {
       "type": "long",
       "index": false
+    },
+    "vcores_reserved": {
+      "type": "integer",
+      "index": false
+    },
+    "memory_reserved": {
+      "type": "integer",
+      "index": false
     }
   }
 }
