@@ -15,7 +15,7 @@ ENV PATH=${JAVA_HOME}/bin:/opt/hadoop/bin:/opt/spark/bin:/opt/flink/bin:$PATH
 
 # Environment Version
 ENV HADOOP2_VERSION=2.6.0-cdh5.15.0
-ENV HADOOP3_VERSION=3.1.2
+ENV HADOOP3_VERSION=3.1.3
 ENV SPARK_VERSION=2.4.3
 ENV FLINK_VERSION=1.6.4
 
@@ -54,7 +54,7 @@ RUN wget https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SP
     rm -f spark-${SPARK_VERSION}-bin-hadoop2.6.tgz
 
 # Download and unzip flink
-RUN wget http://apache.mediamirrors.org/flink/flink-${FLINK_VERSION}/flink-${FLINK_VERSION}-bin-hadoop26-scala_2.11.tgz && \
+RUN wget https://archive.apache.org/dist/flink/flink-${FLINK_VERSION}/flink-${FLINK_VERSION}-bin-hadoop26-scala_2.11.tgz && \
     tar xvfz flink-${FLINK_VERSION}-bin-hadoop26-scala_2.11.tgz -C /opt && \
     ln -s /opt/flink-${FLINK_VERSION} /opt/flink && \
     rm -f flink-${FLINK_VERSION}-bin-hadoop26-scala_2.11.tgz
