@@ -20,6 +20,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -27,6 +28,7 @@ import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.*;
+import org.elasticsearch.client.indexlifecycle.*;
 import org.elasticsearch.client.sniff.SniffOnFailureListener;
 import org.elasticsearch.client.sniff.Sniffer;
 import org.elasticsearch.common.settings.Settings;
@@ -173,12 +175,18 @@ public final class ElasticSearchReader {
             .put("sort.order", "desc")
             .put("analysis.analyzer.path_analyzer.tokenizer", "path_tokenizer")
             .put("analysis.tokenizer.path_tokenizer.type", "path_hierarchy")
-            .put("analysis.tokenizer.path_tokenizer.delimiter", "/");
+            .put("analysis.tokenizer.path_tokenizer.delimiter", "/")
+            .put("index.lifecycle.name", "garmadon")
+            .put("index.lifecycle.rollover_alias", "garmadon");
 
         // Add settings from config
         elasticsearch.getSettings().forEach(templateSettings::put);
 
         indexRequest.settings(templateSettings);
+
+        // Add garmadon alias
+        Alias alias = new Alias("garmadon");
+        indexRequest.alias(alias);
 
         String template = IOUtils.toString(Objects.requireNonNull(ElasticSearchReader.class.getClassLoader()
             .getResourceAsStream("template.json")), "UTF-8");
@@ -187,6 +195,31 @@ public final class ElasticSearchReader {
 
         if (!esClient.indices().putTemplate(indexRequest, RequestOptions.DEFAULT).isAcknowledged()) {
             throw new GarmadonEsException("Failed to insert garmadon template");
+        }
+    }
+
+    private static void putGarmadonLifecyclePolicy(RestHighLevelClient esClient, ElasticsearchConfiguration elasticsearch)
+        throws IOException, GarmadonEsException {
+        Map<String, Phase> phases = new HashMap<>();
+
+        phases.put("hot", new Phase("hot", TimeValue.ZERO, Collections.emptyMap()));
+
+        Map<String, LifecycleAction> warmActions = new HashMap<>();
+        warmActions.put(ReadOnlyAction.NAME, new ReadOnlyAction());
+        warmActions.put(AllocateAction.NAME, new AllocateAction(1, null, null, null));
+        if (elasticsearch.isIlmForceMerge()) {
+            warmActions.put(ForceMergeAction.NAME, new ForceMergeAction(1));
+        }
+        phases.put("warm", new Phase("warm", new TimeValue(elasticsearch.getIlmTimingDayForWarmPhase(), TimeUnit.DAYS), warmActions));
+
+        Map<String, LifecycleAction> deleteActions = Collections.singletonMap(DeleteAction.NAME, new DeleteAction());
+        phases.put("delete", new Phase("delete", new TimeValue(elasticsearch.getIlmTimingDayForDeletePhase(), TimeUnit.DAYS), deleteActions));
+
+        LifecyclePolicy policy = new LifecyclePolicy("garmadon", phases);
+        PutLifecyclePolicyRequest lifecycleRequest = new PutLifecyclePolicyRequest(policy);
+
+        if (!esClient.indexLifecycle().putLifecyclePolicy(lifecycleRequest, RequestOptions.DEFAULT).isAcknowledged()) {
+            throw new GarmadonEsException("Failed to insert garmadon lifecycle");
         }
     }
 
@@ -217,6 +250,7 @@ public final class ElasticSearchReader {
         RestHighLevelClient esClient = new RestHighLevelClient(restClientBuilder);
 
         putGarmadonTemplate(esClient, elasticsearch);
+        putGarmadonLifecyclePolicy(esClient, elasticsearch);
 
         Sniffer sniffer = Sniffer.builder(esClient.getLowLevelClient()).build();
         sniffOnFailureListener.setSniffer(sniffer);

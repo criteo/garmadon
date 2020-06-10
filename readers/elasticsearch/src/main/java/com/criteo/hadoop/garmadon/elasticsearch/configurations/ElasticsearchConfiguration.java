@@ -13,6 +13,9 @@ public class ElasticsearchConfiguration {
     private int bulkActions = 500;
     private int bulkSizeMB = 5;
     private int bulkFlushIntervalSec = 10;
+    private boolean ilmForceMerge = false;
+    private int ilmTimingDayForWarmPhase;
+    private int ilmTimingDayForDeletePhase;
     private Map<String, String> settings = new HashMap<>();
 
     public String getHost() {
@@ -93,5 +96,29 @@ public class ElasticsearchConfiguration {
 
     public void setSettings(Map<String, String> settings) {
         this.settings = settings;
+    }
+
+    public boolean isIlmForceMerge() {
+        return ilmForceMerge;
+    }
+
+    public void setIlmForceMerge(boolean ilmForceMerge) {
+        this.ilmForceMerge = ilmForceMerge;
+    }
+
+    public int getIlmTimingDayForWarmPhase() {
+        return ilmTimingDayForWarmPhase;
+    }
+
+    public void setIlmTimingDayForWarmPhase(int ilmTimingDayForWarmPhase) {
+        this.ilmTimingDayForWarmPhase = ilmTimingDayForWarmPhase;
+    }
+
+    public int getIlmTimingDayForDeletePhase() {
+        return ilmTimingDayForDeletePhase;
+    }
+
+    public void setIlmTimingDayForDeletePhase(int ilmTimingDayForDeletePhase) {
+        this.ilmTimingDayForDeletePhase = ilmTimingDayForDeletePhase;
     }
 }
