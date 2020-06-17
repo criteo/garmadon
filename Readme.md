@@ -177,6 +177,9 @@ Garmadon-readers-elasticsearch's jar can be fetch from maven central:
    bulkActions: 500                        # OPTIONAL: Flush bulk every bulkActions event (DEFAULT: 500)
    bulkSizeMB: 5                           # OPTIONAL: Flush bulk ever bulkSizeMB mb (DEFAULT: 5)
    bulkFlushIntervalSec: 10                # OPTIONAL: Flush bulk ever bulkFlushIntervalSec s (DEFAULT: 10)
+   ilmForceMerge: false                    # OPTIONAL: Force merge of segment to 1 during warm phase of the garmadon life cycle policy         
+   ilmTimingDayForWarmPhase: 2             # Number of days before moving index to ilm warm phase (https://www.elastic.co/guide/en/elasticsearch/reference/current/index-lifecycle-management.html)
+   ilmTimingDayForDeletePhase: 4           # Number of days before deleting index
    settings:                               # Any index settings to put on the garmadon template
      index.number_of_shards: 10
      index.number_of_replicas: 2

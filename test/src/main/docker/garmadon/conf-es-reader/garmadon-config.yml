@@ -3,6 +3,9 @@ elasticsearch:
   port: 9200                              # ES port
   user: esuser                            # ES username
   password: espassword                    # ES password
+  ilmForceMerge: true
+  ilmTimingDayForWarmPhase: 2
+  ilmTimingDayForDeletePhase: 4
   settings:                               # Any index settings to put on the garmadon template
     index.number_of_shards: 10
     index.number_of_replicas: 2
