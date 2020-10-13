@@ -108,7 +108,7 @@
         <consul.version>1.4.2</consul.version>
 
         <!-- tests -->
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <mockito.version>1.10.19</mockito.version>
     </properties>
 
