@@ -55,6 +55,7 @@ public class ElasticSearchReaderTest {
 
         garmadonReaderBuilder = Mockito.mock(GarmadonReader.Builder.class);
         when(garmadonReaderBuilder.intercept(any(GarmadonMessageFilter.class), any(GarmadonReader.GarmadonMessageHandler.class))).thenReturn(garmadonReaderBuilder);
+        when(garmadonReaderBuilder.withSubscriptions(any(Collection.class))).thenReturn(garmadonReaderBuilder);
         when(garmadonReaderBuilder.build()).thenReturn(garmadonReader);
 
         bulkProcessor = Mockito.mock(BulkProcessor.class);
