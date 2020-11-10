@@ -77,7 +77,7 @@ public final class ElasticSearchReader {
                         ElasticSearchCacheManager elasticSearchCacheManager) {
         this.reader = builderReader
             .intercept(GarmadonMessageFilter.ANY.INSTANCE, this::writeToES)
-            .build();
+            .build(GarmadonReader.DEFAULT_GARMADON_TOPICS);
 
         this.bulkProcessor = bulkProcessorMain;
 

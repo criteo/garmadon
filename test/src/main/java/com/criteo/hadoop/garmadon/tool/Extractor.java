@@ -43,7 +43,7 @@ public final class Extractor {
                 this::processFlinkJobManagerEvent)
             .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.FLINK_JOB_EVENT)),
                 this::processFlinkJobEvent)
-            .build();
+            .build(GarmadonReader.DEFAULT_GARMADON_TOPICS);
     }
 
     private Extractor(String kafkaConnectString, String containerId) {
@@ -65,7 +65,7 @@ public final class Extractor {
             .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasContainerId(containerId))
                     .and(hasType(GarmadonSerialization.TypeMarker.FLINK_JOB_EVENT)),
                 this::processFlinkJobEvent)
-            .build();
+            .build(GarmadonReader.DEFAULT_GARMADON_TOPICS);
     }
 
     private void start() {

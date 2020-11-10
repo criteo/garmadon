@@ -30,8 +30,7 @@ import static com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMe
 import static com.criteo.hadoop.garmadon.reader.metrics.PrometheusHttpConsumerMetrics.RELEASE;
 
 public final class GarmadonReader {
-
-    public static final String GARMADON_TOPIC = "garmadon";
+    public static final Collection<String> DEFAULT_GARMADON_TOPICS = Collections.singletonList("garmadon");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GarmadonReader.class);
 
@@ -335,12 +334,10 @@ public final class GarmadonReader {
             return this;
         }
 
-        public GarmadonReader build() {
-            return this.build(true);
-        }
+        public GarmadonReader build(Collection<String> topics) {
+            LOGGER.info("Subscribing to Kafka topics {}", topics);
 
-        public GarmadonReader build(boolean autoSubscribe) {
-            if (autoSubscribe) kafkaConsumer.subscribe(Collections.singletonList(GARMADON_TOPIC));
+            kafkaConsumer.subscribe(topics);
 
             SafeGarmadonConsumer<String, byte[]> gConsumer = GarmadonReader.SafeGarmadonConsumer.synchronize(kafkaConsumer);
 
