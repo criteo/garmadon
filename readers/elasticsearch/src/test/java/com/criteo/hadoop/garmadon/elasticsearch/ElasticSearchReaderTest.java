@@ -51,11 +51,11 @@ public class ElasticSearchReaderTest {
         GarmadonReader.Builder builder = GarmadonReader.Builder.stream(kafkaConsumer);
         GarmadonReader garmadonReader = builder
                 .intercept(GarmadonMessageFilter.ANY.INSTANCE, garmadonMessageHandler)
-                .build(Collections.emptyList());
+                .build();
 
         garmadonReaderBuilder = Mockito.mock(GarmadonReader.Builder.class);
         when(garmadonReaderBuilder.intercept(any(GarmadonMessageFilter.class), any(GarmadonReader.GarmadonMessageHandler.class))).thenReturn(garmadonReaderBuilder);
-        when(garmadonReaderBuilder.build(any(Collection.class))).thenReturn(garmadonReader);
+        when(garmadonReaderBuilder.build()).thenReturn(garmadonReader);
 
         bulkProcessor = Mockito.mock(BulkProcessor.class);
         prometheusHttpConsumerMetrics = Mockito.mock(PrometheusHttpConsumerMetrics.class);

@@ -233,7 +233,9 @@ public class ReaderFactory {
                 .recurring(heartbeat::run, heartbeatPeriod)
                 .recurring(expirer::run, expirerPeriod);
 
-        GarmadonReader reader = readerBuilder.build(topics);
+        GarmadonReader reader = readerBuilder
+            .withSubscriptions(topics)
+            .build();
 
         reader.getCompletableFuture().whenComplete((v, t) -> {
             expirer.stop();

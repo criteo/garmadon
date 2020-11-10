@@ -297,7 +297,6 @@ public final class GarmadonReader {
         private final Map<GarmadonMessageFilter, GarmadonMessageHandler> listeners = new HashMap<>();
         private final List<GarmadonMessageHandler> beforeInterceptHandlers = new ArrayList<>();
         private final List<RecurrentAction> recurrentActions = new ArrayList<>();
-        private final List<Runnable> postReadingActions = new ArrayList<>();
 
         static {
             DEFAULT_KAFKA_PROPS.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString()); //by default groupId is random
@@ -306,6 +305,8 @@ public final class GarmadonReader {
             DEFAULT_KAFKA_PROPS.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
             DEFAULT_KAFKA_PROPS.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
         }
+
+        private Collection<String> topics = Collections.emptyList();
 
         Builder(Consumer<String, byte[]> kafkaConsumer) {
             this.kafkaConsumer = kafkaConsumer;
@@ -334,10 +335,16 @@ public final class GarmadonReader {
             return this;
         }
 
-        public GarmadonReader build(Collection<String> topics) {
-            LOGGER.info("Subscribing to Kafka topics {}", topics);
+        public Builder withSubscriptions(Collection<String> topics) {
+            this.topics = topics;
+            return this;
+        }
 
-            kafkaConsumer.subscribe(topics);
+        public GarmadonReader build() {
+            if (!topics.isEmpty()) {
+                LOGGER.info("Subscribing to Kafka topics {}", topics);
+                kafkaConsumer.subscribe(topics);
+            }
 
             SafeGarmadonConsumer<String, byte[]> gConsumer = GarmadonReader.SafeGarmadonConsumer.synchronize(kafkaConsumer);
 
