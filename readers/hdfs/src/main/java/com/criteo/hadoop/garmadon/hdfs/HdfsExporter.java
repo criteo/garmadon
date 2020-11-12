@@ -110,7 +110,8 @@ public class HdfsExporter {
 
                 final KafkaConsumer<String, byte[]> kafkaConsumer = kafkaConsumer(config);
 
-                return readerFactory.create(kafkaConsumer, fsCapture, finalHdfsDirCapture, temporaryHdfsDir);
+                return readerFactory.create(kafkaConsumer, config.getKafka().getTopics(),
+                    fsCapture, finalHdfsDirCapture, temporaryHdfsDir);
             }).collect(Collectors.toList());
 
             CompletableFuture<Object> oneReaderEnds = CompletableFuture.anyOf(
@@ -118,9 +119,8 @@ public class HdfsExporter {
             )
                 .exceptionally(t -> null);
 
-            CompletableFuture<Void> theEnd = oneReaderEnds.thenCompose(ignored -> {
-                return CompletableFuture.allOf(readers.stream().map(GarmadonReader::stopReading).toArray(CompletableFuture[]::new));
-            });
+            CompletableFuture<Void> theEnd = oneReaderEnds.thenCompose(ignored ->
+                CompletableFuture.allOf(readers.stream().map(GarmadonReader::stopReading).toArray(CompletableFuture[]::new)));
 
             try {
                 theEnd.join();
