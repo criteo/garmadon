@@ -2,6 +2,7 @@ package com.criteo.hadoop.garmadon.forwarder.handler;
 
 import com.criteo.hadoop.garmadon.forwarder.handler.junit.rules.WithEmbeddedChannel;
 import com.criteo.hadoop.garmadon.forwarder.handler.junit.rules.WithMockedKafkaService;
+import com.criteo.hadoop.garmadon.forwarder.message.BroadCastedKafkaMessage;
 import com.criteo.hadoop.garmadon.forwarder.message.KafkaMessage;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,10 +31,22 @@ public class KafkaHandlerTest {
         byte[] raw = new byte[230];
         new Random().nextBytes(raw);
 
-        KafkaMessage incomingMsg = new KafkaMessage("application_1517483736011_1079", raw);
+        KafkaMessage incomingMsg = new KafkaMessage(raw);
 
         channel.get().writeInbound(incomingMsg);
 
-        verify(kafkaService.mock()).sendRecordAsync("application_1517483736011_1079", raw);
+        verify(kafkaService.mock()).sendRecordAsync(raw, false);
+    }
+
+    @Test
+    public void KafkaHandler_should_send_a_broadcasted_event_when_receiving_BroadCastedKafkaMessage() {
+        byte[] raw = new byte[230];
+        new Random().nextBytes(raw);
+
+        BroadCastedKafkaMessage incomingMsg = new BroadCastedKafkaMessage(raw);
+
+        channel.get().writeInbound(incomingMsg);
+
+        verify(kafkaService.mock()).sendRecordAsync(raw, true);
     }
 }

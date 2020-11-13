@@ -5,20 +5,18 @@ import java.util.Objects;
 
 public class KafkaMessage {
 
-    private final String key;
     private final byte[] value;
 
-    public KafkaMessage(String key, byte[] value) {
-        this.key = key;
+    public KafkaMessage(byte[] value) {
         this.value = value;
-    }
-
-    public String getKey() {
-        return key;
     }
 
     public byte[] getValue() {
         return value;
+    }
+
+    public boolean isBroadCasted() {
+        return false;
     }
 
     @Override
@@ -26,12 +24,11 @@ public class KafkaMessage {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         KafkaMessage that = (KafkaMessage) o;
-        return Objects.equals(key, that.key) &&
-                Arrays.equals(value, that.value);
+        return Arrays.equals(value, that.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(key, value);
+        return Objects.hash(value);
     }
 }
