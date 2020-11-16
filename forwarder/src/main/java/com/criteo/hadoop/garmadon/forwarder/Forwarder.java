@@ -23,7 +23,7 @@ import java.util.Properties;
 
 public class Forwarder {
     public static final String PRODUCER_PREFIX_NAME = "garmadon.forwarder";
-    private static final String CLIENT_ID_NAME = PRODUCER_PREFIX_NAME;
+    public static final String CLIENT_ID_NAME = PRODUCER_PREFIX_NAME;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Forwarder.class);
 
