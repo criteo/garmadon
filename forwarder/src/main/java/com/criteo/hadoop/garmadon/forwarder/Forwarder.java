@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 public class Forwarder {
     public static final String PRODUCER_PREFIX_NAME = "garmadon.forwarder";
+    public static final String CLIENT_ID_NAME = PRODUCER_PREFIX_NAME;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Forwarder.class);
 
@@ -94,7 +95,7 @@ public class Forwarder {
      */
     public ChannelFuture run() throws IOException {
         // initialise kafka
-        properties.put(ProducerConfig.CLIENT_ID_CONFIG, PRODUCER_PREFIX_NAME + "." + hostname);
+        properties.put(ProducerConfig.CLIENT_ID_CONFIG, CLIENT_ID_NAME);
         kafkaService = new KafkaService(properties);
 
         // initialize metrics

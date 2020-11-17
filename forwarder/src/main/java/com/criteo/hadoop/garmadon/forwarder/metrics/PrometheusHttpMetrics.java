@@ -78,7 +78,7 @@ public class PrometheusHttpMetrics {
         DefaultExports.initialize();
         FOR_JOIN.inc();
         try {
-            oname = new ObjectName("kafka.producer:type=producer-metrics,client-id=" + Forwarder.PRODUCER_PREFIX_NAME + "." + Forwarder.getHostname());
+            oname = new ObjectName("kafka.producer:type=producer-metrics,client-id=" + Forwarder.CLIENT_ID_NAME);
         } catch (MalformedObjectNameException e) {
             LOGGER.error("", e);
         }
