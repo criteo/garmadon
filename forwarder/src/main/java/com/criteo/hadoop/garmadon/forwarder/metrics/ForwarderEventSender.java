@@ -19,7 +19,7 @@ public class ForwarderEventSender {
 
     public void sendAsync(Long timestamp, Object event) {
         try {
-            kafkaService.sendRecordAsync(hostname, ProtocolMessage.create(timestamp, header, event));
+            kafkaService.sendRecordAsync(ProtocolMessage.create(timestamp, header, event), false);
         } catch (SerializationException | TypeMarkerException e) {
             PrometheusHttpMetrics.EVENTS_IN_ERROR.inc();
         }

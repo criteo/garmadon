@@ -7,6 +7,8 @@ import com.criteo.hadoop.garmadon.forwarder.metrics.HostStatistics;
 import com.criteo.hadoop.garmadon.forwarder.metrics.PrometheusHttpMetrics;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.events.HeaderUtils;
+import com.criteo.hadoop.garmadon.schema.exceptions.TypeMarkerException;
+import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -19,7 +21,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Forwarder {
     public static final String PRODUCER_PREFIX_NAME = "garmadon.forwarder";
@@ -43,8 +48,24 @@ public class Forwarder {
     private Channel serverChannel;
     private KafkaService kafkaService;
 
+    //What type of message should be sent to all partitions
+    private Set<Integer> broadcastedTypes;
+
     public Forwarder(Properties properties) {
         this.properties = properties;
+
+        this.broadcastedTypes = Arrays.stream(properties
+            .getProperty("broadcasted.message.types", "")
+            .split(","))
+            .filter(s -> !s.isEmpty())
+            .map(typeName -> {
+                try {
+                    return GarmadonSerialization.getMarker(typeName);
+                } catch (TypeMarkerException e) {
+                    throw new RuntimeException(e);
+                }
+            })
+            .collect(Collectors.toSet());
 
         Header.Builder headerBuilder = Header.newBuilder()
                 .withId(HeaderUtils.getId())
@@ -127,7 +148,7 @@ public class Forwarder {
                 // TODO: Test the Unix Domain Socket implementation will need junixsocket at client side....
                 // But should increase perf
                 //.channel(EpollServerDomainSocketChannel.class)
-                .childHandler(new ForwarderChannelInitializer(kafkaService));
+                .childHandler(new ForwarderChannelInitializer(kafkaService, broadcastedTypes));
 
         //start server
         LOGGER.info("Startup netty server");

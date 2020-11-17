@@ -1,6 +1,7 @@
 package com.criteo.hadoop.garmadon.forwarder.handler;
 
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
+import com.criteo.hadoop.garmadon.forwarder.message.BroadCastedKafkaMessage;
 import com.criteo.hadoop.garmadon.forwarder.message.KafkaMessage;
 import com.criteo.hadoop.garmadon.forwarder.metrics.PrometheusHttpMetrics;
 import com.criteo.hadoop.garmadon.protocol.ProtocolConstants;
@@ -11,11 +12,19 @@ import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
+
 public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
     private static final AttributeKey<EventHeaderProtos.Header> HEADER_ATTR = AttributeKey.valueOf("header");
     private static final Logger LOGGER = LoggerFactory.getLogger(EventHandler.class);
 
+    private final Set<Integer> broadCastedTypes;
+
     private boolean isFirst = true;
+
+    public EventHandler(Set<Integer> broadCastedTypes) {
+        this.broadCastedTypes = broadCastedTypes;
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
@@ -34,9 +43,13 @@ public class EventHandler extends SimpleChannelInboundHandler<ByteBuf> {
         byte[] raw = new byte[msg.readableBytes()];
         msg.readBytes(raw);
 
-        KafkaMessage kafkaMessage = new KafkaMessage(
-                header.getId(),
-                raw);
+        int typeMarker = msg.getInt(0);
+        KafkaMessage kafkaMessage;
+        if (broadCastedTypes.contains(typeMarker)) {
+            kafkaMessage = new BroadCastedKafkaMessage(raw);
+        } else {
+            kafkaMessage = new KafkaMessage(raw);
+        }
 
         // Push header in context to sendAsync event end container
         if (isFirst) {
