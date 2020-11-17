@@ -10,11 +10,11 @@ import java.util.Set;
 public class ForwarderChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     private final KafkaService kafkaService;
-    private final Set<Integer> broadCastedTypes;
+    private final Set<Integer> broadcastedTypes;
 
-    public ForwarderChannelInitializer(KafkaService kafkaService, Set<Integer> broadCastedTypes) {
+    public ForwarderChannelInitializer(KafkaService kafkaService, Set<Integer> broadcastedTypes) {
         this.kafkaService = kafkaService;
-        this.broadCastedTypes = broadCastedTypes;
+        this.broadcastedTypes = broadcastedTypes;
     }
 
     @Override
@@ -23,7 +23,7 @@ public class ForwarderChannelInitializer extends ChannelInitializer<SocketChanne
                 .addLast(GreetingDecoder.class.getSimpleName(), new GreetingDecoder())
                 .addLast(GreetingHandler.class.getSimpleName(), new GreetingHandler())
                 .addLast(EventDecoder.class.getSimpleName(), new EventDecoder())
-                .addLast(EventHandler.class.getSimpleName(), new EventHandler(broadCastedTypes))
+                .addLast(EventHandler.class.getSimpleName(), new EventHandler(broadcastedTypes))
                 .addLast(KafkaHandler.class.getSimpleName(), new KafkaHandler(kafkaService));
     }
 }

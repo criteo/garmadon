@@ -43,7 +43,7 @@ public class EventHandlerTest {
     }
 
     @Test
-    public void EventHandler_should_read_non_braodcasted_event() throws TypeMarkerException, SerializationException {
+    public void EventHandler_should_read_non_broadcasted_event() throws TypeMarkerException, SerializationException {
         Header header = Header.newBuilder()
                 .withHostname("hostname")
                 .withId("app_id")

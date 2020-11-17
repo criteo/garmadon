@@ -48,14 +48,15 @@ public class Forwarder {
     private KafkaService kafkaService;
 
     //What type of message should be sent to all partitions
-    private Set<Integer> broadCastedTypes;
+    private Set<Integer> broadcastedTypes;
 
     public Forwarder(Properties properties) {
         this.properties = properties;
 
-        this.broadCastedTypes = Arrays.stream(properties
+        this.broadcastedTypes = Arrays.stream(properties
             .getProperty("broadcasted.message.types", "")
             .split(","))
+            .filter(s -> !s.isEmpty())
             .map(typeName -> {
                 try {
                     return GarmadonSerialization.getMarker(typeName);
@@ -146,7 +147,7 @@ public class Forwarder {
                 // TODO: Test the Unix Domain Socket implementation will need junixsocket at client side....
                 // But should increase perf
                 //.channel(EpollServerDomainSocketChannel.class)
-                .childHandler(new ForwarderChannelInitializer(kafkaService, broadCastedTypes));
+                .childHandler(new ForwarderChannelInitializer(kafkaService, broadcastedTypes));
 
         //start server
         LOGGER.info("Startup netty server");

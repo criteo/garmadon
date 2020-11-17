@@ -26,7 +26,7 @@ public class KafkaService {
                 send(new ProducerRecord<>(topic, partition.partition(), null, value));
             });
         } else {
-            send(new ProducerRecord<>(topic, null, value));
+            send(new ProducerRecord<>(topic, value));
         }
     }
 
