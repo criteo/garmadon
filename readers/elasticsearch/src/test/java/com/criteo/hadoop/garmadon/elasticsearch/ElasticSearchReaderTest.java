@@ -14,6 +14,8 @@ import com.criteo.hadoop.garmadon.schema.enums.FsAction;
 import com.criteo.hadoop.garmadon.schema.enums.State;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.google.protobuf.Message;
+import java.util.Collection;
+import java.util.Collections;
 import org.apache.kafka.clients.consumer.MockConsumer;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -49,10 +51,11 @@ public class ElasticSearchReaderTest {
         GarmadonReader.Builder builder = GarmadonReader.Builder.stream(kafkaConsumer);
         GarmadonReader garmadonReader = builder
                 .intercept(GarmadonMessageFilter.ANY.INSTANCE, garmadonMessageHandler)
-                .build(false);
+                .build();
 
         garmadonReaderBuilder = Mockito.mock(GarmadonReader.Builder.class);
         when(garmadonReaderBuilder.intercept(any(GarmadonMessageFilter.class), any(GarmadonReader.GarmadonMessageHandler.class))).thenReturn(garmadonReaderBuilder);
+        when(garmadonReaderBuilder.withSubscriptions(any(Collection.class))).thenReturn(garmadonReaderBuilder);
         when(garmadonReaderBuilder.build()).thenReturn(garmadonReader);
 
         bulkProcessor = Mockito.mock(BulkProcessor.class);

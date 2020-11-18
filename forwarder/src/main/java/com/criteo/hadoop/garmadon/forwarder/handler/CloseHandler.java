@@ -24,7 +24,6 @@ public class CloseHandler extends ChannelInboundHandlerAdapter {
                     .build();
 
             KafkaMessage kafkaMessage = new KafkaMessage(
-                    header.getApplicationId(),
                     ProtocolMessage.create(System.currentTimeMillis(), header.toByteArray(), stateEvent)
             );
 

@@ -20,9 +20,17 @@ public class KafkaService {
         this.producer = new KafkaProducer<>(properties);
     }
 
-    public void sendRecordAsync(String key, byte[] value) {
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, key, value);
+    public void sendRecordAsync(byte[] value, boolean broadcasted) {
+        if (broadcasted) {
+            producer.partitionsFor(topic).forEach(partition -> {
+                send(new ProducerRecord<>(topic, partition.partition(), null, value));
+            });
+        } else {
+            send(new ProducerRecord<>(topic, value));
+        }
+    }
 
+    private void send(ProducerRecord<String, byte[]> record) {
         // TODO manage retry? and exception
         // Check batching, time and kafka config
         producer.send(record, (metadata, exception) -> {

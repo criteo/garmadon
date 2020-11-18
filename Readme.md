@@ -170,6 +170,7 @@ Garmadon-readers-elasticsearch's jar can be fetch from maven central:
  elasticsearch:
    host: elasticsearch                     # ES host
    port: 9200                              # ES port
+   scheme: http                            # ES scheme (http/https, DEFAULT: http)
    user: esuser                            # OPTIONAL: ES username (DEFAULT: null)
    password: espassword                    # OPTIONAL: ES password (DEFAULT: null)
    indexPrefix: garmadon                   # OPTIONAL: ES index prefix (DEFAULT: garmadon)

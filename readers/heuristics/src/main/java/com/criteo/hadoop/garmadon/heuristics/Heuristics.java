@@ -73,6 +73,7 @@ public class Heuristics {
                 .intercept(hasTag(Header.Tag.YARN_APPLICATION).and(hasType(GarmadonSerialization.TypeMarker.FLINK_JOB_EVENT)),
                   flinkHeuristicsManager::processFlinkJobEvent)
                 .beforeIntercept(this::registerAppContainer)
+                .withSubscriptions(GarmadonReader.DEFAULT_GARMADON_TOPICS)
                 .build();
 
         gcStatsHeuristics.add(new GCCause(db));

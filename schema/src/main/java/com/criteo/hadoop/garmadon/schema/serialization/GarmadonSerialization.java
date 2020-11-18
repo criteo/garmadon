@@ -45,6 +45,7 @@ public class GarmadonSerialization {
 
     private static HashMap<Class, Integer> classToMarker = new HashMap<>();
     private static HashMap<Integer, String> typeMarkerToName = new HashMap<>();
+    private static HashMap<String, Integer> nameToTypeMarker = new HashMap<>();
 
     static {
         // hadoop events
@@ -113,6 +114,14 @@ public class GarmadonSerialization {
         }
     }
 
+    public static int getMarker(String name) throws TypeMarkerException {
+        if (nameToTypeMarker.containsKey(name)) {
+            return nameToTypeMarker.get(name);
+        } else {
+            throw new TypeMarkerException("cannot find type marker for " + name);
+        }
+    }
+
     public static String getTypeName(int typeMarker) {
         return typeMarkerToName.getOrDefault(typeMarker, "UNKNOWN");
     }
@@ -142,6 +151,7 @@ public class GarmadonSerialization {
         typeMarkerToDeserializer.put(marker, d);
         classToSerializer.put(aClass, s);
         typeMarkerToName.put(marker, name);
+        nameToTypeMarker.put(name, marker);
     }
 
     @FunctionalInterface

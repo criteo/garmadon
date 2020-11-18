@@ -61,7 +61,7 @@ public class GarmadonReaderTest {
         GarmadonReader.Builder builder = GarmadonReader.Builder.stream(kafkaConsumer);
         GarmadonReader garmadonReader = builder
                 .intercept(filter, garmadonMessageHandler)
-                .build(false);
+                .build();
 
         reader = garmadonReader.reader;
     }

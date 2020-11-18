@@ -29,6 +29,8 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.*;
 import org.elasticsearch.client.indexlifecycle.*;
+import org.elasticsearch.client.sniff.ElasticsearchNodesSniffer;
+import org.elasticsearch.client.sniff.NodesSniffer;
 import org.elasticsearch.client.sniff.SniffOnFailureListener;
 import org.elasticsearch.client.sniff.Sniffer;
 import org.elasticsearch.common.settings.Settings;
@@ -75,6 +77,7 @@ public final class ElasticSearchReader {
                         ElasticSearchCacheManager elasticSearchCacheManager) {
         this.reader = builderReader
             .intercept(GarmadonMessageFilter.ANY.INSTANCE, this::writeToES)
+            .withSubscriptions(GarmadonReader.DEFAULT_GARMADON_TOPICS)
             .build();
 
         this.bulkProcessor = bulkProcessorMain;
@@ -228,7 +231,7 @@ public final class ElasticSearchReader {
 
         LogFailureListener sniffOnFailureListener = new LogFailureListener();
         RestClientBuilder restClientBuilder = RestClient.builder(
-            new HttpHost(elasticsearch.getHost(), elasticsearch.getPort(), "http")
+            new HttpHost(elasticsearch.getHost(), elasticsearch.getPort(), elasticsearch.getScheme())
         )
             .setFailureListener(sniffOnFailureListener)
             .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
@@ -252,7 +255,12 @@ public final class ElasticSearchReader {
         putGarmadonTemplate(esClient, elasticsearch);
         putGarmadonLifecyclePolicy(esClient, elasticsearch);
 
-        Sniffer sniffer = Sniffer.builder(esClient.getLowLevelClient()).build();
+        NodesSniffer nodesSniffer = new ElasticsearchNodesSniffer(
+            esClient.getLowLevelClient(),
+            ElasticsearchNodesSniffer.DEFAULT_SNIFF_REQUEST_TIMEOUT,
+            ElasticsearchNodesSniffer.Scheme.valueOf(elasticsearch.getScheme().toUpperCase()));
+
+        Sniffer sniffer = Sniffer.builder(esClient.getLowLevelClient()).setNodesSniffer(nodesSniffer).build();
         sniffOnFailureListener.setSniffer(sniffer);
 
         BiConsumer<BulkRequest, ActionListener<BulkResponse>> bulkConsumer =
