@@ -20,7 +20,7 @@ public class ProtocolMessage {
      *
      * @param hBytes
      * @param body
-     * @return
+     * @return protobuf binary representation of the payload
      * @throws SerializationException
      * @throws TypeMarkerException
      */
