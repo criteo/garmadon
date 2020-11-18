@@ -21,6 +21,7 @@ import sun.misc.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Random;
 
 public class CloseHandlerTest {
@@ -31,7 +32,7 @@ public class CloseHandlerTest {
     @Before
     public void executedBeforeEach() {
         CloseHandler closeHandler = new CloseHandler();
-        EventHandler eventHandler = new EventHandler();
+        EventHandler eventHandler = new EventHandler(Collections.emptySet());
         channel.get().pipeline().addLast(closeHandler).addLast(eventHandler);
 
         GarmadonSerialization.register(TestEvent.class, Integer.MAX_VALUE, "TestEvent", event -> event.bytes, TestEvent::new);
@@ -58,7 +59,7 @@ public class CloseHandlerTest {
         Assert.assertTrue(channel.get().writeInbound(input));
         Assert.assertTrue(channel.get().finish());
 
-        KafkaMessage expected = new KafkaMessage("app_id", raw);
+        KafkaMessage expected = new KafkaMessage(raw);
         Assert.assertEquals(expected, channel.get().readInbound());
 
         // Check that we sendAsync the end event

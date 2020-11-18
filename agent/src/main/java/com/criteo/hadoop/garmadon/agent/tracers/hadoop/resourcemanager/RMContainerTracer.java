@@ -106,6 +106,11 @@ public class RMContainerTracer {
                     .setStartTime(rmc.getCreationTime())
                     .setLogUrl(rmc.getLogURL());
 
+                if (rmc.getContainer() != null && rmc.getContainer().getResource() != null) {
+                    eventBuilder.setVcoresReserved(rmc.getContainer().getResource().getVirtualCores());
+                    eventBuilder.setMemoryReserved(rmc.getContainer().getResource().getMemory());
+                }
+
                 if (rmc.getAllocatedNode() != null) {
                     eventBuilder.setContainerHostname(rmc.getAllocatedNode().getHost());
                 }

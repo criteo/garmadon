@@ -26,7 +26,7 @@ public class KafkaHandler extends SimpleChannelInboundHandler<KafkaMessage> {
         int type = ByteBuffer.wrap(msg.getValue(), 0, 4).getInt(0);
         PrometheusHttpMetrics.eventSize(type).observe(msg.getValue().length);
 
-        kafkaService.sendRecordAsync(msg.getKey(), msg.getValue());
+        kafkaService.sendRecordAsync(msg.getValue(), msg.isBroadCasted());
     }
 
     @Override

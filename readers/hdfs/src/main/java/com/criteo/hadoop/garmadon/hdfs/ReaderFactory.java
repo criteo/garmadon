@@ -122,9 +122,10 @@ public class ReaderFactory {
         out.put(type, new GarmadonEventDescriptor(path, clazz, emptyMessageBuilder));
     }
 
-    public GarmadonReader create(KafkaConsumer<String, byte[]> kafkaConsumer, FileSystem fs, Path finalHdfsDir, Path temporaryHdfsDir) {
+    public GarmadonReader create(KafkaConsumer<String, byte[]> kafkaConsumer, Collection<String> topics,
+        FileSystem fs, Path finalHdfsDir, Path temporaryHdfsDir) {
 
-        int idx = READER_IDX.getAndIncrement();
+        READER_IDX.getAndIncrement();
 
         final GarmadonReader.Builder readerBuilder = GarmadonReader.Builder.stream(kafkaConsumer);
         final Collection<PartitionedWriter<Message>> writers = new ArrayList<>();
@@ -186,7 +187,7 @@ public class ReaderFactory {
         });
 
         // We need to build a meta listener as only the last call to #subscribe wins
-        kafkaConsumer.subscribe(Collections.singleton(GarmadonReader.GARMADON_TOPIC),
+        kafkaConsumer.subscribe(topics,
             new ConsumerRebalanceListener() {
                 @Override
                 public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
@@ -232,7 +233,9 @@ public class ReaderFactory {
                 .recurring(heartbeat::run, heartbeatPeriod)
                 .recurring(expirer::run, expirerPeriod);
 
-        GarmadonReader reader = readerBuilder.build(false);
+        GarmadonReader reader = readerBuilder
+            .withSubscriptions(topics)
+            .build();
 
         reader.getCompletableFuture().whenComplete((v, t) -> {
             expirer.stop();

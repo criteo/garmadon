@@ -6,6 +6,7 @@ import java.util.Map;
 public class ElasticsearchConfiguration {
     private String host;
     private int port;
+    private String scheme = "http";
     private String user;
     private String password;
     private String indexPrefix = "garmadon";
@@ -13,6 +14,9 @@ public class ElasticsearchConfiguration {
     private int bulkActions = 500;
     private int bulkSizeMB = 5;
     private int bulkFlushIntervalSec = 10;
+    private boolean ilmForceMerge = false;
+    private int ilmTimingDayForWarmPhase;
+    private int ilmTimingDayForDeletePhase;
     private Map<String, String> settings = new HashMap<>();
 
     public String getHost() {
@@ -29,6 +33,14 @@ public class ElasticsearchConfiguration {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public String getScheme() {
+        return scheme;
+    }
+
+    public void setScheme(String scheme) {
+        this.scheme = scheme;
     }
 
     public String getUser() {
@@ -93,5 +105,29 @@ public class ElasticsearchConfiguration {
 
     public void setSettings(Map<String, String> settings) {
         this.settings = settings;
+    }
+
+    public boolean isIlmForceMerge() {
+        return ilmForceMerge;
+    }
+
+    public void setIlmForceMerge(boolean ilmForceMerge) {
+        this.ilmForceMerge = ilmForceMerge;
+    }
+
+    public int getIlmTimingDayForWarmPhase() {
+        return ilmTimingDayForWarmPhase;
+    }
+
+    public void setIlmTimingDayForWarmPhase(int ilmTimingDayForWarmPhase) {
+        this.ilmTimingDayForWarmPhase = ilmTimingDayForWarmPhase;
+    }
+
+    public int getIlmTimingDayForDeletePhase() {
+        return ilmTimingDayForDeletePhase;
+    }
+
+    public void setIlmTimingDayForDeletePhase(int ilmTimingDayForDeletePhase) {
+        this.ilmTimingDayForDeletePhase = ilmTimingDayForDeletePhase;
     }
 }
