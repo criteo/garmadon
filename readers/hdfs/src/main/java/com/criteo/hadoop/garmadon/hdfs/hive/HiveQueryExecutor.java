@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HiveQueryExecutor {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(HiveQueryExecutor.class);
     private final String jdbcUrl;
     private final String database;
@@ -61,12 +62,12 @@ public class HiveQueryExecutor {
     }
 
     public void close() throws SQLException {
-      if (stmt != null) {
-        stmt.close();
-      }
-      if (connection != null) {
-        connection.close();
-      }
+        if (stmt != null) {
+            stmt.close();
+        }
+        if (connection != null) {
+            connection.close();
+        }
     }
 
     public void execute(String query) throws SQLException {

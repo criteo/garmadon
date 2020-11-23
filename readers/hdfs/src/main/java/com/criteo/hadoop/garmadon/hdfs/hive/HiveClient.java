@@ -23,7 +23,7 @@ public class HiveClient {
     private final Set<String> createdTables = new HashSet<>();
 
     public HiveClient(HiveQueryExecutor executor, String location) throws SQLException {
-        this.createdPartitions = Collections.newSetFromMap(new LinkedHashMap<Pair<String, String>, Boolean>(){
+        this.createdPartitions = Collections.newSetFromMap(new LinkedHashMap<Pair<String, String>, Boolean>() {
             protected boolean removeEldestEntry(Entry<Pair<String, String>, Boolean> eldest) {
                 return size() > 100;
             }
