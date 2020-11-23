@@ -1,7 +1,10 @@
 package com.criteo.hadoop.garmadon.hdfs.hive;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.parquet.schema.MessageType;
@@ -16,10 +19,15 @@ public class HiveClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(HiveClient.class);
 
     private final HiveQueryExecutor executor;
-    private final Set<Pair<String, String>> createdPartitions = new HashSet<>();
+    private final Set<Pair<String, String>> createdPartitions;
     private final Set<String> createdTables = new HashSet<>();
 
     public HiveClient(HiveQueryExecutor executor, String location) throws SQLException {
+        this.createdPartitions = Collections.newSetFromMap(new LinkedHashMap<Pair<String, String>, Boolean>(){
+            protected boolean removeEldestEntry(Entry<Pair<String, String>, Boolean> eldest) {
+                return size() > 100;
+            }
+        });
         this.executor = executor;
         // TODO discover mesos slave to contact
         this.executor.connect();
