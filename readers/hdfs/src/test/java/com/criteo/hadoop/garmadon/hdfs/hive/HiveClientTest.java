@@ -1,8 +1,6 @@
 package com.criteo.hadoop.garmadon.hdfs.hive;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.hive.conf.HiveConf;
-import org.apache.hive.service.server.HiveServer2;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.PrimitiveType;
 import org.apache.parquet.schema.Type;
@@ -11,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.ResultSet;
@@ -22,50 +19,39 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class HiveClientTest {
-    private String driverName = "org.apache.hive.jdbc.HiveDriver";
-
+    private static final String DATABASE_NAME = "garmadon";
+    private static final PrimitiveType APP_ID_TYPE = new PrimitiveType(
+        Type.Repetition.OPTIONAL, PrimitiveType.PrimitiveTypeName.BINARY, "app_id");
     private Path hdfsTemp;
-    private Path derbyDBPath;
-    private String port;
-    private HiveServer2 hiveServer2;
-    private String database = "garmadon";
+    private SimpleHiveServer hiveServer2;
 
     @Before
     public void setup() throws IOException {
         hdfsTemp = Files.createTempDirectory("hdfs");
-        derbyDBPath = Files.createTempDirectory("derbyDB");
-
-        HiveConf hiveConf = new HiveConf();
-        hiveConf.set(HiveConf.ConfVars.METASTORECONNECTURLKEY.toString(), "jdbc:derby:;databaseName=" +
-            derbyDBPath.toString() + "/derbyDB" + ";create=true");
-
-        ServerSocket s = new ServerSocket(0);
-        port = String.valueOf(s.getLocalPort());
-        hiveConf.set(HiveConf.ConfVars.HIVE_SERVER2_THRIFT_PORT.varname, port);
-        // Required to avoid NoSuchMethodError org.apache.hive.service.cli.operation.LogDivertAppender.setWriter
-        hiveConf.set(HiveConf.ConfVars.HIVE_SERVER2_LOGGING_OPERATION_ENABLED.varname, "false");
-
-        hiveServer2 = new HiveServer2();
-        hiveServer2.init(hiveConf);
-        s.close();
-        hiveServer2.start();
+        hiveServer2 = new SimpleHiveServer();
     }
 
     @After
     public void close() throws IOException {
-        hiveServer2.stop();
-        FileUtils.deleteDirectory(derbyDBPath.toFile());
+        try {
+            hiveServer2.cleanup();
+        }
+        catch (IOException e) {
+            // Nothing
+        }
+
         FileUtils.deleteDirectory(hdfsTemp.toFile());
     }
 
     @Test
     public void connectAndCreateDatabaseWithoutIssue() throws SQLException {
-        HiveClient hiveClient = new HiveClient(driverName, "jdbc:hive2://localhost:" + port, database,
-            hdfsTemp + "/garmadon_database");
+        HiveQueryExecutor executor = new HiveQueryExecutor(SimpleHiveServer.DRIVER_NAME, hiveServer2.getJdbcString(), DATABASE_NAME);
 
-        hiveClient.execute("DESCRIBE DATABASE " + database);
+        new HiveClient(executor, hdfsTemp + "/garmadon_database");
+
+        executor.execute("DESCRIBE DATABASE " + DATABASE_NAME);
         try {
-            hiveClient.execute("DESCRIBE DATABASE not_created_database");
+            executor.execute("DESCRIBE DATABASE not_created_database");
         } catch (SQLException e) {
             assertTrue(e.getMessage().contains("Database does not exist: not_created_database"));
         }
@@ -73,26 +59,47 @@ public class HiveClientTest {
 
     @Test(expected = SQLException.class)
     public void failConnectingDueToBadHost() throws SQLException {
-        new HiveClient(driverName, "jdbc:hive2://bashost:" + port, database, hdfsTemp + "/garmadon_database");
+        new HiveClient(new HiveQueryExecutor(SimpleHiveServer.DRIVER_NAME, "jdbc:hive2://bashost:123", DATABASE_NAME),
+            hdfsTemp + "/garmadon_database");
     }
 
     @Test
     public void createTableWithoutIssue() throws SQLException {
-        PrimitiveType appId = new PrimitiveType(Type.Repetition.OPTIONAL, PrimitiveType.PrimitiveTypeName.BINARY, "app_id");
-
-        MessageType schema = new MessageType("fs", appId);
+        MessageType schema = new MessageType("fs", APP_ID_TYPE);
 
         String table = "fs";
         String location = "file:" + hdfsTemp + "/garmadon_database/fs";
-        HiveClient hiveClient = new HiveClient(driverName, "jdbc:hive2://localhost:" + port, "garmadon",
-            hdfsTemp + "/garmadon_database");
+        HiveQueryExecutor executor = new HiveQueryExecutor(SimpleHiveServer.DRIVER_NAME, hiveServer2.getJdbcString(), "garmadon");
+        HiveClient hiveClient = new HiveClient(executor, hdfsTemp + "/garmadon_database");
         hiveClient.createTableIfNotExist(table, schema, location);
 
-        HashMap<String, String> result = getResultHashTableDesc(hiveClient, table);
+        HashMap<String, String> result = getResultHashTableDesc(executor, table);
         assertEquals(location, result.get("Location"));
         assertEquals("EXTERNAL_TABLE", result.get("Table Type").trim());
         assertEquals("string", result.get("day"));
         assertEquals("string", result.get("app_id"));
+
+        hiveClient.createTableIfNotExist(table, schema, location);
+    }
+
+    @Test
+    public void partitionCreationHasNoSideEffectWhenAlreadyDone() throws SQLException {
+        final HiveQueryExecutor executor = mock(HiveQueryExecutor.class);
+        final String table = "tableName";
+        final String location = "location";
+        final String partition = "partition";
+        final MessageType schema = new MessageType("fs", APP_ID_TYPE);
+
+        doNothing().when(executor).createTableIfNotExists(anyString(), anyString(), anyString());
+        doNothing().when(executor).createPartition(anyString(), anyString(), anyString());
+
+        HiveClient hiveClient = new HiveClient(executor, "/any");
+
+        for (int times = 0; times < 2; ++times) {
+            hiveClient.createPartitionIfNotExist(table, schema, partition, location);
+            verify(executor, times(1)).createTableIfNotExists(anyString(), anyString(), anyString());
+            verify(executor, times(1)).createPartition(anyString(), anyString(), anyString());
+        }
     }
 
     @Test(expected = RuntimeException.class)
@@ -103,14 +110,16 @@ public class HiveClientTest {
 
         String table = "fs";
         String location = "file:" + hdfsTemp + "/garmadon_database/fs";
-        HiveClient hiveClient = new HiveClient(driverName, "jdbc:hive2://localhost:" + port, "garmadon",
+        HiveClient hiveClient = new HiveClient(new HiveQueryExecutor(
+            SimpleHiveServer.DRIVER_NAME, hiveServer2.getJdbcString(), "garmadon"),
             hdfsTemp + "/garmadon_database");
         hiveClient.createTableIfNotExist(table, schema, location);
     }
 
     @Test
     public void shouldProvideHiveTypeFromParquetType() throws Exception {
-        HiveClient hiveClient = new HiveClient(driverName, "jdbc:hive2://localhost:" + port, "garmadon",
+        HiveClient hiveClient = new HiveClient(new HiveQueryExecutor(
+            SimpleHiveServer.DRIVER_NAME, hiveServer2.getJdbcString(), "garmadon"),
             hdfsTemp + "/garmadon_database");
 
         PrimitiveType string = new PrimitiveType(Type.Repetition.OPTIONAL, PrimitiveType.PrimitiveTypeName.BINARY, "name");
@@ -138,32 +147,17 @@ public class HiveClientTest {
 
     @Test(expected = Exception.class)
     public void shouldThrowExceptionForUnknownParquetType() throws Exception {
-        HiveClient hiveClient = new HiveClient(driverName, "jdbc:hive2://localhost:" + port, "garmadon",
+        HiveClient hiveClient = new HiveClient(new HiveQueryExecutor(
+            SimpleHiveServer.DRIVER_NAME, hiveServer2.getJdbcString(), "garmadon"),
             hdfsTemp + "/garmadon_database");
 
         PrimitiveType unsupported = new PrimitiveType(Type.Repetition.OPTIONAL, PrimitiveType.PrimitiveTypeName.INT96, "unsupported");
         hiveClient.inferHiveType(unsupported);
     }
 
-    @Test
-    public void shouldReconnectOnTTransportException() throws Exception {
-        HiveClient hiveClient = spy(new HiveClient(driverName, "jdbc:hive2://localhost:" + port, "garmadon",
-            hdfsTemp + "/garmadon_database"));
-
-        hiveServer2.stop();
-
-        // Ignore exception as hiveserver2 is down and we are testing that connect method is well called multiple times
-        try {
-            hiveClient.createDatabaseIfAbsent(hdfsTemp + "/garmadon_database");
-        } catch (SQLException ignored) {
-        }
-
-        verify(hiveClient, times(5)).connect();
-    }
-
-    private HashMap<String, String> getResultHashTableDesc(HiveClient hiveClient, String table) throws SQLException {
-        HashMap<String, String> result = new HashMap();
-        ResultSet rset = hiveClient.getStmt().executeQuery("DESCRIBE FORMATTED " + database + "." + table);
+    private HashMap<String, String> getResultHashTableDesc(HiveQueryExecutor queryExecutor, String table) throws SQLException {
+        HashMap<String, String> result = new HashMap<>();
+        ResultSet rset = queryExecutor.getStmt().executeQuery("DESCRIBE FORMATTED " + DATABASE_NAME + "." + table);
         while (rset.next()) {
             result.put(rset.getString(1).split(":")[0], rset.getString(2));
         }

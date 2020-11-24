@@ -3,6 +3,7 @@ package com.criteo.hadoop.garmadon.hdfs;
 import com.criteo.hadoop.garmadon.event.proto.*;
 import com.criteo.hadoop.garmadon.hdfs.configurations.HdfsReaderConfiguration;
 import com.criteo.hadoop.garmadon.hdfs.hive.HiveClient;
+import com.criteo.hadoop.garmadon.hdfs.hive.HiveQueryExecutor;
 import com.criteo.hadoop.garmadon.hdfs.kafka.OffsetResetter;
 import com.criteo.hadoop.garmadon.hdfs.kafka.PartitionsPauseStateHandler;
 import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
@@ -136,7 +137,8 @@ public class ReaderFactory {
         HiveClient hiveClient = null;
         if (createHiveTable) {
             try {
-                hiveClient = new HiveClient(driverName, hiveJdbcUrl, hiveDatabase, new Path(finalHdfsDir, "hive").toString());
+                hiveClient = new HiveClient(new HiveQueryExecutor(driverName, hiveJdbcUrl, hiveDatabase),
+                    new Path(finalHdfsDir, "hive").toString());
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
