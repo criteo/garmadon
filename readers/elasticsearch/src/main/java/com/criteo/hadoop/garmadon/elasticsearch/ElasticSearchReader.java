@@ -77,7 +77,6 @@ public final class ElasticSearchReader {
                         ElasticSearchCacheManager elasticSearchCacheManager) {
         this.reader = builderReader
             .intercept(GarmadonMessageFilter.ANY.INSTANCE, this::writeToES)
-            .withSubscriptions(GarmadonReader.DEFAULT_GARMADON_TOPICS)
             .build();
 
         this.bulkProcessor = bulkProcessorMain;
@@ -164,7 +163,9 @@ public final class ElasticSearchReader {
         props.putAll(GarmadonReader.Builder.DEFAULT_KAFKA_PROPS);
         props.putAll(kafka.getSettings());
 
-        return GarmadonReader.Builder.stream(new KafkaConsumer<>(props));
+        return GarmadonReader.Builder
+            .stream(new KafkaConsumer<>(props))
+            .withSubscriptions(kafka.getTopics());
     }
 
     private static void putGarmadonTemplate(RestHighLevelClient esClient, ElasticsearchConfiguration elasticsearch)
