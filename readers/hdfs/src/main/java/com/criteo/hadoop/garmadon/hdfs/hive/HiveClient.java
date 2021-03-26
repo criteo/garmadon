@@ -56,7 +56,7 @@ public class HiveClient {
 
         String hiveSchema = schema.getFields().stream().map(field -> {
             try {
-                return field.getName() + " " + inferHiveType(field);
+                return "`" + field.getName() + "` " + inferHiveType(field);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
