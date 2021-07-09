@@ -78,10 +78,14 @@
             <id>cloudera</id>
             <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
         </repository>
+	<repository>
+            <id>pentaho</id>
+	    <url>https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn/</url>
+        </repository>    
     </repositories>
 
     <properties>
-	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <garmadon.version>1.4.0</garmadon.version>
         <hadoop.version>2.6.0-cdh5.11.0</hadoop.version>
         <hive.version>1.1.0-cdh5.11.0</hive.version>
