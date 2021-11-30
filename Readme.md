@@ -1,6 +1,5 @@
 # Garmadon: Hadoop Cluster Introspection
 
-<a href='https://travis-ci.org/criteo/garmadon/builds'><img src='https://travis-ci.org/criteo/garmadon.svg?branch=master'></a>
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.criteo.java/garmadon/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.criteo.java/garmadon)
 
 Garmadon is Criteo's home made solution for Hadoop Cluster realtime introspection. 
