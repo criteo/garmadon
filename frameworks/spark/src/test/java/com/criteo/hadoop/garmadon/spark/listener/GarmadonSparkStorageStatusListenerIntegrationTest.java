@@ -96,6 +96,7 @@ public class GarmadonSparkStorageStatusListenerIntegrationTest {
                 .setAppName("TestGarmadonListener")
                 .setMaster("local[4]")
                 .set("spark.driver.allowMultipleContexts", "true")
+                .set("spark.driver.bindAddress", "127.0.0.1")
                 .set("spark.memory.offHeap.enabled", "true")
                 .set("spark.memory.offHeap.size", "50m")
         );

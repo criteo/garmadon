@@ -45,6 +45,7 @@ public class GarmadonSparkListenerIntegrationTest {
                         .setAppName("TestGarmadonListener")
                         .setMaster("local[1]")
                         .set("spark.driver.allowMultipleContexts", "true")
+                        .set("spark.driver.bindAddress", "127.0.0.1")
         );
         sc = jsc.sc();
 
