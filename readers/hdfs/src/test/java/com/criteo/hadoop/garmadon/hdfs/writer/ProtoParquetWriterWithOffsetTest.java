@@ -10,9 +10,7 @@ import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
 import com.criteo.hadoop.garmadon.reader.TopicPartitionOffset;
 import com.google.protobuf.Message;
 import com.google.protobuf.MessageOrBuilder;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
@@ -65,8 +63,6 @@ public class ProtoParquetWriterWithOffsetTest {
         finalPath = new Path(rootPath, "final");
         tmpPath = new Path(rootPath, "tmp");
 
-        Configuration configuration = new Configuration();
-        configuration.set("fs.file.impl", LocalFileSystem.class.getCanonicalName());
         localFs = FileSystem.getLocal(getConfigurationUsingHadoopLocalFileSystem());
 
         localFs.mkdirs(rootPath);
@@ -417,7 +413,7 @@ public class ProtoParquetWriterWithOffsetTest {
 
     private void checkFileLatestCommittedTimestamp(Path p, long timestamp) throws IOException {
         ParquetFileReader reader = new ParquetFileReader(
-            HadoopInputFile.fromPath(p, new Configuration()),
+            HadoopInputFile.fromPath(p, getConfigurationUsingHadoopLocalFileSystem()),
             ParquetReadOptions.builder().build()
         );
         String actualTimestamp = reader.getFooter().getFileMetaData().getKeyValueMetaData().get(ProtoParquetWriterWithOffset.LATEST_TIMESTAMP_META_KEY);
