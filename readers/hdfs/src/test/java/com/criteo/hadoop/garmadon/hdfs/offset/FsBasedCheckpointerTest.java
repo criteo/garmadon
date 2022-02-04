@@ -99,7 +99,7 @@ public class FsBasedCheckpointerTest {
         // Second time, the cache should be used
         verifyNoMoreInteractions(fsMock);
 
-        verifyZeroInteractions(outputStreamMock);
+        verifyNoMoreInteractions(outputStreamMock);
     }
 
     @Test

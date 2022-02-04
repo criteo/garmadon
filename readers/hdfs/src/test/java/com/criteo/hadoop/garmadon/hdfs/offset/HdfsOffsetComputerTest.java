@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.stream.LongStream;
 
 import static com.criteo.hadoop.garmadon.hdfs.writer.TestUtils.getConfigurationUsingHadoopLocalFileSystem;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class HdfsOffsetComputerTest {

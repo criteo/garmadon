@@ -138,7 +138,7 @@ public class HeartbeatConsumerTest {
         return msgMock;
     }
 
-    private class OffsetArgumentMatcher extends ArgumentMatcher<Offset> {
+    private class OffsetArgumentMatcher implements ArgumentMatcher<Offset> {
         private final Offset toCompare;
 
         OffsetArgumentMatcher(Offset toCompare) {
@@ -146,7 +146,7 @@ public class HeartbeatConsumerTest {
         }
 
         @Override
-        public boolean matches(Object o) {
+        public boolean matches(Offset o) {
             if (!(o instanceof Offset))
                 return false;
 

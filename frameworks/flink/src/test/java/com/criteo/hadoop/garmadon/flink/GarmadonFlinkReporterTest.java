@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import static com.criteo.hadoop.garmadon.flink.GarmadonFlinkReporter.*;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 
