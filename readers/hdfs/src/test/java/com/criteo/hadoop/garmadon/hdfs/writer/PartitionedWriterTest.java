@@ -118,9 +118,9 @@ public class PartitionedWriterTest {
         when(writerBuilder.apply(11, localDateTimeFromDate("1984-05-21 00:00:00")))
                 .thenReturn(secondDayFirstConsumerMock);
 
-        doReturn(true).when(firstDayFirstConsumerMock).isExpired();
-        doReturn(false).when(firstDaySecondConsumerMock).isExpired();
-        doReturn(false).when(secondDayFirstConsumerMock).isExpired();
+        when(firstDayFirstConsumerMock.isExpired()).thenReturn(true);
+        when(firstDaySecondConsumerMock.isExpired()).thenReturn(false);
+        when(secondDayFirstConsumerMock.isExpired()).thenReturn(false);
 
         partitionedWriter.write(instantFromDate("1987-08-13 05:55:55"), firstDayFirstOffset, "D1M1");
         partitionedWriter.write(instantFromDate("1984-05-21 02:22:22"), secondDayFirstOffset, "D2M1");
@@ -205,7 +205,7 @@ public class PartitionedWriterTest {
         final Offset dummyOffset = buildOffset(1, 101);
 
         when(writerBuilder.apply(eq(1), eq(localDateTimeFromDate("1987-08-13 00:00:00")))).thenReturn(closingConsumer);
-        doReturn(true).when(closingConsumer).isExpired();
+        when(closingConsumer.isExpired()).thenReturn(true);
 
         when(throwingCheckpointer.tryCheckpoint(anyInt(), any(Instant.class))).thenThrow(new RuntimeException("Logged exception"));
 
