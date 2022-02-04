@@ -52,19 +52,19 @@ public class HiveProtoParquetWriterWithOffsetTest {
 
     @Test
     public void returnHiveProtoParquetWriterWithOffset() {
-        CloseableWriter parquetWriter = new HiveProtoParquetWriterWithOffset<>(protoParquetWriterWithOffset, hiveClient).withHiveSupport(true);
+        CloseableHdfsWriter parquetWriter = new HiveProtoParquetWriterWithOffset<>(protoParquetWriterWithOffset, hiveClient).withHiveSupport(true);
         assertTrue(parquetWriter instanceof HiveProtoParquetWriterWithOffset);
     }
 
     @Test
     public void returnProtoParquetWriterWithOffset() {
-        CloseableWriter parquetWriter = new HiveProtoParquetWriterWithOffset<>(protoParquetWriterWithOffset, hiveClient).withHiveSupport(false);
+        CloseableHdfsWriter parquetWriter = new HiveProtoParquetWriterWithOffset<>(protoParquetWriterWithOffset, hiveClient).withHiveSupport(false);
         assertTrue(parquetWriter instanceof ProtoParquetWriterWithOffset);
     }
 
     @Test
     public void callCreatePartitionIfNotExistOnClose() throws IOException, SQLException {
-        CloseableWriter parquetWriter = new HiveProtoParquetWriterWithOffset<>(protoParquetWriterWithOffset, hiveClient).withHiveSupport(true);
+        CloseableHdfsWriter parquetWriter = new HiveProtoParquetWriterWithOffset<>(protoParquetWriterWithOffset, hiveClient).withHiveSupport(true);
         parquetWriter.close();
         verify(hiveClient, times(1)).createPartitionIfNotExist(eq(eventName), eq(schema), anyString(), eq(finalPath.toString()));
     }
@@ -72,14 +72,14 @@ public class HiveProtoParquetWriterWithOffsetTest {
     @Test(expected = IOException.class)
     public void throwExceptionIfProtoParquetWriterWithOffsetFailed() throws IOException, SQLException {
         doThrow(new IOException("Failure")).when(protoParquetWriterWithOffset).close();
-        CloseableWriter parquetWriter = new HiveProtoParquetWriterWithOffset<>(protoParquetWriterWithOffset, hiveClient).withHiveSupport(true);
+        CloseableHdfsWriter parquetWriter = new HiveProtoParquetWriterWithOffset<>(protoParquetWriterWithOffset, hiveClient).withHiveSupport(true);
         parquetWriter.close();
     }
 
     @Test(expected = SQLException.class)
     public void throwExceptionIfHiveClientFailed() throws IOException, SQLException {
         doThrow(new SQLException("Failure")).when(hiveClient).createPartitionIfNotExist(eq(eventName), eq(schema), anyString(), eq(finalPath.toString()));
-        CloseableWriter parquetWriter = new HiveProtoParquetWriterWithOffset<>(protoParquetWriterWithOffset, hiveClient).withHiveSupport(true);
+        CloseableHdfsWriter parquetWriter = new HiveProtoParquetWriterWithOffset<>(protoParquetWriterWithOffset, hiveClient).withHiveSupport(true);
         parquetWriter.close();
     }
 

@@ -10,7 +10,7 @@ import java.sql.SQLException;
  * Writer that can be closed
  * @param <M> the message type to write
  */
-public interface CloseableWriter<M> {
+interface CloseableHdfsWriter<M> {
     void write(long timestamp, M t, Offset offset) throws IOException;
 
     /**

@@ -14,8 +14,8 @@ import java.time.temporal.TemporalAmount;
  *
  * @param <MESSAGE_TYPE>     The actual consumed message type
  */
-public class ExpiringConsumer<MESSAGE_TYPE> implements CloseableWriter<MESSAGE_TYPE> {
-    private final CloseableWriter<MESSAGE_TYPE> writer;
+public class ExpiringConsumer<MESSAGE_TYPE> implements CloseableHdfsWriter<MESSAGE_TYPE> {
+    private final CloseableHdfsWriter<MESSAGE_TYPE> writer;
     private final TemporalAmount expirationDelay;
     private long messagesReceived;
     private long messagesBeforeExpiring;
@@ -27,7 +27,7 @@ public class ExpiringConsumer<MESSAGE_TYPE> implements CloseableWriter<MESSAGE_T
      * @param expirationDelay           Idle delay after which the writer should get closed
      * @param messagesBeforeExpiring    Number of messages to write before expiring
      */
-    public ExpiringConsumer(CloseableWriter<MESSAGE_TYPE> writer, TemporalAmount expirationDelay, long messagesBeforeExpiring) {
+    public ExpiringConsumer(CloseableHdfsWriter<MESSAGE_TYPE> writer, TemporalAmount expirationDelay, long messagesBeforeExpiring) {
         this.writer = writer;
         this.expirationDelay = expirationDelay;
         this.messagesBeforeExpiring = messagesBeforeExpiring;

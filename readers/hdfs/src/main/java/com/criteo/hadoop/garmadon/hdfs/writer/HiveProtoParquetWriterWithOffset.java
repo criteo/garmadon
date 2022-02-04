@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter;
  *
  * @param <MESSAGE_KIND> The message to be written in Proto + Parquet
  */
-public class HiveProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder> implements CloseableWriter<MESSAGE_KIND> {
+public class HiveProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder> implements CloseableHdfsWriter<MESSAGE_KIND> {
     private static final Logger LOGGER = LoggerFactory.getLogger(HiveProtoParquetWriterWithOffset.class);
 
     private ProtoParquetWriterWithOffset protoParquetWriterWithOffset;
@@ -48,7 +48,7 @@ public class HiveProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuil
         return protoParquetWriterWithOffset.close();
     }
 
-    public CloseableWriter<MESSAGE_KIND> withHiveSupport(boolean isHiveSuppport) {
+    public CloseableHdfsWriter<MESSAGE_KIND> withHiveSupport(boolean isHiveSuppport) {
         if (isHiveSuppport) {
             return this;
         } else {

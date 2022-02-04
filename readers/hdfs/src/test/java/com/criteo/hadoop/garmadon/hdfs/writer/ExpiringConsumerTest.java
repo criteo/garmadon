@@ -19,7 +19,7 @@ public class ExpiringConsumerTest {
 
     @Test
     public void expiredAfterTooManyMessages() throws IOException, SQLException {
-        final CloseableWriter<Integer> innerMock = mock(CloseableWriter.class);
+        final CloseableHdfsWriter<Integer> innerMock = mock(CloseableHdfsWriter.class);
         final ExpiringConsumer<Integer> consumer = new ExpiringConsumer<>(innerMock, Duration.ofMinutes(10), 3);
 
         for (int i = 0; i < 3; i++) {
@@ -34,7 +34,7 @@ public class ExpiringConsumerTest {
 
     @Test
     public void expiredAfterTooMuchIdleTime() throws InterruptedException, IOException {
-        final CloseableWriter<Integer> innerMock = mock(CloseableWriter.class);
+        final CloseableHdfsWriter<Integer> innerMock = mock(CloseableHdfsWriter.class);
         final ExpiringConsumer<Integer> consumer = new ExpiringConsumer<>(innerMock, Duration.ofSeconds(1), 10);
 
         consumer.write(1234567890L, 12, DUMMY_OFFSET);
@@ -45,7 +45,7 @@ public class ExpiringConsumerTest {
 
     @Test
     public void sendAnotherMessageAfterTimeExpiration() throws InterruptedException, IOException {
-        final CloseableWriter<Integer> innerMock = mock(CloseableWriter.class);
+        final CloseableHdfsWriter<Integer> innerMock = mock(CloseableHdfsWriter.class);
         final ExpiringConsumer<Integer> consumer = new ExpiringConsumer<>(innerMock, Duration.ofSeconds(1), 10);
 
         Thread.sleep(1001);
@@ -72,7 +72,7 @@ public class ExpiringConsumerTest {
 
     @Test
     public void messagesArePassedToInnerWriter() throws IOException {
-        final CloseableWriter<Integer> innerMock = mock(CloseableWriter.class);
+        final CloseableHdfsWriter<Integer> innerMock = mock(CloseableHdfsWriter.class);
         final ExpiringConsumer<Integer> consumer = new ExpiringConsumer<>(innerMock, Duration.ZERO, 5);
         final List<Offset> offsets = Arrays.asList(buildOffset(11), buildOffset(12), buildOffset(13));
 
@@ -89,7 +89,7 @@ public class ExpiringConsumerTest {
 
     @Test
     public void closeWithNoMessage() throws IOException, SQLException {
-        final CloseableWriter<Integer> innerMock = mock(CloseableWriter.class);
+        final CloseableHdfsWriter<Integer> innerMock = mock(CloseableHdfsWriter.class);
         final ExpiringConsumer<Integer> consumer = new ExpiringConsumer<>(innerMock, Duration.ZERO, 10);
 
         consumer.close();
@@ -99,7 +99,7 @@ public class ExpiringConsumerTest {
 
     @Test
     public void closeWithMessages() throws IOException, SQLException {
-        final CloseableWriter<Integer> innerMock = mock(CloseableWriter.class);
+        final CloseableHdfsWriter<Integer> innerMock = mock(CloseableHdfsWriter.class);
         final ExpiringConsumer<Integer> consumer = new ExpiringConsumer<>(innerMock, Duration.ZERO, 10);
 
         consumer.write(1234567890L, 1, DUMMY_OFFSET);

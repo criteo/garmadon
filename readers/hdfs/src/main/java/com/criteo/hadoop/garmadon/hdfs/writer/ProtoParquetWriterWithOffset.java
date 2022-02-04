@@ -28,7 +28,7 @@ import java.util.function.BiConsumer;
  * @param <MESSAGE_KIND> The message to be written in Proto + Parquet
  */
 public class ProtoParquetWriterWithOffset<MESSAGE_KIND extends MessageOrBuilder>
-    implements CloseableWriter<MESSAGE_KIND> {
+    implements CloseableHdfsWriter<MESSAGE_KIND> {
 
     public static final String LATEST_TIMESTAMP_META_KEY = "latest_timestamp";
 
