@@ -39,6 +39,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import static com.criteo.hadoop.garmadon.hdfs.writer.TestUtils.getConfigurationUsingHadoopLocalFileSystem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -66,10 +67,7 @@ public class ProtoParquetWriterWithOffsetTest {
 
         Configuration configuration = new Configuration();
         configuration.set("fs.file.impl", LocalFileSystem.class.getCanonicalName());
-        localFs = FileSystem.getLocal(configuration);
-
-        System.out.println("\n##### Filesystem getClass: " + localFs.getClass() +"/n");
-        System.out.println("\n##### LocalFileSystem getCanonicalName: " + LocalFileSystem.class.getCanonicalName() +"/n");
+        localFs = FileSystem.getLocal(getConfigurationUsingHadoopLocalFileSystem());
 
         localFs.mkdirs(rootPath);
         localFs.mkdirs(finalPath);

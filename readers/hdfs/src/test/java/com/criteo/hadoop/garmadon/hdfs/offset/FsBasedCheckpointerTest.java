@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.criteo.hadoop.garmadon.hdfs.writer.TestUtils.getConfigurationUsingHadoopLocalFileSystem;
 import static org.mockito.Mockito.*;
 
 public class FsBasedCheckpointerTest {
@@ -124,9 +125,7 @@ public class FsBasedCheckpointerTest {
         try {
             final Path rootPath = new Path(tmpDir.toString());
 
-            Configuration configuration = new Configuration();
-            configuration.set("fs.file.impl", LocalFileSystem.class.getCanonicalName());
-            final FileSystem localFs = FileSystem.getLocal(configuration);
+            FileSystem localFs = FileSystem.getLocal(getConfigurationUsingHadoopLocalFileSystem());
 
             final FsBasedCheckpointer cptr = new FsBasedCheckpointer(localFs, (partitionId, instant) ->
                     new Path(rootPath, partitionId.toString() + '.' +

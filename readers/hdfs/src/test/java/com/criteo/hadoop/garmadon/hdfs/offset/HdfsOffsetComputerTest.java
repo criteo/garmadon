@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.LongStream;
 
+import static com.criteo.hadoop.garmadon.hdfs.writer.TestUtils.getConfigurationUsingHadoopLocalFileSystem;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -120,9 +121,7 @@ public class HdfsOffsetComputerTest {
             // Make sure we can read from subdirectories
             final Path basePath = new Path(rootPath, "embedded");
 
-            Configuration configuration = new Configuration();
-            configuration.set("fs.file.impl", LocalFileSystem.class.getCanonicalName());
-            final FileSystem localFs = FileSystem.getLocal(configuration);
+            FileSystem localFs = FileSystem.getLocal(getConfigurationUsingHadoopLocalFileSystem());
 
             final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, basePath, 2);
 
