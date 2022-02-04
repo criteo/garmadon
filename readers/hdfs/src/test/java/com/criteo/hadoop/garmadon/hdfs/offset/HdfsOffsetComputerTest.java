@@ -11,6 +11,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.parquet.proto.ProtoParquetWriter;
@@ -118,7 +119,10 @@ public class HdfsOffsetComputerTest {
             final Path rootPath = new Path(tmpDir.toString());
             // Make sure we can read from subdirectories
             final Path basePath = new Path(rootPath, "embedded");
-            final FileSystem localFs = FileSystem.getLocal(new Configuration());
+
+            Configuration configuration = new Configuration();
+            configuration.set("fs.file.impl", LocalFileSystem.class.getCanonicalName());
+            final FileSystem localFs = FileSystem.getLocal(configuration);
 
             final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, basePath, 2);
 

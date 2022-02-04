@@ -123,7 +123,10 @@ public class FsBasedCheckpointerTest {
 
         try {
             final Path rootPath = new Path(tmpDir.toString());
-            final FileSystem localFs = FileSystem.getLocal(new Configuration());
+
+            Configuration configuration = new Configuration();
+            configuration.set("fs.file.impl", LocalFileSystem.class.getCanonicalName());
+            final FileSystem localFs = FileSystem.getLocal(configuration);
 
             final FsBasedCheckpointer cptr = new FsBasedCheckpointer(localFs, (partitionId, instant) ->
                     new Path(rootPath, partitionId.toString() + '.' +

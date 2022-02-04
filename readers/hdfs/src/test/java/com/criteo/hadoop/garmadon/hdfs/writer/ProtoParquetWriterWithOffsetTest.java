@@ -12,6 +12,7 @@ import com.google.protobuf.Message;
 import com.google.protobuf.MessageOrBuilder;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
@@ -62,7 +63,14 @@ public class ProtoParquetWriterWithOffsetTest {
         rootPath = new Path(tmpDir.toString());
         finalPath = new Path(rootPath, "final");
         tmpPath = new Path(rootPath, "tmp");
-        localFs = FileSystem.getLocal(new Configuration());
+
+        Configuration configuration = new Configuration();
+        configuration.set("fs.file.impl", LocalFileSystem.class.getCanonicalName());
+        localFs = FileSystem.getLocal(configuration);
+
+        System.out.println("\n##### Filesystem getClass: " + localFs.getClass() +"/n");
+        System.out.println("\n##### LocalFileSystem getCanonicalName: " + LocalFileSystem.class.getCanonicalName() +"/n");
+
         localFs.mkdirs(rootPath);
         localFs.mkdirs(finalPath);
         localFs.mkdirs(tmpPath);
