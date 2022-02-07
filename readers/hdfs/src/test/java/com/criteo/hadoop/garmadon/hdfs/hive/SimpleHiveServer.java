@@ -8,24 +8,29 @@ import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hive.service.server.HiveServer2;
 
+import static org.apache.hadoop.hive.conf.HiveConf.ConfVars.METASTORE_AUTO_CREATE_ALL;
+import static org.apache.hadoop.hive.conf.HiveConf.ConfVars.METASTORE_SCHEMA_VERIFICATION;
+
 public class SimpleHiveServer {
     public static final String DRIVER_NAME = "org.apache.hive.jdbc.HiveDriver";
     private final Path derbyDBPath;
     private final HiveServer2 hiveServer2;
-    private final String port;
+    private final int port;
 
     SimpleHiveServer() throws IOException {
         derbyDBPath = Files.createTempDirectory("derbyDB");
 
         HiveConf hiveConf = new HiveConf();
-        hiveConf.set(HiveConf.ConfVars.METASTORECONNECTURLKEY.toString(), "jdbc:derby:;databaseName=" +
+        hiveConf.setVar(HiveConf.ConfVars.METASTORECONNECTURLKEY, "jdbc:derby:;databaseName=" +
             derbyDBPath.toString() + "/derbyDB" + ";create=true");
+        hiveConf.setBoolVar(HiveConf.ConfVars.METASTORE_AUTO_CREATE_ALL, true);
+        hiveConf.setBoolVar(HiveConf.ConfVars.METASTORE_SCHEMA_VERIFICATION, false);
 
         ServerSocket s = new ServerSocket(0);
-        port = String.valueOf(s.getLocalPort());
-        hiveConf.set(HiveConf.ConfVars.HIVE_SERVER2_THRIFT_PORT.varname, port);
+        port = s.getLocalPort();
+        hiveConf.setIntVar(HiveConf.ConfVars.HIVE_SERVER2_THRIFT_PORT, port);
         // Required to avoid NoSuchMethodError org.apache.hive.service.cli.operation.LogDivertAppender.setWriter
-        hiveConf.set(HiveConf.ConfVars.HIVE_SERVER2_LOGGING_OPERATION_ENABLED.varname, "false");
+        hiveConf.setBoolVar(HiveConf.ConfVars.HIVE_SERVER2_LOGGING_OPERATION_ENABLED, false);
 
         hiveServer2 = new HiveServer2();
         hiveServer2.init(hiveConf);
