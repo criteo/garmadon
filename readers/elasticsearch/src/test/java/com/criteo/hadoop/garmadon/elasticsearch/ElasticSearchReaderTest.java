@@ -89,7 +89,7 @@ public class ElasticSearchReaderTest {
     }
 
     public void writeGarmadonMessage(int type, Message message, long timestampMillis) {
-        GarmadonMessage garmadonMessage = new GarmadonMessage(type, timestampMillis, header, message, null);
+        GarmadonMessage garmadonMessage = new GarmadonMessage(type, timestampMillis, header, message, mock(CommittableOffset.class));
         elasticSearchReader.writeToES(garmadonMessage);
     }
 
