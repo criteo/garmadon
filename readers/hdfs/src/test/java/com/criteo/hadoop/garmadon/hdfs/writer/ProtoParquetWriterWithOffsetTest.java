@@ -61,7 +61,7 @@ public class ProtoParquetWriterWithOffsetTest {
         tmpPath = new Path(rootPath, "tmp");
         Configuration conf = new Configuration();
         conf.set("fs.file.impl", LocalFileSystem.class.getCanonicalName());
-        conf.set("fs.file.impl.disable.cache", LocalFileSystem.class.getCanonicalName());
+        conf.set("fs.file.impl.disable.cache", true);
         localFs = FileSystem.getLocal(conf);
         System.out.println(" LOADED HDFS FILESYSTEM --- " + localFs.getClass().getCanonicalName());
         localFs.mkdirs(rootPath);
