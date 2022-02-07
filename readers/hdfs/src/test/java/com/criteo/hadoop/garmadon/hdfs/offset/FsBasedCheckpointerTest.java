@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.hdfs.offset;
 
+import com.criteo.hadoop.garmadon.hdfs.HadoopLocalFileSystem;
 import com.criteo.hadoop.garmadon.hdfs.TestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -123,7 +124,7 @@ public class FsBasedCheckpointerTest {
 
         try {
             final Path rootPath = new Path(tmpDir.toString());
-            final FileSystem localFs = FileSystem.getLocal(new Configuration());
+            final FileSystem localFs = HadoopLocalFileSystem.get(new Configuration());
 
             final FsBasedCheckpointer cptr = new FsBasedCheckpointer(localFs, (partitionId, instant) ->
                     new Path(rootPath, partitionId.toString() + '.' +

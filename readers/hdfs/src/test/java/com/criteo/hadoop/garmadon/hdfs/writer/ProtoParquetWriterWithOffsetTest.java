@@ -4,6 +4,7 @@ import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 import com.criteo.hadoop.garmadon.event.proto.ResourceManagerEventProtos;
 import com.criteo.hadoop.garmadon.hdfs.FixedOffsetComputer;
+import com.criteo.hadoop.garmadon.hdfs.HadoopLocalFileSystem;
 import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
 import com.criteo.hadoop.garmadon.hdfs.offset.HdfsOffsetComputer;
 import com.criteo.hadoop.garmadon.hdfs.offset.OffsetComputer;
@@ -62,7 +63,7 @@ public class ProtoParquetWriterWithOffsetTest {
         rootPath = new Path(tmpDir.toString());
         finalPath = new Path(rootPath, "final");
         tmpPath = new Path(rootPath, "tmp");
-        localFs = FileSystem.getLocal(new Configuration());
+        localFs = HadoopLocalFileSystem.get(new Configuration());
         localFs.mkdirs(rootPath);
         localFs.mkdirs(finalPath);
         localFs.mkdirs(tmpPath);
