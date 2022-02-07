@@ -4,7 +4,7 @@ import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.util.function.Consumer;
@@ -77,15 +77,15 @@ public class SafepointsTest {
 
     private void testSafepointRate(int severity, int count1, int count2, int nbContainers, Consumer<HeuristicResult> assertDetails) {
         long timestamp = System.currentTimeMillis();
-        Mockito.doAnswer(invocationOnMock -> {
-            HeuristicResult result = invocationOnMock.getArgumentAt(0, HeuristicResult.class);
+        Mockito.doAnswer(answer -> {
+            HeuristicResult result = answer.getArgument(0, HeuristicResult.class);
             Assert.assertEquals(APPLICATION_ID, result.getAppId());
             Assert.assertEquals(severity, result.getSeverity());
             Assert.assertEquals(severity, result.getScore());
             Assert.assertEquals(Safepoints.class, result.getHeuristicClass());
             assertDetails.accept(result);
             return null;
-        }).when(mockDB).createHeuristicResult(Matchers.any());
+        }).when(mockDB).createHeuristicResult(ArgumentMatchers.any());
 
         Safepoints safepoints = new Safepoints(mockDB);
         for (int i = 0; i < nbContainers; i++) {

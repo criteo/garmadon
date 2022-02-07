@@ -4,7 +4,7 @@ import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.util.function.Consumer;
@@ -67,15 +67,15 @@ public class HeapUsageTest {
     }
 
     private void testHeapUsage(int nbContainers, int severity, long used, long max, Consumer<HeuristicResult> assertDetails) {
-        Mockito.doAnswer(invocationOnMock -> {
-            HeuristicResult result = invocationOnMock.getArgumentAt(0, HeuristicResult.class);
+        Mockito.doAnswer(answer -> {
+            HeuristicResult result = answer.getArgument(0, HeuristicResult.class);
             Assert.assertEquals(APPLICATION_ID, result.getAppId());
             Assert.assertEquals(severity, result.getSeverity());
             Assert.assertEquals(severity, result.getScore());
             Assert.assertEquals(HeapUsage.class, result.getHeuristicClass());
             assertDetails.accept(result);
             return null;
-        }).when(mockDB).createHeuristicResult(Matchers.any());
+        }).when(mockDB).createHeuristicResult(ArgumentMatchers.any());
         HeapUsage heapUsage = new HeapUsage(mockDB);
         JVMStatisticsEventsProtos.JVMStatisticsData jvmStats = buildHeapData(used, max);
         for (int i = 0; i < nbContainers; i++) {

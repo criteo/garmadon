@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class ElasticSearchReaderTest {
@@ -89,7 +89,7 @@ public class ElasticSearchReaderTest {
     }
 
     public void writeGarmadonMessage(int type, Message message, long timestampMillis) {
-        GarmadonMessage garmadonMessage = new GarmadonMessage(type, timestampMillis, header, message, null);
+        GarmadonMessage garmadonMessage = new GarmadonMessage(type, timestampMillis, header, message, mock(CommittableOffset.class));
         elasticSearchReader.writeToES(garmadonMessage);
     }
 
