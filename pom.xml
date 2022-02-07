@@ -88,7 +88,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <garmadon.version>1.4.0</garmadon.version>
         <hadoop.version>2.6.0-cdh5.11.0</hadoop.version>
-        <hive.version>1.1.0-cdh5.11.0</hive.version>
+        <hive.version>2.3.8</hive.version>
         <netty-all.version>4.1.37.Final</netty-all.version>
         <bytebuddy.version>1.9.15</bytebuddy.version>
         <spark.version>2.4.3</spark.version>

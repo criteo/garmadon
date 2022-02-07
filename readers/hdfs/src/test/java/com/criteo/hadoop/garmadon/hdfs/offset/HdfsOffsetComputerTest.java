@@ -3,6 +3,7 @@ package com.criteo.hadoop.garmadon.hdfs.offset;
 import com.criteo.hadoop.garmadon.event.proto.DataAccessEventProtos;
 import com.criteo.hadoop.garmadon.event.proto.EventHeaderProtos;
 import com.criteo.hadoop.garmadon.hdfs.EventsWithHeader;
+import com.criteo.hadoop.garmadon.hdfs.HadoopLocalFileSystem;
 import com.criteo.hadoop.garmadon.protobuf.ProtoConcatenator;
 import com.criteo.hadoop.garmadon.reader.Offset;
 import com.criteo.hadoop.garmadon.reader.TopicPartitionOffset;
@@ -118,7 +119,7 @@ public class HdfsOffsetComputerTest {
             final Path rootPath = new Path(tmpDir.toString());
             // Make sure we can read from subdirectories
             final Path basePath = new Path(rootPath, "embedded");
-            final FileSystem localFs = FileSystem.getLocal(new Configuration());
+            final FileSystem localFs = HadoopLocalFileSystem.get(new Configuration());
 
             final HdfsOffsetComputer hdfsOffsetComputer = new HdfsOffsetComputer(localFs, basePath, 2);
 
