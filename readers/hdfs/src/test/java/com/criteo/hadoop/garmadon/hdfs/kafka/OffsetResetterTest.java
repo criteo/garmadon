@@ -86,7 +86,7 @@ public class OffsetResetterTest {
                 Collections.singleton(mock(PartitionedWriter.class)));
 
         offsetResetter.onPartitionsAssigned(Collections.emptyList());
-        verifyZeroInteractions(consumer);
+        verifyNoInteractions(consumer);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class OffsetResetterTest {
 
         offsetResetter.onPartitionsRevoked(Collections.emptyList());
         verify(writer, times(1)).close();
-        verifyZeroInteractions(partitionsRevokedConsumer);
+        verifyNoInteractions(partitionsRevokedConsumer);
     }
 
     @Test

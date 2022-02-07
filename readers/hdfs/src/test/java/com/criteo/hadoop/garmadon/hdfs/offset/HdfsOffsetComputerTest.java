@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.LongStream;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class HdfsOffsetComputerTest {
