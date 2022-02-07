@@ -4,7 +4,7 @@ import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.util.function.Consumer;
@@ -41,15 +41,15 @@ public class G1GCTest {
 
     private void testFullGC(int nbContainers, Consumer<HeuristicResult> assertDetails) {
         long timestamp = 1528206041354L;
-        Mockito.doAnswer(invocationOnMock -> {
-            HeuristicResult result = invocationOnMock.getArgumentAt(0, HeuristicResult.class);
+        Mockito.doAnswer(answer -> {
+            HeuristicResult result = answer.getArgument(0, HeuristicResult.class);
             Assert.assertEquals(APPLICATION_ID, result.getAppId());
             Assert.assertEquals(HeuristicsResultDB.Severity.SEVERE, result.getSeverity());
             Assert.assertEquals(HeuristicsResultDB.Severity.SEVERE, result.getScore());
             Assert.assertEquals(G1GC.class, result.getHeuristicClass());
             assertDetails.accept(result);
             return null;
-        }).when(mockDB).createHeuristicResult(Matchers.any());
+        }).when(mockDB).createHeuristicResult(ArgumentMatchers.any());
 
         G1GC g1GC = new G1GC(mockDB);
         JVMStatisticsEventsProtos.GCStatisticsData.Builder builder = JVMStatisticsEventsProtos.GCStatisticsData.newBuilder()

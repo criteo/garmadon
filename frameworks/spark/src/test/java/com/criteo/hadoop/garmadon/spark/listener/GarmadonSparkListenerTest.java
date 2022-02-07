@@ -11,7 +11,7 @@ import scala.collection.immutable.HashMap;
 
 import java.util.Collections;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class GarmadonSparkListenerTest {

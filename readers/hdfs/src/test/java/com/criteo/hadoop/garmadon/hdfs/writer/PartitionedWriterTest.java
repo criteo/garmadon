@@ -21,7 +21,7 @@ import java.util.function.BiFunction;
 import static com.criteo.hadoop.garmadon.hdfs.TestUtils.instantFromDate;
 import static com.criteo.hadoop.garmadon.hdfs.TestUtils.localDateTimeFromDate;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("unchecked")
@@ -78,7 +78,7 @@ public class PartitionedWriterTest {
                 eq(localDateTimeFromDate("1984-05-21 00:00:00")));
         verifyNoMoreInteractions(writerBuilder);
 
-        verifyZeroInteractions(mockCheckpointer);
+        verifyNoInteractions(mockCheckpointer);
 
         partitionedWriter.close();
         for (ExpiringConsumer<String> consumer : Arrays.asList(firstConsumerMock, secondConsumerMock, thirdConsumerMock)) {
@@ -230,8 +230,8 @@ public class PartitionedWriterTest {
         writer.write(Instant.EPOCH, buildOffset(1, 10), "Ignored");
         writer.write(Instant.EPOCH, buildOffset(1, 11), "Also ignored");
 
-        verifyZeroInteractions(writerBuilder);
-        verifyZeroInteractions(mockCheckpointer);
+        verifyNoInteractions(writerBuilder);
+        verifyNoInteractions(mockCheckpointer);
     }
 
     @Test
@@ -335,7 +335,7 @@ public class PartitionedWriterTest {
         assertArrayEquals(new String[] {"timestamp", "kafka_offset"}, fields);
 
         verify(consumer, times(1)).close();
-        verifyZeroInteractions(mockCheckpointer);
+        verifyNoInteractions(mockCheckpointer);
     }
 
     @Test
@@ -355,7 +355,7 @@ public class PartitionedWriterTest {
         verify(consumer, never()).write(anyLong(), eq(null), any(Offset.class));
         verify(consumer, never()).close();
 
-        verifyZeroInteractions(mockCheckpointer);
+        verifyNoInteractions(mockCheckpointer);
     }
 
     @Test(timeout = 3000)

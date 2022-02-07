@@ -4,7 +4,7 @@ import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.util.function.Consumer;
@@ -56,15 +56,15 @@ public class ThreadsTest {
     }
 
     private void testCreatedThreads(int severity, int total, int nbContainers, Consumer<HeuristicResult> assertDetails) {
-        Mockito.doAnswer(invocationOnMock -> {
-            HeuristicResult result = invocationOnMock.getArgumentAt(0, HeuristicResult.class);
+        Mockito.doAnswer(answer -> {
+            HeuristicResult result = answer.getArgument(0, HeuristicResult.class);
             Assert.assertEquals(APPLICATION_ID, result.getAppId());
             Assert.assertEquals(severity, result.getSeverity());
             Assert.assertEquals(severity, result.getScore());
             Assert.assertEquals(Threads.class, result.getHeuristicClass());
             assertDetails.accept(result);
             return null;
-        }).when(mockDB).createHeuristicResult(Matchers.any());
+        }).when(mockDB).createHeuristicResult(ArgumentMatchers.any());
 
         Threads threads = new Threads(mockDB);
         for (int i = 0; i < nbContainers; i++) {

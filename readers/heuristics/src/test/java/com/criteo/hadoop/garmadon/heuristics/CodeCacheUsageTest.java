@@ -4,7 +4,7 @@ import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.util.function.Consumer;
@@ -41,15 +41,15 @@ public class CodeCacheUsageTest {
     }
 
     private void testCodeCacheUsage(int nbContainers, Consumer<HeuristicResult> assertDetails) {
-        Mockito.doAnswer(invocationOnMock -> {
-            HeuristicResult result = invocationOnMock.getArgumentAt(0, HeuristicResult.class);
+        Mockito.doAnswer(answer -> {
+            HeuristicResult result = answer.getArgument(0, HeuristicResult.class);
             Assert.assertEquals(APPLICATION_ID, result.getAppId());
             Assert.assertEquals(HeuristicsResultDB.Severity.MODERATE, result.getSeverity());
             Assert.assertEquals(HeuristicsResultDB.Severity.MODERATE, result.getScore());
             Assert.assertEquals(CodeCacheUsage.class, result.getHeuristicClass());
             assertDetails.accept(result);
             return null;
-        }).when(mockDB).createHeuristicResult(Matchers.any());
+        }).when(mockDB).createHeuristicResult(ArgumentMatchers.any());
         CodeCacheUsage codeCacheUsage = new CodeCacheUsage(mockDB);
         JVMStatisticsEventsProtos.JVMStatisticsData jvmStats = buildCodeCacheData(63 * 1024 * 1024, 64 * 1024 * 1024);
         for (int i = 0; i < nbContainers; i++) {

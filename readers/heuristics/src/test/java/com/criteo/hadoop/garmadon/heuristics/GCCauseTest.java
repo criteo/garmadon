@@ -4,7 +4,7 @@ import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.util.function.Consumer;
@@ -66,15 +66,15 @@ public class GCCauseTest {
 
     private void testCause(String cause, int nbContainers, Consumer<HeuristicResult> assertDetails) {
         long timestamp = System.currentTimeMillis();
-        Mockito.doAnswer(invocationOnMock -> {
-            HeuristicResult result = invocationOnMock.getArgumentAt(0, HeuristicResult.class);
+        Mockito.doAnswer(answer -> {
+            HeuristicResult result = answer.getArgument(0, HeuristicResult.class);
             Assert.assertEquals(APPLICATION_ID, result.getAppId());
             Assert.assertEquals(HeuristicsResultDB.Severity.MODERATE, result.getSeverity());
             Assert.assertEquals(HeuristicsResultDB.Severity.MODERATE, result.getScore());
             Assert.assertEquals(GCCause.class, result.getHeuristicClass());
             assertDetails.accept(result);
             return null;
-        }).when(mockDB).createHeuristicResult(Matchers.any());
+        }).when(mockDB).createHeuristicResult(ArgumentMatchers.any());
         GCCause gcCause = new GCCause(mockDB);
         JVMStatisticsEventsProtos.GCStatisticsData.Builder builder = JVMStatisticsEventsProtos.GCStatisticsData.newBuilder()
                 .setCause(cause)

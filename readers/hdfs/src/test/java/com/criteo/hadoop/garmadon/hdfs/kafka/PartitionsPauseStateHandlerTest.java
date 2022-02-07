@@ -104,6 +104,6 @@ public class PartitionsPauseStateHandlerTest {
         handler.pause(clazz);
         handler.resume(clazz);
 
-        verifyZeroInteractions(consumer);
+        verifyNoInteractions(consumer);
     }
 }

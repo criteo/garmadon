@@ -121,7 +121,7 @@ public class ProtoParquetWriterWithOffsetTest {
         } catch (IOException ignored) {
         }
         // Writer already closed, so no more interaction
-        verifyZeroInteractions(writerMock);
+        verifyNoInteractions(writerMock);
     }
 
     // We want to check that an empty file gets created and therefore need an actual FS

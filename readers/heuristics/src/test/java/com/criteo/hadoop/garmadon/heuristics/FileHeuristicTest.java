@@ -6,7 +6,7 @@ import com.criteo.hadoop.garmadon.schema.enums.State;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.util.HashMap;
@@ -172,12 +172,12 @@ public class FileHeuristicTest {
     }
 
     private void testFileHeuresticSeverity(String appId, int severity, int nbWrite, int nbDelete) {
-        Mockito.doAnswer(invocationOnMock -> {
-            HeuristicResult result = invocationOnMock.getArgumentAt(0, HeuristicResult.class);
+        Mockito.doAnswer(answer -> {
+            HeuristicResult result = answer.getArgument(0, HeuristicResult.class);
             Assert.assertEquals(severity, result.getSeverity());
             Assert.assertEquals(severity, result.getScore());
             return null;
-        }).when(db).createHeuristicResult(Matchers.any());
+        }).when(db).createHeuristicResult(ArgumentMatchers.any());
         HashMap<FsAction, Integer> actions = new HashMap<>();
         actions.put(FsAction.APPEND, 0);
         actions.put(FsAction.DELETE, nbDelete);
