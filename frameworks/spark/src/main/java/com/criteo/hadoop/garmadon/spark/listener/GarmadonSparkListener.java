@@ -98,7 +98,7 @@ public class GarmadonSparkListener extends SparkListener {
             long submissionTime = stageSubmitted.stageInfo().submissionTime().getOrElse(CURRENT_TIME_MILLIS_SUPPLIER);
             String name = stageSubmitted.stageInfo().name();
             String stageId = String.valueOf(stageSubmitted.stageInfo().stageId());
-            String attemptId = String.valueOf(stageSubmitted.stageInfo().attemptId());
+            String attemptId = String.valueOf(stageSubmitted.stageInfo().attemptNumber());
             int numTasks = stageSubmitted.stageInfo().numTasks();
 
             sendStageStateEvent(submissionTime, State.BEGIN, name, stageId, attemptId, numTasks);
@@ -114,7 +114,7 @@ public class GarmadonSparkListener extends SparkListener {
             long completionTime = stageCompleted.stageInfo().completionTime().getOrElse(CURRENT_TIME_MILLIS_SUPPLIER);
             String name = stageCompleted.stageInfo().name();
             String stageId = String.valueOf(stageCompleted.stageInfo().stageId());
-            String attemptId = String.valueOf(stageCompleted.stageInfo().attemptId());
+            String attemptId = String.valueOf(stageCompleted.stageInfo().attemptNumber());
             int numTasks = stageCompleted.stageInfo().numTasks();
 
             sendStageStateEvent(completionTime, State.END, name, stageId, attemptId, numTasks);
@@ -151,10 +151,9 @@ public class GarmadonSparkListener extends SparkListener {
                     .remoteBlocksFetched()));
             tryToSet(() -> stageEventBuilder.setShuffleReadTotalBlocksFetched(stageCompleted.stageInfo().taskMetrics().shuffleReadMetrics()
                     .totalBlocksFetched()));
-            tryToSet(() -> stageEventBuilder.setShuffleWriteShuffleRecords(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics()
-                    .shuffleRecordsWritten()));
-            tryToSet(() -> stageEventBuilder.setShuffleWriteShuffleTime(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleWriteTime()));
-            tryToSet(() -> stageEventBuilder.setShuffleWriteShuffleBytes(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().shuffleBytesWritten()));
+            tryToSet(() -> stageEventBuilder.setShuffleWriteShuffleRecords(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().recordsWritten()));
+            tryToSet(() -> stageEventBuilder.setShuffleWriteShuffleTime(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().writeTime()));
+            tryToSet(() -> stageEventBuilder.setShuffleWriteShuffleBytes(stageCompleted.stageInfo().taskMetrics().shuffleWriteMetrics().bytesWritten()));
             tryToSet(() -> stageEventBuilder.setInputRecords(stageCompleted.stageInfo().taskMetrics().inputMetrics().recordsRead()));
             tryToSet(() -> stageEventBuilder.setInputBytes(stageCompleted.stageInfo().taskMetrics().inputMetrics().bytesRead()));
             tryToSet(() -> stageEventBuilder.setOutputRecords(stageCompleted.stageInfo().taskMetrics().outputMetrics().recordsWritten()));
@@ -205,9 +204,9 @@ public class GarmadonSparkListener extends SparkListener {
             tryToSet(() -> taskEventBuilder.setShuffleReadLocalBlocksFetched(taskEnd.taskMetrics().shuffleReadMetrics().localBlocksFetched()));
             tryToSet(() -> taskEventBuilder.setShuffleReadRemoteBlocksFetched(taskEnd.taskMetrics().shuffleReadMetrics().remoteBlocksFetched()));
             tryToSet(() -> taskEventBuilder.setShuffleReadTotalBlocksFetched(taskEnd.taskMetrics().shuffleReadMetrics().totalBlocksFetched()));
-            tryToSet(() -> taskEventBuilder.setShuffleWriteShuffleRecords(taskEnd.taskMetrics().shuffleWriteMetrics().shuffleRecordsWritten()));
-            tryToSet(() -> taskEventBuilder.setShuffleWriteShuffleTime(taskEnd.taskMetrics().shuffleWriteMetrics().shuffleWriteTime()));
-            tryToSet(() -> taskEventBuilder.setShuffleWriteShuffleBytes(taskEnd.taskMetrics().shuffleWriteMetrics().shuffleBytesWritten()));
+            tryToSet(() -> taskEventBuilder.setShuffleWriteShuffleRecords(taskEnd.taskMetrics().shuffleWriteMetrics().recordsWritten()));
+            tryToSet(() -> taskEventBuilder.setShuffleWriteShuffleTime(taskEnd.taskMetrics().shuffleWriteMetrics().writeTime()));
+            tryToSet(() -> taskEventBuilder.setShuffleWriteShuffleBytes(taskEnd.taskMetrics().shuffleWriteMetrics().bytesWritten()));
             tryToSet(() -> taskEventBuilder.setInputRecords(taskEnd.taskMetrics().inputMetrics().recordsRead()));
             tryToSet(() -> taskEventBuilder.setInputBytes(taskEnd.taskMetrics().inputMetrics().bytesRead()));
             tryToSet(() -> taskEventBuilder.setOutputRecords(taskEnd.taskMetrics().outputMetrics().recordsWritten()));
