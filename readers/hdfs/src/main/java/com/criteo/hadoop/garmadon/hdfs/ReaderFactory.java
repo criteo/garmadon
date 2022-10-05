@@ -85,6 +85,8 @@ public class ReaderFactory {
             EventsWithHeader.FlinkOperatorEvent.class, FlinkEventProtos.OperatorEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.FLINK_KAFKA_CONSUMER_EVENT, "flink_kafka_consumer",
             EventsWithHeader.FlinkKafkaConsumerEvent.class, FlinkEventProtos.KafkaConsumerEvent.newBuilder());
+        addTypeMapping(out, GarmadonSerialization.TypeMarker.JVMSTATS_EVENT, "jvmstats_event",
+                EventsWithHeader.JvmStatsEvent.class, JVMStatisticsEventsProtos.JVMStatisticsData.newBuilder());
         typeToEventDescriptor = Collections.unmodifiableMap(out);
     }
 

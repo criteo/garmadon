@@ -20,6 +20,12 @@ final public class EventsWithHeader {
         }
     }
 
+    public static abstract class JvmStatsEvent implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(JVMStatisticsEventsProtos.JVMStatisticsData.getDescriptor());
+        }
+    }
+
     public static abstract class FsEvent implements Message {
         public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
             return descriptorForTypeWithHeader(DataAccessEventProtos.FsEvent.getDescriptor());
