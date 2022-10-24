@@ -13,10 +13,6 @@ import com.criteo.hadoop.garmadon.hdfs.writer.*;
 import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
-import com.github.os72.protobuf.dynamic.DynamicSchema;
-import com.github.os72.protobuf.dynamic.MessageDefinition;
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Message;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
@@ -97,50 +93,6 @@ public class ReaderFactory {
         typeToEventDescriptor = Collections.unmodifiableMap(out);
     }
 
-    static void addJvmStatHeapMessage(Map<Integer, GarmadonEventDescriptor> out) {
-        addTypeMapping(out,
-                GarmadonSerialization.TypeMarker.JVMSTATS_EVENT, "jvmstats_heap_event",
-                JVMStatisticsExplodedProtos.JvmStatisticsHeap.class,
-                JVMStatisticsExplodedProtos.JvmStatisticsHeap.newBuilder(),
-                body -> {
-                    JVMStatisticsEventsProtos.JVMStatisticsData jvmStatisticsData = (JVMStatisticsEventsProtos.JVMStatisticsData) body;
-                    JVMStatisticsEventsProtos.JVMStatisticsData.Section heapSection = jvmStatisticsData
-                            .getSectionList()
-                            .stream()
-                            .filter(section -> section.getName().equals("heap"))
-                            .findFirst()
-                            .orElseThrow(() -> new RuntimeException("JVMStatisticsData is supposed to have a heap section but could not find one"));
-
-                    long init = 0;
-                    long committed = 0;
-                    long used = 0;
-                    long max = 0;
-                    for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : heapSection.getPropertyList()) {
-                        if (property.getName().equals("init")) {
-                            init = Long.parseLong(property.getValue());
-                        }
-                        if (property.getName().equals("committed")) {
-                            committed = Long.parseLong(property.getValue());
-                        }
-                        if (property.getName().equals("used")) {
-                            used = Long.parseLong(property.getValue());
-                        }
-                        if (property.getName().equals("max")) {
-                            max = Long.parseLong(property.getValue());
-                        }
-                    }
-
-                    return JVMStatisticsExplodedProtos.JvmStatisticsHeap
-                            .newBuilder()
-                            .setInit(init)
-                            .setCommitted(committed)
-                            .setUsed(used)
-                            .setMax(max)
-                            .build();
-                }
-        );
-    }
-
     private final int maxTmpFileOpenRetries;
     private final int messagesBeforeExpiringWriters;
     private final Duration writersExpirationDelay;
@@ -171,11 +123,56 @@ public class ReaderFactory {
         hiveDatabase = conf.getHive().getHiveDatabase();
     }
 
-    private static <MsgT extends Message> void addTypeMapping(Map<Integer, GarmadonEventDescriptor> out,
-                                                              Integer type,
-                                                              String path,
-                                                              Class<MsgT> clazz,
-                                                              Message.Builder emptyMessageBuilder
+    private static void addJvmStatHeapMessage(Map<Integer, GarmadonEventDescriptor> out) {
+        addTypeMapping(
+            out,
+            GarmadonSerialization.TypeMarker.JVMSTATS_EVENT,
+                "jvmstats_heap_event",
+            JVMStatisticsExplodedProtos.JvmStatisticsHeap.class,
+            JVMStatisticsExplodedProtos.JvmStatisticsHeap.newBuilder(),
+            body -> {
+                JVMStatisticsEventsProtos.JVMStatisticsData jvmStatisticsData = (JVMStatisticsEventsProtos.JVMStatisticsData) body;
+                JVMStatisticsEventsProtos.JVMStatisticsData.Section heapSection = jvmStatisticsData.getSectionList()
+                            .stream()
+                            .filter(section -> section.getName().equals("heap"))
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("JVMStatisticsData is supposed to have a heap section but could not find one"));
+
+                long init = 0;
+                long committed = 0;
+                long used = 0;
+                long max = 0;
+                for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : heapSection.getPropertyList()) {
+                    if (property.getName().equals("init")) {
+                        init = Long.parseLong(property.getValue());
+                    }
+                    if (property.getName().equals("committed")) {
+                        committed = Long.parseLong(property.getValue());
+                    }
+                    if (property.getName().equals("used")) {
+                        used = Long.parseLong(property.getValue());
+                    }
+                    if (property.getName().equals("max")) {
+                        max = Long.parseLong(property.getValue());
+                    }
+                }
+
+                return JVMStatisticsExplodedProtos.JvmStatisticsHeap
+                            .newBuilder()
+                            .setInit(init)
+                            .setCommitted(committed)
+                            .setUsed(used)
+                            .setMax(max)
+                            .build();
+            }
+        );
+    }
+
+    private static void addTypeMapping(Map<Integer, GarmadonEventDescriptor> out,
+                                                             Integer type,
+                                                             String path,
+                                                             Class<? extends Message> clazz,
+                                                             Message.Builder emptyMessageBuilder
     ) {
         addTypeMapping(out, type, path, clazz, emptyMessageBuilder, msg -> msg);
     }
@@ -236,7 +233,7 @@ public class ReaderFactory {
             final PartitionedWriter<Message> writer = new PartitionedWriter<>(
                 consumerBuilder, offsetComputer, eventName, emptyMessageBuilder, checkpointer);
 
-            readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(writer, eventName));
+            readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(writer, eventName, out.getValue().getBodyTransformer()));
 
             writers.add(writer);
         }
@@ -370,7 +367,8 @@ public class ReaderFactory {
     }
 
     private GarmadonReader.GarmadonMessageHandler buildGarmadonMessageHandler(PartitionedWriter<Message> writer,
-                                                                              String eventName) {
+                                                                              String eventName,
+                                                                              Function<Message, Message> bodyTransformer) {
         return msg -> {
             final CommittableOffset offset = msg.getCommittableOffset();
             final Counter.Child messagesWritingFailures = PrometheusMetrics.messageWritingFailuresCounter(eventName, offset.getPartition());
@@ -380,7 +378,7 @@ public class ReaderFactory {
             gauge.set(offset.getOffset());
 
             try {
-                writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset, msg.toProto());
+                writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset, msg.toProto(bodyTransformer));
 
                 messagesWritten.inc();
             } catch (IOException e) {
