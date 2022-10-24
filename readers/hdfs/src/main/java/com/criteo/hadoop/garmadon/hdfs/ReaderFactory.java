@@ -8,10 +8,15 @@ import com.criteo.hadoop.garmadon.hdfs.kafka.OffsetResetter;
 import com.criteo.hadoop.garmadon.hdfs.kafka.PartitionsPauseStateHandler;
 import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
 import com.criteo.hadoop.garmadon.hdfs.offset.*;
+import com.criteo.hadoop.garmadon.hdfs.proto.JVMStatisticsExplodedProtos;
 import com.criteo.hadoop.garmadon.hdfs.writer.*;
 import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
+import com.github.os72.protobuf.dynamic.DynamicSchema;
+import com.github.os72.protobuf.dynamic.MessageDefinition;
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Message;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
@@ -37,6 +42,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.any;
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasType;
@@ -85,9 +91,54 @@ public class ReaderFactory {
             EventsWithHeader.FlinkOperatorEvent.class, FlinkEventProtos.OperatorEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.FLINK_KAFKA_CONSUMER_EVENT, "flink_kafka_consumer",
             EventsWithHeader.FlinkKafkaConsumerEvent.class, FlinkEventProtos.KafkaConsumerEvent.newBuilder());
-        addTypeMapping(out, GarmadonSerialization.TypeMarker.JVMSTATS_EVENT, "jvmstats_event",
-                EventsWithHeader.JvmStatsEvent.class, JVMStatisticsEventsProtos.JVMStatisticsData.newBuilder());
+
+        addJvmStatHeapMessage(out);
+
         typeToEventDescriptor = Collections.unmodifiableMap(out);
+    }
+
+    static void addJvmStatHeapMessage(Map<Integer, GarmadonEventDescriptor> out) {
+        addTypeMapping(out,
+                GarmadonSerialization.TypeMarker.JVMSTATS_EVENT, "jvmstats_heap_event",
+                JVMStatisticsExplodedProtos.JvmStatisticsHeap.class,
+                JVMStatisticsExplodedProtos.JvmStatisticsHeap.newBuilder(),
+                body -> {
+                    JVMStatisticsEventsProtos.JVMStatisticsData jvmStatisticsData = (JVMStatisticsEventsProtos.JVMStatisticsData) body;
+                    JVMStatisticsEventsProtos.JVMStatisticsData.Section heapSection = jvmStatisticsData
+                            .getSectionList()
+                            .stream()
+                            .filter(section -> section.getName().equals("heap"))
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("JVMStatisticsData is supposed to have a heap section but could not find one"));
+
+                    long init = 0;
+                    long committed = 0;
+                    long used = 0;
+                    long max = 0;
+                    for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : heapSection.getPropertyList()) {
+                        if (property.getName().equals("init")) {
+                            init = Long.parseLong(property.getValue());
+                        }
+                        if (property.getName().equals("committed")) {
+                            committed = Long.parseLong(property.getValue());
+                        }
+                        if (property.getName().equals("used")) {
+                            used = Long.parseLong(property.getValue());
+                        }
+                        if (property.getName().equals("max")) {
+                            max = Long.parseLong(property.getValue());
+                        }
+                    }
+
+                    return JVMStatisticsExplodedProtos.JvmStatisticsHeap
+                            .newBuilder()
+                            .setInit(init)
+                            .setCommitted(committed)
+                            .setUsed(used)
+                            .setMax(max)
+                            .build();
+                }
+        );
     }
 
     private final int maxTmpFileOpenRetries;
@@ -120,13 +171,27 @@ public class ReaderFactory {
         hiveDatabase = conf.getHive().getHiveDatabase();
     }
 
+    private static <MsgT extends Message> void addTypeMapping(Map<Integer, GarmadonEventDescriptor> out,
+                                                              Integer type,
+                                                              String path,
+                                                              Class<MsgT> clazz,
+                                                              Message.Builder emptyMessageBuilder
+    ) {
+        addTypeMapping(out, type, path, clazz, emptyMessageBuilder, msg -> msg);
+    }
+
     private static void addTypeMapping(Map<Integer, GarmadonEventDescriptor> out,
-                                       Integer type, String path, Class<? extends Message> clazz, Message.Builder emptyMessageBuilder) {
-        out.put(type, new GarmadonEventDescriptor(path, clazz, emptyMessageBuilder));
+                                       Integer type,
+                                       String path,
+                                       Class<? extends Message> clazz,
+                                       Message.Builder emptyMessageBuilder,
+                                       Function<Message, Message> garmadonMessageTransformer
+    ) {
+        out.put(type, new GarmadonEventDescriptor(path, clazz, emptyMessageBuilder, garmadonMessageTransformer));
     }
 
     public GarmadonReader create(KafkaConsumer<String, byte[]> kafkaConsumer, Collection<String> topics,
-        FileSystem fs, Path finalHdfsDir, Path temporaryHdfsDir) {
+                                 FileSystem fs, Path finalHdfsDir, Path temporaryHdfsDir) {
 
         READER_IDX.getAndIncrement();
 
@@ -140,7 +205,7 @@ public class ReaderFactory {
         if (createHiveTable) {
             try {
                 hiveClient = new HiveClient(new HiveQueryExecutor(driverName, hiveJdbcUrl, hiveDatabase),
-                    new Path(finalHdfsDir, "hive").toString());
+                        new Path(finalHdfsDir, "hive").toString());
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -158,20 +223,20 @@ public class ReaderFactory {
             // When it's day D + 2h, checkpoint for day D - 1m
             final DelayedDailyPathComputer delayedPathComputer = new DelayedDailyPathComputer(Duration.ofHours(24 + 2));
             final Checkpointer checkpointer = new FsBasedCheckpointer(fs,
-                (partition, instant) -> {
-                    Path dayDir = new Path(finalEventDir,
-                        delayedPathComputer.apply(instant.atZone(ZoneId.of("UTC"))));
+                    (partition, instant) -> {
+                        Path dayDir = new Path(finalEventDir,
+                                delayedPathComputer.apply(instant.atZone(ZoneId.of("UTC"))));
 
-                    return new Path(dayDir, "." + partition.toString() + ".done");
-                });
+                        return new Path(dayDir, "." + partition.toString() + ".done");
+                    });
 
             consumerBuilder = buildMessageConsumerBuilder(fs, new Path(temporaryHdfsDir, eventName),
-                finalEventDir, clazz, offsetComputer, pauser, eventName, hiveClient);
+                    finalEventDir, clazz, offsetComputer, pauser, eventName, hiveClient);
 
             final PartitionedWriter<Message> writer = new PartitionedWriter<>(
-                consumerBuilder, offsetComputer, eventName, emptyMessageBuilder, checkpointer);
+                    consumerBuilder, offsetComputer, eventName, emptyMessageBuilder, checkpointer);
 
-            readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(writer, eventName));
+            readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(writer, eventName, out.getValue().getBodyTransformer()));
 
             writers.add(writer);
         }
@@ -192,37 +257,37 @@ public class ReaderFactory {
 
         // We need to build a meta listener as only the last call to #subscribe wins
         kafkaConsumer.subscribe(topics,
-            new ConsumerRebalanceListener() {
-                @Override
-                public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-                    LOGGER.warn("revoking partitions");
-                    long start = System.currentTimeMillis();
-                    kafkaConsumerRebalanceListeners.forEach(listener -> {
-                        try {
-                            listener.onPartitionsRevoked(partitions);
-                        } catch (Exception e) {
-                            LOGGER.error(e.getMessage(), e);
-                        }
-                    });
-                    long end = System.currentTimeMillis();
-                    LOGGER.warn("finished revoking partitions " + (end - start) + "ms");
-                }
+                new ConsumerRebalanceListener() {
+                    @Override
+                    public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+                        LOGGER.warn("revoking partitions");
+                        long start = System.currentTimeMillis();
+                        kafkaConsumerRebalanceListeners.forEach(listener -> {
+                            try {
+                                listener.onPartitionsRevoked(partitions);
+                            } catch (Exception e) {
+                                LOGGER.error(e.getMessage(), e);
+                            }
+                        });
+                        long end = System.currentTimeMillis();
+                        LOGGER.warn("finished revoking partitions " + (end - start) + "ms");
+                    }
 
-                @Override
-                public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-                    LOGGER.warn("assigning partitions");
-                    long start = System.currentTimeMillis();
-                    kafkaConsumerRebalanceListeners.forEach(listener -> {
-                        try {
-                            listener.onPartitionsAssigned(partitions);
-                        } catch (Exception e) {
-                            LOGGER.error(e.getMessage(), e);
-                        }
-                    });
-                    long end = System.currentTimeMillis();
-                    LOGGER.warn("finished assigning partitions in " + (end - start) + "ms");
-                }
-            });
+                    @Override
+                    public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+                        LOGGER.warn("assigning partitions");
+                        long start = System.currentTimeMillis();
+                        kafkaConsumerRebalanceListeners.forEach(listener -> {
+                            try {
+                                listener.onPartitionsAssigned(partitions);
+                            } catch (Exception e) {
+                                LOGGER.error(e.getMessage(), e);
+                            }
+                        });
+                        long end = System.currentTimeMillis();
+                        LOGGER.warn("finished assigning partitions in " + (end - start) + "ms");
+                    }
+                });
 
         readerBuilder.intercept(any(), msg -> {
             heartbeat.handle(msg);
@@ -238,8 +303,8 @@ public class ReaderFactory {
                 .recurring(expirer::run, expirerPeriod);
 
         GarmadonReader reader = readerBuilder
-            .withSubscriptions(topics)
-            .build();
+                .withSubscriptions(topics)
+                .build();
 
         reader.getCompletableFuture().whenComplete((v, t) -> {
             expirer.stop();
@@ -251,16 +316,16 @@ public class ReaderFactory {
     }
 
     private BiFunction<Integer, LocalDateTime, ExpiringConsumer<Message>> buildMessageConsumerBuilder(
-        FileSystem fs, Path temporaryHdfsDir, Path finalHdfsDir, Class<? extends Message> clazz,
-        OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser, String eventName,
-        HiveClient hiveClient) {
+            FileSystem fs, Path temporaryHdfsDir, Path finalHdfsDir, Class<? extends Message> clazz,
+            OffsetComputer offsetComputer, PartitionsPauseStateHandler partitionsPauser, String eventName,
+            HiveClient hiveClient) {
         Counter.Child tmpFileOpenFailures = PrometheusMetrics.tmpFileOpenFailuresCounter(eventName);
         Counter.Child tmpFilesOpened = PrometheusMetrics.tmpFilesOpened(eventName);
 
         return (partition, dayStartTime) -> {
             final String uniqueFileName = UUID.randomUUID().toString();
             final String additionalInfo = String.format("Date = %s, Event type = %s", dayStartTime,
-                clazz.getSimpleName());
+                    clazz.getSimpleName());
 
             for (int i = 0; i < maxTmpFileOpenRetries; ++i) {
                 final Path tmpFilePath = new Path(temporaryHdfsDir, uniqueFileName);
@@ -270,7 +335,7 @@ public class ReaderFactory {
                 try {
                     extraMetadataWriteSupport = new ExtraMetadataWriteSupport<>(new ProtoWriteSupport<>(clazz));
                     protoWriter = new ParquetWriter<>(tmpFilePath, extraMetadataWriteSupport, CompressionCodecName.GZIP,
-                        sizeBeforeFlushingTmp * 1_024 * 1_024, 1_024 * 1_024);
+                            sizeBeforeFlushingTmp * 1_024 * 1_024, 1_024 * 1_024);
                     tmpFilesOpened.inc();
                 } catch (IOException e) {
                     LOGGER.warn("Could not initialize writer ({})", additionalInfo, e);
@@ -287,10 +352,10 @@ public class ReaderFactory {
                 }
 
                 ExpiringConsumer consumer = new ExpiringConsumer<>(new HiveProtoParquetWriterWithOffset<>(
-                    new ProtoParquetWriterWithOffset<>(protoWriter, tmpFilePath, finalHdfsDir,
-                    fs, offsetComputer, dayStartTime, eventName, extraMetadataWriteSupport, partition), hiveClient)
-                    .withHiveSupport(createHiveTable),
-                    writersExpirationDelay, messagesBeforeExpiringWriters);
+                        new ProtoParquetWriterWithOffset<>(protoWriter, tmpFilePath, finalHdfsDir,
+                                fs, offsetComputer, dayStartTime, eventName, extraMetadataWriteSupport, partition), hiveClient)
+                        .withHiveSupport(createHiveTable),
+                        writersExpirationDelay, messagesBeforeExpiringWriters);
 
                 partitionsPauser.resume(clazz);
 
@@ -299,13 +364,13 @@ public class ReaderFactory {
 
             // There's definitely something wrong, potentially the whole instance, so stop trying
             throw new FileSystemNotFoundException(String.format(
-                "Failed opening a temporary file after %d retries: %s",
-                maxTmpFileOpenRetries, additionalInfo));
+                    "Failed opening a temporary file after %d retries: %s",
+                    maxTmpFileOpenRetries, additionalInfo));
         };
     }
 
     private GarmadonReader.GarmadonMessageHandler buildGarmadonMessageHandler(PartitionedWriter<Message> writer,
-                                                                              String eventName) {
+                                                                              String eventName, Function<Message, Message> bodyTransformer) {
         return msg -> {
             final CommittableOffset offset = msg.getCommittableOffset();
             final Counter.Child messagesWritingFailures = PrometheusMetrics.messageWritingFailuresCounter(eventName, offset.getPartition());
@@ -315,7 +380,7 @@ public class ReaderFactory {
             gauge.set(offset.getOffset());
 
             try {
-                writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset, msg.toProto());
+                writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset, msg.toProto(bodyTransformer));
 
                 messagesWritten.inc();
             } catch (IOException e) {

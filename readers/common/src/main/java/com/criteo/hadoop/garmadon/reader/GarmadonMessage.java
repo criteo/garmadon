@@ -8,6 +8,7 @@ import com.google.protobuf.Message;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * A message from GarmadonReader
@@ -84,8 +85,12 @@ public class GarmadonMessage {
         return eventMap;
     }
 
-    public Message toProto() {
-        Message.Builder messageBuilder = ProtoConcatenator.concatToProtobuf(timestamp, committableOffset.getOffset(), Arrays.asList(header, body));
+    public Message toProto(Function<Message, Message> bodyTransformer) {
+        Message.Builder messageBuilder = ProtoConcatenator.concatToProtobuf(
+                timestamp,
+                committableOffset.getOffset(),
+                Arrays.asList(header, bodyTransformer.apply(body))
+        );
 
         // Specific normalization for FS_EVENT
         if (GarmadonSerialization.TypeMarker.FS_EVENT == type) {

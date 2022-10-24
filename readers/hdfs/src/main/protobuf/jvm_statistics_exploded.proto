@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package com.criteo.hadoop.garmadon.hdfs;
+
+option java_package = "com.criteo.hadoop.garmadon.hdfs.proto";
+option java_outer_classname = "JVMStatisticsExplodedProtos";
+
+message JvmStatisticsHeap {
+  int64 init = 1;
+  int64 committed = 2;
+  int64 used = 3;
+  int64 max = 4;
+}
