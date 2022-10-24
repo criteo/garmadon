@@ -132,38 +132,39 @@ public class ReaderFactory {
             JVMStatisticsExplodedProtos.JvmStatisticsHeap.newBuilder(),
             body -> {
                 JVMStatisticsEventsProtos.JVMStatisticsData jvmStatisticsData = (JVMStatisticsEventsProtos.JVMStatisticsData) body;
-                JVMStatisticsEventsProtos.JVMStatisticsData.Section heapSection = jvmStatisticsData.getSectionList()
+                Optional<JVMStatisticsEventsProtos.JVMStatisticsData.Section> maybeHeapSection = jvmStatisticsData.getSectionList()
                             .stream()
                             .filter(section -> section.getName().equals("heap"))
-                            .findFirst()
-                            .orElseThrow(() -> new RuntimeException("JVMStatisticsData is supposed to have a heap section but could not find one"));
+                            .findFirst();
 
-                long init = 0;
-                long committed = 0;
-                long used = 0;
-                long max = 0;
-                for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : heapSection.getPropertyList()) {
-                    if (property.getName().equals("init")) {
-                        init = Long.parseLong(property.getValue());
+                return maybeHeapSection.map(heapSection -> {
+                    long init = 0;
+                    long committed = 0;
+                    long used = 0;
+                    long max = 0;
+                    for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : heapSection.getPropertyList()) {
+                        if (property.getName().equals("init")) {
+                            init = Long.parseLong(property.getValue());
+                        }
+                        if (property.getName().equals("committed")) {
+                            committed = Long.parseLong(property.getValue());
+                        }
+                        if (property.getName().equals("used")) {
+                            used = Long.parseLong(property.getValue());
+                        }
+                        if (property.getName().equals("max")) {
+                            max = Long.parseLong(property.getValue());
+                        }
                     }
-                    if (property.getName().equals("committed")) {
-                        committed = Long.parseLong(property.getValue());
-                    }
-                    if (property.getName().equals("used")) {
-                        used = Long.parseLong(property.getValue());
-                    }
-                    if (property.getName().equals("max")) {
-                        max = Long.parseLong(property.getValue());
-                    }
-                }
 
-                return JVMStatisticsExplodedProtos.JvmStatisticsHeap
+                    return JVMStatisticsExplodedProtos.JvmStatisticsHeap
                             .newBuilder()
                             .setInit(init)
                             .setCommitted(committed)
                             .setUsed(used)
                             .setMax(max)
                             .build();
+                }).orElseGet(() -> JVMStatisticsExplodedProtos.JvmStatisticsHeap.newBuilder().build());
             }
         );
     }
