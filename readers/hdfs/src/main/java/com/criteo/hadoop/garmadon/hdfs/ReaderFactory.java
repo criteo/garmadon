@@ -8,6 +8,7 @@ import com.criteo.hadoop.garmadon.hdfs.kafka.OffsetResetter;
 import com.criteo.hadoop.garmadon.hdfs.kafka.PartitionsPauseStateHandler;
 import com.criteo.hadoop.garmadon.hdfs.monitoring.PrometheusMetrics;
 import com.criteo.hadoop.garmadon.hdfs.offset.*;
+import com.criteo.hadoop.garmadon.hdfs.proto.JVMStatisticsExplodedProtos;
 import com.criteo.hadoop.garmadon.hdfs.writer.*;
 import com.criteo.hadoop.garmadon.reader.CommittableOffset;
 import com.criteo.hadoop.garmadon.reader.GarmadonReader;
@@ -37,6 +38,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.any;
 import static com.criteo.hadoop.garmadon.reader.GarmadonMessageFilters.hasType;
@@ -85,8 +87,9 @@ public class ReaderFactory {
             EventsWithHeader.FlinkOperatorEvent.class, FlinkEventProtos.OperatorEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.FLINK_KAFKA_CONSUMER_EVENT, "flink_kafka_consumer",
             EventsWithHeader.FlinkKafkaConsumerEvent.class, FlinkEventProtos.KafkaConsumerEvent.newBuilder());
-        addTypeMapping(out, GarmadonSerialization.TypeMarker.JVMSTATS_EVENT, "jvmstats_event",
-                EventsWithHeader.JvmStatsEvent.class, JVMStatisticsEventsProtos.JVMStatisticsData.newBuilder());
+
+        addJvmStatHeapMessage(out);
+
         typeToEventDescriptor = Collections.unmodifiableMap(out);
     }
 
@@ -120,9 +123,68 @@ public class ReaderFactory {
         hiveDatabase = conf.getHive().getHiveDatabase();
     }
 
+    private static void addJvmStatHeapMessage(Map<Integer, GarmadonEventDescriptor> out) {
+        addTypeMapping(
+            out,
+            GarmadonSerialization.TypeMarker.JVMSTATS_EVENT,
+                "jvmstats_heap_event",
+            JVMStatisticsExplodedProtos.JvmStatisticsHeap.class,
+            JVMStatisticsExplodedProtos.JvmStatisticsHeap.newBuilder(),
+            body -> {
+                JVMStatisticsEventsProtos.JVMStatisticsData jvmStatisticsData = (JVMStatisticsEventsProtos.JVMStatisticsData) body;
+                JVMStatisticsEventsProtos.JVMStatisticsData.Section heapSection = jvmStatisticsData.getSectionList()
+                            .stream()
+                            .filter(section -> section.getName().equals("heap"))
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("JVMStatisticsData is supposed to have a heap section but could not find one"));
+
+                long init = 0;
+                long committed = 0;
+                long used = 0;
+                long max = 0;
+                for (JVMStatisticsEventsProtos.JVMStatisticsData.Property property : heapSection.getPropertyList()) {
+                    if (property.getName().equals("init")) {
+                        init = Long.parseLong(property.getValue());
+                    }
+                    if (property.getName().equals("committed")) {
+                        committed = Long.parseLong(property.getValue());
+                    }
+                    if (property.getName().equals("used")) {
+                        used = Long.parseLong(property.getValue());
+                    }
+                    if (property.getName().equals("max")) {
+                        max = Long.parseLong(property.getValue());
+                    }
+                }
+
+                return JVMStatisticsExplodedProtos.JvmStatisticsHeap
+                            .newBuilder()
+                            .setInit(init)
+                            .setCommitted(committed)
+                            .setUsed(used)
+                            .setMax(max)
+                            .build();
+            }
+        );
+    }
+
     private static void addTypeMapping(Map<Integer, GarmadonEventDescriptor> out,
-                                       Integer type, String path, Class<? extends Message> clazz, Message.Builder emptyMessageBuilder) {
-        out.put(type, new GarmadonEventDescriptor(path, clazz, emptyMessageBuilder));
+                                                             Integer type,
+                                                             String path,
+                                                             Class<? extends Message> clazz,
+                                                             Message.Builder emptyMessageBuilder
+    ) {
+        addTypeMapping(out, type, path, clazz, emptyMessageBuilder, msg -> msg);
+    }
+
+    private static void addTypeMapping(Map<Integer, GarmadonEventDescriptor> out,
+                                       Integer type,
+                                       String path,
+                                       Class<? extends Message> clazz,
+                                       Message.Builder emptyMessageBuilder,
+                                       Function<Message, Message> garmadonMessageTransformer
+    ) {
+        out.put(type, new GarmadonEventDescriptor(path, clazz, emptyMessageBuilder, garmadonMessageTransformer));
     }
 
     public GarmadonReader create(KafkaConsumer<String, byte[]> kafkaConsumer, Collection<String> topics,
@@ -171,7 +233,7 @@ public class ReaderFactory {
             final PartitionedWriter<Message> writer = new PartitionedWriter<>(
                 consumerBuilder, offsetComputer, eventName, emptyMessageBuilder, checkpointer);
 
-            readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(writer, eventName));
+            readerBuilder.intercept(hasType(eventType), buildGarmadonMessageHandler(writer, eventName, out.getValue().getBodyTransformer()));
 
             writers.add(writer);
         }
@@ -305,7 +367,8 @@ public class ReaderFactory {
     }
 
     private GarmadonReader.GarmadonMessageHandler buildGarmadonMessageHandler(PartitionedWriter<Message> writer,
-                                                                              String eventName) {
+                                                                              String eventName,
+                                                                              Function<Message, Message> bodyTransformer) {
         return msg -> {
             final CommittableOffset offset = msg.getCommittableOffset();
             final Counter.Child messagesWritingFailures = PrometheusMetrics.messageWritingFailuresCounter(eventName, offset.getPartition());
@@ -315,7 +378,7 @@ public class ReaderFactory {
             gauge.set(offset.getOffset());
 
             try {
-                writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset, msg.toProto());
+                writer.write(Instant.ofEpochMilli(msg.getTimestamp()), offset, msg.toProto(bodyTransformer));
 
                 messagesWritten.inc();
             } catch (IOException e) {
