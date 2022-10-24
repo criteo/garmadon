@@ -1,6 +1,7 @@
 package com.criteo.hadoop.garmadon.hdfs;
 
 import com.criteo.hadoop.garmadon.event.proto.*;
+import com.criteo.hadoop.garmadon.hdfs.proto.JVMStatisticsExplodedProtos;
 import com.criteo.hadoop.garmadon.protobuf.ProtoConcatenator;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
@@ -20,9 +21,9 @@ final public class EventsWithHeader {
         }
     }
 
-    public static abstract class JvmStatsEvent implements Message {
+    public static abstract class JvmStatisticsHeap implements Message {
         public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
-            return descriptorForTypeWithHeader(JVMStatisticsEventsProtos.JVMStatisticsData.getDescriptor());
+            return descriptorForTypeWithHeader(JVMStatisticsExplodedProtos.JvmStatisticsHeap.getDescriptor());
         }
     }
 

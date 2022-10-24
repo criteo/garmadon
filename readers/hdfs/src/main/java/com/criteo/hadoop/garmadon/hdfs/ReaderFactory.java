@@ -128,7 +128,7 @@ public class ReaderFactory {
             out,
             GarmadonSerialization.TypeMarker.JVMSTATS_EVENT,
                 "jvmstats_heap_event",
-            JVMStatisticsExplodedProtos.JvmStatisticsHeap.class,
+            EventsWithHeader.JvmStatisticsHeap.class,
             JVMStatisticsExplodedProtos.JvmStatisticsHeap.newBuilder(),
             body -> {
                 JVMStatisticsEventsProtos.JVMStatisticsData jvmStatisticsData = (JVMStatisticsEventsProtos.JVMStatisticsData) body;
