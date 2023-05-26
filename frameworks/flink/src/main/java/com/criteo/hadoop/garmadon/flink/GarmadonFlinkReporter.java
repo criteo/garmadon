@@ -203,7 +203,7 @@ public class GarmadonFlinkReporter implements MetricReporter, Scheduled {
 
     private void reportJobManagerMetrics(long currentTimeMillis) {
         FlinkEventProtos.JobManagerEvent.Builder builder = FlinkEventProtos.JobManagerEvent.newBuilder();
-        
+
         tryToSet(() -> builder.setNumRunningJobs(((Gauge<Long>) gauges.get("numRunningJobs")).getValue()));
         tryToSet(() -> builder.setNumRegisteredTaskManagers(((Gauge<Long>) gauges.get("numRegisteredTaskManagers")).getValue()));
         tryToSet(() -> builder.setTaskSlotsAvailable(((Gauge<Long>) gauges.get("taskSlotsAvailable")).getValue()));
