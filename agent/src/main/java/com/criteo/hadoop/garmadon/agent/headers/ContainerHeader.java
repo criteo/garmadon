@@ -60,6 +60,7 @@ public final class ContainerHeader {
                 component = Component.APP_MASTER;
                 break;
             case "org.apache.spark.executor.CoarseGrainedExecutorBackend":
+            case "org.apache.spark.executor.YarnCoarseGrainedExecutorBackend":
                 framework = Framework.SPARK;
                 component = Component.EXECUTOR;
                 try {
