@@ -23,9 +23,14 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -36,6 +41,13 @@ import java.util.stream.Collectors;
 public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
     private static final ZoneId UTC_ZONE = ZoneId.of("UTC");
     private static final Logger LOGGER = LoggerFactory.getLogger(PartitionedWriter.class);
+
+    // A pool of worker dedicated to writing files to HDFS. Allows the reader to block for less time
+    // the pool is static to avoid creating too many pools
+    private static final ExecutorService consumerCloserThreads = Executors.newCachedThreadPool();
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(consumerCloserThreads::shutdown));
+    }
 
     private final BiFunction<Integer, LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> writerBuilder;
     private final OffsetComputer offsetComputer;
@@ -92,12 +104,12 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
         final AbstractMap.SimpleEntry<Integer, LocalDateTime> dayAndPartition = new AbstractMap.SimpleEntry<>(
                 partitionId, dayStartTime);
 
-        if (!latestMessageTimeForPartitionAndDay.containsKey(dayAndPartition) ||
-                when.isAfter(latestMessageTimeForPartitionAndDay.get(dayAndPartition))) {
-            latestMessageTimeForPartitionAndDay.put(dayAndPartition, when);
-        }
-
         synchronized (perPartitionDayWriters) {
+            if (!latestMessageTimeForPartitionAndDay.containsKey(dayAndPartition) ||
+                    when.isAfter(latestMessageTimeForPartitionAndDay.get(dayAndPartition))) {
+                latestMessageTimeForPartitionAndDay.put(dayAndPartition, when);
+            }
+
             if (shouldSkipOffset(offset.getOffset(), partitionId)) return;
 
             // /!\ This line must not be switched with the offset computation as this would create empty files otherwise
@@ -152,8 +164,8 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
             }
 
             return partitionsId.stream()
-                .filter(perPartitionStartOffset::containsKey)
-                .collect(Collectors.toMap(Function.identity(), perPartitionStartOffset::get));
+                    .filter(perPartitionStartOffset::containsKey)
+                    .collect(Collectors.toMap(Function.identity(), perPartitionStartOffset::get));
         }
     }
 
@@ -177,13 +189,13 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
 
             try {
                 if ((!perPartitionDayWriters.containsKey(partition) || perPartitionDayWriters.get(partition).isEmpty())
-                    && !shouldSkipOffset(offset.getOffset(), partition)) {
+                        && !shouldSkipOffset(offset.getOffset(), partition)) {
                     final ExpiringConsumer<MESSAGE_KIND> heartbeatWriter = writerBuilder.apply(offset.getPartition(), LocalDateTime.now());
 
                     long now = System.currentTimeMillis();
                     MESSAGE_KIND msg = (MESSAGE_KIND) ProtoConcatenator
-                        .concatToProtobuf(now, offset.getOffset(), Arrays.asList(emptyHeader, emptyMessageBuilder.build()))
-                        .build();
+                            .concatToProtobuf(now, offset.getOffset(), Arrays.asList(emptyHeader, emptyMessageBuilder.build()))
+                            .build();
 
                     heartbeatWriter.write(now, msg, offset);
 
@@ -200,42 +212,105 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
         }
     }
 
-    private void possiblyCloseConsumers(Predicate<ExpiringConsumer> shouldClose) {
+    private void possiblyCloseConsumers(Predicate<ExpiringConsumer<MESSAGE_KIND>> shouldClose) {
         synchronized (perPartitionDayWriters) {
-            perPartitionDayWriters.forEach((partitionId, dailyWriters) ->
-                dailyWriters.entrySet().removeIf(entry -> {
-                    final ExpiringConsumer<MESSAGE_KIND> consumer = entry.getValue();
-                    final LocalDateTime day = entry.getKey();
 
-                    if (shouldClose.test(consumer)) {
-                        if (tryExpireConsumer(consumer)) {
-                            final Counter.Child filesCommitted = PrometheusMetrics.filesCommittedCounter(eventName);
-                            final Counter.Child checkpointsFailures = PrometheusMetrics.checkpointFailuresCounter(eventName, partitionId);
-                            final Counter.Child checkpointsSuccesses = PrometheusMetrics.checkpointSuccessesCounter(eventName, partitionId);
+            // We create a bunch of async tasks that will try to close the consumers
+            List<CompletableFuture<CloseConsumerTaskResult>> futureResults = perPartitionDayWriters.entrySet().stream().flatMap(partitionAndWriters -> {
+                Integer partitionId = partitionAndWriters.getKey();
+                Map<LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> dailyWriters = partitionAndWriters.getValue();
 
-                            filesCommitted.inc();
+                return dailyWriters.entrySet().stream().map(e -> CompletableFuture.supplyAsync(
+                        new CloseConsumerTask(shouldClose, partitionId, e.getKey(), e.getValue()),
+                        consumerCloserThreads
+                ));
+            }).collect(Collectors.toList());
 
-                            try {
-                                checkpointer.tryCheckpoint(partitionId, latestMessageTimeForPartitionAndDay.get(
-                                        new AbstractMap.SimpleEntry<>(partitionId, day)));
-                            } catch (RuntimeException e) {
-                                String msg = String.format("Failed to checkpoint partition %d, date %s, event %s",
-                                        partitionId, day.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                                        eventName);
-
-                                LOGGER.warn(msg, e);
-                                checkpointsFailures.inc();
+            CompletableFuture
+                    // We wait for all those tasks to complete
+                    .allOf(futureResults.toArray(new CompletableFuture<?>[0]))
+                    // Upon completion, we remove the consumers if relevant
+                    // we do this only once all futures have completed
+                    // to avoid race condition on the map object we modify.
+                    // If an error occurred, we log it. This way we make sure not to throw to early and miss
+                    // cleaning work as well as logging all errors
+                    .whenComplete((ignored1, ignored2) -> futureResults.forEach(futureResult -> {
+                        try {
+                            CloseConsumerTaskResult result = futureResult.get();
+                            // If the consumer was properly closed, remove it
+                            if (result.closed) {
+                                perPartitionDayWriters.get(result.partitionId).remove(result.day);
                             }
-
-                            checkpointsSuccesses.inc();
-
-                            return true;
+                        } catch (ExecutionException | InterruptedException e) {
+                            LOGGER.error("A consumer could not be closed properly", e);
                         }
+                    })).join(); // return nothing or throws if any error occurred
+        }
+    }
+
+    private final static class CloseConsumerTaskResult {
+        private final Integer partitionId;
+        private final LocalDateTime day;
+
+        private final boolean closed;
+
+        private CloseConsumerTaskResult(Integer partitionId, LocalDateTime day, boolean closed) {
+            this.partitionId = partitionId;
+            this.day = day;
+            this.closed = closed;
+        }
+    }
+
+    private final class CloseConsumerTask implements Supplier<CloseConsumerTaskResult> {
+
+        private final Predicate<ExpiringConsumer<MESSAGE_KIND>> shouldClose;
+        private final Integer partitionId;
+        private final LocalDateTime day;
+        private final ExpiringConsumer<MESSAGE_KIND> consumer;
+
+        private CloseConsumerTask(
+                Predicate<ExpiringConsumer<MESSAGE_KIND>> shouldClose,
+                Integer partitionId,
+                LocalDateTime day,
+                ExpiringConsumer<MESSAGE_KIND> consumer
+        ) {
+            this.shouldClose = shouldClose;
+            this.partitionId = partitionId;
+            this.day = day;
+            this.consumer = consumer;
+        }
+
+        @Override
+        public CloseConsumerTaskResult get() {
+            boolean closed = false;
+            if (shouldClose.test(consumer)) {
+                if (tryExpireConsumer(consumer)) {
+                    final Counter.Child filesCommitted = PrometheusMetrics.filesCommittedCounter(eventName);
+                    final Counter.Child checkpointsFailures = PrometheusMetrics.checkpointFailuresCounter(eventName, partitionId);
+                    final Counter.Child checkpointsSuccesses = PrometheusMetrics.checkpointSuccessesCounter(eventName, partitionId);
+
+                    filesCommitted.inc();
+
+                    try {
+                        checkpointer.tryCheckpoint(partitionId, latestMessageTimeForPartitionAndDay.get(
+                                new AbstractMap.SimpleEntry<>(partitionId, day)));
+                    } catch (RuntimeException e) {
+                        String msg = String.format("Failed to checkpoint partition %d, date %s, event %s",
+                                partitionId, day.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                                eventName);
+
+                        LOGGER.warn(msg, e);
+                        checkpointsFailures.inc();
                     }
 
-                    return false;
-                }));
+                    checkpointsSuccesses.inc();
+
+                    closed = true;
+                }
+            }
+            return new CloseConsumerTaskResult(partitionId, day, closed);
         }
+
     }
 
     private boolean tryExpireConsumer(ExpiringConsumer<MESSAGE_KIND> consumer) {
