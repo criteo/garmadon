@@ -44,9 +44,10 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
 
     // A pool of worker dedicated to writing files to HDFS. Allows the reader to block for less time
     // the pool is static to avoid creating too many pools
-    private static final ExecutorService consumerCloserThreads = Executors.newCachedThreadPool();
+    private static final ExecutorService CONSUMER_CLOSER_THREADS = Executors.newCachedThreadPool();
+
     static {
-        Runtime.getRuntime().addShutdownHook(new Thread(consumerCloserThreads::shutdown));
+        Runtime.getRuntime().addShutdownHook(new Thread(CONSUMER_CLOSER_THREADS::shutdown));
     }
 
     private final BiFunction<Integer, LocalDateTime, ExpiringConsumer<MESSAGE_KIND>> writerBuilder;
@@ -222,7 +223,7 @@ public class PartitionedWriter<MESSAGE_KIND> implements Closeable {
 
                 return dailyWriters.entrySet().stream().map(e -> CompletableFuture.supplyAsync(
                         new CloseConsumerTask(shouldClose, partitionId, e.getKey(), e.getValue()),
-                        consumerCloserThreads
+                        CONSUMER_CLOSER_THREADS
                 ));
             }).collect(Collectors.toList());
 
