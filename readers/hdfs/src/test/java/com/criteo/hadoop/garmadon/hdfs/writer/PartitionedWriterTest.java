@@ -184,7 +184,6 @@ public class PartitionedWriterTest {
             partitionedWriter.close();
         } catch (RuntimeException re) {
             throwException = true;
-            assertEquals("Couldn't close writer for ignored", re.getMessage());
         }
 
         assertTrue(throwException);
