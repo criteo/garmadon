@@ -8,6 +8,9 @@ public class MXBeanHelper {
     public static final String MEMORY_POOL_METASPACE_HEADER = "metaspace";
     public static final String MEMORY_POOL_COMPRESSEDCLASSPACE_HEADER = "compressedclassspace";
     public static final String MEMORY_POOL_PERM_HEADER = "perm";
+    public static final String MEMORY_POOL_CODE_HEAP_PROFILED_NMETHODS_HEADER = "CodeHeap 'profiled nmethods'";
+    public static final String MEMORY_POOL_CODE_HEAP_NON_PROFILED_NMETHODS_HEADER = "CodeHeap 'non-profiled nmethods'";
+    public static final String MEMORY_POOL_CODE_HEAP_NON_NMETHODS_HEADER = "CodeHeap 'non-nmethods'";
 
     protected MXBeanHelper() {
         throw new UnsupportedOperationException();
