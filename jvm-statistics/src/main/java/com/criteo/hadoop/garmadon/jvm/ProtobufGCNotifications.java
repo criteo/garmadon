@@ -1,6 +1,5 @@
 package com.criteo.hadoop.garmadon.jvm;
 
-import com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos;
 import com.sun.management.GarbageCollectionNotificationInfo;
 import com.sun.management.GcInfo;
 
@@ -15,10 +14,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+import static com.criteo.hadoop.garmadon.event.proto.JVMStatisticsEventsProtos.*;
+import static com.criteo.hadoop.garmadon.jvm.MXBeanHelper.*;
+
 public class ProtobufGCNotifications extends GCNotifications {
     private static final long MILLIS_MINUTE = 60000;
 
-    private static List<GcEvent> gcEvents = new ArrayList<>();
+    private static final List<GcEvent> GC_EVENTS = new ArrayList<>();
 
 
     public ProtobufGCNotifications() {
@@ -26,20 +28,21 @@ public class ProtobufGCNotifications extends GCNotifications {
     }
 
     static void handleHSNotification(Notification notification, Object handback) {
-        BiConsumer<Long, JVMStatisticsEventsProtos.GCStatisticsData> printer = (BiConsumer<Long, JVMStatisticsEventsProtos.GCStatisticsData>) handback;
-        GarbageCollectionNotificationInfo gcNotifInfo = GarbageCollectionNotificationInfo.from((CompositeData) notification.getUserData());
-        GcInfo gcInfo = gcNotifInfo.getGcInfo();
+        BiConsumer<Long, GCStatisticsData> printer = (BiConsumer<Long, GCStatisticsData>) handback;
+        GarbageCollectionNotificationInfo gcNotificationInfo =
+                GarbageCollectionNotificationInfo.from((CompositeData) notification.getUserData());
+        GcInfo gcInfo = gcNotificationInfo.getGcInfo();
         GcEvent gcEvent = new GcEvent(gcInfo.getStartTime(), gcInfo.getEndTime());
         long pauseTime = gcEvent.getPauseDuration();
-        String collectorName = gcNotifInfo.getGcName();
+        String collectorName = gcNotificationInfo.getGcName();
         long serverStartTime = ManagementFactory.getRuntimeMXBean().getStartTime();
         long timestamp = gcInfo.getStartTime() + serverStartTime;
-        String cause = gcNotifInfo.getGcCause();
-        JVMStatisticsEventsProtos.GCStatisticsData.Builder builder = JVMStatisticsEventsProtos.GCStatisticsData.newBuilder();
+        String cause = gcNotificationInfo.getGcCause();
+        GCStatisticsData.Builder builder = GCStatisticsData.newBuilder();
         builder.setPauseTime(pauseTime);
 
-        builder.setGcPauseRatio1Min((float) computeTotalPauseTime(gcEvents, gcEvent) / MILLIS_MINUTE * 100);
-        gcEvents.add(gcEvent);
+        builder.setGcPauseRatio1Min((float) computeTotalPauseTime(GC_EVENTS, gcEvent) / MILLIS_MINUTE * 100);
+        GC_EVENTS.add(gcEvent);
 
         builder.setCollectorName(collectorName);
         builder.setCause(cause);
@@ -49,28 +52,34 @@ public class ProtobufGCNotifications extends GCNotifications {
             MemoryUsage before = memoryUsageBeforeGc.get(entry.getKey());
             MemoryUsage after = entry.getValue();
             switch (MXBeanHelper.normalizeName(entry.getKey())) {
-                case MXBeanHelper.MEMORY_POOL_CODE_HEADER:
+                case MEMORY_POOL_CODE_HEADER: // Java 8 only
                     builder.setCodeBefore(before.getUsed());
                     builder.setCodeAfter(after.getUsed());
                     break;
-                case MXBeanHelper.MEMORY_POOL_PERM_HEADER:
-                case MXBeanHelper.MEMORY_POOL_METASPACE_HEADER:
+                case MEMORY_POOL_CODE_HEAP_PROFILED_NMETHODS_HEADER: // Java 9+ only
+                case MEMORY_POOL_CODE_HEAP_NON_PROFILED_NMETHODS_HEADER: // Java 9+ only
+                case MEMORY_POOL_CODE_HEAP_NON_NMETHODS_HEADER: // Java 9+ only
+                    builder.setCodeBefore(builder.getCodeBefore() + before.getUsed());
+                    builder.setCodeAfter(builder.getCodeAfter() + after.getUsed());
+                    break;
+                case MEMORY_POOL_PERM_HEADER:
+                case MEMORY_POOL_METASPACE_HEADER:
                     builder.setMetaspaceBefore(before.getUsed());
                     builder.setMetaspaceAfter(after.getUsed());
                     break;
-                case MXBeanHelper.MEMORY_POOL_EDEN_HEADER:
+                case MEMORY_POOL_EDEN_HEADER:
                     builder.setEdenBefore(before.getUsed());
                     builder.setEdenAfter(after.getUsed());
                     break;
-                case MXBeanHelper.MEMORY_POOL_SURVIVOR_HEADER:
+                case MEMORY_POOL_SURVIVOR_HEADER:
                     builder.setSurvivorBefore(before.getUsed());
                     builder.setSurvivorAfter(after.getUsed());
                     break;
-                case MXBeanHelper.MEMORY_POOL_OLD_HEADER:
+                case MEMORY_POOL_OLD_HEADER:
                     builder.setOldBefore(before.getUsed());
                     builder.setOldAfter(after.getUsed());
                     break;
-                case MXBeanHelper.MEMORY_POOL_COMPRESSEDCLASSPACE_HEADER:
+                case MEMORY_POOL_COMPRESSEDCLASSPACE_HEADER:
                     // ignore
                     break;
                 default:

@@ -27,7 +27,11 @@ message GCStatisticsData {
     int64 survivor_after = 7;
     int64 old_before = 8;
     int64 old_after = 9;
+    // Normally this is a Java 8 field only. So in Java 9+ this is the precomputed sum of
+    // code_heap_profiled_nmethods_before, code_heap_non_profiled_nmethods_before and code_heap_non_nmethods_before.
     int64 code_before = 10;
+    // Normally this is a Java 8 field only. So in Java 9+ this is the precomputed sum
+    // of code_heap_profiled_nmethods_after, code_heap_non_profiled_nmethods_after and code_heap_non_nmethods_after.
     int64 code_after = 11;
     int64 metaspace_before = 12;
     int64 metaspace_after = 13;
