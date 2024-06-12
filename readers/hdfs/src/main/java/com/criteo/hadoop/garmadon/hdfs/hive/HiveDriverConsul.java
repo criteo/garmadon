@@ -47,12 +47,22 @@ public class HiveDriverConsul extends HiveDriver {
      */
     private String getEndPoint(String url) throws SQLException {
         String serviceName = url.split("/")[0];
-        List<HealthService> nodes = getHealthyEndPoints(serviceName);
-        if (nodes.size() == 0) throw new SQLException("No nodes are available for service: " + serviceName);
-        HealthService electedNode = nodes.get(ThreadLocalRandom.current().nextInt(nodes.size()));
+        List<HealthService> healthServices = getHealthyEndPoints(serviceName);
+        if (healthServices.size() == 0) throw new SQLException("No nodes are available for service: " + serviceName);
+        HealthService randomHealthyService = healthServices.get(ThreadLocalRandom.current().nextInt(healthServices.size()));
 
-        String host = electedNode.getNode().getAddress();
-        String port = String.valueOf(electedNode.getService().getPort());
+
+        String nodeHost = randomHealthyService.getNode().getAddress();
+        String serviceHost = randomHealthyService.getService().getAddress();
+
+        String host;
+        if (serviceHost.isEmpty()) {
+            host = nodeHost;
+        } else {
+            host = serviceHost;
+        }
+
+        String port = String.valueOf(randomHealthyService.getService().getPort());
 
         String hiveJdbcConf = url.replace(serviceName, "");
         return "jdbc:hive2://" + host + ":" + port + hiveJdbcConf;
