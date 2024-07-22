@@ -63,12 +63,20 @@ public class ConsulConnection implements Connection {
     @Override
     public void establishConnection() {
         for (; ; ) {
-            List<HealthService> nodes = getHealthyEndPoints();
+            List<HealthService> healthServices = getHealthyEndPoints();
 
-            HealthService electedNode = nodes.get(ThreadLocalRandom.current().nextInt(nodes.size()));
+            HealthService randomHealthyService = healthServices.get(ThreadLocalRandom.current().nextInt(healthServices.size()));
 
-            String host = electedNode.getNode().getAddress();
-            Integer port = electedNode.getService().getPort();
+            String nodeHost = randomHealthyService.getNode().getAddress();
+            String serviceHost = randomHealthyService.getService().getAddress();
+
+            String host;
+            if (serviceHost.isEmpty()) {
+                host = nodeHost;
+            } else {
+                host = serviceHost;
+            }
+            Integer port = randomHealthyService.getService().getPort();
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("will use forwarder at " + host + ":" + port);
