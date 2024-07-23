@@ -78,10 +78,6 @@ public class ConsulConnection implements Connection {
             }
             Integer port = randomHealthyService.getService().getPort();
 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("will use forwarder at " + host + ":" + port);
-            }
-
             if (underlying != null) {
                 underlying.close();
             }

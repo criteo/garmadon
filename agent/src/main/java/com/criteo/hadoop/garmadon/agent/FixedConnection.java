@@ -46,7 +46,7 @@ public class FixedConnection implements Connection {
 
     boolean establishConnectionOnce() {
         try {
-            LOGGER.debug("try connecting to {}:{}", host, port);
+            LOGGER.info("try connecting to {}:{}", host, port);
 
             socket = new Socket();
             socket.connect(new InetSocketAddress(host, port), CONNECTION_TIMEOUT);
@@ -57,7 +57,7 @@ public class FixedConnection implements Connection {
 
             makeHandshake();
 
-            LOGGER.debug("connection established");
+            LOGGER.info("connection established to {}:{}", host, port);
             connectionEstablished = true;
             return true;
         } catch (IOException | ProtocolVersion.InvalidFrameException | ProtocolVersion.InvalidProtocolVersionException exception) {
@@ -83,7 +83,7 @@ public class FixedConnection implements Connection {
     }
 
     private void waitBeforeRetry() {
-        LOGGER.debug("cannot connect to {}:{}", host, port);
+        LOGGER.error("cannot connect to {}:{}", host, port);
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
