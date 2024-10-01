@@ -30,6 +30,7 @@ public class GarmadonSerialization {
         int SPARK_TASK_EVENT = 3003;
         int SPARK_EXECUTOR_STORAGE_STATUS_EVENT = 3004;
         int SPARK_RDD_STORAGE_STATUS_EVENT = 3005;
+        int SPARK_APPLICATION_STATE_EVENT = 3006;
         int APPLICATION_EVENT = 4000;
         int CONTAINER_EVENT = 4001;
         int FLINK_JOB_MANAGER_EVENT = 5000;
@@ -79,6 +80,8 @@ public class GarmadonSerialization {
             SparkEventProtos.ExecutorStorageStatus::toByteArray, SparkEventProtos.ExecutorStorageStatus::parseFrom);
         register(SparkEventProtos.RDDStorageStatus.class, TypeMarker.SPARK_RDD_STORAGE_STATUS_EVENT, "SPARK_RDD_STORAGE_STATUS_EVENT",
             SparkEventProtos.RDDStorageStatus::toByteArray, SparkEventProtos.RDDStorageStatus::parseFrom);
+        register(SparkEventProtos.ApplicationStateEvent.class, TypeMarker.SPARK_APPLICATION_STATE_EVENT, "SPARK_APPLICATION_STATE_EVENT",
+            SparkEventProtos.ApplicationStateEvent::toByteArray, SparkEventProtos.ApplicationStateEvent::parseFrom);
 
         // Flink events
         register(FlinkEventProtos.JobManagerEvent.class, TypeMarker.FLINK_JOB_MANAGER_EVENT, "FLINK_JOB_MANAGER_EVENT",

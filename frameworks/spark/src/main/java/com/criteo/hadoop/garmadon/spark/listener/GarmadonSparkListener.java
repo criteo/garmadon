@@ -4,6 +4,7 @@ import com.criteo.hadoop.garmadon.TriConsumer;
 import com.criteo.hadoop.garmadon.event.proto.SparkEventProtos;
 import com.criteo.hadoop.garmadon.schema.enums.State;
 import com.criteo.hadoop.garmadon.schema.events.Header;
+import org.apache.spark.SparkConf;
 import org.apache.spark.scheduler.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +78,45 @@ public class GarmadonSparkListener extends SparkListener {
         this.eventHandler.accept(time, buildOverrideHeader(executorId), executorStateEvent.build());
     }
 
+    private void sendApplicationStateEvent(long time, State state) {
+        SparkConf conf = new SparkConf();
+        String deployMode = conf.get("spark.submit.deployMode", "unknown");
+
+        int driverMemoryMb = (int) conf.getSizeAsMb("spark.driver.memory", "0");
+        int driverMemoryOverheadMb = (int) conf.getSizeAsMb("spark.driver.memoryOverhead", "0");
+        int driverCores = conf.getInt("spark.driver.cores", 0);
+
+        int executorMemoryMb = (int) conf.getSizeAsMb("spark.executor.memory", "0");
+        int executorMemoryOverheadMb = (int) conf.getSizeAsMb("spark.executor.memoryOverhead", "0");
+        float executorMemoryOverheadFactor = (float) conf.getDouble("spark.executor.memoryOverheadFactor", 0.0);
+        int executorCores = conf.getInt("spark.executor.cores", 0);
+
+        int executorInstances = conf.getInt("spark.executor.instances", 0);
+        boolean dynamicAllocationEnabled = conf.getBoolean("spark.dynamicAllocation.enabled", false);
+        int dynamicAllocationMinExecutors = conf.getInt("spark.dynamicAllocation.minExecutors", 0);
+        int dynamicAllocationMaxExecutors = conf.getInt("spark.dynamicAllocation.maxExecutors", 0);
+        int dynamicAllocationInitialExecutors = conf.getInt("spark.dynamicAllocation.initialExecutors", 0);
+
+        SparkEventProtos.ApplicationStateEvent.Builder applicationStateEvent = SparkEventProtos.ApplicationStateEvent
+                .newBuilder()
+                .setState(state.name())
+                .setDeployMode(deployMode)
+                .setDriverMemoryMb(driverMemoryMb)
+                .setDriverMemoryOverheadMb(driverMemoryOverheadMb)
+                .setDriverCores(driverCores)
+                .setExecutorMemoryMb(executorMemoryMb)
+                .setExecutorMemoryOverheadMb(executorMemoryOverheadMb)
+                .setExecutorMemoryOverheadFactor(executorMemoryOverheadFactor)
+                .setExecutorCores(executorCores)
+                .setExecutorInstances(executorInstances)
+                .setDynamicAllocationEnabled(dynamicAllocationEnabled)
+                .setDynamicAllocationMinExecutors(dynamicAllocationMinExecutors)
+                .setDynamicAllocationMaxExecutors(dynamicAllocationMaxExecutors)
+                .setDynamicAllocationInitialExecutors(dynamicAllocationInitialExecutors);
+
+        this.eventHandler.accept(time, header, applicationStateEvent.build());
+    }
+
     @Override
     public void onApplicationStart(SparkListenerApplicationStart applicationStart) {
         try {
@@ -87,7 +127,22 @@ public class GarmadonSparkListener extends SparkListener {
                     .build())
                     .toSerializeHeader();
         } catch (Throwable t) {
+            LOGGER.warn("Failed to initialize header on application startup", t);
+        }
+
+        try {
+            sendApplicationStateEvent(applicationStart.time(), State.BEGIN);
+        } catch (Throwable t) {
             LOGGER.warn("Failed to send event for onApplicationStart", t);
+        }
+    }
+
+    @Override
+    public void onApplicationEnd(SparkListenerApplicationEnd applicationEnd) {
+        try {
+            sendApplicationStateEvent(applicationEnd.time(), State.END);
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to send event for onApplicationEnd", t);
         }
     }
 

@@ -135,3 +135,20 @@ message RDDStorageStatus {
     int64 memory_used = 3;
     int64 disk_used = 4;
 }
+
+message ApplicationStateEvent {
+    string state = 1;
+    string deploy_mode = 2;
+    int32 driver_memory_mb = 3;
+    int32 driver_memory_overhead_mb = 4;
+    int32 driver_cores = 5;
+    int32 executor_memory_mb = 6;
+    int32 executor_memory_overhead_mb = 7;
+    float executor_memory_overhead_factor = 8;
+    int32 executor_cores = 9;
+    int32 executor_instances = 10;
+    bool dynamic_allocation_enabled = 11;
+    int32 dynamic_allocation_min_executors = 12;
+    int32 dynamic_allocation_max_executors = 13;
+    int32 dynamic_allocation_initial_executors = 14;
+}
