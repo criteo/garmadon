@@ -19,9 +19,12 @@ public class Header {
     private final String hostname;
     private final String pid;
     private final String framework;
+    private final String frameworkVersion;
     private final String component;
     private final String executorId;
     private final String mainClass;
+    private final String javaVersion;
+    private final int javaFeature;
     private final List<String> tags;
 
     public enum Tag {
@@ -32,22 +35,23 @@ public class Header {
         STANDALONE
     }
 
-    public Header(String id, String applicationID, String attemptID, String applicationName,
-                  String user, String containerID, String hostname, List<String> tags, String pid,
-                  String framework, String component, String executorId, String mainClass) {
-        this.id = id;
-        this.applicationID = applicationID;
-        this.attemptID = attemptID;
-        this.applicationName = applicationName;
-        this.user = user;
-        this.containerID = containerID;
-        this.hostname = hostname;
-        this.tags = tags;
-        this.pid = pid;
-        this.framework = framework;
-        this.component = component;
-        this.executorId = executorId;
-        this.mainClass = mainClass;
+    private Header(Builder builder) {
+        this.id = builder.id;
+        this.applicationID = builder.applicationID;
+        this.attemptID = builder.attemptID;
+        this.applicationName = builder.applicationName;
+        this.user = builder.user;
+        this.containerID = builder.containerID;
+        this.hostname = builder.hostname;
+        this.tags = builder.tags;
+        this.pid = builder.pid;
+        this.framework = builder.framework;
+        this.frameworkVersion = builder.frameworkVersion;
+        this.component = builder.component;
+        this.executorId = builder.executorId;
+        this.mainClass = builder.mainClass;
+        this.javaVersion = builder.javaVersion;
+        this.javaFeature = builder.javaFeature;
     }
 
     public String getId() {
@@ -86,6 +90,11 @@ public class Header {
         return framework;
     }
 
+    public String getFrameworkVersion() {
+        return frameworkVersion;
+    }
+
+
     public String getComponent() {
         return component;
     }
@@ -96,6 +105,14 @@ public class Header {
 
     public String getMainClass() {
         return mainClass;
+    }
+
+    public String getJavaVersion() {
+        return javaVersion;
+    }
+
+    public int getJavaFeature() {
+        return javaFeature;
     }
 
     public List<String> getTags() {
@@ -119,56 +136,68 @@ public class Header {
                 Objects.equals(this.tags, otherHeader.tags) &&
                 Objects.equals(this.pid, otherHeader.pid) &&
                 Objects.equals(this.framework, otherHeader.framework) &&
+                Objects.equals(this.frameworkVersion, otherHeader.frameworkVersion) &&
                 Objects.equals(this.component, otherHeader.component) &&
                 Objects.equals(this.executorId, otherHeader.executorId) &&
-                Objects.equals(this.mainClass, otherHeader.mainClass);
+                Objects.equals(this.mainClass, otherHeader.mainClass) &&
+                Objects.equals(this.javaVersion, otherHeader.javaVersion) &&
+                this.javaFeature == otherHeader.javaFeature;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, applicationID, attemptID, applicationName, user, containerID, hostname, pid, framework, component,
-                executorId, mainClass, tags);
+        return Objects.hash(id, applicationID, attemptID, applicationName, user, containerID, hostname, pid, framework,
+                frameworkVersion, component, executorId, mainClass, tags, javaVersion, javaFeature);
     }
 
     public Header cloneAndOverride(Header override) {
-        String idClone = override.id != null ? override.id : this.id;
-        String applicationIDClone = override.applicationID != null ? override.applicationID : this.applicationID;
-        String attemptIDClone = override.attemptID != null ? override.attemptID : this.attemptID;
-        String applicationNameClone = override.applicationName != null ? override.applicationName : this.applicationName;
-        String userClone = override.user != null ? override.user : this.user;
-        String containerIDClone = override.containerID != null ? override.containerID : this.containerID;
-        String hostnameClone = override.hostname != null ? override.hostname : this.hostname;
-        List<String> tagsClone = (override.tags != null && override.tags.size() > 0) ? override.tags : this.tags;
-        String pidClone = override.pid != null ? override.pid : this.pid;
-        String frameworkClone = override.framework != null ? override.framework : this.framework;
-        String componentClone = override.component != null ? override.component : this.component;
-        String executorIdClone = override.executorId != null ? override.executorId : this.executorId;
-        String mainClassClone = override.mainClass != null ? override.mainClass : this.mainClass;
-        return new Header(
-                idClone,
-                applicationIDClone,
-                attemptIDClone,
-                applicationNameClone,
-                userClone,
-                containerIDClone,
-                hostnameClone,
-                tagsClone,
-                pidClone,
-                frameworkClone,
-                componentClone,
-                executorIdClone,
-                mainClassClone
-        );
+        Builder cloneBuilder = new Builder();
+        cloneBuilder.id = override.id != null ? override.id : this.id;
+        cloneBuilder.applicationID = override.applicationID != null ? override.applicationID : this.applicationID;
+        cloneBuilder.attemptID = override.attemptID != null ? override.attemptID : this.attemptID;
+        cloneBuilder.applicationName = override.applicationName != null ? override.applicationName : this.applicationName;
+        cloneBuilder.user = override.user != null ? override.user : this.user;
+        cloneBuilder.containerID = override.containerID != null ? override.containerID : this.containerID;
+        cloneBuilder.hostname = override.hostname != null ? override.hostname : this.hostname;
+        cloneBuilder.tags = (override.tags != null && !override.tags.isEmpty()) ? override.tags : this.tags;
+        cloneBuilder.pid = override.pid != null ? override.pid : this.pid;
+        cloneBuilder.framework = override.framework != null ? override.framework : this.framework;
+        cloneBuilder.frameworkVersion = override.frameworkVersion != null ? override.frameworkVersion : this.frameworkVersion;
+        cloneBuilder.component = override.component != null ? override.component : this.component;
+        cloneBuilder.executorId = override.executorId != null ? override.executorId : this.executorId;
+        cloneBuilder.mainClass = override.mainClass != null ? override.mainClass : this.mainClass;
+        cloneBuilder.javaVersion = override.javaVersion != null ? override.javaVersion : this.javaVersion;
+        cloneBuilder.javaFeature = override.javaFeature != 0 ? override.javaFeature : this.javaFeature;
+        return cloneBuilder.build();
+    }
+
+    private Builder toBuilder() {
+        Builder builder = new Builder();
+        builder.id = this.id;
+        builder.applicationID = this.applicationID;
+        builder.attemptID = this.attemptID;
+        builder.applicationName = this.applicationName;
+        builder.user = this.user;
+        builder.containerID = this.containerID;
+        builder.hostname = this.hostname;
+        builder.tags = this.tags;
+        builder.pid = this.pid;
+        builder.framework = this.framework;
+        builder.frameworkVersion = this.frameworkVersion;
+        builder.component = this.component;
+        builder.executorId = this.executorId;
+        builder.mainClass = this.mainClass;
+        builder.javaVersion = this.javaVersion;
+        builder.javaFeature = this.javaFeature;
+        return builder;
     }
 
     public SerializedHeader toSerializeHeader() {
-        return new SerializedHeader(id, applicationID, attemptID, applicationName, user, containerID, hostname, tags, pid, framework,
-                component, executorId, mainClass);
+        return new SerializedHeader(toBuilder());
     }
 
     public byte[] serialize() {
-        EventHeaderProtos.Header.Builder builder = EventHeaderProtos.Header
-                .newBuilder();
+        EventHeaderProtos.Header.Builder builder = EventHeaderProtos.Header.newBuilder();
         if (id != null) builder.setId(id);
         if (applicationID != null) builder.setApplicationId(applicationID);
         if (attemptID != null) builder.setAttemptId(attemptID);
@@ -176,16 +205,19 @@ public class Header {
         if (user != null) builder.setUsername(user);
         if (containerID != null) builder.setContainerId(containerID);
         if (hostname != null) builder.setHostname(hostname);
-        if (tags != null && tags.size() > 0) {
+        if (tags != null && !tags.isEmpty()) {
             for (String tag : tags) {
                 builder.addTags(tag);
             }
         }
         if (pid != null) builder.setPid(pid);
         if (framework != null) builder.setFramework(framework);
+        if (frameworkVersion != null) builder.setFrameworkVersion(frameworkVersion);
         if (component != null) builder.setComponent(component);
         if (executorId != null) builder.setExecutorId(executorId);
         if (mainClass != null) builder.setMainClass(mainClass);
+        if (javaVersion != null) builder.setJavaVersion(javaVersion);
+        if (javaFeature != 0) builder.setJavaFeature(javaFeature);
         return builder.build().toByteArray();
     }
 
@@ -201,9 +233,12 @@ public class Header {
                 ", hostname='" + hostname + '\'' +
                 ", pid='" + pid + '\'' +
                 ", framework='" + framework + '\'' +
+                ", frameworkVersion='" + frameworkVersion + '\'' +
                 ", component='" + component + '\'' +
                 ", executorId='" + executorId + '\'' +
                 ", mainClass='" + mainClass + '\'' +
+                ", javaVersion='" + javaVersion + '\'' +
+                ", javaFeature='" + javaFeature + '\'' +
                 ", tags=" + tags +
                 '}';
     }
@@ -211,11 +246,8 @@ public class Header {
     public static class SerializedHeader extends Header {
         private final byte[] bytes;
 
-        SerializedHeader(String id, String applicationID, String appAttemptID, String applicationName, String user,
-                         String containerID, String hostname, List<String> tags, String pid, String framework,
-                         String component, String executorId, String mainClass) {
-            super(id, applicationID, appAttemptID, applicationName, user, containerID, hostname, tags, pid, framework,
-                    component, executorId, mainClass);
+        SerializedHeader(Builder builder) {
+            super(builder);
             this.bytes = super.serialize();
         }
 
@@ -230,7 +262,7 @@ public class Header {
     }
 
     public static class Builder {
-        private static final Logger LOGGER = LoggerFactory.getLogger(Header.Builder.class);
+        private static final Logger LOGGER = LoggerFactory.getLogger(Builder.class);
         private static final String TAGS_REGEX = "^[a-zA-Z0-9_\\-\\.]*$";
 
         private String id;
@@ -242,9 +274,13 @@ public class Header {
         private String hostname;
         private String pid;
         private String framework;
+        private String frameworkVersion;
         private String component;
         private String executorId;
         private String mainClass;
+        private String javaVersion;
+        private int javaFeature;
+
         private List<String> tags = new ArrayList<>();
 
         Builder() {
@@ -313,6 +349,11 @@ public class Header {
             return this;
         }
 
+        public Builder withFrameworkVersion(String frameworkVersion) {
+            this.frameworkVersion = frameworkVersion;
+            return this;
+        }
+
         public Builder withComponent(String component) {
             this.component = component;
             return this;
@@ -328,14 +369,22 @@ public class Header {
             return this;
         }
 
+        public Builder withJavaVersion(String javaVersion) {
+            this.javaVersion = javaVersion;
+            return this;
+        }
+
+        public Builder withJavaFeature(int javaFeature) {
+            this.javaFeature = javaFeature;
+            return this;
+        }
+
         public Header build() {
-            return new Header(id, applicationID, attemptID, applicationName, user, containerID, hostname, tags,
-                    pid, framework, component, executorId, mainClass);
+            return new Header(this);
         }
 
         public SerializedHeader buildSerializedHeader() {
-            return new SerializedHeader(id, applicationID, attemptID, applicationName, user, containerID, hostname,
-                    tags, pid, framework, component, executorId, mainClass);
+            return new SerializedHeader(this);
         }
     }
 }

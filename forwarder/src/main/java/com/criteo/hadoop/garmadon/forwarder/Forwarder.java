@@ -5,6 +5,7 @@ import com.criteo.hadoop.garmadon.forwarder.kafka.KafkaService;
 import com.criteo.hadoop.garmadon.forwarder.metrics.ForwarderEventSender;
 import com.criteo.hadoop.garmadon.forwarder.metrics.HostStatistics;
 import com.criteo.hadoop.garmadon.forwarder.metrics.PrometheusHttpMetrics;
+import com.criteo.hadoop.garmadon.jvm.utils.JavaRuntime;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.events.HeaderUtils;
 import com.criteo.hadoop.garmadon.schema.exceptions.TypeMarkerException;
@@ -73,6 +74,8 @@ public class Forwarder {
                 .withPid(HeaderUtils.getPid())
                 .withUser(HeaderUtils.getUser())
                 .withMainClass(HeaderUtils.getJavaMainClass())
+                .withJavaVersion(JavaRuntime.version())
+                .withJavaFeature(JavaRuntime.feature())
                 .addTag(Header.Tag.FORWARDER.name());
 
         for (String tag : properties.getProperty("forwarder.tags", "").split(",")) {

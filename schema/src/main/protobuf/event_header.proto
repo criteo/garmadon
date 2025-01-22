@@ -19,4 +19,7 @@ message Header {
     repeated string tags = 12;
     string id = 13;
     string main_class = 14;
+    string java_version = 15;
+    int32 java_feature = 16;
+    string framework_version = 17;
 }

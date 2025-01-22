@@ -28,6 +28,7 @@ public class ElasticSearchCacheManagerTest {
     private final String component = "EXECUTOR";
     private final String applicationName = "application_name";
     private final String framework = "SPARK";
+    private final String frameworkVersion = "3.5.2";
     private final String username = "n.fraison";
     private final List<String> yarnTags = new ArrayList();
 
@@ -89,6 +90,7 @@ public class ElasticSearchCacheManagerTest {
             .setAttemptId("attempt_id")
             .setContainerId(containerId)
             .setFramework(framework)
+            .setFrameworkVersion(frameworkVersion)
             .setComponent(component)
             .build();
 
@@ -148,6 +150,7 @@ public class ElasticSearchCacheManagerTest {
             .setContainerId(containerId)
             .setComponent(Component.UNKNOWN.name())
             .setFramework(framework)
+            .setFrameworkVersion(frameworkVersion)
             .build();
 
         DataAccessEventProtos.FsEvent fsEvent = DataAccessEventProtos.FsEvent.newBuilder()

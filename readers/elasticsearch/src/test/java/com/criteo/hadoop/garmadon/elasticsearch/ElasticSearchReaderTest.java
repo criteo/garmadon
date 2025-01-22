@@ -14,8 +14,9 @@ import com.criteo.hadoop.garmadon.schema.enums.FsAction;
 import com.criteo.hadoop.garmadon.schema.enums.State;
 import com.criteo.hadoop.garmadon.schema.serialization.GarmadonSerialization;
 import com.google.protobuf.Message;
-import java.util.Collection;
-import java.util.Collections;
+
+import java.util.*;
+
 import org.apache.kafka.clients.consumer.MockConsumer;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -24,10 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -81,11 +78,14 @@ public class ElasticSearchReaderTest {
         headerMap.put("component", "");
         headerMap.put("application_name", "application_name");
         headerMap.put("framework", "");
+        headerMap.put("framework_version", "");
         headerMap.put("attempt_id", "attempt_id");
         headerMap.put("container_id", "container_id");
         headerMap.put("username", "user");
         headerMap.put("executor_id", "");
         headerMap.put("timestamp", 0);
+        headerMap.put("java_version", "");
+        headerMap.put("java_feature", 0);
     }
 
     public void writeGarmadonMessage(int type, Message message, long timestampMillis) {
@@ -110,7 +110,7 @@ public class ElasticSearchReaderTest {
         writeGarmadonMessage(type, event, 0L);
         verify(bulkProcessor, times(1)).add(argument.capture(), any(CommittableOffset.class));
 
-        assertEquals(eventMap, argument.getValue().sourceAsMap());
+        assertEquals(new TreeMap<>(eventMap), new TreeMap<>(argument.getValue().sourceAsMap()));
     }
 
     @Test
@@ -143,7 +143,7 @@ public class ElasticSearchReaderTest {
         writeGarmadonMessage(type, event, 0L);
         verify(bulkProcessor, times(1)).add(argument.capture(), any(CommittableOffset.class));
 
-        assertEquals(eventMap, argument.getValue().sourceAsMap());
+        assertEquals(new TreeMap<>(eventMap), new TreeMap<>(argument.getValue().sourceAsMap()));
     }
 
     @Test
@@ -205,7 +205,8 @@ public class ElasticSearchReaderTest {
             }
         }
         assertEquals(dsikEventMap, diskMap);
-        assertEquals(jvmEventMap, jvmMap);
+
+        assertEquals(new TreeMap<>(jvmEventMap), new TreeMap<>(jvmMap));
     }
 
     @Test
@@ -234,7 +235,7 @@ public class ElasticSearchReaderTest {
         writeGarmadonMessage(type, event, 0L);
         verify(bulkProcessor, times(1)).add(argument.capture(), any(CommittableOffset.class));
 
-        assertEquals(eventMap, argument.getValue().sourceAsMap());
+        assertEquals(new TreeMap<>(eventMap), new TreeMap<>(argument.getValue().sourceAsMap()));
     }
 
 }

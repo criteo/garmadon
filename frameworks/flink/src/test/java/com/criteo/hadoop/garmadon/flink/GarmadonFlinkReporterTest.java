@@ -23,10 +23,21 @@ public class GarmadonFlinkReporterTest {
 
     private static final Random random = new Random();
 
-    private static final Header DUMMY_HEADER = new Header("id", "appId", "appAttemptId",
-            "appName", "user", "container", "hostname",
-            Collections.singletonList("tag"), "pid", "framework", "component",
-            "executorId", "mainClass");
+    private static final Header DUMMY_HEADER = Header.newBuilder()
+            .withId("id")
+            .withApplicationID("appId")
+            .withAttemptID("appAttemptId")
+            .withApplicationName("appName")
+            .withUser("user")
+            .withContainerID("container")
+            .withHostname("hostname")
+            .addTag("tag")
+            .withPid("pid")
+            .withFramework("framework")
+            .withComponent("component")
+            .withExecutorId("executorId")
+            .withMainClass("mainClass")
+            .build();
 
     private static final String HOST = "localhost";
     private static final String JOB_ID = "SomeJobId";
@@ -117,7 +128,7 @@ public class GarmadonFlinkReporterTest {
         FlinkEventProtos.TaskManagerEvent taskManagerEvent = (FlinkEventProtos.TaskManagerEvent) capturedValues.get(0);
         assertThat(taskManagerEvent.getNetworkTotalMemorySegments() == valueNetworkTotalMemorySegments);
 
-        FlinkEventProtos.TaskEvent taskEvent = (FlinkEventProtos.TaskEvent) capturedValues.get(1);
+        FlinkEventProtos.FlinkTaskEvent taskEvent = (FlinkEventProtos.FlinkTaskEvent) capturedValues.get(1);
         assertThat(taskEvent.getNumBytesOutPerSecond() == valueNumBytesOutPerSecond);
     }
 }
