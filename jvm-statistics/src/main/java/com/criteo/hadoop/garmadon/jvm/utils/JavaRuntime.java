@@ -1,6 +1,26 @@
 package com.criteo.hadoop.garmadon.jvm.utils;
 
-public class JavaRuntime {
+public final class JavaRuntime {
+    private static final Version VERSION = parseVersion(System.getProperty("java.version"));
+
+    private JavaRuntime() {
+    }
+
+    static Version parseVersion(String version) {
+        try {
+            int versionNumber;
+            if (version.startsWith("1.")) {
+                versionNumber = Integer.parseInt(version.substring(2, 3));
+            } else {
+                int dot = version.indexOf(".");
+                versionNumber = Integer.parseInt(version.substring(0, dot));
+            }
+            return new Version(version, versionNumber);
+        } catch (RuntimeException e) {
+            return new Version(version, e);
+        }
+    }
+
     public static int feature() throws RuntimeException {
         if (VERSION.feature == -1) {
             throw new RuntimeException("Could not parse Java version.", VERSION.parsingError);
@@ -12,27 +32,10 @@ public class JavaRuntime {
         return VERSION.version;
     }
 
-    private static final Version VERSION = parseVersion(System.getProperty("java.version"));
-
-    static Version parseVersion(String version) {
-        try {
-            int versionNumber;
-            if (version.startsWith("1."))
-                versionNumber = Integer.parseInt(version.substring(2, 3));
-            else {
-                int dot = version.indexOf(".");
-                versionNumber = Integer.parseInt(version.substring(0, dot));
-            }
-            return new Version(version, versionNumber);
-        } catch (RuntimeException e) {
-            return new Version(version, e);
-        }
-    }
-
-    static class Version {
-        final String version;
-        final int feature;
-        final RuntimeException parsingError;
+    final static class Version {
+        private final String version;
+        private final int feature;
+        private final RuntimeException parsingError;
 
         private Version(String version, int feature) {
             this.version = version;
@@ -44,6 +47,18 @@ public class JavaRuntime {
             this.version = version;
             this.feature = -1;
             this.parsingError = parsingError;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public int getFeature() {
+            return feature;
+        }
+
+        public RuntimeException getParsingError() {
+            return parsingError;
         }
     }
 }

@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SparkRuntimeTest extends TestCase {
 
     public void test_get_3_2_version() {
-        assertThat(SparkRuntime.getVersion()).isEqualTo("3.2.1-criteo-20230524130102");
+        assertThat(SparkRuntime.getVersion()).isEqualTo("3.2.1");
     }
 
 }

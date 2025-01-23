@@ -4,7 +4,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class SparkRuntime {
+public final class SparkRuntime {
+    private static final Version VERSION = computeVersion();
+
+    private SparkRuntime() {
+    }
+
     public static String getVersion() throws RuntimeException {
         if (VERSION.versionNumber == null) {
             throw new RuntimeException("Could not find Spark version. Is this a Spark application?", VERSION.throwable);
@@ -12,40 +17,38 @@ public class SparkRuntime {
         return VERSION.versionNumber;
     }
 
-    private static final Version VERSION = computeVersion();
-
     static Version computeVersion() {
         try {
             return computeSpark32Version();
-        } catch (Throwable t) {
+        } catch (Throwable e) {
             try {
                 return computeSpark35Version();
-            } catch (Throwable t2) {
-                return new Version(t2);
+            } catch (Throwable t) {
+                return new Version(t);
             }
         }
     }
 
     private static Version computeSpark32Version() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-            Class<?> clazz = Class.forName("org.apache.spark.package$SparkBuildInfo$");
-            Field moduleFIeld = clazz.getField("MODULE$");
-            Object instance = moduleFIeld.get(null);
-            Field versionField = clazz.getDeclaredField("spark_version");
-            versionField.setAccessible(true);
-            String version = (String) versionField.get(instance);
-            return new Version(version);
+        Class<?> clazz = Class.forName("org.apache.spark.package$SparkBuildInfo$");
+        Field moduleFIeld = clazz.getField("MODULE$");
+        Object instance = moduleFIeld.get(null);
+        Field versionField = clazz.getDeclaredField("spark_version");
+        versionField.setAccessible(true);
+        String version = (String) versionField.get(instance);
+        return new Version(version);
     }
 
     private static Version computeSpark35Version() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-            Class<?> clazz = Class.forName("org.apache.spark.SparkBuildInfo");
-            Method versionMethod = clazz.getDeclaredMethod("spark_version");
-            String version = (String) versionMethod.invoke(null);
-            return new Version(version);
+        Class<?> clazz = Class.forName("org.apache.spark.SparkBuildInfo");
+        Method versionMethod = clazz.getDeclaredMethod("spark_version");
+        String version = (String) versionMethod.invoke(null);
+        return new Version(version);
     }
 
-    static class Version {
-        final String versionNumber;
-        final Throwable throwable;
+    final static class Version {
+        private final String versionNumber;
+        private final Throwable throwable;
 
         private Version(String versionNumber) {
             this.versionNumber = versionNumber;
@@ -55,6 +58,14 @@ public class SparkRuntime {
         private Version(Throwable throwable) {
             this.versionNumber = null;
             this.throwable = throwable;
+        }
+
+        public String getVersionNumer() {
+            return versionNumber;
+        }
+
+        public Throwable getThrowable() {
+            return throwable;
         }
     }
 }

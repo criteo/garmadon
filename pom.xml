@@ -120,6 +120,7 @@
     <modules>
         <module>schema</module>
         <module>jvm-statistics</module>
+        <module>jvm-statistics-test-spark-3.5</module>
         <module>frameworks</module>
         <module>agent</module>
         <module>forwarder</module>
