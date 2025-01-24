@@ -78,8 +78,8 @@ public class JVMStatisticsTest {
     private static final Pattern GCSTATS_PATTERN = Pattern.compile(".* occurred at \\d+-\\d+-\\d+ \\d+:\\d+:\\d+.\\d+, took \\d+ms \\(System\\.gc\\(\\)\\) {2}(eden|survivor|old)\\[[-+]\\d+]\\(\\d+->\\d+\\) (eden|survivor|old)\\[[-+]\\d+]\\(\\d+->\\d+\\).*");
     private static final Pattern MACHINESTATS_PATTERN = Pattern.compile("machinecpu\\[%user=\\d+\\.\\d+, %nice=\\d+\\.\\d+, %sys=\\d+\\.\\d+, %idle=\\d+\\.\\d+, %iowait=\\d+\\.\\d+, %irq=\\d+\\.\\d+, %softirq=\\d+\\.\\d+, %core0=\\d+\\.\\d+.*], memory\\[swap=\\d+, physical=\\d+], network\\[.*_rx=\\d+, .*_tx=\\d+, .*_pktrx=\\d+, .*_pkttx=\\d+, .*_errin=\\d+, .*_errout=\\d+.*], disk\\[.*_reads=\\d+, .*_readbytes=\\d+, .*_writes=\\d+, .*_writebytes=\\d+.*]");
 
-    private final CountDownLatch latch = new CountDownLatch(1);
-    private final AtomicBoolean isMatches = new AtomicBoolean();
+    private CountDownLatch latch = new CountDownLatch(1);
+    private AtomicBoolean isMatches = new AtomicBoolean();
     private volatile String logLine;
 
     @Test
@@ -136,7 +136,7 @@ public class JVMStatisticsTest {
 
     private void assertJVMStatsLog(Long timestamp, String s) {
         logLine = s;
-        Pattern pattern = JavaRuntime.getVersion() == 8 ? JVM_8_STATS_PATTERN : JVM_9_STATS_PATTERN;
+        Pattern pattern = JavaRuntime.feature() == 8 ? JVM_8_STATS_PATTERN : JVM_9_STATS_PATTERN;
         isMatches.set(pattern.matcher(s).matches());
         latch.countDown();
     }

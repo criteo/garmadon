@@ -1,5 +1,7 @@
 package com.criteo.hadoop.garmadon.agent.headers;
 
+import com.criteo.hadoop.garmadon.jvm.utils.JavaRuntime;
+import com.criteo.hadoop.garmadon.jvm.utils.SparkRuntime;
 import com.criteo.hadoop.garmadon.schema.enums.Component;
 import com.criteo.hadoop.garmadon.schema.enums.Framework;
 import com.criteo.hadoop.garmadon.schema.events.Header;
@@ -21,6 +23,7 @@ public final class ContainerHeader {
     // as grafana/ES can't join on different event for display HDFS call per framework/component
     // or compute used per framework/component
     private Framework framework = Framework.YARN;
+    private String frameworkVersion = null;
     private Component component = Component.UNKNOWN;
     private String executorId;
     private String mainClass;
@@ -52,11 +55,9 @@ public final class ContainerHeader {
                 break;
             // SPARK
             case "org.apache.spark.deploy.yarn.ApplicationMaster":
-                framework = Framework.SPARK;
-                component = Component.APP_MASTER;
-                break;
             case "org.apache.spark.deploy.yarn.ExecutorLauncher":
                 framework = Framework.SPARK;
+                frameworkVersion = SparkRuntime.getVersion();
                 component = Component.APP_MASTER;
                 break;
             case "org.apache.spark.executor.CoarseGrainedExecutorBackend":
@@ -76,21 +77,12 @@ public final class ContainerHeader {
                 break;
             // FLINK
             case "org.apache.flink.yarn.YarnApplicationMasterRunner":
-                framework = Framework.FLINK;
-                component = Component.APP_MASTER;
-                break;
             case "org.apache.flink.yarn.entrypoint.YarnJobClusterEntrypoint":
-                framework = Framework.FLINK;
-                component = Component.APP_MASTER;
-                break;
             case "org.apache.flink.yarn.entrypoint.YarnSessionClusterEntrypoint":
                 framework = Framework.FLINK;
                 component = Component.APP_MASTER;
                 break;
             case "org.apache.flink.yarn.YarnTaskManager":
-                framework = Framework.FLINK;
-                component = Component.TASK_MANAGER;
-                break;
             case "org.apache.flink.yarn.YarnTaskExecutorRunner":
                 framework = Framework.FLINK;
                 component = Component.TASK_MANAGER;
@@ -123,9 +115,12 @@ public final class ContainerHeader {
                 .withContainerID(containerIdString)
                 .withPid(HeaderUtils.getPid())
                 .withFramework(framework.toString())
+                .withFrameworkVersion(frameworkVersion)
                 .withComponent(component.name())
                 .withExecutorId(executorId)
                 .withMainClass(mainClass)
+                .withJavaVersion(JavaRuntime.version())
+                .withJavaFeature(JavaRuntime.feature())
                 .buildSerializedHeader();
     }
 

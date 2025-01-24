@@ -23,10 +23,24 @@ public class GarmadonFlinkReporterTest {
 
     private static final Random random = new Random();
 
-    private static final Header DUMMY_HEADER = new Header("id", "appId", "appAttemptId",
-            "appName", "user", "container", "hostname",
-            Collections.singletonList("tag"), "pid", "framework", "component",
-            "executorId", "mainClass");
+    private static final Header DUMMY_HEADER = Header.newBuilder()
+            .withId("id")
+            .withApplicationID("appId")
+            .withAttemptID("appAttemptId")
+            .withApplicationName("appName")
+            .withUser("user")
+            .withContainerID("container")
+            .withHostname("hostname")
+            .addTag("tag")
+            .withPid("pid")
+            .withFramework("framework")
+            .withFrameworkVersion("frameworkVersion")
+            .withComponent("component")
+            .withExecutorId("executorId")
+            .withMainClass("mainClass")
+            .withJavaVersion("javaVersion")
+            .withJavaFeature(8)
+            .build();
 
     private static final String HOST = "localhost";
     private static final String JOB_ID = "SomeJobId";

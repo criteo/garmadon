@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.agent.headers;
 
+import com.criteo.hadoop.garmadon.jvm.utils.JavaRuntime;
 import com.criteo.hadoop.garmadon.schema.events.Header;
 import com.criteo.hadoop.garmadon.schema.events.HeaderUtils;
 
@@ -20,6 +21,8 @@ public final class StandaloneHeader {
                 .withUser(HeaderUtils.getUser())
                 .withPid(HeaderUtils.getPid())
                 .withMainClass(HeaderUtils.getJavaMainClass())
+                .withJavaVersion(JavaRuntime.version())
+                .withJavaFeature(JavaRuntime.feature())
                 .buildSerializedHeader();
     }
 

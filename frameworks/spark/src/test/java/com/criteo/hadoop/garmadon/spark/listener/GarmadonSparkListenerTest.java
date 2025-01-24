@@ -15,10 +15,21 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class GarmadonSparkListenerTest {
-    private static final Header DUMMY_HEADER = new Header("id", "appId", "appAttemptId",
-            "appName", "user", "container", "hostname",
-            Collections.singletonList("tag"), "pid", "framework", "component",
-            "executorId", "mainClass");
+    private static final Header DUMMY_HEADER = Header.newBuilder()
+            .withId("id")
+            .withApplicationID("appId")
+            .withAttemptID("appAttemptId")
+            .withApplicationName("appName")
+            .withUser("user")
+            .withContainerID("container")
+            .withHostname("hostname")
+            .addTag("tag")
+            .withPid("pid")
+            .withFramework("framework")
+            .withComponent("component")
+            .withExecutorId("executorId")
+            .withMainClass("mainClass")
+            .build();
 
     @Test
     public void onExecutorAdded() {
