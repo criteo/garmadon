@@ -34,9 +34,12 @@ public class GarmadonFlinkReporterTest {
             .addTag("tag")
             .withPid("pid")
             .withFramework("framework")
+            .withFrameworkVersion("frameworkVersion")
             .withComponent("component")
             .withExecutorId("executorId")
             .withMainClass("mainClass")
+            .withJavaVersion("javaVersion")
+            .withJavaFeature(8)
             .build();
 
     private static final String HOST = "localhost";
@@ -128,7 +131,7 @@ public class GarmadonFlinkReporterTest {
         FlinkEventProtos.TaskManagerEvent taskManagerEvent = (FlinkEventProtos.TaskManagerEvent) capturedValues.get(0);
         assertThat(taskManagerEvent.getNetworkTotalMemorySegments() == valueNetworkTotalMemorySegments);
 
-        FlinkEventProtos.FlinkTaskEvent taskEvent = (FlinkEventProtos.FlinkTaskEvent) capturedValues.get(1);
+        FlinkEventProtos.TaskEvent taskEvent = (FlinkEventProtos.TaskEvent) capturedValues.get(1);
         assertThat(taskEvent.getNumBytesOutPerSecond() == valueNumBytesOutPerSecond);
     }
 }
