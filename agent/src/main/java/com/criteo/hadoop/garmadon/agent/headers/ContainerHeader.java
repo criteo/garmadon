@@ -63,6 +63,7 @@ public final class ContainerHeader {
             case "org.apache.spark.executor.CoarseGrainedExecutorBackend":
             case "org.apache.spark.executor.YarnCoarseGrainedExecutorBackend":
                 framework = Framework.SPARK;
+                frameworkVersion = SparkRuntime.getVersion();
                 component = Component.EXECUTOR;
                 try {
                     for (int i = 1; i < commands.length; i++) {
