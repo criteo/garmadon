@@ -1,5 +1,6 @@
 package com.criteo.hadoop.garmadon.agent.headers;
 
+import com.criteo.hadoop.garmadon.jvm.utils.FlinkRuntime;
 import com.criteo.hadoop.garmadon.jvm.utils.JavaRuntime;
 import com.criteo.hadoop.garmadon.jvm.utils.SparkRuntime;
 import com.criteo.hadoop.garmadon.schema.enums.Component;
@@ -81,11 +82,13 @@ public final class ContainerHeader {
             case "org.apache.flink.yarn.entrypoint.YarnJobClusterEntrypoint":
             case "org.apache.flink.yarn.entrypoint.YarnSessionClusterEntrypoint":
                 framework = Framework.FLINK;
+                frameworkVersion = FlinkRuntime.getVersion();
                 component = Component.APP_MASTER;
                 break;
             case "org.apache.flink.yarn.YarnTaskManager":
             case "org.apache.flink.yarn.YarnTaskExecutorRunner":
                 framework = Framework.FLINK;
+                frameworkVersion = FlinkRuntime.getVersion();
                 component = Component.TASK_MANAGER;
                 break;
             // YARN
