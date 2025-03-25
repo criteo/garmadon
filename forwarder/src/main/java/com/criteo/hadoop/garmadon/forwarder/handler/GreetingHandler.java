@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import java.net.InetSocketAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,13 @@ public class GreetingHandler extends SimpleChannelInboundHandler<ByteBuf> {
         msg.readBytes(greetings);
 
         ProtocolVersion.checkVersion(greetings);
+
+        if (ctx.channel().remoteAddress() instanceof InetSocketAddress) {
+            InetSocketAddress clientAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+            String clientHostname = clientAddress.getAddress().getHostAddress();
+            int clientPort = clientAddress.getPort();
+            LOGGER.info("Agent on {}:{} connected with protocol version {}", clientHostname, clientPort, greetings[3]);
+        }
 
         ByteBuf pGreeting = Unpooled.buffer();
         pGreeting.writeBytes(ProtocolVersion.GREETINGS);
