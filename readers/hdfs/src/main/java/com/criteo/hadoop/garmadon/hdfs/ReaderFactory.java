@@ -71,6 +71,8 @@ public class ReaderFactory {
             EventsWithHeader.SparkRddStorageStatus.class, SparkEventProtos.RDDStorageStatus.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.SPARK_EXECUTOR_STORAGE_STATUS_EVENT, "spark_executor_storage_status",
             EventsWithHeader.SparkExecutorStorageStatus.class, SparkEventProtos.ExecutorStorageStatus.newBuilder());
+        addTypeMapping(out, GarmadonSerialization.TypeMarker.SPARK_APPLICATION_STATE_EVENT, "spark_application_state",
+            EventsWithHeader.SparkApplicationStateEvent.class, SparkEventProtos.ApplicationStateEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.APPLICATION_EVENT, "application_event",
             EventsWithHeader.ApplicationEvent.class, ResourceManagerEventProtos.ApplicationEvent.newBuilder());
         addTypeMapping(out, GarmadonSerialization.TypeMarker.CONTAINER_EVENT, "container_event",

@@ -75,6 +75,12 @@ final public class EventsWithHeader {
         }
     }
 
+    public static abstract class SparkApplicationStateEvent implements Message {
+        public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
+            return descriptorForTypeWithHeader(SparkEventProtos.ApplicationStateEvent.getDescriptor());
+        }
+    }
+
     public static abstract class ApplicationEvent implements Message {
         public static Descriptors.Descriptor getDescriptor() throws Descriptors.DescriptorValidationException {
             return descriptorForTypeWithHeader(ResourceManagerEventProtos.ApplicationEvent.getDescriptor());
